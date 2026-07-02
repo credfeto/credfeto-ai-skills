@@ -17,4 +17,5 @@ This is an index of local instructions that apply to just this project.
 
 | File | Load When | Covers |
 | --- | --- | --- |
+| [changelog.instructions.md](changelog.instructions.md) | Making any change in this repository | Overrides the global AI-instruction-files skip rule — every change here requires a changelog entry |
 | [skills.instructions.md](skills.instructions.md) | Creating, updating, or removing skills in `ai/skills/` | Skill format, generation from instruction files, update/sync rules, skill registry, installer |

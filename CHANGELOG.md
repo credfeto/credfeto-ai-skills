@@ -12,11 +12,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 - git.instructions: mandatory rule requiring verbatim command output in PR/issue comments before any diagnosis when a git command fails
+- AI skills for Claude Code (pre-work-healthcheck, changelog, dotnet-coverage, dotnet-publish, git-commit, git-branch, pr-sync, github-issue) generated from the global instruction files, with an installer that installs them into ~/.claude/skills as credfeto-<skill>
+- Local instruction defining how skills are generated from instruction files and kept up to date, including a skill registry
 ### Fixed
 - on_new_pr.yml: inline composite action logic to fix local action path resolution failure under pull_request_target
 - Corrected plan-approval description: board Approved status or comment-based fallback (no board) are the explicit approval signals; orchestrator never auto-removes Blocked
 ### Changed
 - SDK - Updated DotNet SDK to 10.0.301
+- Changelog policy for this repository: every change, including AI instruction and skill changes, now requires a changelog entry
 ### Deprecated
 ### Removed
 ### Deployment Changes
