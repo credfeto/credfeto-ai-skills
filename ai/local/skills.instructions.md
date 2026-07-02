@@ -31,7 +31,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 - **When a source instruction file changes, update the affected skills in the same branch** — treat a stale skill the same as failing CI. Use the registry below to find which skills are affected.
 - **When adding or removing a skill**, update the registry below and re-run `ai/skills/install.sh` locally to verify installation.
 - When reviewing skills, diff them against their source instruction files; if a skill and its source disagree, the instruction file wins — regenerate the skill.
-- Skill changes follow the normal rules: commit on a branch (never `main`), conventional commit message, push after every commit. Skill changes do not get changelog entries (AI instruction files rule).
+- Skill changes follow the normal rules: commit on a branch (never `main`), conventional commit message, push after every commit. Skill changes **do** get changelog entries — see [changelog.instructions.md](changelog.instructions.md), which overrides the global AI-instruction-files skip rule for this repository.
 
 ## Skill Registry
 
