@@ -21,6 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - SDK - Updated DotNet SDK to 10.0.301
 - Changelog policy for this repository: every change, including AI instruction and skill changes, now requires a changelog entry
+- README rewritten to describe this repository (installable AI skills, installer, weekly reconciliation) instead of the cs-template boilerplate
 ### Deprecated
 ### Removed
 ### Deployment Changes
