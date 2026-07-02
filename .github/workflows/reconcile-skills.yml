@@ -55,8 +55,6 @@ jobs:
   reconcile:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    permissions:
-      contents: write
     steps:
       - name: "Check required secrets"
         shell: bash
