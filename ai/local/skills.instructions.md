@@ -53,3 +53,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 ```
 
 Installs (or reinstalls, replacing any previous copy) every skill into `~/.claude/skills/credfeto-<skill>`.
+
+## Automated Reconciliation
+
+The [reconcile-skills workflow](../../.github/workflows/reconcile-skills.yml) runs every Sunday and reconciles **all** skills against the current instruction files (not just recent diffs — reconciliation is idempotent and self-healing). It regenerates stale skills, creates newly qualifying ones, removes orphaned ones, updates the registry, adds changelog entries, and pushes the result directly to `main` — an owner-sanctioned exception to the never-commit-to-`main` rule, chosen for transparency. It requires the `CLAUDE_CODE_OAUTH_TOKEN` repository secret; setup steps are documented in comments at the top of the workflow file.
