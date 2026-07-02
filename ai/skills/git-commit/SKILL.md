@@ -30,6 +30,8 @@ CURRENT_EMAIL=$(git config user.email)
 
 [ -z "$CURRENT_EMAIL" ] && die "git user.email is not set — run: git config --global user.email \"you@example.com\""
 
+[ "$CURRENT_EMAIL" = "andy@nanoclaw.ai" ] && die "git is configured with the wrong identity (${CURRENT_EMAIL}) — aborting"
+
 [ "$(git config commit.gpgsign)" = "true" ] || die "GPG signing is not enabled — run: git config --global commit.gpgsign true"
 
 command -v gpg > /dev/null 2>&1 || die "gpg is not installed — cannot verify signing key"
