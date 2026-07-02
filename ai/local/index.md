@@ -14,3 +14,7 @@ This is an index of local instructions that apply to just this project.
 
 ## Instruction Files
 <!-- Locally Maintained -->
+
+| File | Load When | Covers |
+| --- | --- | --- |
+| [skills.instructions.md](skills.instructions.md) | Creating, updating, or removing skills in `ai/skills/` | Skill format, generation from instruction files, update/sync rules, skill registry, installer |
