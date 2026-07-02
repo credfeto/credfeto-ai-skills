@@ -1,0 +1,62 @@
+#!/bin/sh
+# Installs each skill in this folder into ~/.claude/skills as credfeto-<skill>
+# so Claude Code can discover them as personal skills.
+
+die() {
+    if [ -t 2 ]; then
+        printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
+    else
+        printf '\n✗ %s\n' "$*" >&2
+    fi
+    exit 1
+}
+
+success() {
+    if [ -t 1 ]; then
+        printf '\n\033[32m✓\033[0m %s\n' "$*"
+    else
+        printf '\n✓ %s\n' "$*"
+    fi
+}
+
+info() {
+    if [ -t 1 ]; then
+        printf '\n\033[32m→\033[0m %s\n' "$*"
+    else
+        printf '\n→ %s\n' "$*"
+    fi
+}
+
+SKILLS_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+[ -n "${SKILLS_SOURCE_DIR}" ] || die "could not determine the skills source directory"
+
+TARGET_ROOT="${HOME}/.claude/skills"
+
+mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+
+INSTALLED=0
+
+for skill_dir in "${SKILLS_SOURCE_DIR}"/*/; do
+    [ -d "${skill_dir}" ] || continue
+
+    skill_name=$(basename "${skill_dir}")
+
+    [ -f "${skill_dir}SKILL.md" ] || {
+        info "Skipping ${skill_name} — no SKILL.md found"
+        continue
+    }
+
+    target_dir="${TARGET_ROOT}/credfeto-${skill_name}"
+
+    info "Installing ${skill_name} as credfeto-${skill_name}..."
+
+    rm -rf "${target_dir}" || die "could not remove existing ${target_dir}"
+    mkdir -p "${target_dir}" || die "could not create ${target_dir}"
+    cp -R "${skill_dir}." "${target_dir}/" || die "could not copy ${skill_name} to ${target_dir}"
+
+    INSTALLED=$((INSTALLED + 1))
+done
+
+[ "${INSTALLED}" -gt 0 ] || die "no skills found to install in ${SKILLS_SOURCE_DIR}"
+
+success "Installed ${INSTALLED} skill(s) to ${TARGET_ROOT}"
