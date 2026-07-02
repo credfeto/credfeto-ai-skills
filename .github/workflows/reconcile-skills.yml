@@ -8,7 +8,11 @@
 # this is a sanctioned exception to the "never commit to main" rule in
 # ai/global/git.instructions.md, and CI commits are not GPG signed.
 #
-# Setup — one repository secret is required:
+# Setup — two repository secrets are required:
+#
+#   SOURCE_PUSH_TOKEN — a personal access token with contents write access
+#   to this repository, used for the checkout and the push to main (the
+#   default GITHUB_TOKEN is not used for pushing).
 #
 #   CLAUDE_CODE_OAUTH_TOKEN — a long-lived Claude Code OAuth token tied to
 #   your Claude subscription (Pro/Max). To create one:
@@ -51,35 +55,42 @@ jobs:
   reconcile:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    permissions:
-      contents: write
     steps:
       - name: "Check required secrets"
         shell: bash
         run: |
+          FAILED=false
           if [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
             echo "::error::❌ CLAUDE_CODE_OAUTH_TOKEN secret is not set — see the comments at the top of this workflow for how to create it"
+            FAILED=true
+          fi
+          if [ -z "${SOURCE_PUSH_TOKEN}" ]; then
+            echo "::error::❌ SOURCE_PUSH_TOKEN secret is not set — see the comments at the top of this workflow"
+            FAILED=true
+          fi
+          if [ "${FAILED}" = "true" ]; then
             exit 1
           fi
-          echo "✅ CLAUDE_CODE_OAUTH_TOKEN is set"
+          echo "✅ Required secrets are set"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Checkout"
         uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 1
+          token: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
-      - name: "Setup .NET"
-        uses: actions/setup-dotnet@v5.4.0
+      - name: "Install dotnet"
+        uses: ./.github/actions/dotnet-install
         with:
-          global-json-file: "src/global.json"
+          GITHUB_TOKEN: "${{secrets.GITHUB_TOKEN}}"
 
       - name: "Install changelog tool"
-        shell: bash
-        run: |
-          dotnet tool install --global Credfeto.ChangeLog.Cmd
-          echo "✅ Credfeto.ChangeLog.Cmd installed"
+        uses: ./.github/actions/dotnet-tool
+        with:
+          TOOL_NAME: "Credfeto.ChangeLog.Cmd"
 
       - name: "Install Claude Code CLI"
         shell: bash
@@ -126,26 +137,19 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      - name: "Detect changes"
-        id: detect
-        shell: bash
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "changed=true" >> "${GITHUB_OUTPUT}"
-            echo "ℹ️ Changes detected:"
-            git status --porcelain
-          else
-            echo "changed=false" >> "${GITHUB_OUTPUT}"
-            echo "✅ Skills already match the instruction files — nothing to commit"
-          fi
+      - name: "Validate changelog"
+        uses: ./.github/actions/dotnet-tool-run
+        with:
+          WORKING_DIRECTORY: "${{github.workspace}}"
+          TOOL_NAME: "changelog"
+          TOOL_ARGUMENTS: "-f CHANGELOG.md --lint"
 
-      - name: "Commit and push to main"
-        if: steps.detect.outputs.changed == 'true'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "chore: weekly skill reconciliation against instruction files" -m "Automated by the reconcile-skills workflow."
-          git push origin main
-          echo "✅ Pushed skill reconciliation to main"
+      - name: "Commit changes"
+        uses: stefanzweifel/git-auto-commit-action@v7.2.0
+        with:
+          commit_message: "chore: weekly skill reconciliation against instruction files"
+          file_pattern: "ai CHANGELOG.md"
+          commit_user_name: "skills-reconciler[bot]"
+          commit_user_email: "credfeto@users.noreply.github.com"
+          commit_author: "skills-reconciler[bot] <credfeto@users.noreply.github.com>"
+          skip_dirty_check: false
