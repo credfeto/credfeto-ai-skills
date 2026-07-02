@@ -14,7 +14,6 @@ This is an index of local instructions that apply to just this project.
 
 ## Instruction Files
 <!-- Locally Maintained -->
-
 | File | Load When | Covers |
 | --- | --- | --- |
 | [changelog.instructions.md](changelog.instructions.md) | Making any change in this repository | Overrides the global AI-instruction-files skip rule — every change here requires a changelog entry |
