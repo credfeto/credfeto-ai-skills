@@ -11,7 +11,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- New AI skills generated from previously uncaptured instruction content: secure-coding, error-handling, structured-logging, api-http-tests, gitignore-management, dependency-selection — registered in the skill registry
 ### Fixed
+- dotnet-owned-packages skill: corrected GitHub repository URLs for Credfeto.Changelog.Cmd and FunFair.Test.* (had drifted from the source registry), and added the missing FunFair.CodeAnalysis and FunFair.Test.Infrastructure entries
 ### Changed
 ### Deprecated
 ### Removed

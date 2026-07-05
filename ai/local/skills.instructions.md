@@ -55,6 +55,12 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [performance-benchmarking](../skills/performance-benchmarking/SKILL.md) | `credfeto-performance-benchmarking` | `performance.instructions.md` |
 | [readme-documentation](../skills/readme-documentation/SKILL.md) | `credfeto-readme-documentation` | `documentation.instructions.md` |
 | [deprecation-handling](../skills/deprecation-handling/SKILL.md) | `credfeto-deprecation-handling` | `code-quality.instructions.md` |
+| [secure-coding](../skills/secure-coding/SKILL.md) | `credfeto-secure-coding` | `security.instructions.md` |
+| [error-handling](../skills/error-handling/SKILL.md) | `credfeto-error-handling` | `error-handling.instructions.md` |
+| [structured-logging](../skills/structured-logging/SKILL.md) | `credfeto-structured-logging` | `logging.instructions.md` |
+| [api-http-tests](../skills/api-http-tests/SKILL.md) | `credfeto-api-http-tests` | `api.instructions.md` |
+| [gitignore-management](../skills/gitignore-management/SKILL.md) | `credfeto-gitignore-management` | `gitignore.instructions.md` |
+| [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git.instructions.md` |
 
 ## Installation
 
