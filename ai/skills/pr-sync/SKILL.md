@@ -56,6 +56,10 @@ Before starting any work in a repository:
 4. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over — leave the PR as-is.
 5. Do **not** create a new branch or PR for the same issue — that would be duplicate work.
 
+**Checking for existing work before branching (MANDATORY):**
+
+- Check branch names in all open PRs, not just PR authors. If any open PR's `headRefName` contains the issue number, that is your work from a prior session — resume it instead of creating a new branch.
+
 When you find a duplicate pair (a bot-created PR and one you authored yourself, for the same issue or branch):
 
 - Keep whichever has the more complete body and later review activity.

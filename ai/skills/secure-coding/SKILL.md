@@ -28,4 +28,3 @@ description: Handle secrets, validate untrusted input, sanitise output, model th
 ## Dependency Vulnerability Scanning
 
 - Scan dependencies for known vulnerabilities in CI; assess and resolve promptly.
-- Use only secure package versions. When a merge or rebase produces conflicting versions of the same package, take the latest candidate that is not affected by a known advisory over one that is, even if newer.

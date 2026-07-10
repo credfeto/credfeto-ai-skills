@@ -9,5 +9,3 @@ Every API endpoint (exposed or consumed) must have a corresponding `.http` test 
 
 - `<service>.http` for services you expose.
 - `<api>.http` for APIs you consume.
-
-Keep the `.http` file up to date whenever the endpoint's request shape, route, or response changes.

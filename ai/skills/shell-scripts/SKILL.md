@@ -7,7 +7,7 @@ description: Write standalone shell scripts that pass shellcheck/checkbashisms, 
 
 ## Shebang
 
-- Prefer `#!/bin/sh`; only use `#!/bin/bash` if bash-specific functionality is genuinely required (e.g. arrays, `local`).
+- Prefer `#!/bin/sh`; only use `#!/bin/bash` if bash-specific functionality is genuinely required.
 - All `#!/bin/sh` scripts must pass `shellcheck` and `checkbashisms` before committing.
 
 ## Output Helpers (MANDATORY)

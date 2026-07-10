@@ -5,7 +5,7 @@ description: Manage firewalld rules safely using standard shell helpers for IPv4
 
 # Firewall Rule Management (`firewall-cmd`)
 
-Use the standard helpers below for all firewall rule management — never call `firewall-cmd` ad hoc. These helpers use bash arrays, so scripts that define them need `#!/bin/bash`, not `#!/bin/sh`.
+Use the standard helpers below for all firewall rule management — never call `firewall-cmd` ad hoc.
 
 ## Rules
 

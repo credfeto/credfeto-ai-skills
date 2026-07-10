@@ -23,15 +23,23 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## 3. Pre-Commit Baseline Check (MANDATORY)
 
-Run the pre-commit hooks against all tracked files to verify the repo is clean:
+If you are resuming an existing work branch (rather than branching fresh from an up-to-date `main`), bring it up to date **before** running the baseline hook below, as three distinct, ordered steps:
+
+1. **Fetch**: `git -C <repodir> fetch origin main` — always fetch first, regardless of whether a rebase turns out to be needed.
+2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main` — a non-zero count means `origin/main` has advanced and a rebase is needed.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, resolving any conflicting version bumps by taking the latest candidate version (unless it carries a known security advisory that an older candidate doesn't). Run the build and tests once the rebase completes.
+
+A branch just created fresh from an up-to-date `main` doesn't need this — it starts current by construction.
+
+Then, resolve `<hooks-path>` (see "Never block by deduction" below) and run the hook against every tracked file to verify the repo is clean:
 
 ```bash
-pre-commit run --all-files
+<hooks-path>/pre-commit --all-files
 ```
 
-1. If hooks **auto-fix** files (e.g. trailing whitespace, end-of-file): commit those fixes separately before starting the original work.
-2. If hooks **fail** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
-3. If hooks **still fail** after all fixing attempts:
+1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** — a clean base-point, kept separate from the branch/issue for the requested work — and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
+2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
+3. If the check **still fails** after all fixing attempts:
    - For an issue: comment on the issue, label it `Blocked`, and do not start work.
    - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
@@ -43,9 +51,14 @@ If the repository has no `.pre-commit-config.yaml`, this step does not apply.
 
 Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
 
-1. Stage your changes.
-2. Run the pre-commit hook directly: `<hooks-path>/pre-commit` (find the path with `git config --global core.hooksPath`).
-3. Only block if the hook **actually fails** with a real error.
+1. Find the installed hooks path by checking `core.hooksPath` at each git config scope in order — the **first** scope where it is set is treated as sufficient; do not check the remaining scopes:
+   1. `git config --system --get core.hooksPath`
+   2. `git config --global --get core.hooksPath`
+   3. `git config --local --get core.hooksPath` (run inside the repo)
+   If none of the three scopes returns a value, the hook is **not installed**.
+2. Stage your changes.
+3. Run the pre-commit hook directly: `<hooks-path>/pre-commit`, using the path found in step 1.
+4. Only block if the hook **actually fails** with a real error.
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient — the tool may be installed in a location not visible to `command -v` in the current shell context.
 

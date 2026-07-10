@@ -76,7 +76,19 @@ Registering mocked `IOptions<T>`:
 
 ### FunFair.Test.Infrastructure
 
-Add `FunFair.Test.Infrastructure` as a package reference when tests need HTTP mocking beyond what `FunFair.Test.Common` provides. It supplies `HttpClientFactoryExtensions.MockCreateClientWithResponse` (in `FunFair.Test.Infrastructure.Extensions`) to set up a named `IHttpClientFactory` substitute with a fixed response — do NOT hand-write `GetSubstitute<IHttpClientFactory>()` + `.Returns()` for simple cases:
+`FunFair.Test.Infrastructure` is already a transitive dependency of `FunFair.Test.Common` — no explicit `<PackageReference>` is needed.
+
+**`MockBase<T>`** (`FunFair.Test.Infrastructure.Mocks`): as of `FunFair.Test.Common` 6.3.1.2342, `MockBase<T>` moved from `FunFair.Test.Common.Mocks` to `FunFair.Test.Infrastructure.Mocks`. When upgrading to 6.3.1.2342 or later, update the `using` directive in any file that references `MockBase<T>`:
+
+```csharp
+// BEFORE (FunFair.Test.Common < 6.3.1.2342)
+using FunFair.Test.Common.Mocks;
+
+// AFTER (FunFair.Test.Common >= 6.3.1.2342)
+using FunFair.Test.Infrastructure.Mocks;
+```
+
+**`HttpClientFactoryExtensions`** (`FunFair.Test.Infrastructure.Extensions`): use `MockCreateClientWithResponse` to set up a named `IHttpClientFactory` substitute with a fixed response — do NOT hand-write `GetSubstitute<IHttpClientFactory>()` + `.Returns()` for simple cases:
 
 ```csharp
 IHttpClientFactory factory = GetSubstitute<IHttpClientFactory>();
@@ -127,3 +139,13 @@ Production code must use `System.TimeProvider` (.NET 8+) for all time abstractio
 ## Mock Setup Helpers
 
 When a mock setup expression (NSubstitute, Moq, or equivalent) is used in more than one test, extract it into a dedicated `private static` method named `Mock<InterfaceName><MethodName>` — for example, `MockBranchClassificationIsPullRequest`. The helper accepts the mock instance and any variable arguments, and returns the configured mock (or `void` if chaining is not needed). Do not inline the same setup expression across multiple tests.
+
+## Parameterised Tests
+
+Prefer parameterised tests over duplicated test methods — each behavioural variant is a data point, not a separate method. Use xUnit `[Theory]`/`[InlineData]`.
+
+## Test Quality
+
+- Tests must meet the same code quality standards as production code.
+- Test behaviour, not implementation — refactoring production code must not unnecessarily break tests.
+- Use constants, builders, or factory helpers rather than hardcoded values likely to change.

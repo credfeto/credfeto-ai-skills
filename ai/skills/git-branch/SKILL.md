@@ -40,10 +40,15 @@ Check for existing work:
 - Subsequent pushes on a tracked branch can use `git -C <repodir> push`.
 - Never push without `-u` on the first push — without it the branch has no upstream and later `git push`/`git pull` commands will fail.
 
-## Rebasing
+## Rebasing (Pre-Work Baseline Check)
 
-- Whenever rebasing from main, take the current branch's changes, but merge the changes in from main into the current fileset.
-- After the rebase completes, run the build and tests before pushing.
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date as three distinct, ordered steps:
+
+1. **Fetch**: `git -C <repodir> fetch origin main` — always fetch first, regardless of whether a rebase turns out to be needed.
+2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main` — a non-zero count means `origin/main` has advanced and a rebase is needed.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. Run the build and tests once the rebase completes.
+
+A branch just created fresh from an up-to-date `main` doesn't need this — it starts current by construction.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 
