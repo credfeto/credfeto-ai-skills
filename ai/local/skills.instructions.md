@@ -44,9 +44,9 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [dotnet-test-patterns](../skills/dotnet-test-patterns/SKILL.md) | `credfeto-dotnet-test-patterns` | `dotnet.instructions.md`, `dotnet.examples.md`, `code-quality.instructions.md` |
 | [dotnet-owned-packages](../skills/dotnet-owned-packages/SKILL.md) | `credfeto-dotnet-owned-packages` | `dotnet-owned-packages.instructions.md` |
 | [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md` |
-| [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `task-workflow.instructions.md` |
-| [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md` |
-| [github-issue](../skills/github-issue/SKILL.md) | `credfeto-github-issue` | `git.instructions.md`, `task-workflow.instructions.md`, `github-cli.instructions.md` |
+| [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
+| [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
+| [github-issue](../skills/github-issue/SKILL.md) | `credfeto-github-issue` | `git.instructions.md`, `task-workflow.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
 | [github-workflows](../skills/github-workflows/SKILL.md) | `credfeto-github-workflows` | `github-workflows.instructions.md`, `github-workflows.examples.md` |
 | [shell-scripts](../skills/shell-scripts/SKILL.md) | `credfeto-shell-scripts` | `shell-scripts.instructions.md`, `shell-scripts.examples.md` |
 | [firewall-rules](../skills/firewall-rules/SKILL.md) | `credfeto-firewall-rules` | `shell.firewall.instructions.md`, `shell.firewall.examples.md` |

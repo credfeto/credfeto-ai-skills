@@ -45,8 +45,6 @@ Then, resolve `<hooks-path>` (see "Never block by deduction" below) and run the 
 
 This ensures CI results are unambiguous — pre-existing failures are resolved before any new changes are introduced.
 
-If the repository has no `.pre-commit-config.yaml`, this step does not apply.
-
 ### Never block by deduction
 
 Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:

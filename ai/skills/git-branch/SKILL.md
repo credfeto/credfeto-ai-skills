@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-branch
-description: Create, name, and maintain git branches — branching rules, Conventional Commits-style branch naming, rebasing against main, and resolving version conflicts in dependency manifests during merges/rebases. Use when starting new work, creating a branch, rebasing, or resolving merge conflicts.
+description: Create, name, and maintain git branches — branching rules, Conventional Commits-style branch naming, rebasing against main, resuming interrupted work, and resolving version conflicts in dependency manifests during merges/rebases. Use when starting new work, creating a branch, resuming work on an existing branch, rebasing, or resolving merge conflicts.
 ---
 
 # Git Branching Workflow
@@ -33,6 +33,13 @@ Check for existing work:
 
 1. Run `gh pr list --state open --repo <owner/repo> --json number,title,author,headRefName,url`.
 2. If any open PR's `headRefName` contains the issue number, that is prior work — resume it instead of creating a new branch.
+
+## Resuming Interrupted Work
+
+When resuming work after an interruption:
+
+- Check the status of existing branches for the task; skip any that are already merged.
+- For an unmerged branch, decide whether to continue on it or delete it and recreate — do not resume it blindly without checking its state first.
 
 ## Pushing Branches
 
@@ -67,6 +74,10 @@ Rules:
 3. Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
 4. Lock files (`package-lock.json` and similar): do not hand-merge — resolve the manifest first, then regenerate the lock file with the package manager.
 5. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work — do not downgrade to avoid the fix.
+
+## CHANGELOG Conflicts
+
+When a merge or rebase produces a conflict in `CHANGELOG.md`, keep the entries from both sides — do not drop either side's changes.
 
 ## Command Failure Reporting
 

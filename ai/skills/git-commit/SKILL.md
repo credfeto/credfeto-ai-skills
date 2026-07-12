@@ -60,4 +60,4 @@ If hooks or formatters modify files **not in your intended change set**:
 If the remote reports vulnerabilities:
 
 - Check for open Dependabot PRs covering them (`gh pr list --label dependencies`).
-- If none exist, for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
+- If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.

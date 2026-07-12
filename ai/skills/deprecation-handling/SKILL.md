@@ -1,11 +1,11 @@
 ---
 name: credfeto-deprecation-handling
-description: Triage deprecation warnings seen in test or build output — fix ones caused by your change immediately, track pre-existing ones with a GitHub issue. Use whenever a deprecation warning (framework, runtime, or dependency) appears while running tests or building.
+description: Triage deprecation warnings seen in test output — fix ones caused by your change immediately, track pre-existing ones with a GitHub issue. Use whenever a deprecation warning (framework or runtime warning about a deprecated API) appears while running tests.
 ---
 
 # Deprecation Warning Triage
 
-When a deprecation warning appears in test or build output (framework or runtime warnings about deprecated APIs), do not suppress or ignore it — triage it using the rules below.
+When a deprecation warning appears in test output (framework or runtime warnings about deprecated APIs), do not suppress or ignore it — triage it using the rules below.
 
 ## 1. Warning Is New — Caused By Your Change
 

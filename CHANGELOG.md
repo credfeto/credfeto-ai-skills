@@ -23,8 +23,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - pr-sync skill: added the missing mandatory rule to check branch names in all open PRs for the issue number before creating a new branch
 - performance-benchmarking skill: added the missing FUNFAIR_TEST_BENCHMARK_BUILD_TIMEOUT_SECONDS environment variable guidance and the zero-or-explicit-byte-threshold qualifier for allocation assertions
 - firewall-rules and shell-scripts skills: removed a shebang-requirement sentence and a parenthetical example not present in shell.firewall.instructions.md or shell-scripts.instructions.md
+- pre-work-healthcheck skill: removed the unsourced claim that the pre-commit baseline check is skippable when .pre-commit-config.yaml is absent, which could wrongly let an agent skip a mandatory check
+- dotnet-test-patterns skill: added the missing ValueTask-preference and CancellationToken-propagation rules from dotnet.instructions.md so test helpers and mocks follow the same async conventions as production code
+- git-commit skill: restored the missing step to visit the repo's Dependabot page when handling vulnerability warnings, matching git.instructions.md
+- git-branch skill: added the missing resuming-interrupted-work branch-decision procedure from task-workflow.instructions.md and the CHANGELOG-conflict-resolution rule from agent-roles.instructions.md's Rebase Agent role
+- pr-sync skill: added the mandatory --repo/--head flags for gh pr create under GH_HOST proxy routing, and the Comment Replies, CI Checks, and Blocked Label procedures from agent-roles.instructions.md so every PR-interacting agent run follows them
+- github-issue skill: added the missing Blocked Label procedure, the ad-hoc issue-from-comment creation rule, the priority-based issue-selection preference, the Dependency Security Issues label definitions, and the mandatory Implementation Plan comment template — all present in task-workflow.instructions.md, git.instructions.md, and agent-roles.instructions.md but missing from the skill
+- performance-benchmarking skill: added the mandatory rule against running *.Benchmark.Tests projects manually via dotnet test or dotnet run, from dotnet.instructions.md
+- deprecation-handling skill: narrowed its trigger and scope to test output only, matching code-quality.instructions.md's Deprecation Warnings During Tests rule, which does not cover build-time warnings
 ### Changed
 - Skill registry: corrected source instruction file attributions for git-commit, pr-sync, github-issue, npm-packages, and performance-benchmarking to list every instruction file each skill actually draws content from, and added the new docker skill entry
+- Skill registry: added agent-roles.instructions.md as a source instruction file for the git-branch, pr-sync, and github-issue skills, reflecting the Blocked Label, comment-reply, CI-check, and rebase-conflict procedures now drawn from it
 ### Deprecated
 ### Removed
 ### Deployment Changes

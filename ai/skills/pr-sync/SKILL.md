@@ -1,6 +1,6 @@
 ---
 name: credfeto-pr-sync
-description: Keep pull request titles, bodies, and labels in sync with their linked issues, and manage PR lifecycle including bot-created PR ownership and draft state. Use on every agent run that interacts with a PR, when creating or updating a PR, or when checking for existing PRs before starting work.
+description: Keep pull request titles, bodies, and labels in sync with their linked issues, and manage PR lifecycle including bot-created PR ownership and draft state. Use on every agent run that interacts with a PR, when creating or updating a PR, when checking for existing PRs before starting work, when replying to PR comments, when checking CI status on a PR, or when blocking a PR pending human input.
 ---
 
 # Pull Request Sync and Lifecycle
@@ -36,6 +36,32 @@ On every agent run, for every PR being interacted with:
 
 - Always use `--add-label` when adding labels — **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels.
 - Never remove labels from issues or PRs.
+
+## Comment Replies (MANDATORY)
+
+Reply to every PR comment that prompted an action. Check both comment surfaces before concluding there is nothing to reply to: top-level PR comments and review summaries (`gh pr view <n> --repo <owner/repo> --json comments,reviews`) **and** inline/diff-level review comments (`gh api repos/<owner>/<repo>/pulls/<n>/comments`) — a review can carry an empty top-level body with the actual feedback only in an inline comment.
+
+- Code change made: reply with `Fixed in <commit-sha> — <one sentence describing what changed and why>`.
+- Question answered inline (no code change): reply with the full answer.
+- No reply means no acknowledgement — always close the loop.
+
+## CI Checks (MANDATORY)
+
+When working on a PR, check CI state once: `gh pr checks <number> --repo <owner/repo>`. Then act immediately — do not loop, sleep, or use `--watch`:
+
+- All required checks passed → proceed with the next step.
+- Any check pending or in_progress → stop silently — do not post a status comment. CI checks are bound by GitHub's own timeouts and will eventually pass, fail, or time out without intervention.
+- Any check failed → investigate, fix, push, post a status comment, and stop. Do not wait for the new run to complete.
+- CI consistently failing and cannot be fixed → mark the PR blocked: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`.
+
+## Blocked Label (MANDATORY)
+
+When asking a question in a PR comment and waiting for an answer before continuing:
+
+1. Add the `Blocked` label to the PR immediately after posting the question: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`.
+2. Do not continue working on the PR until the label is removed.
+3. Use only the `Blocked` label for this purpose — never a substitute such as `do not merge` or `needs review`.
+4. Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself — quoting the live instruction — before resuming work and before asking for `Blocked` to be removed.
 
 ## PR Lifecycle
 
@@ -81,6 +107,18 @@ COMMENT
 ## GitHub CLI Proxy Behaviour
 
 When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a proxy:
+
+- **`gh pr create`:** always pass both `--repo <owner>/<repo>` and `--head <owner>:<branch>`. Without `--repo`, `gh` performs a client-side check that a git remote URL's hostname matches `GH_HOST` — since remotes use `github.com` but `GH_HOST` is the proxy host, no remote matches and `gh` refuses before any API request reaches the proxy. Without `--head`, `gh` may try to detect the branch from git remotes, leading to a blank head ref at the proxy's GraphQL layer.
+
+  ```bash
+  gh pr create \
+    --repo <owner>/<repo> \
+    --head <owner>:<branch-name> \
+    --base main \
+    --draft \
+    --title "..." \
+    --body "..."
+  ```
 
 - If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message.
 - Commit and push operations are always rejected by the proxy — use the `git` CLI directly for all commit and push operations.

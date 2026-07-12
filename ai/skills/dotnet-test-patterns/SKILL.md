@@ -32,6 +32,14 @@ All test projects must:
 - Import the latest release of `FunFair.Test.Source.Generator`.
 - Include `<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />`.
 
+## Asynchronous Code and Cancellation
+
+- Prefer `ValueTask`/`ValueTask<T>` over `Task`/`Task<T>` for test helper and mock methods — avoids heap allocations on synchronous-completion paths. Only use `Task`/`Task<T>` where `ValueTask` is unsupported or the method always completes asynchronously.
+- All async methods, including test helpers, must accept and pass down a `CancellationToken`.
+- Never create a new `CancellationToken` when one has been provided, unless combining with a timeout via `CancellationTokenSource.CreateLinkedTokenSource`.
+- Prefer overloads that accept a `CancellationToken`.
+- Do not pass `CancellationToken.None` without an explicit documented reason.
+
 ## NSubstitute and FunFair.Test.Common Patterns
 
 | Instead of | Use |
