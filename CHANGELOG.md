@@ -34,6 +34,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Skill registry: corrected source instruction file attributions for git-commit, pr-sync, github-issue, npm-packages, and performance-benchmarking to list every instruction file each skill actually draws content from, and added the new docker skill entry
 - Skill registry: added agent-roles.instructions.md as a source instruction file for the git-branch, pr-sync, and github-issue skills, reflecting the Blocked Label, comment-reply, CI-check, and rebase-conflict procedures now drawn from it
+- SDK - Updated DotNet SDK to 10.0.302
 ### Deprecated
 ### Removed
 ### Deployment Changes
