@@ -5,21 +5,21 @@ description: Add or remove CHANGELOG.md entries using the dotnet changelog tool 
 
 # Changelog Management
 
-Manage `CHANGELOG.md` entries using `Credfeto.Changelog.Cmd` — **never edit `CHANGELOG.md` manually**.
+Manage `CHANGELOG.md` entries using `Credfeto.Changelog.Cmd`; **never edit `CHANGELOG.md` manually**.
 
-`Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it. Always invoke it as `dotnet changelog` — never search for the binary or call it directly from `~/.dotnet/tools`.
+`Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it. Always invoke it as `dotnet changelog`; never search for the binary or call it directly from `~/.dotnet/tools`.
 
 ## When to Skip
 
 Do **not** add an entry if:
 
-- The repository name contains `-template` (e.g. `credfeto/cs-template`) — kept blank for template consumers.
+- The repository name contains `-template` (e.g. `credfeto/cs-template`), kept blank for template consumers.
 - The change is documentation-only with no effect on production code.
 - The change is to AI instruction files.
 
 ## Entry Content
 
-Entries must describe **what changed and why it matters** — not how it was implemented.
+Entries must describe **what changed and why it matters**, not how it was implemented.
 
 ## Commands
 

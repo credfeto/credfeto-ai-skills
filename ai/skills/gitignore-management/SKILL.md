@@ -1,6 +1,6 @@
 ---
 name: credfeto-gitignore-management
-description: Maintain .gitignore files correctly — never commit IDE-specific files, treat the root .gitignore as owned by credfeto/cs-template, and add repo-specific entries at the right directory level. Use whenever creating or modifying any .gitignore file.
+description: Maintain .gitignore files correctly: never commit IDE-specific files, treat the root .gitignore as owned by credfeto/cs-template, and add repo-specific entries at the right directory level. Use whenever creating or modifying any .gitignore file.
 ---
 
 # .gitignore Management
@@ -9,9 +9,9 @@ description: Maintain .gitignore files correctly — never commit IDE-specific f
 
 Never commit IDE-specific files or folders, including:
 
-- `.idea/` — JetBrains IDEs
-- `.vscode/` — Visual Studio Code
-- `.vs/` — Visual Studio
+- `.idea/`: JetBrains IDEs
+- `.vscode/`: Visual Studio Code
+- `.vs/`: Visual Studio
 
 These belong in the root `.gitignore`.
 

@@ -9,7 +9,7 @@ Run these checks **before starting any work** on an issue or PR. Do not write co
 
 ## 1. Language/Runtime Prerequisites (MANDATORY)
 
-Verify all required languages and runtimes for the repository are installed. If any are missing, **stop** — do not scaffold code or make partial changes; ask the user to install them first.
+Verify all required languages and runtimes for the repository are installed. If any are missing, **stop**: do not scaffold code or make partial changes; ask the user to install them first.
 
 If a required CLI tool is not found, **stop immediately and ask the user to install it**. Never:
 
@@ -25,11 +25,18 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 If you are resuming an existing work branch (rather than branching fresh from an up-to-date `main`), bring it up to date **before** running the baseline hook below, as three distinct, ordered steps:
 
-1. **Fetch**: `git -C <repodir> fetch origin main` — always fetch first, regardless of whether a rebase turns out to be needed.
-2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main` — a non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, resolving any conflicting version bumps by taking the latest candidate version (unless it carries a known security advisory that an older candidate doesn't). Run the build and tests once the rebase completes.
+1. **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
+2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now. Resolve any conflicting version bumps (package, action, or runtime versions) one entry at a time, never by taking a whole file wholesale from one side, using these rules in order:
+   1. Take the **latest** of the candidate versions.
+   2. **Stable-over-pre-release exception**: if one candidate is a stable (release) version and the other is a pre-release (alpha/beta/rc/preview/dev build, etc.), take the stable candidate even if the pre-release has a nominally higher version number. Only take a pre-release if every candidate is a pre-release, in which case take the latest of them.
+   3. **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
 
-A branch just created fresh from an up-to-date `main` doesn't need this — it starts current by construction.
+   These three rules are a deterministic algorithm: for every conflicting entry there is exactly one correct resolution. Apply it and continue; do not stop the rebase to ask for confirmation on a conflict this algorithm resolves unambiguously. Only stop and ask when a conflict genuinely falls outside it, for example the same package bumped to two unrelated versions with no clear "latest" (divergent major versions), or a security trade-off with no candidate that is both latest and unaffected.
+
+   Run the build and tests once the rebase completes.
+
+A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
 Then, resolve `<hooks-path>` (see "Never block by deduction" below) and run the hook against every tracked file to verify the repo is clean:
 
@@ -37,19 +44,19 @@ Then, resolve `<hooks-path>` (see "Never block by deduction" below) and run the 
 <hooks-path>/pre-commit --all-files
 ```
 
-1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** — a clean base-point, kept separate from the branch/issue for the requested work — and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
+1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue**, a clean base-point kept separate from the branch/issue for the requested work, and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
 2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
 3. If the check **still fails** after all fixing attempts:
    - For an issue: comment on the issue, label it `Blocked`, and do not start work.
    - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
-This ensures CI results are unambiguous — pre-existing failures are resolved before any new changes are introduced.
+This ensures CI results are unambiguous; pre-existing failures are resolved before any new changes are introduced.
 
 ### Never block by deduction
 
 Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
 
-1. Find the installed hooks path by checking `core.hooksPath` at each git config scope in order — the **first** scope where it is set is treated as sufficient; do not check the remaining scopes:
+1. Find the installed hooks path by checking `core.hooksPath` at each git config scope in order: the **first** scope where it is set is treated as sufficient; do not check the remaining scopes:
    1. `git config --system --get core.hooksPath`
    2. `git config --global --get core.hooksPath`
    3. `git config --local --get core.hooksPath` (run inside the repo)
@@ -58,7 +65,7 @@ Never block work based on inspecting config files and deducing that a tool might
 3. Run the pre-commit hook directly: `<hooks-path>/pre-commit`, using the path found in step 1.
 4. Only block if the hook **actually fails** with a real error.
 
-Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient — the tool may be installed in a location not visible to `command -v` in the current shell context.
+Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
 ## 4. .NET Repository Health Check (MANDATORY when a `.csproj`, `.sln`, or `.slnx` file is present)
 
@@ -70,8 +77,8 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
    - Commit the fixes with a conventional commit message and push.
    - Only proceed with the original work once buildcheck passes cleanly.
 4. If buildcheck still fails after all fixing attempts:
-   - For an issue: add a comment and label it `Blocked` — do not start work.
-   - For a PR: comment on the PR and label it `Blocked` — do not continue work.
+   - For an issue: add a comment and label it `Blocked`; do not start work.
+   - For a PR: comment on the PR and label it `Blocked`; do not continue work.
 
 Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet buildcheck`). Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/<toolname>`.
 
@@ -79,6 +86,6 @@ Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet buildcheck`). N
 
 Before branching:
 
-1. Run `gh pr list --state open --repo <owner/repo> --json number,title,author,headRefName,url` — no `--author @me` filter.
-2. If any open PR's `headRefName` contains the issue number, that is prior work — resume it instead of creating a new branch.
-3. For PRs authored by `app/github-actions` where all commits are yours, take ownership rather than duplicating work.
+1. Run `gh pr list --state open --repo <owner/repo> --json number,title,author,headRefName,url`, no `--author @me` filter.
+2. If any open PR's `headRefName` contains the issue number, that is prior work; resume it instead of creating a new branch.
+3. For any PR authored by `app/github-actions` (github is configured to auto-create PRs from pushed branches; these appear bot-authored but the commits are yours), verify the commit authors before taking ownership: `gh pr view <n> --repo <owner/repo> --json commits --jq '.commits[].authors[].login'`. If **all commits** are from your account, take ownership rather than duplicating work: update the title/body to match the proper format, add yourself as assignee, and treat it as your active PR. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is.

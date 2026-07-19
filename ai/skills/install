@@ -42,7 +42,7 @@ for skill_dir in "${SKILLS_SOURCE_DIR}"/*/; do
     skill_name=$(basename "${skill_dir}")
 
     [ -f "${skill_dir}SKILL.md" ] || {
-        info "Skipping ${skill_name} — no SKILL.md found"
+        info "Skipping ${skill_name}: no SKILL.md found"
         continue
     }
 

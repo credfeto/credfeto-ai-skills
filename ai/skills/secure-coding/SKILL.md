@@ -8,13 +8,13 @@ description: Handle secrets, validate untrusted input, sanitise output, model th
 ## Secrets and Credentials (MANDATORY)
 
 - Never commit secrets, credentials, API keys, tokens, or passwords.
-- If a secret is accidentally committed, treat it as compromised immediately — rotate it and purge it from history.
+- If a secret is accidentally committed, treat it as compromised immediately: rotate it and purge it from history.
 - Use environment variables, secrets managers, or platform vaults for all runtime secrets.
 
 ## Input Validation
 
 - Validate all external input (user input, API requests, file contents, env vars, message queues) at the entry boundary before use.
-- Reject input that does not conform to the expected shape, type, range, or format — never silently fix or guess malformed input.
+- Reject input that does not conform to the expected shape, type, range, or format; never silently fix or guess malformed input.
 
 ## Output Sanitisation
 

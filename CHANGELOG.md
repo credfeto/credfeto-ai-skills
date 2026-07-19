@@ -11,8 +11,22 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- New git-rebase skill (credfeto-git-rebase) covering when to rebase and the full version-conflict-resolution algorithm, extracted from git-rebasing.instructions.md, which no existing skill fully credited despite being duplicated and drifting independently across four other skills
+- New docker-rootless-podman-systemd skill (credfeto-docker-rootless-podman-systemd) covering configuring and debugging rootless Podman run by an unprivileged system-level systemd service with no login session, extracted from docker-rootless-podman-systemd.instructions.md, which no existing skill covered
 ### Fixed
+- All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
+- pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
+- dotnet-coverage skill: corrected the infrastructure-dependent-success-path coverage rule to prefer mocking the success path first and escalate via a GitHub issue only when genuinely unreachable and uncovered by integration tests, matching code-quality.instructions.md
+- docker skill: updated the base-image version-pinning rule to prefer digest pinning when the repo's Dependabot docker ecosystem is configured, falling back to tag pinning otherwise, matching docker.instructions.md
+- git-commit skill: added the missing Never Truncate Test/Commit Commands rule and the Template Rule Escalation procedure from task-workflow.instructions.md and git.examples.md
+- git-branch skill: added the missing stable-over-pre-release version-conflict exception, the no-confirmation-needed escalation boundary, and the Rebase Agent force-push and escalation rules from git-rebasing.instructions.md and agent-roles.instructions.md
+- github-issue skill: restored the Implementation Plan comment template to the exact format required by agent-roles.instructions.md, and added the missing issue-tracking cadence, Comment Replies, and Prompt Traceability rules
+- github-workflows skill: rewrote the Version Pinning section to reflect the current SHA-preferred, tag-fallback policy conditioned on the repo's Dependabot github-actions ecosystem, and added the matching SHA-vs-tag update distinction
+- npm-packages skill: added the missing new-package human-approval gate and the version-conflict stable-over-pre-release exception and no-confirmation-needed escalation boundary
+- dependency-selection skill: added the missing Third-Party Packages Require Human Approval section in full, plus the version-conflict stable-over-pre-release exception and no-confirmation-needed escalation boundary
+- Skill installer script: removed an em dash from a log message to comply with language.instructions.md's punctuation rule
 ### Changed
+- Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 ### Deprecated
 ### Removed
 ### Deployment Changes

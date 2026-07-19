@@ -12,9 +12,9 @@ When working on a .NET project that produces a publishable executable (`OutputTy
 Add `<PublishTrimmed>true</PublishTrimmed>` to the project file and verify the project builds without trim warnings or errors.
 
 - Fix all `IL2xxx` trim-analysis warnings before committing.
-- Replace reflection-based patterns with source-generated equivalents — for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
+- Replace reflection-based patterns with source-generated equivalents: for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
 - Apply `[DynamicallyAccessedMembers]` only where reflection is genuinely unavoidable and cannot be replaced with a source generator.
-- Do not suppress trim warnings — treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
+- Do not suppress trim warnings; treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
 
 ## 2. Enable AOT Only After Trimming Is Clean
 
@@ -23,7 +23,7 @@ Once `<PublishTrimmed>true</PublishTrimmed>` builds without warnings, replace it
 - Fix all `IL3xxx` AOT-compatibility warnings.
 - Remove any runtime code generation: `Emit`, `DynamicMethod`, `Expression.Compile`, `CSharpCodeProvider`, etc.
 - Verify that every third-party package used by the executable has AOT-compatible code paths. Check for `IsAotCompatible=true` in the package metadata or a corresponding `[RequiresUnreferencedCode]` annotation indicating the incompatibility.
-- Do not suppress AOT warnings — treat them as blocking.
+- Do not suppress AOT warnings; treat them as blocking.
 
 ## 3. If Blocked by an Incompatible Third-Party Dependency
 

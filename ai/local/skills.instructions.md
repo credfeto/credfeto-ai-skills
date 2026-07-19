@@ -37,23 +37,25 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 
 | Skill | Installed as | Source instruction files |
 | --- | --- | --- |
-| [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md` |
+| [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md` |
 | [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `changelog.instructions.md`, `dotnet.instructions.md` |
-| [dotnet-coverage](../skills/dotnet-coverage/SKILL.md) | `credfeto-dotnet-coverage` | `dotnet.instructions.md`, `task-workflow.instructions.md` |
+| [dotnet-coverage](../skills/dotnet-coverage/SKILL.md) | `credfeto-dotnet-coverage` | `dotnet.instructions.md`, `task-workflow.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-publish](../skills/dotnet-publish/SKILL.md) | `credfeto-dotnet-publish` | `dotnet.instructions.md` |
 | [dotnet-test-patterns](../skills/dotnet-test-patterns/SKILL.md) | `credfeto-dotnet-test-patterns` | `dotnet.instructions.md`, `dotnet.examples.md`, `code-quality.instructions.md` |
 | [dotnet-owned-packages](../skills/dotnet-owned-packages/SKILL.md) | `credfeto-dotnet-owned-packages` | `dotnet-owned-packages.instructions.md` |
 | [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md` |
-| [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
+| [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `git-rebasing.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
+| [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md` |
 | [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
 | [github-issue](../skills/github-issue/SKILL.md) | `credfeto-github-issue` | `git.instructions.md`, `task-workflow.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
 | [github-workflows](../skills/github-workflows/SKILL.md) | `credfeto-github-workflows` | `github-workflows.instructions.md`, `github-workflows.examples.md` |
 | [shell-scripts](../skills/shell-scripts/SKILL.md) | `credfeto-shell-scripts` | `shell-scripts.instructions.md`, `shell-scripts.examples.md` |
 | [firewall-rules](../skills/firewall-rules/SKILL.md) | `credfeto-firewall-rules` | `shell.firewall.instructions.md`, `shell.firewall.examples.md` |
 | [sql-schema-change](../skills/sql-schema-change/SKILL.md) | `credfeto-sql-schema-change` | `sql.instructions.md`, `sql.examples.md` |
-| [npm-packages](../skills/npm-packages/SKILL.md) | `credfeto-npm-packages` | `npm.instructions.md`, `git.instructions.md` |
+| [npm-packages](../skills/npm-packages/SKILL.md) | `credfeto-npm-packages` | `npm.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md`, `packages.instructions.md` |
 | [performance-benchmarking](../skills/performance-benchmarking/SKILL.md) | `credfeto-performance-benchmarking` | `performance.instructions.md`, `dotnet.instructions.md` |
 | [docker](../skills/docker/SKILL.md) | `credfeto-docker` | `docker.instructions.md` |
+| [docker-rootless-podman-systemd](../skills/docker-rootless-podman-systemd/SKILL.md) | `credfeto-docker-rootless-podman-systemd` | `docker-rootless-podman-systemd.instructions.md` |
 | [readme-documentation](../skills/readme-documentation/SKILL.md) | `credfeto-readme-documentation` | `documentation.instructions.md` |
 | [deprecation-handling](../skills/deprecation-handling/SKILL.md) | `credfeto-deprecation-handling` | `code-quality.instructions.md` |
 | [secure-coding](../skills/secure-coding/SKILL.md) | `credfeto-secure-coding` | `security.instructions.md` |
@@ -61,7 +63,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [structured-logging](../skills/structured-logging/SKILL.md) | `credfeto-structured-logging` | `logging.instructions.md` |
 | [api-http-tests](../skills/api-http-tests/SKILL.md) | `credfeto-api-http-tests` | `api.instructions.md` |
 | [gitignore-management](../skills/gitignore-management/SKILL.md) | `credfeto-gitignore-management` | `gitignore.instructions.md` |
-| [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git.instructions.md` |
+| [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md` |
 
 ## Installation
 

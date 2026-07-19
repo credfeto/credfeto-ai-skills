@@ -7,12 +7,12 @@ description: Write structured log statements at the right level, with enough con
 
 ## Rules
 
-- Use structured logging — key-value pairs or structured objects, never concatenated strings.
+- Use structured logging: key-value pairs or structured objects, never concatenated strings.
 - Log at service/system boundaries (requests, outgoing calls, significant state transitions).
-- Log enough context to diagnose a problem without reproducing it — include relevant identifiers and state.
+- Log enough context to diagnose a problem without reproducing it: include relevant identifiers and state.
 - Never log PII (names, emails, phone numbers, IP addresses, or anything that identifies an individual).
 - Never log secrets, credentials, tokens, or passwords.
-- Avoid logging large payloads in full — summarise or truncate.
+- Avoid logging large payloads in full; summarise or truncate.
 
 ## Log Levels
 

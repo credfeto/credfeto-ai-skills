@@ -12,7 +12,7 @@ description: Write standalone shell scripts that pass shellcheck/checkbashisms, 
 
 ## Output Helpers (MANDATORY)
 
-Use `die`, `success`, and `info` for all user-facing output in standalone shell scripts — never bare `echo` or `printf`. This applies to standalone shell scripts only; GitHub Actions `run:` steps use emoji indicators instead (`✅`/`❌`/`⚠️`/`ℹ️`).
+Use `die`, `success`, and `info` for all user-facing output in standalone shell scripts: never bare `echo` or `printf`. This applies to standalone shell scripts only; GitHub Actions `run:` steps use emoji indicators instead (`✅`/`❌`/`⚠️`/`ℹ️`).
 
 ```sh
 die() {
@@ -41,9 +41,9 @@ info() {
 }
 ```
 
-- `die` — fatal error, red `✗` to stderr, exits non-zero.
-- `success` — completion, green `✓`.
-- `info` — progress/step announcement, green `→`.
+- `die`: fatal error, red `✗` to stderr, exits non-zero.
+- `success`: completion, green `✓`.
+- `info`: progress/step announcement, green `→`.
 - Always direct `die()` to stderr (`>&2`) so error messages are not captured by stdout pipelines.
 - Use `"$*"` to pass the message as a single string (required for `shellcheck` and `checkbashisms` compliance).
 - The `[ -t N ]` guards suppress ANSI codes when output is piped to a file, which lets tools like `grep` match the plain `→`/`✓`/`✗` characters without escape sequences.
@@ -51,8 +51,8 @@ info() {
 ### Usage Example
 
 ```sh
-info "Opening port ${PORT}/tcp..."   # correct — uses helper
-printf '→ Opening port %s/tcp...\n' "${PORT}"  # wrong — naked printf
+info "Opening port ${PORT}/tcp..."   # correct: uses helper
+printf '→ Opening port %s/tcp...\n' "${PORT}"  # wrong: naked printf
 ```
 
 ## AI Agent Detection
@@ -73,7 +73,7 @@ Usage:
 
 ```sh
 if is_ai_agent; then
-    die "Prohibited — did you read the .ai-instructions?"
+    die "Prohibited: did you read the .ai-instructions?"
 else
     die "Normal human-facing error message"
 fi
