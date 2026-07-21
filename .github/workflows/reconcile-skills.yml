@@ -77,7 +77,7 @@ jobs:
           SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Checkout"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 1
           token: "${{secrets.SOURCE_PUSH_TOKEN}}"
