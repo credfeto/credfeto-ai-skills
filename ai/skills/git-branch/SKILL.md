@@ -40,6 +40,7 @@ When resuming work after an interruption:
 
 - Check the status of existing branches for the task; skip any that are already merged.
 - For an unmerged branch, decide whether to continue on it or delete it and recreate; do not resume it blindly without checking its state first.
+- Update the relevant issue with current status and next steps before resuming work on it.
 
 ## Pushing Branches
 
@@ -78,7 +79,7 @@ Rules:
 
 ### No Confirmation Needed When the Algorithm Resolves the Conflict
 
-Rules 1-6 above are a complete, deterministic algorithm: for every conflicting entry there is exactly one correct resolution (the latest candidate, the stable candidate, or the security-exception candidate). Apply it and continue; do not stop a merge or rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice.
+Rules 1-5 above are a complete, deterministic algorithm: for every conflicting entry there is exactly one correct resolution (the latest candidate, the stable candidate, or the security-exception candidate). Apply it and continue; do not stop a merge or rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice.
 
 Only stop and ask when a conflict genuinely falls outside the algorithm, for example:
 

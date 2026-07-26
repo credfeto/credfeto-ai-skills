@@ -9,13 +9,20 @@ description: Pin npm/JavaScript/TypeScript package versions exactly and resolve 
 
 Adding any **new** npm package (an entry not already in `package.json`) requires explicit human approval after a full security review; this is not optional and applies regardless of how small or transitive the package seems. Before requesting approval, review:
 
-- **Provenance**: the source repository and publisher identity, confirming the registry listing genuinely matches the claimed upstream project (guard against typosquatting).
+- **Provenance**: the source repository and publisher/maintainer identity, confirming the registry listing genuinely matches the claimed upstream project (guard against typosquatting and dependency confusion).
 - **Known vulnerabilities**: published advisories/CVEs for the exact proposed version and its transitive dependencies.
 - **Maintenance health**: last release date, responsiveness to security issues, whether the project is archived or unmaintained.
 - **Licence**: confirm it is compatible with the project.
 - **Footprint**: what it pulls in transitively, and whether that is proportionate to the problem being solved.
 
-Present the findings to the human and wait for explicit sign-off (`approved` / `go ahead` / `looks good` / `lgtm`) before touching `package.json`, the lock file, or adding any import that depends on the package.
+Present the human with, and wait for their explicit sign-off before touching `package.json`, the lock file, or adding any import that depends on the package:
+
+1. Package name, proposed version, and links to its source repository and registry listing.
+2. The findings of the security review above.
+3. Why it's needed — what it does that the standard library or an existing dependency cannot.
+4. Alternatives considered and why they were rejected.
+
+If working from a GitHub issue or PR, follow the Blocked Label workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `go ahead` / `looks good` / `lgtm`).
 
 ## Fixed Package Versions (MANDATORY)
 

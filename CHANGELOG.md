@@ -14,6 +14,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 - New git-rebase skill (credfeto-git-rebase) covering when to rebase and the full version-conflict-resolution algorithm, extracted from git-rebasing.instructions.md, which no existing skill fully credited despite being duplicated and drifting independently across four other skills
 - New docker-rootless-podman-systemd skill (credfeto-docker-rootless-podman-systemd) covering configuring and debugging rootless Podman run by an unprivileged system-level systemd service with no login session, extracted from docker-rootless-podman-systemd.instructions.md, which no existing skill covered
+- New long-running-commands skill (credfeto-long-running-commands) covering unconditional backgrounding of build/test/commit commands, reliable poll strings, poll-loop deadlines, and diagnosing sandbox-caused false timeouts in benchmark tests, extracted from task-workflow.instructions.md, which no existing skill fully covered
+- New agent-routing skill (credfeto-agent-routing) covering model-tier selection, no-self-repair for mechanical roles, the work-type to agent-sequence routing table, and research-pass invocation and escalation rules, extracted from task-workflow.instructions.md and agent-roles.instructions.md, which no existing skill covered
+- New issue-plan-approval skill (credfeto-issue-plan-approval) covering the plan-then-approval gate required before starting work on an issue with no existing PR, including the Implementation Plan comment format and workflow-board update commands, extracted from agent-roles.instructions.md, which no existing skill covered
+- New pr-review-loop skill (credfeto-pr-review-loop) covering the simplify, code-review, and security-review PR gate phases, the static-analyzer-wins conflict rule, and the environment-block marker convention, extracted from agent-roles.instructions.md, which no existing skill covered
 ### Fixed
 - All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
 - pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
@@ -26,8 +30,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - npm-packages skill: added the missing new-package human-approval gate and the version-conflict stable-over-pre-release exception and no-confirmation-needed escalation boundary
 - dependency-selection skill: added the missing Third-Party Packages Require Human Approval section in full, plus the version-conflict stable-over-pre-release exception and no-confirmation-needed escalation boundary
 - Skill installer script: removed an em dash from a log message to comply with language.instructions.md's punctuation rule
+- dotnet-coverage skill: restored the missing 100% code coverage requirement, the SuppressMessage prohibition alongside ExcludeFromCodeCoverage, and the never-run-benchmarks-manually clause, matching code-quality.instructions.md and dotnet.instructions.md
+- github-workflows skill: completed the truncated Node.js deprecation warning quote to include the Node 24 enforcement deadline, matching github-workflows.instructions.md
+- npm-packages skill: restored the four required disclosure items for new-package approval and the Blocked-label workflow branch for issue/PR-sourced approvals, matching packages.instructions.md
+- pre-work-healthcheck skill: restored the two missing version-conflict rules (never downgrade below every candidate; regenerate lock files rather than hand-merging) and the post-rebase build-fix sentence, matching git-rebasing.instructions.md
+- git-commit skill: added the missing em dash prohibition for commit messages from language.instructions.md
+- git-branch skill: corrected the no-confirmation-needed algorithm scope from Rules 1-6 to Rules 1-5, and restored the missing update-the-issue-before-resuming step, matching git-rebasing.instructions.md and task-workflow.instructions.md
+- github-issue skill: restored the mandatory Use Plan Mode directive in the Ad-Hoc Prompt Intake procedure, matching task-workflow.instructions.md
+- README and skills.instructions.md: corrected the documented install command from ./ai/skills/install.sh to ./ai/skills/install, matching the actual installer filename
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
+- Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
 ### Deprecated
 ### Removed
 ### Deployment Changes

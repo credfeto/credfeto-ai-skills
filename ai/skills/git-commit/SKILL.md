@@ -43,6 +43,7 @@ If hooks or formatters modify files **not in your intended change set**:
 - Include the user's original prompt verbatim in the commit body, prefixed with `Prompt:` followed by a space, not in the title.
 - Reference issue numbers in commit messages when applicable.
 - Commit messages must be written in UK English.
+- Do not use em dash characters (—) in commit messages; use a comma, colon, semicolon, or separate sentences instead.
 
 ## 5. Push (MANDATORY)
 

@@ -15,7 +15,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
   - `name: credfeto-<skill>` — must match the installed folder name (lowercase letters, numbers, and hyphens only).
   - `description:` — third person, one paragraph, stating **what the skill does** and **when to use it** (the trigger conditions). This is the only text the model sees when deciding whether to load the skill, so triggers matter more than detail.
 - Supporting files (scripts, templates) may sit alongside `SKILL.md` in the same folder and are installed with it.
-- [install.sh](../skills/install.sh) installs every folder containing a `SKILL.md` into `~/.claude/skills/credfeto-<skill>`. It discovers skills automatically — adding a new skill requires no installer change.
+- [install](../skills/install) installs every folder containing a `SKILL.md` into `~/.claude/skills/credfeto-<skill>`. It discovers skills automatically — adding a new skill requires no installer change.
 
 ## Generation Rules
 
@@ -29,7 +29,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 ## Update Rules
 
 - **When a source instruction file changes, update the affected skills in the same branch** — treat a stale skill the same as failing CI. Use the registry below to find which skills are affected.
-- **When adding or removing a skill**, update the registry below and re-run `ai/skills/install.sh` locally to verify installation.
+- **When adding or removing a skill**, update the registry below and re-run `ai/skills/install` locally to verify installation.
 - When reviewing skills, diff them against their source instruction files; if a skill and its source disagree, the instruction file wins — regenerate the skill.
 - Skill changes follow the normal rules: commit on a branch (never `main`), conventional commit message, push after every commit. Skill changes **do** get changelog entries — see [changelog.instructions.md](changelog.instructions.md), which overrides the global AI-instruction-files skip rule for this repository.
 
@@ -64,11 +64,15 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [api-http-tests](../skills/api-http-tests/SKILL.md) | `credfeto-api-http-tests` | `api.instructions.md` |
 | [gitignore-management](../skills/gitignore-management/SKILL.md) | `credfeto-gitignore-management` | `gitignore.instructions.md` |
 | [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md` |
+| [long-running-commands](../skills/long-running-commands/SKILL.md) | `credfeto-long-running-commands` | `task-workflow.instructions.md` |
+| [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
+| [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
+| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md` |
 
 ## Installation
 
 ```bash
-./ai/skills/install.sh
+./ai/skills/install
 ```
 
 Installs (or reinstalls, replacing any previous copy) every skill into `~/.claude/skills/credfeto-<skill>`.

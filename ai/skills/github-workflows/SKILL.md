@@ -122,7 +122,7 @@ Whenever you add or modify a `uses:` reference, check all actions in that file a
 
 When reviewing a PR run and you see a message similar to:
 
-> Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected...
+> Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: `<action>@<version>`. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026.
 
 1. **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
 2. **Locate the workflow file** that references it; search `.github/workflows/` (and any linked template repository) for it.

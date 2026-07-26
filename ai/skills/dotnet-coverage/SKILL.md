@@ -5,7 +5,7 @@ description: Collect .NET code coverage with Microsoft.Testing.Platform and gene
 
 # .NET Code Coverage Collection and Reporting
 
-Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests.
+Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests. 100% code coverage must be maintained; the exceptions in [Specific Coverage Rules](#specific-coverage-rules-mandatory) below are the only accepted gaps against that target.
 
 ## Identifying Test Projects (MANDATORY)
 
@@ -20,7 +20,7 @@ A project is a test project **only** if its assembly name ends with one of these
 Rules that must never be broken:
 
 - **Never** use "contains 'Test'" in a project name as a heuristic; a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
-- **Never** run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks.
+- **Never** run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
 - **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
 - **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some use `Microsoft.NET.Sdk.Web`.
 - **Always** verify `IsTestingPlatformApplication` in the csproj: this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
@@ -91,8 +91,9 @@ The per-assembly reports remain the authoritative measure of test quality for ea
 
 ## Specific Coverage Rules (MANDATORY)
 
+- 100% code coverage must be maintained. The gaps below are the only accepted exceptions to that target.
 - If a source generator is used, it is because the source-generated version is **wanted**. Do not turn it off to reach 100% coverage. Source-generated code (classes decorated with `[GeneratedCode]`) should be excluded from coverage measurements; it is considered tested by the generator's author.
-- For methods whose success path requires live infrastructure (database connections, network sockets, file handles), that path is genuinely unreachable in a unit-test environment. Do not suppress PH2140, add `[ExcludeFromCodeCoverage]`, or any `coverage.settings.xml` `<Functions>` exclusion for the gap. Accept the coverage gap and note it; do not block work on it. Prefer mocking the success path first: if the underlying type or interface can be substituted, write a test that exercises it via a mock or substitute. Only if the path is genuinely unreachable in a unit test **and** is not covered by an integration-test project, escalate by raising a GitHub issue labelled `AI-Work`, `Low`, and `Blocked` to track getting it covered by integration tests.
+- For methods whose success path requires live infrastructure (database connections, network sockets, file handles), that path is genuinely unreachable in a unit-test environment. Do not suppress PH2140, add `[ExcludeFromCodeCoverage]`, `[SuppressMessage]`, or any `coverage.settings.xml` `<Functions>` exclusion for the gap. Accept the coverage gap and note it; do not block work on it. Prefer mocking the success path first: if the underlying type or interface can be substituted, write a test that exercises it via a mock or substitute. Only if the path is genuinely unreachable in a unit test **and** is not covered by an integration-test project, escalate by raising a GitHub issue labelled `AI-Work`, `Low`, and `Blocked` to track getting it covered by integration tests.
 
 ## Per-File Cadence for Coverage Tasks
 

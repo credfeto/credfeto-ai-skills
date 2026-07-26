@@ -35,7 +35,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
    - Title: a concise summary of the prompt.
    - Body: the prompt, verbatim, as the starting point.
    - Labels: `AI-Work` and `Blocked` (minimum), always, regardless of who initiated the underlying task; add other relevant labels (e.g. priority) as appropriate.
-2. Work out scope, affected files, and approach, and post it as an issue comment before starting, using exactly this format:
+2. Use Plan Mode to work out scope, affected files, and approach, and post it as an issue comment before starting, using exactly this format:
 
    ```text
    ## Implementation Plan
