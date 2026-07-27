@@ -1,8 +1,15 @@
-# Weekly AI skill reconciliation
+# Daily AI skill reconciliation
 #
-# Runs Claude Code headless every Sunday to reconcile every skill in
+# Runs Claude Code headless every day to reconcile every skill in
 # ai/skills/ against the current instruction files (ai/global, ai/local),
 # then pushes any resulting changes directly to main.
+#
+# Before reconciling skills, the workflow first mirrors .ai-instructions and
+# ai/global/ from credfeto/cs-template (read-only clone of a public repo, no
+# token needed) and commits any drift on its own, so Claude always reconciles
+# against the current upstream instructions rather than a stale local copy.
+# ai/local is repo-specific (see .ai-instructions) and is never touched by
+# this sync.
 #
 # Owner decision: changes are pushed straight to main for transparency —
 # this is a sanctioned exception to the "never commit to main" rule in
@@ -41,7 +48,7 @@ name: "Reconcile AI Skills"
 
 on:
   schedule:
-    - cron: "0 6 * * 0" # Sundays at 06:00 UTC
+    - cron: "0 6 * * *" # Daily at 06:00 UTC
   workflow_dispatch: # allow manual runs for testing
 
 permissions:
@@ -81,6 +88,25 @@ jobs:
         with:
           fetch-depth: 1
           token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Sync AI instructions from cs-template"
+        shell: bash
+        run: |
+          TEMPLATE_DIR="$(mktemp -d)"
+          git clone --depth 1 https://github.com/credfeto/cs-template.git "${TEMPLATE_DIR}"
+          cp "${TEMPLATE_DIR}/.ai-instructions" .ai-instructions
+          rsync -a --delete "${TEMPLATE_DIR}/ai/global/" ai/global/
+          rm -rf "${TEMPLATE_DIR}"
+
+      - name: "Commit synced AI instructions"
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        with:
+          commit_message: "chore: sync ai instructions from cs-template"
+          file_pattern: ".ai-instructions ai/global"
+          commit_user_name: "skills-reconciler[bot]"
+          commit_user_email: "credfeto@users.noreply.github.com"
+          commit_author: "skills-reconciler[bot] <credfeto@users.noreply.github.com>"
+          skip_dirty_check: false
 
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
@@ -153,7 +179,7 @@ jobs:
       - name: "Commit changes"
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
-          commit_message: "chore: weekly skill reconciliation against instruction files"
+          commit_message: "chore: daily skill reconciliation against instruction files"
           file_pattern: "ai CHANGELOG.md"
           commit_user_name: "skills-reconciler[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
