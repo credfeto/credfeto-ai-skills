@@ -5,11 +5,16 @@
 # then pushes any resulting changes directly to main.
 #
 # Before reconciling skills, the workflow first mirrors .ai-instructions and
-# ai/global/ from credfeto/cs-template (read-only clone of a public repo, no
-# token needed) and commits any drift on its own, so Claude always reconciles
-# against the current upstream instructions rather than a stale local copy.
-# ai/local is repo-specific (see .ai-instructions) and is never touched by
-# this sync.
+# ai/global/ from credfeto/cs-template (a second, sparse actions/checkout of
+# that public repo, no token needed — only ai/global plus root files such as
+# .ai-instructions are fetched, not the whole repo) and commits any drift on
+# its own, so Claude always reconciles against the current upstream
+# instructions rather than a stale local copy. ai/local is repo-specific (see
+# .ai-instructions) and is never touched by this sync.
+#
+# Runs daily rather than weekly, at the cost of ~7x the Actions-minutes this
+# job used to consume; accepted so instruction drift and skill staleness are
+# never more than a day old.
 #
 # Owner decision: changes are pushed straight to main for transparency —
 # this is a sanctioned exception to the "never commit to main" rule in
@@ -89,14 +94,21 @@ jobs:
           fetch-depth: 1
           token: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
+      - name: "Checkout cs-template"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: "credfeto/cs-template"
+          path: ".cs-template"
+          sparse-checkout: |
+            ai/global
+          fetch-depth: 1
+
       - name: "Sync AI instructions from cs-template"
         shell: bash
         run: |
-          TEMPLATE_DIR="$(mktemp -d)"
-          git clone --depth 1 https://github.com/credfeto/cs-template.git "${TEMPLATE_DIR}"
-          cp "${TEMPLATE_DIR}/.ai-instructions" .ai-instructions
-          rsync -a --delete "${TEMPLATE_DIR}/ai/global/" ai/global/
-          rm -rf "${TEMPLATE_DIR}"
+          cp .cs-template/.ai-instructions .ai-instructions
+          rsync -a --delete .cs-template/ai/global/ ai/global/
+          rm -rf .cs-template
 
       - name: "Commit synced AI instructions"
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
