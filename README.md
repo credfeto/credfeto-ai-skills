@@ -29,7 +29,7 @@ Installs every skill into `~/.claude/skills` as `credfeto-<skill>`, replacing an
 
 ## Automated Reconciliation
 
-The [reconcile-skills workflow](.github/workflows/reconcile-skills.yml) runs every Sunday, reconciling all skills against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the workflow file.
+The [reconcile-skills workflow](.github/workflows/reconcile-skills.yml) runs every day, reconciling all skills against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the workflow file.
 
 ## Changelog
 
