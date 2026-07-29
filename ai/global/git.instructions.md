@@ -28,6 +28,11 @@ Then, before starting any work on an issue or PR, run the hook against every tra
 
 This ensures CI results are unambiguous: pre-existing failures are resolved before any new changes are introduced.
 
+When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes cleanly, check whether `COVERAGE.md` exists at the repo root.
+
+- If it exists, nothing further is needed here: the AI Coverage phase reads it live from `origin/main` every time it runs (see [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md)), so there is no per-branch capture step and nothing to refresh after a rebase.
+- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` as its **first commit**, before starting the requested work. No separate branch or issue is needed for this, unlike the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime — expected, not a conflict.
+
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
 Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
@@ -87,6 +92,10 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - `git -C` runs the command in the specified directory without changing the shell's working directory, using a single invocation and avoiding leaving the shell in the wrong directory for subsequent commands.
 - In Claude Code the `cd` form also triggers an unnecessary permission prompt for the directory change itself.
 - This applies to all git subcommands: `git -C /path status`, `git -C /path add`, `git -C /path commit`, etc.
+
+## Destructive Commands (MANDATORY)
+
+Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, has silently discarded real work in practice; the check costs one command and is never skippable "because it should be clean".
 
 ## Avoid `git worktree`
 

@@ -32,6 +32,12 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 | `On-Hold` | Needs further thought or cannot be implemented yet; do not start work |
 | `Blocked` | Needs human input before work can continue; see the Orchestrator section in [agent-roles.instructions.md](agent-roles.instructions.md) |
 
+## Workflow Project Board (MANDATORY)
+
+Every issue raised, in any repository and via any flow (deliverable issues, ad-hoc intake tracking issues, AI-initiated issues, sub-issues), must be added to the "Workflow" GitHub project linked to that repository, immediately after creation.
+
+Each repository has its own linked project titled "Workflow", and many projects share that title across the owner, so never resolve the project by title alone. Discover the repository's linked project and add the issue using the commands in [github-cli.instructions.md](github-cli.instructions.md#adding-an-issue-to-the-workflow-project).
+
 ## GitHub Issue Creation (MANDATORY)
 
 When asked to create or update a GitHub issue (i.e. the issue itself is the requested deliverable):
@@ -66,6 +72,14 @@ Once a request is already tracked by an issue or PR (including one just created 
 - Comment with the prompt (verbatim, or a faithful summary for long prompts) and how it was resolved: a code change, an answered question, a scope adjustment, etc.
 - Post this before or immediately after acting on the prompt; do not let several prompts accumulate unrecorded.
 - This applies whether the prompt arrived as a live chat message or as a GitHub comment (GitHub comments are already covered by [Comment Replies](agent-roles.instructions.md#comment-replies-mandatory)).
+
+## Correcting a Prior Claim (MANDATORY)
+
+If a factual claim or finding you previously posted in an issue/PR body or comment turns out to be wrong (e.g. a root-cause statement, an evidence point, a "this is a deviation from process" assertion), post a new comment stating the correction and briefly why, quoting or referencing the original claim being corrected. Editing the body to also fix it is fine, but the comment is the mandatory part: a silent in-place body edit is not sufficient on its own, because GitHub only surfaces it as a small "edited" marker that a human reviewer can easily miss, unlike a comment which appears in the normal timeline.
+
+This is distinct from [PR Title, Body, and Label Sync](#pr-title-body-and-label-sync-mandatory) below, which requires routine in-place edits to keep a PR's title/body/labels synced with its linked issues; that is not a correction and needs no comment. This rule is about retracting or fixing something substantive that was previously asserted as true.
+
+(Background: `credfeto/credfeto-orchestrator#1262` — an agent session silently edited its own issue body ten minutes after posting it to fix a wrong claim; the fix was accurate and nothing was destroyed since GitHub retains full edit history, but the silent edit alone made it look, at a glance, like evidence had been suppressed.)
 
 ## PR Lifecycle
 
@@ -266,13 +280,15 @@ Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.
 
 | Work type | Agent sequence |
 | --- | --- |
-| New feature / bug fix / refactor | Pre-Work Baseline Check → Code Writer → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| Coverage-only task | Pre-Work Baseline Check → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| Documentation-only | Pre-Work Baseline Check → Code Writer (docs only) → PR Submitter |
+| New feature / bug fix / refactor | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| Coverage-only task | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| Documentation-only | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (docs only) → Changelog (correction) → Committer → PR Submitter |
 | Rebase requested | Pre-Work Baseline Check → Rebase Agent → PR Submitter |
 | CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger |
 | Dependabot / dependency update | Pre-Work Baseline Check → Dependency Updater |
+
+Rows starting with `Changelog (placeholder)` assume the work item takes a changelog entry at all. If it hits the skip condition in [changelog.instructions.md](changelog.instructions.md#when-to-skip) (template repo), drop the leading `Changelog (placeholder) → Committer → PR Submitter` and start the row at the first `Code Writer` step instead — the PR then opens from that first real commit, as it did before this split existed.
 
 For detailed agent role definitions, see [agent-roles.instructions.md](agent-roles.instructions.md).
 
