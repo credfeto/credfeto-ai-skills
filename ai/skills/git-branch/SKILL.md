@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-branch
-description: Create, name, and maintain git branches, covering branching rules, Conventional Commits-style branch naming, rebasing against main, resuming interrupted work, and resolving version conflicts in dependency manifests during merges/rebases. Use when starting new work, creating a branch, resuming work on an existing branch, rebasing, or resolving merge conflicts.
+description: Create, name, and maintain git branches, covering branching rules, git safety checks before destructive or worktree operations, Conventional Commits-style branch naming, rebasing against main, resuming interrupted work, and resolving version conflicts in dependency manifests during merges/rebases. Use when starting new work, creating a branch, resuming work on an existing branch, rebasing, switching branches, or resolving merge conflicts.
 ---
 
 # Git Branching Workflow
@@ -13,6 +13,15 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - Before continuing work on an existing branch, check if `origin/main` has advanced; if so, rebase first.
 - Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
+
+## Destructive Commands (MANDATORY)
+
+Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, has silently discarded real work in practice; the check costs one command and is never skippable "because it should be clean".
+
+## Avoid `git worktree`
+
+- Do not use `git worktree` to create additional working trees for a repo.
+- Switch branches in the existing working directory (`git -C <dir> checkout <branch>` / `git -C <dir> switch <branch>`) instead.
 
 ## Branch Naming
 
@@ -54,7 +63,7 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 1. **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. Run the build and tests once the rebase completes.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. Run the build and tests once the rebase completes. No coverage re-baseline step is needed: coverage is measured live against the current `origin/main`, so a rebase alone cannot make a committed coverage baseline file stale. If the rebase itself produces a conflict in a committed coverage baseline file (e.g. `COVERAGE.md`), do not hand-merge the numbers; regenerate them with the project's normal coverage-collection process instead of editing the figures by hand.
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 

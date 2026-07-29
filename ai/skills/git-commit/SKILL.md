@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-commit
-description: Commit and push changes safely, covering branch checks, build/test gates, Conventional Commits format, and push cadence. Use whenever about to commit, stage, or push changes in any repository, or when acting as the Committer agent.
+description: Commit and push changes safely, covering branch checks, build/test gates, Conventional Commits format, push cadence, and the additional GPG-signing and hook-escalation rules that apply when acting as the Committer agent. Use whenever about to commit, stage, or push changes in any repository, or when acting as the Committer agent.
 ---
 
 # Git Commit Workflow
@@ -49,6 +49,18 @@ If hooks or formatters modify files **not in your intended change set**:
 
 - Push to `origin` after every commit.
 - **Always push a new branch with `-u`** to set up tracking: `git -C <repodir> push -u origin <branch>`. Subsequent pushes can use `git -C <repodir> push`.
+
+## Committer Agent Additional Rules (MANDATORY when acting in that role)
+
+When acting specifically as the dedicated Committer agent in a multi-agent workflow (split from Code Writer, PR Submitter, and other roles):
+
+- Use the `git` CLI only for commit and push; never `gh` or the GitHub API.
+- For a placeholder changelog entry (no code exists yet): commit `CHANGELOG.md` alone.
+- Otherwise: commit code and tests as one **GPG-signed** commit (Conventional Commits format, original prompt in the body as `Prompt: …`), and commit `CHANGELOG.md` separately, also GPG-signed, whenever a changelog correction accompanies it.
+- Push immediately after committing. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
+- **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
+
+Outside that specific role split, sections 1-5 above are the complete workflow.
 
 ## General Git Command Rules
 

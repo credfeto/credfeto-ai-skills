@@ -64,7 +64,21 @@ This applies specifically to a **system** systemd unit (`/etc/systemd/system/*.s
 ## `ProtectHome=yes` Breaks `XDG_RUNTIME_DIR` (MANDATORY)
 
 - `ProtectHome=yes` also masks `/run/user/*` on the unit, which breaks the D-Bus session bus fix above.
-- Fix: use `ProtectSystem=strict` + `PrivateTmp=yes` + `NoNewPrivileges=yes` instead (all three confirmed compatible with rootless Podman on a real host); drop `ProtectHome`.
+- Fix: use `ProtectSystem=strict` + `PrivateTmp=yes` instead (both confirmed compatible with rootless Podman on a real host); drop `ProtectHome`. Do **not** add `NoNewPrivileges=yes` alongside these; see the next section for why.
+
+## `NoNewPrivileges=yes` Breaks `newuidmap`/`newgidmap` on Every Reboot (MANDATORY)
+
+- Rootless Podman needs `newuidmap`/`newgidmap` to build a new user namespace, and those tools gain `cap_setuid`/`cap_setgid` at exec time via **file capabilities** (`getcap` shows `cap_setuid=ep`/`cap_setgid=ep`), not a setuid bit. `NoNewPrivileges=yes` on the unit stops the kernel from honouring file capabilities (and setuid/setgid bits) on exec for the whole process tree, so any descendant that execs `newuidmap`/`newgidmap` silently loses the capability it needs.
+- Symptom in `journalctl` for the container-runner unit; note the generic `podman-compose ... exit status 125` line alone does not show this, the actual cause is a few lines earlier:
+
+  ```text
+  time="..." level=error msg="running `/usr/bin/newuidmap <pid> 0 <uid> 1 1 200000 65536`: newuidmap: Could not set caps\n"
+  Error: cannot set up namespace using "/usr/bin/newuidmap": exit status 1
+  ```
+
+- This only bites **after a reboot**, not on every `systemctl restart` of the unit: Podman only needs to build a brand-new user namespace once per boot (the namespace does not survive a reboot), while restarts within the same boot reuse the existing one and never exec `newuidmap` again. A restart "working fine" is not evidence `NoNewPrivileges=yes` is safe; only a real reboot exercises the failing path.
+- Verify by reproducing directly rather than guessing from the unit file alone: `sudo systemd-run --property=NoNewPrivileges=yes --property=User=<svc-user> --property=Group=<svc-group> /usr/bin/newuidmap <pid-owned-by-svc-user> 0 <uid> 1` reproduces `Could not set caps`; the same command with the property removed gets past that point (reaches an unrelated failure further down, e.g. `write to uid_map failed`, which confirms the capability was actually granted this time).
+- Fix: do not set `NoNewPrivileges=yes` on a rootless-Podman container-runner unit at all.
 
 ## Renaming a Systemd Timer During a Migration Leaves the Old One Active (MANDATORY)
 

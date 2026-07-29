@@ -1,6 +1,6 @@
 ---
 name: credfeto-github-issue
-description: Create and manage GitHub issues correctly, covering duplicate search, planned descriptions, priority/status labels, assignment, and the Blocked label rules for AI-initiated issues, including the mandatory tracking issue required before starting any ad-hoc task. Use when asked to create a GitHub issue, when raising an issue autonomously, when a human asks you to do something and no existing issue or PR is already specified, when a PR or issue comment asks you to raise an issue, when selecting the next issue to work on, or when asking a blocking question and needing to mark an item Blocked.
+description: Create and manage GitHub issues correctly, covering duplicate search, planned descriptions, priority/status labels, assignment, adding new issues to the repository's linked Workflow project board, correcting prior claims, and the Blocked label rules for AI-initiated issues, including the mandatory tracking issue required before starting any ad-hoc task. Use when asked to create a GitHub issue, when raising an issue autonomously, when a human asks you to do something and no existing issue or PR is already specified, when a PR or issue comment asks you to raise an issue, when selecting the next issue to work on, or when asking a blocking question and needing to mark an item Blocked.
 ---
 
 # GitHub Issue Management
@@ -15,6 +15,23 @@ Use `gh` to manage issues for every piece of work. Only update issues if `gh` is
 - Skip any issue labelled `On-Hold` or `Blocked`.
 - Reference issue numbers in commit messages and branch names.
 - If work on an issue is abandoned, comment with findings before closing; do not abandon silently.
+
+## Workflow Project Board (MANDATORY)
+
+Every issue raised, in any repository and via any flow (deliverable issues, ad-hoc intake tracking issues, AI-initiated issues, sub-issues), must be added to the "Workflow" GitHub project linked to that repository, immediately after creation.
+
+Each repository has its own linked project titled "Workflow", and many projects share that title across the owner, so never resolve the project by title alone across owners; find the project actually linked to the specific repository:
+
+```bash
+# Find the repo's linked Workflow project number
+gh api graphql -f query='query{repository(owner:"<owner>",name:"<repo>"){projectsV2(first:10){nodes{number title}}}}' \
+  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | .number'
+
+# Add the issue to it
+gh project item-add <project-number> --owner <owner> --url <issue-url>
+```
+
+`gh project item-add` is idempotent for an item already in the project.
 
 ## Issue Creation Flow (MANDATORY when asked to create or update an issue)
 
@@ -173,6 +190,10 @@ Reply to every issue comment that prompted an action. Check both comment surface
 - Code change made: reply with `Fixed in <commit-sha>: <one sentence describing what changed and why>`.
 - Question answered inline (no code change): reply with the full answer.
 - No reply means no acknowledgement; always close the loop.
+
+## Correcting a Prior Claim (MANDATORY)
+
+If a factual claim or finding previously posted in an issue body or comment turns out to be wrong (e.g. a root-cause statement, an evidence point, a "this is a deviation from process" assertion), post a **new comment** stating the correction and briefly why, quoting or referencing the original claim being corrected. Editing the body to also fix it is fine, but the comment is the mandatory part: a silent in-place body edit is not sufficient on its own, because GitHub only surfaces it as a small "edited" marker that a human reviewer can easily miss, unlike a comment which appears in the normal timeline. This rule is about retracting or fixing something substantive that was previously asserted as true, not routine housekeeping edits.
 
 ## Prompt Traceability (MANDATORY)
 

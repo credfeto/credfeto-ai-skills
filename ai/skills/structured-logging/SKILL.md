@@ -1,6 +1,6 @@
 ---
 name: credfeto-structured-logging
-description: Write structured log statements at the right level, with enough context to diagnose a problem and no PII or secrets. Use whenever adding or reviewing logging calls, choosing a log level, or deciding what to include in a log message.
+description: Write structured log statements at the right level, with enough context to diagnose a problem and no PII or secrets; in .NET, use LoggerMessage source generators rather than runtime string-based logging. Use whenever adding or reviewing logging calls, choosing a log level, deciding what to include in a log message, or adding logging to a .NET class.
 ---
 
 # Structured Logging
@@ -23,3 +23,10 @@ description: Write structured log statements at the right level, with enough con
 | Information | Significant business/operational events (service started, job completed) |
 | Debug | Detailed diagnostics for development; disabled in production by default |
 | Trace | Very fine-grained; never in production |
+
+## .NET: Source-Generated Logging
+
+- Prefer `LoggerMessage` source generators over runtime string-based logging: faster, allocation-free, and compile-time structured.
+- Logging methods must be in a dedicated `internal static` class:
+  - Placed in a `LoggingExtensions` sub-namespace relative to the class it serves.
+  - Named `<ClassName>LoggingExtensions` (e.g. `FooLoggingExtensions` for `Foo`).

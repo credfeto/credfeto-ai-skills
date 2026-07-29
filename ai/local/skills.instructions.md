@@ -37,13 +37,14 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 
 | Skill | Installed as | Source instruction files |
 | --- | --- | --- |
-| [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md` |
+| [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md`, `coverage-ratchet.instructions.md` |
 | [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `changelog.instructions.md`, `dotnet.instructions.md` |
 | [dotnet-coverage](../skills/dotnet-coverage/SKILL.md) | `credfeto-dotnet-coverage` | `dotnet.instructions.md`, `task-workflow.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-publish](../skills/dotnet-publish/SKILL.md) | `credfeto-dotnet-publish` | `dotnet.instructions.md` |
 | [dotnet-test-patterns](../skills/dotnet-test-patterns/SKILL.md) | `credfeto-dotnet-test-patterns` | `dotnet.instructions.md`, `dotnet.examples.md`, `code-quality.instructions.md` |
 | [dotnet-owned-packages](../skills/dotnet-owned-packages/SKILL.md) | `credfeto-dotnet-owned-packages` | `dotnet-owned-packages.instructions.md` |
-| [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md` |
+| [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md` |
+| [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `git-rebasing.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md` |
 | [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
@@ -60,14 +61,20 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [deprecation-handling](../skills/deprecation-handling/SKILL.md) | `credfeto-deprecation-handling` | `code-quality.instructions.md` |
 | [secure-coding](../skills/secure-coding/SKILL.md) | `credfeto-secure-coding` | `security.instructions.md` |
 | [error-handling](../skills/error-handling/SKILL.md) | `credfeto-error-handling` | `error-handling.instructions.md` |
-| [structured-logging](../skills/structured-logging/SKILL.md) | `credfeto-structured-logging` | `logging.instructions.md` |
+| [structured-logging](../skills/structured-logging/SKILL.md) | `credfeto-structured-logging` | `logging.instructions.md`, `dotnet.instructions.md` |
 | [api-http-tests](../skills/api-http-tests/SKILL.md) | `credfeto-api-http-tests` | `api.instructions.md` |
 | [gitignore-management](../skills/gitignore-management/SKILL.md) | `credfeto-gitignore-management` | `gitignore.instructions.md` |
 | [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md` |
+| [python](../skills/python/SKILL.md) | `credfeto-python` | `python.instructions.md` |
+| [learnings-capture](../skills/learnings-capture/SKILL.md) | `credfeto-learnings-capture` | `learnings.instructions.md`, `learnings.examples.md` |
 | [long-running-commands](../skills/long-running-commands/SKILL.md) | `credfeto-long-running-commands` | `task-workflow.instructions.md` |
 | [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
-| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md` |
+| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
+| [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md` |
+| [repo-auditor](../skills/repo-auditor/SKILL.md) | `credfeto-repo-auditor` | `agent-roles.instructions.md` |
+| [ci-debugger](../skills/ci-debugger/SKILL.md) | `credfeto-ci-debugger` | `agent-roles.instructions.md` |
+| [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `changelog.instructions.md` |
 
 ## Installation
 

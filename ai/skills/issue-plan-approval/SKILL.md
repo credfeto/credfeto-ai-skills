@@ -40,11 +40,13 @@ Produce a concrete implementation plan (using a planning mode if the tool provid
 <list or "None, ready to proceed pending approval">
 ```
 
-Then mark the issue Blocked and **stop**:
+Then mark the issue Blocked, update the workflow board to a "planning" status if one is configured (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**:
 
 ```bash
 gh issue edit <number> --repo <owner/repo> --add-label Blocked
 ```
+
+Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`; routing logic elsewhere only recognises `Blocked` when deciding whether to skip an item.
 
 ## 3. Check for Approval
 
@@ -59,7 +61,7 @@ If a human answers or approves in a live chat session rather than posting a GitH
 
 ## Updating a Workflow Board
 
-If the repo's agent-facing instructions define a workflow board (a GitHub Projects v2 board with a Status field, typically supplied as project ID / status field ID / per-status option IDs), update it by running these three steps in sequence whenever this gate changes the issue's status (e.g. to **Planning** after posting a plan):
+If the repo's agent-facing instructions define a workflow board (a GitHub Projects v2 board with a Status field, typically supplied as project ID / status field ID / per-status option IDs), update it by running these steps in sequence whenever this gate changes the issue's status (e.g. to **Planning** after posting a plan):
 
 ```bash
 # Step 1: resolve the item node ID
@@ -76,6 +78,19 @@ gh api graphql \
   -f query='mutation($p:ID!,$i:ID!,$f:ID!,$v:String!){updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$v}}){projectV2Item{id}}}' \
   -f p="${WF_PROJECT_ID}" -f i="${PROJECT_ITEM_ID}" \
   -f f="${WF_STATUS_FIELD_ID}" -f v="<STATUS_OPTION_ID>" > /dev/null
+
+# Step 4: verify the write actually persisted; retry up to 3 times with backoff if not
+for attempt in 1 2 3; do
+  ACTUAL=$(gh api graphql \
+    -f query='query($i:ID!){node(id:$i){... on ProjectV2Item{fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{optionId field{... on ProjectV2SingleSelectField{id}}}}}}}}' \
+    -f i="${PROJECT_ITEM_ID}" \
+    --jq ".data.node.fieldValues.nodes[] | select(.field.id==\"${WF_STATUS_FIELD_ID}\") | .optionId")
+  [ "$ACTUAL" = "<STATUS_OPTION_ID>" ] && break
+  sleep "$attempt"
+done
+[ "$ACTUAL" = "<STATUS_OPTION_ID>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
 ```
+
+Step 4 is **mandatory, not optional**: `updateProjectV2ItemFieldValue` can return success (no GraphQL error) on an item that was just added by `addProjectV2ItemById`, without the field write actually persisting; a known eventual-consistency race in the Projects v2 API on freshly-added items. Reporting success without this read-back verification is a real bug that has shipped in practice because nothing threw. Never skip the verification step to save a round-trip.
 
 If no board configuration is present, skip all board updates silently; the comment/label flow above is sufficient on its own.

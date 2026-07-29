@@ -11,7 +11,7 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 1. **Fetch**: `git -C <repodir> fetch origin main`. Always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`. A non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following the version-conflict-resolution algorithm below. Run the build and tests once the rebase completes.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following the version-conflict-resolution algorithm below. Run the build and tests once the rebase completes. No coverage re-baseline step is needed: coverage is measured live against the current `origin/main`, so a rebase alone cannot make a committed coverage baseline file stale. If the rebase itself produces a conflict in a committed coverage baseline file (e.g. `COVERAGE.md`), do not hand-merge the numbers; regenerate them with the project's normal coverage-collection process instead of editing the figures by hand.
 
 A branch just created fresh from an up-to-date `main` does not need this; it starts current by construction.
 

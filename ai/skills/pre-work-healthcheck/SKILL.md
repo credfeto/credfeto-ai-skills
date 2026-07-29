@@ -1,6 +1,6 @@
 ---
 name: credfeto-pre-work-healthcheck
-description: Run before starting any work on an issue or PR in a repository. Verifies language/runtime prerequisites, runs the pre-commit baseline against all tracked files, and runs dotnet buildcheck in .NET repositories. Use at the start of every task, before writing any code, to ensure CI results are unambiguous.
+description: Run before starting any work on an issue or PR in a repository. Verifies language/runtime prerequisites, runs the pre-commit baseline against all tracked files, bootstraps COVERAGE.md when picking up a fresh issue, and runs dotnet buildcheck in .NET repositories. Use at the start of every task, before writing any code, to ensure CI results are unambiguous.
 ---
 
 # Pre-Work Health Check
@@ -36,7 +36,16 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
    These five rules are a deterministic algorithm: for every conflicting entry there is exactly one correct resolution. Apply it and continue; do not stop the rebase to ask for confirmation on a conflict this algorithm resolves unambiguously. Only stop and ask when a conflict genuinely falls outside it, for example the same package bumped to two unrelated versions with no clear "latest" (divergent major versions), or a security trade-off with no candidate that is both latest and unaffected.
 
-   Run the build and tests once the rebase completes. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix.
+   Run the build and tests once the rebase completes. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. No coverage re-baseline step is needed here: coverage is always measured against `origin/main`'s live `COVERAGE.md`, so a plain rebase cannot make it stale.
+
+   **If the rebase itself produces a conflict in `COVERAGE.md`**: do not hand-merge the percentages; it is generated content, not hand-authored. Take `main`'s copy:
+
+   ```bash
+   git -C <repodir> checkout --ours -- COVERAGE.md
+   git -C <repodir> add COVERAGE.md
+   ```
+
+   (During a rebase, `--ours` means the branch being rebased *onto*, i.e. `origin/main`, the reverse of a merge's usual meaning.) Continue the rebase. Once it completes and the build/test step above passes, re-measure coverage (see step 4 below) against the rebased tree and commit the fresh `COVERAGE.md` as part of the same rebase work; do not leave `main`'s stale copy in place.
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
@@ -69,7 +78,57 @@ Never block work based on inspecting config files and deducing that a tool might
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
-## 4. .NET Repository Health Check (MANDATORY when a `.csproj`, `.sln`, or `.slnx` file is present)
+## 4. COVERAGE.md Bootstrap for New Issues (MANDATORY)
+
+Only when picking up a **new issue** by branching fresh from an up-to-date `main` (not resuming an existing branch): once the baseline hook in step 3 passes cleanly, check whether `COVERAGE.md` exists at the repo root.
+
+- **If it exists**, nothing further is needed: coverage is always compared against `origin/main`'s live copy later in the workflow, so there is no per-branch capture step and nothing to refresh here.
+- **If it does not exist**, collect it now, while still on `main`, before creating the work branch:
+  1. Measure the overall line-coverage percentage for each orchestrated language actually present in the repo:
+     - **.NET**: collect each `<AssemblyName>.Tests` project's coverage, generate per-assembly `reportgenerator` reports, then one combined report requesting `-reporttypes:"Html;JsonSummary"`, and read the overall figure with `jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json`. Skip .NET entirely if the repo has no `*.Tests` project.
+     - **Node**: pinned as Vitest with `@vitest/coverage-v8`; run `npx vitest run --coverage` with the `json-summary` reporter configured, then `jq '.total.lines.pct' coverage/coverage-summary.json`. Skip if the repo has no `package.json` with a configured test runner.
+     - **Python**: pinned as `coverage.py` via `pytest`; run `coverage run -m pytest` then `coverage report --format=total` (prints only the overall percentage). Skip if the repo has no Python test suite.
+     - **Shell**: always excluded; never attempt to measure it.
+  2. Write `COVERAGE.md` at the repo root, including every one of the four languages as a section even when skipped (`n/a (no code)` for a language with no code/tests present; `excluded` for Shell, always):
+
+     ```text
+     # Coverage
+
+     Generated by the AI Coverage phase. Do not edit by hand.
+
+     ## .NET
+
+     | Project | Line Coverage |
+     | --- | --- |
+     | Credfeto.Foo | 82.1% |
+     | **Overall (.NET)** | **80.3%** |
+
+     ## Node
+
+     | Package | Line Coverage |
+     | --- | --- |
+     | **Overall (Node)** | 91.4% |
+
+     ## Python
+
+     | Package | Line Coverage |
+     | --- | --- |
+     | **Overall (Python)** | 74.3% |
+
+     ## Shell
+
+     excluded
+
+     ---
+
+     Captured at commit `<sha>` on <ISO-8601 date>.
+     ```
+
+     `<sha>` is the commit the numbers were measured against.
+  3. Create the work branch as normal and commit the resulting `COVERAGE.md` as its **first commit**, before starting the requested work. No separate branch or issue is needed for this bootstrap commit, unlike the pre-commit auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against.
+  4. `COVERAGE.md` will be overwritten again later in the same PR with the branch's live numbers once coverage is next measured; expect two commits touching the file over the branch's lifetime, that is not a conflict.
+
+## 5. .NET Repository Health Check (MANDATORY when a `.csproj`, `.sln`, or `.slnx` file is present)
 
 1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
 2. Run: `dotnet buildcheck -solution <solutionfilename>`
@@ -84,7 +143,7 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
 
 Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet buildcheck`). Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/<toolname>`.
 
-## 5. Existing Work Check (MANDATORY)
+## 6. Existing Work Check (MANDATORY)
 
 Before branching:
 
