@@ -70,13 +70,13 @@ Outside that specific role split, sections 1-5 above are the complete workflow.
 
 ## Never Truncate Test/Commit Commands (MANDATORY)
 
-`git commit`/`pre-commit` (and `git push`) have no bounded, predictable duration: `pre-commit` can run a heavy hook chain (e.g. full-project build checks, security scanners, lint stacks), and a commit has already been killed mid-run on a foreground timeout in a live session. There is no timeout value that is both practical and safe to pick, so do not try to pick one.
+`git commit`/`pre-commit` has no bounded, predictable duration: `pre-commit` can run a heavy hook chain (e.g. full-project build checks, security scanners, lint stacks), and a commit has already been killed mid-run on a foreground timeout in a live session. There is no timeout value that is both practical and safe to pick, so do not try to pick one.
 
-- **Always run `git commit` (including its pre-commit hook run) and `git push` via `run_in_background`; never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
+- **Always run `git commit` (including its pre-commit hook run) via `run_in_background`; never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
 - Poll with the Monitor tool for a specific string the command itself writes, subject to a 30-minute deadline:
   - Pre-commit hooks passed: poll for `→ All checks passed.`
   - Pre-commit hooks failed: poll for `→` followed by `Failed` (check for both to distinguish pass/fail).
-  - `git push` completed: poll for `branch` (the branch tracking line in push output).
+  - If `git push` is also backgrounded (not itself required to run in the background), poll for `branch` (the branch tracking line in push output).
 - Never poll for `"exit code"`; that string is not reliably written to background task output files.
 - A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis; the only valid reasons to stop waiting are the tool itself reporting its timeout was hit, or the poll-loop deadline actually firing.
 - A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind. A `git commit` has been killed mid-run on a foreground timeout in practice; do not repeat this.

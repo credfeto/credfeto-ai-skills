@@ -59,10 +59,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - issue-plan-approval skill: added the mandatory workflow-board read-back verification step and the never-substitute-the-Blocked-label rule from agent-roles.instructions.md
 - pr-review-loop skill: reversed a direct contradiction of agent-roles.instructions.md that told Phase A to block the PR on simplify non-convergence, restored the missing Phase D AI Coverage ratchet phase, folded the changelog-correction step into every fix loop, and added the mandatory workflow-board read-back verification step, adding coverage-ratchet.instructions.md as a source
 - git-commit skill: added the missing Committer-role rules (GPG-signed commits, git-CLI-only commit/push, no --no-verify, escalate to Orchestrator after 3 failed pre-commit-hook cycles) from agent-roles.instructions.md, now added as a source
+- git-commit skill: removed the invented rule that git push must always run via run_in_background; task-workflow.instructions.md only mandates backgrounding for git commit/pre-commit, dotnet build, dotnet test, npm test, and bun test
+- pr-sync skill: added the missing Human Comment Requests: Run First gate from agent-roles.instructions.md, which must run before CI Checks so ad-hoc issue-creation requests in PR/issue comments are never skipped
+- pre-work-healthcheck skill: added the missing rule against creating a duplicate branch/PR for an issue already in progress, and the duplicate-pair resolution procedure, from task-workflow.instructions.md's Bot-Created PRs section
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
 - Reconcile-skills workflow now syncs .ai-instructions and ai/global from cs-template before reconciling, and runs daily instead of weekly
+- Skill registry: added git-rebasing.instructions.md as a source instruction file for the github-workflows skill, reflecting the version-conflict-resolution rule it inlines from that file
 ### Deprecated
 ### Removed
 ### Deployment Changes

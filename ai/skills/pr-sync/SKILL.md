@@ -62,6 +62,17 @@ Reply to every PR comment that prompted an action. Check both comment surfaces b
 - Question answered inline (no code change): reply with the full answer.
 - No reply means no acknowledgement; always close the loop.
 
+## Human Comment Requests: Run First (MANDATORY)
+
+Before processing CI checks or continuing the review loop below, scan **all** comments on the current PR and its linked issue(s) from trusted commenters for ad-hoc requests to create a new GitHub issue: natural-language phrasing such as "raise an issue", "create an issue", "add an issue", "open an issue", "file an issue" (case-insensitive).
+
+For each such request not yet actioned (no reply from you linking a newly created issue):
+
+1. Search for an existing open or closed issue covering the same topic; do not create duplicates.
+2. If none exists, create it immediately: `gh issue create --repo <owner/repo> --title "<concise title>" --body "<description>" --label "<priority label, or 'Medium' if unspecified>"`.
+3. Reply to the original comment with the new issue number, using `gh pr comment` if the request was on the PR or `gh issue comment` if it was on a linked issue.
+4. Only continue with CI Checks and the rest of the workflow once every such request is actioned.
+
 ## CI Checks (MANDATORY)
 
 When working on a PR, check CI state once: `gh pr checks <number> --repo <owner/repo>`. Then act immediately; do not loop, sleep, or use `--watch`:
