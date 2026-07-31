@@ -5,7 +5,7 @@ description: Post an implementation plan on a GitHub issue and wait for explicit
 
 # Issue Plan-First Approval Gate
 
-When picking up a GitHub **issue** that has no existing PR, do not start implementing directly. Run the pre-work baseline check for the repo first (verify prerequisites, run the pre-commit baseline, run any repo build-health check), then follow this gate.
+When picking up a GitHub **issue** that has no existing PR, do not start implementing directly. Run the repo's Pre-Work Baseline Check first, then follow this gate.
 
 ## 1. Check for an Existing Plan
 

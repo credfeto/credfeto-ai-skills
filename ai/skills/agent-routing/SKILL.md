@@ -19,7 +19,7 @@ Mechanical roles must not interpret or fix failures. When a check fails: capture
 
 ## Routing Rules
 
-Every sequence below starts with a pre-work baseline check (verify language/runtime prerequisites, run the repo's pre-commit baseline against all tracked files, and run any repo build-health check such as `dotnet buildcheck`) as step 0; it must actually run before the first role in the row is invoked, not be treated as an optional formality.
+Every sequence below starts with the repo's Pre-Work Baseline Check as step 0; it must actually run before the first role in the row is invoked, not be treated as an optional formality.
 
 | Work type | Role sequence |
 | --- | --- |

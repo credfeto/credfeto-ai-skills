@@ -34,6 +34,7 @@ All test projects must:
 
 ## Asynchronous Code and Cancellation
 
+- Prefer async over sync wherever supported; never block on async operations (always await or use async continuations); propagate async through the call stack, with no synchronous wrappers around async operations.
 - Prefer `ValueTask`/`ValueTask<T>` over `Task`/`Task<T>` for test helper and mock methods: this avoids heap allocations on synchronous-completion paths. Only use `Task`/`Task<T>` where `ValueTask` is unsupported or the method always completes asynchronously.
 - All async methods, including test helpers, must accept and pass down a `CancellationToken`.
 - Never create a new `CancellationToken` when one has been provided, unless combining with a timeout via `CancellationTokenSource.CreateLinkedTokenSource`.

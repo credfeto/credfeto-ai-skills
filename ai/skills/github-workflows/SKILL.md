@@ -106,7 +106,7 @@ This preference is opportunistic: switch a `uses:` line to SHA pinning when you 
 
 Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
 
-When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate: take the latest of the candidates unless one is a stable release and the other a pre-release (take the stable one), or unless the latest candidate has a known security advisory the other does not (take the most recent unaffected candidate instead).
+When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate: take the latest of the candidates unless one is a stable release and the other a pre-release (take the stable one), or unless the latest candidate has a known security advisory the other does not (take the most recent unaffected candidate instead). Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
 
 ## Keeping Actions Up to Date
 

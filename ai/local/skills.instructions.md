@@ -38,12 +38,15 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | Skill | Installed as | Source instruction files |
 | --- | --- | --- |
 | [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md`, `coverage-ratchet.instructions.md` |
-| [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `changelog.instructions.md`, `dotnet.instructions.md` |
+| [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `ai/global/changelog.instructions.md`, `dotnet.instructions.md` |
 | [dotnet-coverage](../skills/dotnet-coverage/SKILL.md) | `credfeto-dotnet-coverage` | `dotnet.instructions.md`, `task-workflow.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-publish](../skills/dotnet-publish/SKILL.md) | `credfeto-dotnet-publish` | `dotnet.instructions.md` |
 | [dotnet-test-patterns](../skills/dotnet-test-patterns/SKILL.md) | `credfeto-dotnet-test-patterns` | `dotnet.instructions.md`, `dotnet.examples.md`, `code-quality.instructions.md` |
 | [dotnet-owned-packages](../skills/dotnet-owned-packages/SKILL.md) | `credfeto-dotnet-owned-packages` | `dotnet-owned-packages.instructions.md` |
-| [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md` |
+| [dotnet-dead-framework-guards](../skills/dotnet-dead-framework-guards/SKILL.md) | `credfeto-dotnet-dead-framework-guards` | `dotnet.instructions.md` |
+| [dotnet-nuget-vulnerability-suppression](../skills/dotnet-nuget-vulnerability-suppression/SKILL.md) | `credfeto-dotnet-nuget-vulnerability-suppression` | `dotnet.instructions.md` |
+| [dotnet-exception-generation](../skills/dotnet-exception-generation/SKILL.md) | `credfeto-dotnet-exception-generation` | `dotnet.instructions.md`, `dotnet-owned-packages.instructions.md` |
+| [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md`, `dotnet.instructions.md` |
 | [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `git-rebasing.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md` |
@@ -59,6 +62,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [docker-rootless-podman-systemd](../skills/docker-rootless-podman-systemd/SKILL.md) | `credfeto-docker-rootless-podman-systemd` | `docker-rootless-podman-systemd.instructions.md` |
 | [readme-documentation](../skills/readme-documentation/SKILL.md) | `credfeto-readme-documentation` | `documentation.instructions.md` |
 | [deprecation-handling](../skills/deprecation-handling/SKILL.md) | `credfeto-deprecation-handling` | `code-quality.instructions.md` |
+| [code-cleanup-commits](../skills/code-cleanup-commits/SKILL.md) | `credfeto-code-cleanup-commits` | `code-quality.instructions.md` |
 | [secure-coding](../skills/secure-coding/SKILL.md) | `credfeto-secure-coding` | `security.instructions.md` |
 | [error-handling](../skills/error-handling/SKILL.md) | `credfeto-error-handling` | `error-handling.instructions.md` |
 | [structured-logging](../skills/structured-logging/SKILL.md) | `credfeto-structured-logging` | `logging.instructions.md`, `dotnet.instructions.md` |
@@ -74,7 +78,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md` |
 | [repo-auditor](../skills/repo-auditor/SKILL.md) | `credfeto-repo-auditor` | `agent-roles.instructions.md` |
 | [ci-debugger](../skills/ci-debugger/SKILL.md) | `credfeto-ci-debugger` | `agent-roles.instructions.md` |
-| [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `changelog.instructions.md` |
+| [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `ai/global/changelog.instructions.md` |
 
 ## Installation
 
