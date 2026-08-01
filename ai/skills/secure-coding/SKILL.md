@@ -5,7 +5,7 @@ description: Handle secrets, validate untrusted input, sanitise output, model th
 
 # Secure Coding Practices
 
-## Secrets and Credentials (MANDATORY)
+## Secrets and Credentials
 
 - Never commit secrets, credentials, API keys, tokens, or passwords.
 - If a secret is accidentally committed, treat it as compromised immediately: rotate it and purge it from history.

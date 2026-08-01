@@ -1,6 +1,6 @@
 ---
 name: credfeto-pre-work-healthcheck
-description: Run before starting any work on an issue or PR in a repository. Verifies language/runtime prerequisites, runs the pre-commit baseline against all tracked files, bootstraps COVERAGE.md when picking up a fresh issue, and runs dotnet buildcheck in .NET repositories. Use at the start of every task, before writing any code, to ensure CI results are unambiguous.
+description: Verify language/runtime prerequisites, run the pre-commit baseline against all tracked files, bootstrap COVERAGE.md when picking up a fresh issue, and run dotnet buildcheck in .NET repositories, before starting any work on an issue or PR. Use at the start of every task, before writing any code, to ensure CI results are unambiguous.
 ---
 
 # Pre-Work Health Check

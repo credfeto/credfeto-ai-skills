@@ -1,6 +1,6 @@
 ---
 name: credfeto-dotnet-coverage
-description: Collect .NET code coverage with Microsoft.Testing.Platform and generate per-assembly HTML reports with reportgenerator. Use when measuring test coverage, running coverage tasks, or producing coverage reports in a .NET repository. Covers test project identification, correct dotnet test invocation, and report generation rules.
+description: Collect .NET code coverage with Microsoft.Testing.Platform and generate per-assembly HTML reports with reportgenerator, covering test project identification, correct dotnet test invocation, and report generation rules. Use when measuring test coverage, running coverage tasks, or producing coverage reports in a .NET repository.
 ---
 
 # .NET Code Coverage Collection and Reporting

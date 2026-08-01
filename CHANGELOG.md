@@ -71,12 +71,16 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-test-patterns skill: added the missing general async rule (prefer async over sync, never block on async operations, no synchronous wrappers) from code-quality.instructions.md's Asynchronous Code section
 - agent-routing and issue-plan-approval skills: replaced a fabricated description of the Pre-Work Baseline Check's contents (prerequisites, pre-commit baseline, dotnet buildcheck) with a plain reference to the check, since neither skill's declared sources (task-workflow.instructions.md, agent-roles.instructions.md) define what that check contains
 - npm-packages skill: removed an em dash character from the New Package Approval presentation checklist, which language.instructions.md's Punctuation rule prohibits in generated text
+- Restored dropped rules and fixed content drift in several skills (dotnet-publish, dotnet-test-patterns, coverage-ratchet, changelog, long-running-commands, dependency-updater) that had lost concrete rule details from their source instruction files during regeneration.
+- Fixed inconsistent frontmatter description wording in the pre-work-healthcheck and dotnet-coverage skills so the trigger description reads as a single, coherent statement.
+- Removed MANDATORY markers from the secure-coding and error-handling skills that were not present in their source instruction files, and correctly backtick-quoted the em dash character reference in the git-commit skill.
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
 - Reconcile-skills workflow now syncs .ai-instructions and ai/global from cs-template before reconciling, and runs daily instead of weekly
 - Skill registry: added git-rebasing.instructions.md as a source instruction file for the github-workflows skill, reflecting the version-conflict-resolution rule it inlines from that file
 - Skill registry: disambiguated the changelog and dependency-updater skills' source citation from the bare changelog.instructions.md filename (which two different files share) to ai/global/changelog.instructions.md, the file whose repo-agnostic skip rule they actually implement; added dotnet.instructions.md as a source for the coverage-ratchet skill, which inlines its test-project-identification definition
+- Added agent-roles.instructions.md to the coverage-ratchet skill's registry entry, reflecting the round-cap escalation rule it already draws from that file.
 ### Deprecated
 ### Removed
 ### Deployment Changes

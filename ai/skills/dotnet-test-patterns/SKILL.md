@@ -143,7 +143,7 @@ Never use hardcoded literal dates (e.g. `new DateTime(2024, 1, 1)`) in tests. Us
 
 `MockDateTimeSources.AdvancingDateTimeUseWithCaution` advances the clock as the test runs; only use it when the test genuinely requires elapsed time. Prefer `Past` or `Future` for all other cases.
 
-Production code must use `System.TimeProvider` (.NET 8+) for all time abstractions: never `Credfeto.Date.ICurrentTimeSource` or `FunFair.Common.Services.IDateTimeSource` (obsolete). In tests, use `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`; never roll a custom mock.
+Production code must use `System.TimeProvider` (.NET 8+) for all time abstractions: never `Credfeto.Date.ICurrentTimeSource` or `FunFair.Common.Services.IDateTimeSource` (obsolete). In tests, use `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`; never roll a custom mock. Migrate any code touching `ICurrentTimeSource` or `IDateTimeSource` to `TimeProvider`/`FakeTimeProvider` as part of that work.
 
 ## Mock Setup Helpers
 

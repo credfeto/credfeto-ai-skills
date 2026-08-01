@@ -5,7 +5,7 @@ description: Handle and propagate errors explicitly: catch only what can be mean
 
 # Error Handling
 
-## General Principles (MANDATORY)
+## General Principles
 
 - All errors must be handled explicitly; never swallow exceptions or silently ignore error states.
 - Unhandled errors must not be allowed to crash a service or leave the system in an inconsistent state.

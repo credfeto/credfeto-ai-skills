@@ -50,7 +50,15 @@ until grep -q "Build succeeded." "${output_file}" 2>/dev/null; do
 done
 ```
 
-If the deadline fires, mark the work item Blocked and stop; do not continue work. If working against a GitHub issue or PR, add the `Blocked` label and post a comment stating what was being waited on and the last output observed, then exit.
+If the deadline fires, mark the work item Blocked and stop; do not continue work:
+
+```bash
+gh issue edit <number> --repo <owner/repo> --add-label "Blocked"
+gh issue comment <number> --repo <owner/repo> \
+    --body "Blocked: timed out after 30 minutes waiting for <what>. Last output: $(tail -5 "${output_file}" 2>/dev/null)"
+```
+
+Use `gh pr edit` / `gh pr comment` instead if the work item is a PR. Then exit; do not continue work.
 
 ## Sandbox-Caused False Timeouts in Benchmark/Perf Tests (MANDATORY)
 
