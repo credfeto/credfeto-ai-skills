@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-rebase
-description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, and resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, or whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file.
+description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, and merge CHANGELOG.md conflicts by keeping entries from both sides. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, or whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, or a conflict in CHANGELOG.md.
 ---
 
 # Git Rebasing
@@ -42,3 +42,7 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 - The same package is bumped to two different, unrelated versions on both sides and there is no clear "latest" (e.g. divergent major versions).
 - A security trade-off with no candidate that is both latest and unaffected.
+
+## CHANGELOG.md Conflicts
+
+If rebasing produces a conflict in `CHANGELOG.md` itself (as opposed to a committed coverage baseline file, see above), keep the entries from both sides rather than picking one.

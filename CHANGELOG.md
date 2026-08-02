@@ -29,6 +29,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - New dotnet-dead-framework-guards skill (credfeto-dotnet-dead-framework-guards) covering removal of now-dead #if OR_GREATER framework guards and pre-floor fallback source files once a project's targets are raised, extracted from dotnet.instructions.md, which no existing skill covered
 - New dotnet-nuget-vulnerability-suppression skill (credfeto-dotnet-nuget-vulnerability-suppression) covering per-project, advisory-URL, reason-documented, issue-tracked suppression of NuGet audit advisories, extracted from dotnet.instructions.md, which no existing skill covered
 - New dotnet-exception-generation skill (credfeto-dotnet-exception-generation) covering defining and converting .NET exception classes via the Credfeto.Exceptions.SourceGenerator analyzer instead of hand-written constructors, extracted from dotnet.instructions.md, which no existing skill covered
+- New language-conventions skill (credfeto-language-conventions) covering UK English for prose, platform-convention code identifiers, and the no-em-dash punctuation rule, extracted from language.instructions.md, which was only partially covered via the git-commit skill's commit-message scope
+- New code-style skill (credfeto-code-style) covering the no-XMLDoc/Javadoc comment rule, why-only inline comments, cyclomatic complexity and connascence limits, and the immutability preference, extracted from code-quality.instructions.md, which no existing skill covered
+- New dotnet-coding-conventions skill (credfeto-dotnet-coding-conventions) covering .NET identifier naming, StringComparer usage, one-type-per-file organisation, records-over-classes, value-type guidance, DebuggerDisplay, and the never-modify-nuget.config rule, extracted from dotnet.instructions.md, which no existing skill covered
+- New dotnet-nullable-and-warnings skill (credfeto-dotnet-nullable-and-warnings) covering the compiler-enforced nullable reference type contract with no defensive null guards, and the warnings-as-errors/no-suppression-without-permission rule, extracted from dotnet.instructions.md, which no existing skill covered
 ### Fixed
 - All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
 - pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
@@ -74,6 +78,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Restored dropped rules and fixed content drift in several skills (dotnet-publish, dotnet-test-patterns, coverage-ratchet, changelog, long-running-commands, dependency-updater) that had lost concrete rule details from their source instruction files during regeneration.
 - Fixed inconsistent frontmatter description wording in the pre-work-healthcheck and dotnet-coverage skills so the trigger description reads as a single, coherent statement.
 - Removed MANDATORY markers from the secure-coding and error-handling skills that were not present in their source instruction files, and correctly backtick-quoted the em dash character reference in the git-commit skill.
+- agent-routing skill: narrowed the infeasible-task escalation trigger back to a Coding Researcher Not possible result only, removing an invented broader any-role trigger not present in agent-roles.instructions.md
+- dependency-updater skill: added the missing skip condition for repos that do not keep a changelog (e.g. template repos) when fixing a bot PR's broken changelog-check job, matching changelog.instructions.md's When to Skip rule
+- code-cleanup-commits skill: removed an invented used-by-more-than-one-caller definition of shared code not present in code-quality.instructions.md
+- secure-coding skill: restored the dropped pointers to a repository's own AI instructions for its project-specific secrets management approach and vulnerability-scanning tool, matching security.instructions.md
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
@@ -81,6 +89,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill registry: added git-rebasing.instructions.md as a source instruction file for the github-workflows skill, reflecting the version-conflict-resolution rule it inlines from that file
 - Skill registry: disambiguated the changelog and dependency-updater skills' source citation from the bare changelog.instructions.md filename (which two different files share) to ai/global/changelog.instructions.md, the file whose repo-agnostic skip rule they actually implement; added dotnet.instructions.md as a source for the coverage-ratchet skill, which inlines its test-project-identification definition
 - Added agent-roles.instructions.md to the coverage-ratchet skill's registry entry, reflecting the round-cap escalation rule it already draws from that file.
+- pre-work-healthcheck skill: added the missing Rules Compliance for In-Flight Work check, requiring open branches and PRs to be re-evaluated whenever an instruction file changes, extracted from task-workflow.instructions.md
+- git-rebase skill: added the missing CHANGELOG.md conflict-resolution rule (keep entries from both sides) from agent-roles.instructions.md's Rebase Agent section, and added that file as a registry source
+- dotnet-coverage skill: added the missing Setting Up a Test Support Library MSBuild property requirements, extracted from dotnet.instructions.md, needed alongside the existing test-project identification rules
+- Updated the ai/local/skills.instructions.md Skill Registry to add the four new skills and the git-rebase skill's additional agent-roles.instructions.md source
 ### Deprecated
 ### Removed
 ### Deployment Changes

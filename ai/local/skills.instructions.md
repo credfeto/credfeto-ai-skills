@@ -49,7 +49,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md`, `dotnet.instructions.md`, `agent-roles.instructions.md` |
 | [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `git-rebasing.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
-| [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md` |
+| [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md`, `agent-roles.instructions.md` |
 | [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
 | [github-issue](../skills/github-issue/SKILL.md) | `credfeto-github-issue` | `git.instructions.md`, `task-workflow.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
 | [github-workflows](../skills/github-workflows/SKILL.md) | `credfeto-github-workflows` | `github-workflows.instructions.md`, `github-workflows.examples.md`, `git-rebasing.instructions.md` |
@@ -79,6 +79,10 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [repo-auditor](../skills/repo-auditor/SKILL.md) | `credfeto-repo-auditor` | `agent-roles.instructions.md` |
 | [ci-debugger](../skills/ci-debugger/SKILL.md) | `credfeto-ci-debugger` | `agent-roles.instructions.md` |
 | [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `ai/global/changelog.instructions.md` |
+| [language-conventions](../skills/language-conventions/SKILL.md) | `credfeto-language-conventions` | `language.instructions.md` |
+| [code-style](../skills/code-style/SKILL.md) | `credfeto-code-style` | `code-quality.instructions.md` |
+| [dotnet-coding-conventions](../skills/dotnet-coding-conventions/SKILL.md) | `credfeto-dotnet-coding-conventions` | `dotnet.instructions.md` |
+| [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
 
 ## Installation
 

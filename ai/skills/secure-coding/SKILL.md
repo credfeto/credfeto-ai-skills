@@ -10,6 +10,7 @@ description: Handle secrets, validate untrusted input, sanitise output, model th
 - Never commit secrets, credentials, API keys, tokens, or passwords.
 - If a secret is accidentally committed, treat it as compromised immediately: rotate it and purge it from history.
 - Use environment variables, secrets managers, or platform vaults for all runtime secrets.
+- Refer to the current repository's own AI instructions for its project-specific secrets management approach.
 
 ## Input Validation
 
@@ -28,3 +29,4 @@ description: Handle secrets, validate untrusted input, sanitise output, model th
 ## Dependency Vulnerability Scanning
 
 - Scan dependencies for known vulnerabilities in CI; assess and resolve promptly.
+- Refer to the current repository's own AI instructions for its project-specific scanning tool.

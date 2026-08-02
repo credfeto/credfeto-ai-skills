@@ -12,7 +12,7 @@ Dead-code removal, incidental cleanup, and refactoring are never bundled into a 
 - Remove unreachable code rather than writing tests around it.
 - Dead/unreachable code removal is a separate commit from test changes, made after running tests on the entire handler or app that contains it.
 - One method or function removal per commit.
-- Shared code (used by more than one caller) may only be removed once the entire codebase has 100% coverage; each removal is still its own commit.
+- Shared code may only be removed once the entire codebase has 100% coverage; each removal is still its own commit.
 
 ## Refactoring
 

@@ -1,6 +1,6 @@
 ---
 name: credfeto-pre-work-healthcheck
-description: Verify language/runtime prerequisites, run the pre-commit baseline against all tracked files, bootstrap COVERAGE.md when picking up a fresh issue, and run dotnet buildcheck in .NET repositories, before starting any work on an issue or PR. Use at the start of every task, before writing any code, to ensure CI results are unambiguous.
+description: Verify language/runtime prerequisites, run the pre-commit baseline against all tracked files, bootstrap COVERAGE.md when picking up a fresh issue, run dotnet buildcheck in .NET repositories, and re-check open branches/PRs for compliance whenever an instruction file changes, before starting any work on an issue or PR. Use at the start of every task, before writing any code, to ensure CI results are unambiguous.
 ---
 
 # Pre-Work Health Check
@@ -151,3 +151,7 @@ Before branching:
 2. If any open PR's `headRefName` contains the issue number, that is prior work; resume it instead of creating a new branch.
 3. For any PR authored by `app/github-actions` (github is configured to auto-create PRs from pushed branches; these appear bot-authored but the commits are yours), verify the commit authors before taking ownership: `gh pr view <n> --repo <owner/repo> --json commits --jq '.commits[].authors[].login'`. If **all commits** are from your account, take ownership rather than duplicating work: update the title/body to match the proper format, add yourself as assignee, and treat it as your active PR. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is.
 4. Do **not** create a new branch or PR for the same issue; that would be duplicate work. If a duplicate pair already exists (a bot-created PR and one you authored yourself, for the same issue or branch): keep whichever has the more complete body and later review activity, and close the other with a comment explaining which PR supersedes it.
+
+## 7. Rules Compliance for In-Flight Work (MANDATORY)
+
+Whenever an instruction file the repository loads (global or local) has been added or updated, re-evaluate all open branches and PRs against the new rules before continuing other work. Fix any non-compliance found; treat it the same as a CI failure.

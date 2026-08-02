@@ -68,4 +68,4 @@ When acting as the research pass:
 
 ## Escalation When a Task Is Infeasible
 
-If a delegated role escalates a task as infeasible (a research pass returning **Not possible**, or any other role reporting it cannot proceed), do not re-route it unchanged and retry blindly. Record the finding on the issue/PR and surface it to the human for a decision: re-scope, accept the suggested alternative, or drop the task.
+If a delegated role escalates a task as infeasible (a research pass returning **Not possible**), do not re-route it unchanged and retry blindly. Record the finding on the issue/PR and surface it to the human for a decision: re-scope, accept the suggested alternative, or drop the task.
