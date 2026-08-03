@@ -76,6 +76,8 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
 | [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
 | [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md` |
+| [code-tester](../skills/code-tester/SKILL.md) | `credfeto-code-tester` | `agent-roles.instructions.md`, `task-workflow.instructions.md` |
+| [code-fixer](../skills/code-fixer/SKILL.md) | `credfeto-code-fixer` | `agent-roles.instructions.md` |
 | [repo-auditor](../skills/repo-auditor/SKILL.md) | `credfeto-repo-auditor` | `agent-roles.instructions.md` |
 | [ci-debugger](../skills/ci-debugger/SKILL.md) | `credfeto-ci-debugger` | `agent-roles.instructions.md` |
 | [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `ai/global/changelog.instructions.md` |

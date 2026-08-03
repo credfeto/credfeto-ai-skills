@@ -143,6 +143,20 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
 
 Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet buildcheck`). Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/<toolname>`.
 
+All projects must be added to the solution file (`.slnx` or `.sln`); a project missing from the solution will not be picked up by `dotnet buildcheck`.
+
+If a build fails because `$(SolutionDir)` is undefined (e.g. imports guarded by `Exists('$(SolutionDir)...')` are silently skipped, leading to errors such as `NU5017`), fix it by ensuring the solution's `src/` directory has a `Directory.Build.props` that sets a fallback:
+
+```xml
+<Project>
+    <PropertyGroup>
+        <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+    </PropertyGroup>
+</Project>
+```
+
+This makes `$(SolutionDir)` resolve correctly in solution-less build contexts (e.g. BenchmarkDotNet host processes, `dotnet watch`, direct project builds) without changing any project files.
+
 ## 6. Existing Work Check (MANDATORY)
 
 Before branching:

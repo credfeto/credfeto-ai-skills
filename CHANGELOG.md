@@ -33,6 +33,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - New code-style skill (credfeto-code-style) covering the no-XMLDoc/Javadoc comment rule, why-only inline comments, cyclomatic complexity and connascence limits, and the immutability preference, extracted from code-quality.instructions.md, which no existing skill covered
 - New dotnet-coding-conventions skill (credfeto-dotnet-coding-conventions) covering .NET identifier naming, StringComparer usage, one-type-per-file organisation, records-over-classes, value-type guidance, DebuggerDisplay, and the never-modify-nuget.config rule, extracted from dotnet.instructions.md, which no existing skill covered
 - New dotnet-nullable-and-warnings skill (credfeto-dotnet-nullable-and-warnings) covering the compiler-enforced nullable reference type contract with no defensive null guards, and the warnings-as-errors/no-suppression-without-permission rule, extracted from dotnet.instructions.md, which no existing skill covered
+- Add credfeto-code-tester skill, extracting the Code Tester agent role's build/test/coverage verification procedure from agent-roles.instructions.md, previously only named in routing tables
+- Add credfeto-code-fixer skill, extracting the Code Fixer agent role's PR change-request procedure from agent-roles.instructions.md, previously only named in routing tables
+- Register credfeto-code-tester and credfeto-code-fixer in the ai/local/skills.instructions.md skill registry
 ### Fixed
 - All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
 - pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
@@ -93,6 +96,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - git-rebase skill: added the missing CHANGELOG.md conflict-resolution rule (keep entries from both sides) from agent-roles.instructions.md's Rebase Agent section, and added that file as a registry source
 - dotnet-coverage skill: added the missing Setting Up a Test Support Library MSBuild property requirements, extracted from dotnet.instructions.md, needed alongside the existing test-project identification rules
 - Updated the ai/local/skills.instructions.md Skill Registry to add the four new skills and the git-rebase skill's additional agent-roles.instructions.md source
+- Regenerate credfeto-git-rebase skill to include the Rebase Agent role's build-break-escalation and non-algorithmic-conflict rules from agent-roles.instructions.md, which were missing
+- Add the missing Setting Up a Test Support Library, Identifying Test Projects, Source Generator Test Projects, and Compile-Time Configuration testing rules to the credfeto-dotnet-test-patterns skill
+- Add the all-projects-in-solution rule and the SolutionDir Directory.Build.props fallback fix to the credfeto-pre-work-healthcheck skill's .NET health check section
+- Add the Orchestrator's CHANGES_REQUESTED-PR-over-new-issue selection priority to the credfeto-github-issue skill
 ### Deprecated
 ### Removed
 ### Deployment Changes

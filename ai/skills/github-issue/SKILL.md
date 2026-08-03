@@ -109,7 +109,7 @@ After any push, if the remote reports vulnerabilities:
 | `Low` | Addressed after `Medium` work |
 | _(untagged)_ | No priority set, tracked but timing does not matter |
 
-When selecting the next issue to work on, prefer issues with higher-priority labels.
+When selecting the next issue to work on, prefer issues with higher-priority labels. Prioritise PRs with a `CHANGES_REQUESTED` review status over starting a new issue.
 
 ## Status Labels
 

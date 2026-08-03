@@ -32,6 +32,63 @@ All test projects must:
 - Import the latest release of `FunFair.Test.Source.Generator`.
 - Include `<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />`.
 
+### Setting Up a Test Support Library (MANDATORY)
+
+When a project is a test support library (provides mocks, helpers, or base types for test projects, e.g. `*.Tests.Mocks`, `*.Tests.Common`) but is **not** itself a test runner, it must have all four of the following properties set explicitly:
+
+```xml
+<IsTestProject>false</IsTestProject>
+<IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+<TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+```
+
+It must also import `UnitTests.props`:
+
+```xml
+<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />
+```
+
+- `IsTestProject=false`: tells the build-check tooling this is not a test project; without it, a project referencing test packages that lacks this flag is expected to be a test runner and buildcheck errors.
+- `IsTestingPlatformApplication=false`: overrides the implicit `true` set by `FunFair.Test.Common`, xunit, and similar packages; without it, `dotnet test` on .NET 10 attempts to run the project as an executable and fails because `OutputType=Library`.
+- `UseMicrosoftTestingPlatformRunner=true`: required by the build-check tooling for any project that references test packages, even when `IsTestProject=false`.
+- `TestingPlatformDotnetTestSupport=true`: required for any project that references test packages (e.g. `xunit.v3.extensibility.core`, `FunFair.Test.Common`), even when `IsTestProject=false`; without it, buildcheck reports `Should specify TestingPlatformDotnetTestSupport as true`.
+
+These projects keep `OutputType=Library`. Never target them with `dotnet test`; see [Identifying Test Projects](#identifying-test-projects) below.
+
+### Identifying Test Projects
+
+A project is a test project **only** if its assembly name ends with one of these suffixes:
+
+| Suffix | Type |
+| ------ | ---- |
+| `.Tests` | Unit tests |
+| `.Integration.Tests` | Integration tests |
+| `.Benchmark.Tests` | Benchmarks |
+
+- **Never** use "contains 'Test'" in a project name as a heuristic; a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
+- **Never** run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes.
+- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
+- **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
+- **Always** verify `IsTestingPlatformApplication` in the csproj: this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
+
+### Source Generator Test Projects
+
+When writing unit tests that directly reference a source generator project via `<ProjectReference>` on .NET 10+, add the following MSBuild target to the test project's `.csproj`:
+
+```xml
+<Target Name="RemoveGeneratorNuGetCompileDependencies"
+        AfterTargets="ResolveProjectReferences"
+        BeforeTargets="ResolveAssemblyReferences">
+  <ItemGroup>
+    <_ResolvedProjectReferencePaths Remove="@(_ResolvedProjectReferencePaths)"
+        Condition="'%(_ResolvedProjectReferencePaths.NuGetPackageId)' != '' And '%(_ResolvedProjectReferencePaths.IncludeRuntimeDependency)' == 'false'" />
+  </ItemGroup>
+</Target>
+```
+
+This prevents the generator's Roslyn NuGet dependencies (e.g. `System.Collections.Immutable 9.0` exported via `GetDependencyTargetPaths`) from appearing alongside the .NET 10 in-box versions in the test project's reference list, which would cause CS1685 ("predefined type defined in multiple assemblies").
+
 ## Asynchronous Code and Cancellation
 
 - Prefer async over sync wherever supported; never block on async operations (always await or use async continuations); propagate async through the call stack, with no synchronous wrappers around async operations.
@@ -158,3 +215,7 @@ Prefer parameterised tests over duplicated test methods: each behavioural varian
 - Tests must meet the same code quality standards as production code.
 - Test behaviour, not implementation: refactoring production code must not unnecessarily break tests.
 - Use constants, builders, or factory helpers rather than hardcoded values likely to change.
+
+## Compile-Time Configuration
+
+Cover compile-time configuration (environment constants, build-time feature flags) with unit tests, not runtime assertions, which pollute production code.

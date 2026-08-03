@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-rebase
-description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, and merge CHANGELOG.md conflicts by keeping entries from both sides. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, or whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, or a conflict in CHANGELOG.md.
+description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, merge CHANGELOG.md conflicts by keeping entries from both sides, and apply the additional force-push and escalation rules that apply when acting as the dedicated Rebase Agent. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, a conflict in CHANGELOG.md, or when acting as the Rebase Agent.
 ---
 
 # Git Rebasing
@@ -42,6 +42,15 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 - The same package is bumped to two different, unrelated versions on both sides and there is no clear "latest" (e.g. divergent major versions).
 - A security trade-off with no candidate that is both latest and unaffected.
+
+## Rebase Agent Role (MANDATORY when acting in that role)
+
+When acting specifically as the dedicated Rebase Agent (split from the Code Writer and Orchestrator roles in a multi-agent workflow):
+
+- Rebase the named branch onto `origin/main`.
+- If the version conflict resolution chosen per the algorithm above breaks the build, report the break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that scoped role. Outside that specific role split, the default (fix the breakage on the same branch, per rule 6 above) still applies.
+- Any conflict that falls outside the deterministic algorithm above: report it verbatim to the Orchestrator; do not resolve it yourself.
+- Force-push with `--force-with-lease` only after all conflicts are resolved.
 
 ## CHANGELOG.md Conflicts
 
