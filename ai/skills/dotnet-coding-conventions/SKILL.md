@@ -1,6 +1,6 @@
 ---
 name: credfeto-dotnet-coding-conventions
-description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, and never modify nuget.config. Use whenever writing or reviewing .NET production code.
+description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, and never modify nuget.config. Use whenever writing or reviewing .NET production code.
 ---
 
 # .NET Coding Conventions
@@ -64,6 +64,14 @@ public sealed record GlobalJsonInfo(string? SdkVersion, string? RollForward, boo
 - Always add `[DebuggerDisplay("...")]` showing all key properties (see Debugger Diagnostics below).
 - If the type is a pure value (no identity semantics, small, immutable) prefer `readonly record struct` over `record class`.
 - If the target framework does **not** support records (e.g. `netstandard2.0`), continue using a `class` or `struct`, but manually implement everything a record would provide: a constructor that sets all properties, read-only auto-properties, `Equals`, `GetHashCode`, `ToString`, and `IEquatable<T>`.
+
+## Asynchronous Code and Cancellation
+
+- Prefer async over sync wherever supported; never block on async operations (always await or use async continuations); propagate async through the call stack, with no synchronous wrappers around async operations.
+- Prefer `ValueTask`/`ValueTask<T>` over `Task`/`Task<T>`: avoids heap allocations on synchronous-completion paths. Only use `Task`/`Task<T>` where `ValueTask` is unsupported or the method always completes asynchronously.
+- All async methods must accept and pass down a `CancellationToken`; prefer overloads that accept one.
+- Never create a new `CancellationToken` when one has been provided, unless combining with a timeout via `CancellationTokenSource.CreateLinkedTokenSource`.
+- Do not pass `CancellationToken.None` without an explicit documented reason.
 
 ## Value Types (struct / record struct)
 

@@ -36,6 +36,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Add credfeto-code-tester skill, extracting the Code Tester agent role's build/test/coverage verification procedure from agent-roles.instructions.md, previously only named in routing tables
 - Add credfeto-code-fixer skill, extracting the Code Fixer agent role's PR change-request procedure from agent-roles.instructions.md, previously only named in routing tables
 - Register credfeto-code-tester and credfeto-code-fixer in the ai/local/skills.instructions.md skill registry
+- New code-writer skill (credfeto-code-writer) covering the Code Writer agent role's implement-research-escalate-handoff procedure, extracted from agent-roles.instructions.md, which no existing skill covered despite every other named agent role having one
 ### Fixed
 - All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
 - pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
@@ -85,6 +86,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dependency-updater skill: added the missing skip condition for repos that do not keep a changelog (e.g. template repos) when fixing a bot PR's broken changelog-check job, matching changelog.instructions.md's When to Skip rule
 - code-cleanup-commits skill: removed an invented used-by-more-than-one-caller definition of shared code not present in code-quality.instructions.md
 - secure-coding skill: restored the dropped pointers to a repository's own AI instructions for its project-specific secrets management approach and vulnerability-scanning tool, matching security.instructions.md
+- dotnet-test-patterns skill: restored the missing (MANDATORY) marker on the Identifying Test Projects heading and fixed the matching anchor link, matching dotnet.instructions.md
+- pr-sync skill: added the missing prohibition on running gh auth setup-git, which silently breaks git commit and push by rewriting the credential helper, matching github-cli.instructions.md
+- dotnet-coding-conventions skill: added the missing Asynchronous Code and Cancellation section (ValueTask preference, CancellationToken propagation) that applies to all production code, not just tests, matching dotnet.instructions.md and code-quality.instructions.md
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources

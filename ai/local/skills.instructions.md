@@ -76,6 +76,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
 | [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
 | [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md` |
+| [code-writer](../skills/code-writer/SKILL.md) | `credfeto-code-writer` | `agent-roles.instructions.md` |
 | [code-tester](../skills/code-tester/SKILL.md) | `credfeto-code-tester` | `agent-roles.instructions.md`, `task-workflow.instructions.md` |
 | [code-fixer](../skills/code-fixer/SKILL.md) | `credfeto-code-fixer` | `agent-roles.instructions.md` |
 | [repo-auditor](../skills/repo-auditor/SKILL.md) | `credfeto-repo-auditor` | `agent-roles.instructions.md` |
@@ -83,7 +84,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `ai/global/changelog.instructions.md` |
 | [language-conventions](../skills/language-conventions/SKILL.md) | `credfeto-language-conventions` | `language.instructions.md` |
 | [code-style](../skills/code-style/SKILL.md) | `credfeto-code-style` | `code-quality.instructions.md` |
-| [dotnet-coding-conventions](../skills/dotnet-coding-conventions/SKILL.md) | `credfeto-dotnet-coding-conventions` | `dotnet.instructions.md` |
+| [dotnet-coding-conventions](../skills/dotnet-coding-conventions/SKILL.md) | `credfeto-dotnet-coding-conventions` | `dotnet.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
 
 ## Installation

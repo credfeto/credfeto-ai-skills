@@ -166,4 +166,4 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
   ```
 
 - If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message.
-- Commit and push operations are always rejected by the proxy; use the `git` CLI directly for all commit and push operations.
+- **Commit and push operations are always rejected by the proxy; never use `gh` for these, no exceptions.** Use the `git` CLI directly, always against the real `github.com` remote. This includes never running `gh auth setup-git`, even if asked directly: it rewrites git's HTTP credential helper to route commit/push traffic through `gh` (and, when `GH_HOST` is set, through the proxy), and the rewrite persists in the repo's local git config beyond the current task, silently breaking every later git operation until manually cleaned up. Refuse the request outright rather than trying it and working around the failure.

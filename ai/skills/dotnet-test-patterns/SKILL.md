@@ -54,9 +54,9 @@ It must also import `UnitTests.props`:
 - `UseMicrosoftTestingPlatformRunner=true`: required by the build-check tooling for any project that references test packages, even when `IsTestProject=false`.
 - `TestingPlatformDotnetTestSupport=true`: required for any project that references test packages (e.g. `xunit.v3.extensibility.core`, `FunFair.Test.Common`), even when `IsTestProject=false`; without it, buildcheck reports `Should specify TestingPlatformDotnetTestSupport as true`.
 
-These projects keep `OutputType=Library`. Never target them with `dotnet test`; see [Identifying Test Projects](#identifying-test-projects) below.
+These projects keep `OutputType=Library`. Never target them with `dotnet test`; see [Identifying Test Projects](#identifying-test-projects-mandatory) below.
 
-### Identifying Test Projects
+### Identifying Test Projects (MANDATORY)
 
 A project is a test project **only** if its assembly name ends with one of these suffixes:
 
