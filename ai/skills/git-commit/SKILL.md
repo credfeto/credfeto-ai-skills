@@ -89,6 +89,14 @@ If the remote reports vulnerabilities:
 - Check for open Dependabot PRs covering them (`gh pr list --label dependencies`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
+## Instruction File Source Routing
+
+Before committing a change to an instruction file (`ai/global/**` or `ai/local/**`), route it to the correct repository:
+
+- Changes to shared global instruction files (`ai/global/**`): raise an issue in `credfeto/cs-template`; it is the canonical source for those files. See [Template Rule Escalation](#template-rule-escalation-non-template-repos-only) below for the issue format.
+- Changes specific to FunFair server projects: raise an issue in `funfair-tech/funfair-server-template` instead.
+- Otherwise (local instructions specific to the current repository): make the change directly in the current repository and commit it as normal.
+
 ## Template Rule Escalation (Non-Template Repos Only)
 
 When working outside `credfeto/cs-template` and a gap in the global template rules is found:

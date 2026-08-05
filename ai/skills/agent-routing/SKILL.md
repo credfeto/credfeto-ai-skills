@@ -15,7 +15,7 @@ Roles that make judgement calls (writing code, reviewing it, researching unfamil
 
 ## Failure Handling: No Self-Repair (MANDATORY)
 
-Mechanical roles must not interpret or fix failures. When a check fails: capture the full output, stop immediately, and return the failure details verbatim to the calling role. Do not guess at a fix, retry with modified parameters, or silently work around the failure; escalate it.
+Mechanical roles must not interpret or fix failures. When a check fails: capture the full output, stop immediately, and return the failure details verbatim to the calling role.
 
 ## Routing Rules
 

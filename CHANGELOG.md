@@ -89,6 +89,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-test-patterns skill: restored the missing (MANDATORY) marker on the Identifying Test Projects heading and fixed the matching anchor link, matching dotnet.instructions.md
 - pr-sync skill: added the missing prohibition on running gh auth setup-git, which silently breaks git commit and push by rewriting the credential helper, matching github-cli.instructions.md
 - dotnet-coding-conventions skill: added the missing Asynchronous Code and Cancellation section (ValueTask preference, CancellationToken propagation) that applies to all production code, not just tests, matching dotnet.instructions.md and code-quality.instructions.md
+- agent-routing skill: removed an unsourced sentence from the No Self-Repair rule that was not present in task-workflow.instructions.md or agent-roles.instructions.md, so the skill no longer asserts guidance beyond what its sources actually say
+- pr-review-loop skill: corrected two internal references to a non-existent step 2.5 in the coverage-ratchet decision procedure to the actual step 5, matching coverage-ratchet.instructions.md
+- git-commit skill: added the missing Instruction File Source Routing rule (route ai/global changes to credfeto/cs-template, FunFair-specific changes to funfair-tech/funfair-server-template, otherwise commit locally), which task-workflow.instructions.md already required but no skill captured
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
