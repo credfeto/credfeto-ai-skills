@@ -92,6 +92,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - agent-routing skill: removed an unsourced sentence from the No Self-Repair rule that was not present in task-workflow.instructions.md or agent-roles.instructions.md, so the skill no longer asserts guidance beyond what its sources actually say
 - pr-review-loop skill: corrected two internal references to a non-existent step 2.5 in the coverage-ratchet decision procedure to the actual step 5, matching coverage-ratchet.instructions.md
 - git-commit skill: added the missing Instruction File Source Routing rule (route ai/global changes to credfeto/cs-template, FunFair-specific changes to funfair-tech/funfair-server-template, otherwise commit locally), which task-workflow.instructions.md already required but no skill captured
+- Fix coverage-ratchet skill to generate per-assembly coverage reports separately from the combined report, preventing cross-assembly contamination from producing false component-level coverage figures
+- Fix docker-rootless-podman-systemd skill's ProtectHome=yes workaround to stop recommending PrivateTmp=yes, which orphans the rootless-Podman pause process against a deleted private /var/tmp and breaks later image pulls, and document the failure mode and recovery steps
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources

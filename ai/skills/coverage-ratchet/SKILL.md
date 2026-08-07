@@ -72,7 +72,18 @@ git -C <repodir> add COVERAGE.md
 
 ### .NET
 
-Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic. Collect each unit test project's `.cobertura.xml`, generate per-assembly reports, then generate one combined report and read its `summary.linecoverage` field for the gated Overall (.NET) figure:
+Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic. Collect each unit test project's `.cobertura.xml`, generate one `reportgenerator` report **per assembly** for the component rows:
+
+```bash
+dotnet reportgenerator \
+  -reports:{repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml \
+  -targetdir:{repo-root}/coverage/{AssemblyName} \
+  -reporttypes:Html
+```
+
+**Never pass multiple assemblies' `.cobertura.xml` files into a single `reportgenerator` run for the per-assembly rows.** If assembly A references types from assembly B, running them together causes B's components to appear in A's coverage report, which falsely lowers A's measured coverage.
+
+Then generate one additional **combined** report as a separate step and read its `summary.linecoverage` field for the gated Overall (.NET) figure; use this combined run only for that single whole-repo figure, never as a per-assembly quality signal:
 
 ```bash
 dotnet reportgenerator \
