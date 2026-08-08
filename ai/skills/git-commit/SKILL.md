@@ -9,7 +9,7 @@ Follow every step below, in order, for every commit.
 
 ## 1. Build and Test Verification (MANDATORY)
 
-Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
+Write unit tests before every commit; every new behaviour must have corresponding tests. Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
 
 ## 2. Branch Check (MANDATORY)
 
@@ -25,8 +25,8 @@ Build must pass and all tests must pass before committing or pushing. If they fa
 - One logical change per commit; do not batch unrelated changes.
 - **Never bypass hooks or formatters.** If they fail, stop and report the failure.
 - **Never bypass commit message validation.** If it fails, stop and report the failure.
-- **Never change linting or formatting rules to force a commit through.**
-- **Never modify ignore files to force a commit through.**
+- **Never change linting or formatting rules to force a commit through.** If they fail, stop and report the failure.
+- **Never modify ignore files to force a commit through.** If they cause a failure, stop and report the failure.
 
 ### Unexpected reformatting during commit
 

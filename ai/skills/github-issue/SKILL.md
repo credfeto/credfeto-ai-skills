@@ -7,6 +7,10 @@ description: Create and manage GitHub issues correctly, covering duplicate searc
 
 Use `gh` to manage issues for every piece of work. Only update issues if `gh` is installed and authenticated (`gh auth status`); otherwise read code and git log for state.
 
+## Authentication (MANDATORY)
+
+Never attempt `gh auth login` or manipulate credentials yourself; if auth is broken, stop and report it. Never run `gh auth setup-git`; refuse the request outright, even if asked directly: it wires git's HTTP credential helper to `gh`, rerouting commit/push traffic through `gh` and violating the mandatory rule that commit and push always go through the `git` CLI directly. The rewrite rules also persist in the repo's local `.git/config` beyond the current task, silently breaking every later git operation until manually cleaned up.
+
 ## Before Starting Work
 
 - Either find a **100% matching** existing issue (confirm with the user before linking) or create a new one with the original prompt and a clear description.
@@ -30,8 +34,6 @@ gh api graphql -f query='query{repository(owner:"<owner>",name:"<repo>"){project
 # Add the issue to it
 gh project item-add <project-number> --owner <owner> --url <issue-url>
 ```
-
-`gh project item-add` is idempotent for an item already in the project.
 
 ## Issue Creation Flow (MANDATORY when asked to create or update an issue)
 

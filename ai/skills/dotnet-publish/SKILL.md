@@ -32,6 +32,6 @@ Raise a GitHub issue in the current repository describing the incompatibility (p
 ## General Warning Rules
 
 - Every project must build with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
-- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without explicit written permission from the repo owner, except a per-advisory NuGet audit suppression (`<NuGetAuditSuppress>`), which is always permitted.
+- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without explicit written permission from the repo owner, except a per-advisory NuGet audit suppression (`<NuGetAuditSuppress>`), which is permitted without that sign-off but only per-project (never global), with the advisory URL and a `<!-- Reason -->` comment, and tracked in a GitHub issue.
 - Test projects are not exempt from this rule; suppressing warnings in test code is equally prohibited without explicit permission.
 - If a warning fires, fix the root cause. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.

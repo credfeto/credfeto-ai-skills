@@ -78,6 +78,10 @@ Never block work based on inspecting config files and deducing that a tool might
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
+### Pre-Commit Hook Known Incompatibilities
+
+- **dotenv-linter**: use `entry: dotenv-linter check`; v3.x requires the `check` subcommand before the filename.
+
 ## 4. COVERAGE.md Bootstrap for New Issues (MANDATORY)
 
 Only when picking up a **new issue** by branching fresh from an up-to-date `main` (not resuming an existing branch): once the baseline hook in step 3 passes cleanly, check whether `COVERAGE.md` exists at the repo root.

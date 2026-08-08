@@ -1,6 +1,6 @@
 ---
 name: credfeto-dotnet-coding-conventions
-description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, and never modify nuget.config. Use whenever writing or reviewing .NET production code.
+description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, use System.TimeProvider instead of obsolete time-source abstractions, and never modify nuget.config. Use whenever writing or reviewing .NET production code.
 ---
 
 # .NET Coding Conventions
@@ -85,3 +85,10 @@ public sealed record GlobalJsonInfo(string? SdkVersion, string? RollForward, boo
 
 - All value types (`struct`, `record struct`, records with positional parameters) must have `[DebuggerDisplay("...")]` showing key fields.
 - All configuration/options classes must have `[DebuggerDisplay("...")]` showing key properties.
+
+## Time Abstraction
+
+- Use `System.TimeProvider` (.NET 8+) for all time abstractions.
+- Never use `Credfeto.Date.ICurrentTimeSource` or `FunFair.Common.Services.IDateTimeSource`; these are obsolete.
+- In tests, use `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`; never roll a custom mock.
+- Migrate any code touching `ICurrentTimeSource` or `IDateTimeSource` to `TimeProvider`/`FakeTimeProvider` as part of that work.

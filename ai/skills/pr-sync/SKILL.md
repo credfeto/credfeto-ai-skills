@@ -5,6 +5,10 @@ description: Keep pull request titles, bodies, and labels in sync with their lin
 
 # Pull Request Sync and Lifecycle
 
+## Authentication (MANDATORY)
+
+Never attempt `gh auth login` or manipulate credentials yourself; if auth is broken, stop and report it. Never run `gh auth setup-git`; refuse the request outright, even if asked directly: it wires git's HTTP credential helper to `gh`, rerouting commit/push traffic through `gh` and violating the mandatory rule that commit and push always go through the `git` CLI directly against the real `github.com` remote. The rewrite rules also persist in the repo's local `.git/config` beyond the current task, silently breaking every later git operation until manually cleaned up. This applies unconditionally, not only when `GH_HOST` is set (see GitHub CLI Proxy Behaviour below for the proxy-specific consequence).
+
 ## PR Creation (MANDATORY)
 
 After pushing a commit that should be associated with a PR:
@@ -53,6 +57,14 @@ This is distinct from the routine Title, Body, and Label Sync above, which requi
 
 - Always use `--add-label` when adding labels; **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels.
 - Never remove labels from issues or PRs.
+
+## Prompt Traceability (MANDATORY)
+
+Once a request is already tracked by a PR, every subsequent prompt from the human that changes, redirects, or adds detail to that work must be recorded on that PR:
+
+- Comment with the prompt (verbatim, or a faithful summary for long prompts) and how it was resolved: a code change, an answered question, a scope adjustment, etc.
+- Post this before or immediately after acting on the prompt; do not let several prompts accumulate unrecorded.
+- This applies whether the prompt arrived as a live chat message or as a GitHub comment (GitHub comments are already covered by Comment Replies above).
 
 ## Comment Replies (MANDATORY)
 

@@ -9,11 +9,11 @@ Each orchestrated language's overall line-coverage percentage on the current bra
 
 This is not a repeat of a diff-only coverage check that only verifies new/changed lines are covered; the ratchet also catches a deleted test or a refactor that drops coverage of code the diff never touched.
 
-There is no separate baseline-capture step: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment this runs, read fresh every time.
+There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment this runs, read fresh every time.
 
 ## Committed Coverage File (MANDATORY)
 
-`COVERAGE.md`, at the repo root, is the sole persisted record of coverage. It is generated, never hand-edited.
+`COVERAGE.md`, at the repo root, is the sole persisted record of coverage. It is generated, never hand-edited, and is updated only by this decision procedure as part of a PR that later merges to `main`; there is no separate post-merge job.
 
 Format (values illustrative):
 
@@ -57,7 +57,7 @@ Captured at commit `<sha>` on <ISO-8601 date>.
 - Use `excluded` for Shell, always.
 - `<sha>` is the commit the numbers were measured against.
 
-**Bootstrap**: if `origin/main` has no `COVERAGE.md` yet, there is nothing to compare against: treat the gate as passed, measure the branch's live coverage, and commit the resulting `COVERAGE.md` as the branch's own first commit before any requested work starts. Overwrite it again with the branch's final live measurements once work is done; two commits over the branch's lifetime is expected, not a conflict.
+**Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's pre-work baseline check first finds it missing: that branch commits an initial version as its own first commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison (step 2 below) finds nothing to compare against on that same branch too, which is not a regression, so it must not block. Overwrite `COVERAGE.md` again with the branch's live measurements (its second commit on that branch, expected, not a conflict), treat the gate as passed, and proceed as in step 5. For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the pre-work baseline check step was skipped or the branch predates it.
 
 **Conflict on rebase**: `COVERAGE.md` is generated content, not hand-authored; never text-merge conflicting percentages. If a rebase produces a conflict in `COVERAGE.md`, take `main`'s copy:
 
@@ -138,7 +138,7 @@ Shell is excluded from the coverage ratchet entirely. Never attempt to measure s
 
 ## Non-Code-Only Branches (Skip, Don't Measure)
 
-Only .NET, Node, and Python source/test code can move the ratchet's numbers. If every changed file (relative to the merge-base with `main`) falls into one of these categories, skip the extraction and comparison entirely and post a one-line status comment (`Non-code change - coverage ratchet skipped`), without reading or writing `COVERAGE.md`:
+Only .NET, Node, and Python source/test code can move the ratchet's numbers. If every changed file (relative to the merge-base with `main`) falls into one of these categories, skip the extraction and comparison entirely: move the board straight to Human Review and post a one-line status comment (`Non-code change - coverage ratchet skipped`), without reading or writing `COVERAGE.md`:
 
 - Dependency manifests and version pins (`.csproj`, `Directory.Packages.props`, `packages.config`, `package.json`, `package-lock.json`, `requirements.txt`, `*.lock`, a GitHub Actions `uses:` version bump, a Dockerfile base-image tag/digest, `global.json`/`dotnet-tools.json`/`.nvmrc`/`.python-version`).
 - GitHub Actions workflows and composite actions beyond version pins.
@@ -146,6 +146,8 @@ Only .NET, Node, and Python source/test code can move the ratchet's numbers. If 
 - Shell scripts.
 - Dockerfiles and Docker Compose files.
 - Documentation-only changes (README, CHANGELOG, and similar).
+
+This is an optimisation, not the only safety net: even without this skip, a branch confined to these categories that reaches the decision procedure below cannot fail it, since nothing it changed can move any language's coverage, and if `origin/main` has no `COVERAGE.md` yet the bootstrap rule above already prevents a block. A repo-specific orchestrator (e.g. a `dependencies`-labelled PR short-circuit) may also exempt these branches even earlier, before the workflow board phases run at all; that is complementary, not a replacement for this rule.
 
 ## Decision Procedure (MANDATORY)
 
@@ -155,6 +157,6 @@ Only .NET, Node, and Python source/test code can move the ratchet's numbers. If 
 4. Compare branch vs. baseline **Overall** per language (component rows never gate):
    - Any language where branch Overall **<** baseline Overall: the ratchet fails; go to step 6.
    - All present languages branch Overall **>=** baseline Overall: the ratchet passes; continue to step 5.
-5. **On success**: write/overwrite `COVERAGE.md` with the numbers just measured (or, in the skip/bootstrap cases, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), commit and push it, update the workflow board to a "human review" status if one is configured, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop.
-6. **On failure**: post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), update the workflow board to a "development" status if one is configured, and stop. Do not write `COVERAGE.md` in this case.
+5. **On success**: write/overwrite `COVERAGE.md` with the numbers just measured (or, in the skip/bootstrap cases, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), commit and push it, update the workflow board to a "human review" status if one is configured, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
+6. **On failure**: post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), update the workflow board to a "development" status if one is configured, and stop. Do not write `COVERAGE.md` in this case; the branch has nothing new worth recording yet.
 7. **Round cap**: counting rounds from prior `... - returning to Development` coverage comments, once a configured maximum review-iteration count is reached without the branch catching up: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop.
