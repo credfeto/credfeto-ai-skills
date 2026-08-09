@@ -78,7 +78,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md` |
 | [code-writer](../skills/code-writer/SKILL.md) | `credfeto-code-writer` | `agent-roles.instructions.md` |
 | [code-tester](../skills/code-tester/SKILL.md) | `credfeto-code-tester` | `agent-roles.instructions.md`, `task-workflow.instructions.md` |
-| [code-fixer](../skills/code-fixer/SKILL.md) | `credfeto-code-fixer` | `agent-roles.instructions.md` |
+| [code-fixer](../skills/code-fixer/SKILL.md) | `credfeto-code-fixer` | `agent-roles.instructions.md`, `github-cli.instructions.md` |
 | [repo-auditor](../skills/repo-auditor/SKILL.md) | `credfeto-repo-auditor` | `agent-roles.instructions.md` |
 | [ci-debugger](../skills/ci-debugger/SKILL.md) | `credfeto-ci-debugger` | `agent-roles.instructions.md` |
 | [dependency-updater](../skills/dependency-updater/SKILL.md) | `credfeto-dependency-updater` | `agent-roles.instructions.md`, `ai/global/changelog.instructions.md` |

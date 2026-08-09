@@ -15,5 +15,12 @@ description: Address requested changes on an existing pull request, whether from
 - Respond to **every** review comment without exception:
   - If the comment required a code change: reply with `Fixed in <commit-sha>: <one sentence describing what changed and why>`.
   - If the comment is a question or discussion point with no code change needed: reply with a full answer inline on the PR.
+  - To reply to an inline/diff-level review comment so it threads correctly (rather than posting a disconnected top-level comment), use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
+    ```bash
+    gh api repos/<owner>/<repo>/pulls/<n>/comments \
+      -X POST \
+      -f body="<reply text>" \
+      -F in_reply_to=<comment-id>
+    ```
 - If a fix requires knowledge outside the instruction files (unfamiliar API, complex library usage), research it first rather than guessing or fabricating a fix.
   - If research determines the fix is **not possible** as scoped, stop and escalate with the explanation; do not partially apply a guess.

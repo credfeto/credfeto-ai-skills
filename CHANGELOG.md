@@ -37,6 +37,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Add credfeto-code-fixer skill, extracting the Code Fixer agent role's PR change-request procedure from agent-roles.instructions.md, previously only named in routing tables
 - Register credfeto-code-tester and credfeto-code-fixer in the ai/local/skills.instructions.md skill registry
 - New code-writer skill (credfeto-code-writer) covering the Code Writer agent role's implement-research-escalate-handoff procedure, extracted from agent-roles.instructions.md, which no existing skill covered despite every other named agent role having one
+- code-fixer skill: added the exact gh api command for threading a reply onto an inline PR review comment (including the -F vs -f in_reply_to typing gotcha), and registered github-cli.instructions.md as a source
 ### Fixed
 - All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
 - pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
@@ -102,6 +103,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - git-commit skill: added the missing write-unit-tests-before-every-commit rule from code-quality.instructions.md, previously uncovered by any skill
 - coverage-ratchet skill: restored the move-board-to-Human-Review instruction for non-code-only branches, the COVERAGE.md ownership and no-post-merge-job clause, the bootstrap recurrence explanation, the non-code-only safety-net paragraph, and the decision-procedure explanatory sentences, matching coverage-ratchet.instructions.md
 - dotnet-publish skill: corrected the NuGet audit suppression exception to state its per-project, never-global, advisory-URL, and issue-tracking conditions instead of describing it as always permitted, matching dotnet.instructions.md
+- dotnet-publish skill: restored the missing project-specific local instruction file exception to the warning-suppression rule, allowing a PR-comment-approved and locally documented suppression to satisfy the explicit-permission requirement, matching dotnet.instructions.md
+- github-issue skill: restored the dropped 'no exception for credfeto/cs-template itself' clause on the Ad-Hoc Prompt Intake applicability rule, matching task-workflow.instructions.md
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources

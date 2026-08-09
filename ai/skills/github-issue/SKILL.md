@@ -48,7 +48,7 @@ This is distinct from Ad-Hoc Prompt Intake below, which covers being asked to _d
 
 ## Ad-Hoc Prompt Intake (MANDATORY)
 
-Applies whenever a human asks you to _do_ something in the context of a repo (a task, not a request to raise an issue) and no existing issue or PR has already been specified as the thing to work on. No exception for how trivial the request seems.
+Applies whenever a human asks you to _do_ something in the context of a repo (a task, not a request to raise an issue) and no existing issue or PR has already been specified as the thing to work on. No exception for how trivial the request seems, and no exception for `credfeto/cs-template` itself.
 
 1. Before taking any other action (including answering a read-only question), create a GitHub issue in the current repo:
    - Title: a concise summary of the prompt.
