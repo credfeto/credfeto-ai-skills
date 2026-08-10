@@ -120,6 +120,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Add the missing Setting Up a Test Support Library, Identifying Test Projects, Source Generator Test Projects, and Compile-Time Configuration testing rules to the credfeto-dotnet-test-patterns skill
 - Add the all-projects-in-solution rule and the SolutionDir Directory.Build.props fallback fix to the credfeto-pre-work-healthcheck skill's .NET health check section
 - Add the Orchestrator's CHANGES_REQUESTED-PR-over-new-issue selection priority to the credfeto-github-issue skill
+- Regenerate the issue-plan-approval skill to add the missing rule that the approval gate applies only pre-PR and must never be re-derived from a PR's own workflow board card
 ### Deprecated
 ### Removed
 ### Deployment Changes

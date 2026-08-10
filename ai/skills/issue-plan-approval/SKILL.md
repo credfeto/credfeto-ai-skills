@@ -59,6 +59,12 @@ Approval always requires an explicit human action; never remove `Blocked` or tre
 
 If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before treating it as approval and before removing `Blocked`. The record must survive even if the chat session is lost.
 
+## Scope: Issues Only, Never Re-Checked at PR Time
+
+This gate governs only picking up an issue that has **no existing PR**. Once a PR exists for the issue, this gate no longer applies: a PR is never opened for an issue until this gate has already been passed by a human, so the PR's own existence *is* the authorisation.
+
+A session working the PR phase must never re-derive or re-check approval from the PR's own workflow board card; that card is purely a phase marker for the separate PR review workflow, not a second approval gate. If a PR's own board card still reads an early-stage status (e.g. "Not Started", "Planning", or "Approved" — for example because the session that opened the draft PR died before advancing its card, or a freshly-seeded board has not caught up yet), treat that as "Development" and continue with the PR review workflow: never block pending approval, and never treat the stale card as evidence the linked issue was never approved. (Confirmed incident: a PR-phase session misread its own lagging "Not Started" card this way and blocked instead of finishing deferred implementation.) The issue and PR cards are kept in step automatically, forward-only, by the orchestrating system itself; this is not something a session needs to reconcile by hand.
+
 ## Updating a Workflow Board
 
 If the repo's agent-facing instructions define a workflow board (a GitHub Projects v2 board with a Status field, typically supplied as project ID / status field ID / per-status option IDs), update it by running these steps in sequence whenever this gate changes the issue's status (e.g. to **Planning** after posting a plan):
