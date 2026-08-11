@@ -47,7 +47,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [dotnet-nuget-vulnerability-suppression](../skills/dotnet-nuget-vulnerability-suppression/SKILL.md) | `credfeto-dotnet-nuget-vulnerability-suppression` | `dotnet.instructions.md` |
 | [dotnet-exception-generation](../skills/dotnet-exception-generation/SKILL.md) | `credfeto-dotnet-exception-generation` | `dotnet.instructions.md`, `dotnet-owned-packages.instructions.md` |
 | [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md`, `dotnet.instructions.md`, `agent-roles.instructions.md` |
-| [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
+| [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md`, `code-quality.instructions.md` |
 | [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `git-rebasing.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md`, `agent-roles.instructions.md` |
 | [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
@@ -75,7 +75,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
 | [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
-| [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md` |
+| [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md`, `github-cli.instructions.md` |
 | [code-writer](../skills/code-writer/SKILL.md) | `credfeto-code-writer` | `agent-roles.instructions.md` |
 | [code-tester](../skills/code-tester/SKILL.md) | `credfeto-code-tester` | `agent-roles.instructions.md`, `task-workflow.instructions.md` |
 | [code-fixer](../skills/code-fixer/SKILL.md) | `credfeto-code-fixer` | `agent-roles.instructions.md`, `github-cli.instructions.md` |

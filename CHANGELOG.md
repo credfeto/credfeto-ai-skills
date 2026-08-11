@@ -121,6 +121,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Add the all-projects-in-solution rule and the SolutionDir Directory.Build.props fallback fix to the credfeto-pre-work-healthcheck skill's .NET health check section
 - Add the Orchestrator's CHANGES_REQUESTED-PR-over-new-issue selection priority to the credfeto-github-issue skill
 - Regenerate the issue-plan-approval skill to add the missing rule that the approval gate applies only pre-PR and must never be re-derived from a PR's own workflow board card
+- Add the inline PR review comment posting procedure to the code-reviewer-subagents skill, closing a gap where escalated findings had no documented gh api mechanism
+- Correct the git-commit skill registry entry to list code-quality.instructions.md as a source, since its pre-commit test-writing rule is drawn from there
 ### Deprecated
 ### Removed
 ### Deployment Changes

@@ -15,6 +15,22 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 6. Report `{"clean": true}` or `{"clean": false, "fixes": [...]}`. Cap at 5 iterations.
 7. After 5 iterations, report any unresolved findings to the Orchestrator so each can be added as a PR comment for human consideration.
 
+### Posting a Finding as an Inline PR Comment
+
+When the Orchestrator adds an unresolved finding to the PR, post it as an inline comment on the exact diff line rather than a disconnected top-level comment:
+
+```bash
+gh api repos/<owner>/<repo>/pulls/<number>/comments \
+  --method POST \
+  --field commit_id="<sha>" \
+  --field path="<repo-relative file path>" \
+  --field line=<line-number> \
+  --field side="RIGHT" \
+  --field body="<comment text>"
+```
+
+`commit_id` must be the PR's **current head SHA** (`gh pr view <number> --json headRefOid --jq '.headRefOid'`), and `path`/`line` must fall inside that commit's actual diff; otherwise the request fails.
+
 Each sub-agent below reviews only the newly changed code in the diff. When dispatched as part of a full-repository audit rather than a PR review, the scope becomes the full file set for whatever group is being audited instead.
 
 ## Sub-Agent: Reuse
