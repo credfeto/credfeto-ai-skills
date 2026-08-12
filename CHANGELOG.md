@@ -123,6 +123,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Regenerate the issue-plan-approval skill to add the missing rule that the approval gate applies only pre-PR and must never be re-derived from a PR's own workflow board card
 - Add the inline PR review comment posting procedure to the code-reviewer-subagents skill, closing a gap where escalated findings had no documented gh api mechanism
 - Correct the git-commit skill registry entry to list code-quality.instructions.md as a source, since its pre-commit test-writing rule is drawn from there
+- coverage-ratchet skill: documented that the COVERAGE.md excluded marker now also applies to a whole-repo test-infrastructure language (with a one-line rationale), not just Shell, matching coverage-ratchet.instructions.md's new Whole-Repo Test-Infrastructure Exclusion rule
+- pre-work-healthcheck skill: COVERAGE.md bootstrap step now documents that a whole-repo test-infrastructure language can also be recorded as excluded with a one-line rationale, not just Shell, matching coverage-ratchet.instructions.md's new rule
+- code-fixer skill: added the HEREDOC-body rule for multi-paragraph gh pr comment replies, so a reply is never built with escaped \n sequences that GitHub renders as literal backslash-n text, matching github-cli.instructions.md's Comment and Body Text rule
+- git-branch and git-rebase skills: corrected stale wording about coverage baseline rebase conflicts to match the current git-rebasing.instructions.md text, naming COVERAGE.md explicitly and describing it as generated content read live from origin/main
 ### Deprecated
 ### Removed
 ### Deployment Changes

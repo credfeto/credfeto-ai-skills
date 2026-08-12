@@ -22,5 +22,14 @@ description: Address requested changes on an existing pull request, whether from
       -f body="<reply text>" \
       -F in_reply_to=<comment-id>
     ```
+  - Whenever a reply body contains, or may contain, newlines (a multi-paragraph answer to a discussion point), build it with a HEREDOC so real newline characters are embedded; never use escaped `\n` sequences, which GitHub renders as literal backslash-n characters rather than line breaks:
+    ```bash
+    gh pr comment <number> --repo <owner>/<repo> --body "$(cat <<'COMMENT'
+    First paragraph of the answer.
+
+    Second paragraph.
+    COMMENT
+    )"
+    ```
 - If a fix requires knowledge outside the instruction files (unfamiliar API, complex library usage), research it first rather than guessing or fabricating a fix.
   - If research determines the fix is **not possible** as scoped, stop and escalate with the explanation; do not partially apply a guess.
