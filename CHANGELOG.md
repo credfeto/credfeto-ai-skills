@@ -105,6 +105,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-publish skill: corrected the NuGet audit suppression exception to state its per-project, never-global, advisory-URL, and issue-tracking conditions instead of describing it as always permitted, matching dotnet.instructions.md
 - dotnet-publish skill: restored the missing project-specific local instruction file exception to the warning-suppression rule, allowing a PR-comment-approved and locally documented suppression to satisfy the explicit-permission requirement, matching dotnet.instructions.md
 - github-issue skill: restored the dropped 'no exception for credfeto/cs-template itself' clause on the Ad-Hoc Prompt Intake applicability rule, matching task-workflow.instructions.md
+- coverage-ratchet skill: added the missing Whole-Repo Test-Infrastructure Exclusion section and fixed its dead self-anchor link, matching coverage-ratchet.instructions.md
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources

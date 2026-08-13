@@ -54,7 +54,7 @@ Captured at commit `<sha>` on <ISO-8601 date>.
 - Include every orchestrated language (.NET, Node, Python, Shell) as a section, even when skipped, so the file is unambiguous about what was and was not measured.
 - Under a measured language, list every component/project plus a bold **Overall (\<Language\>)** row, the figure the gate actually compares. A language with only one component still gets an explicit Overall row.
 - Use `n/a (no code)` for a language with no code/tests in the repo.
-- Use `excluded` for Shell, always, or for another language where every production assembly/package in that language is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure (see [Whole-Repo Test-Infrastructure Exclusion](#whole-repo-test-infrastructure-exclusion-excluded)). Record a one-line rationale beneath `excluded` in that case.
+- Use `excluded` for Shell, always, or for another language where every production assembly/package in that language is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure (see [Whole-Repo Test-Infrastructure Exclusion](#whole-repo-test-infrastructure-exclusion)). Record a one-line rationale beneath `excluded` in that case.
 - `<sha>` is the commit the numbers were measured against.
 
 **Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's pre-work baseline check first finds it missing: that branch commits an initial version as its own first commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison (step 2 below) finds nothing to compare against on that same branch too, which is not a regression, so it must not block. Overwrite `COVERAGE.md` again with the branch's live measurements (its second commit on that branch, expected, not a conflict), treat the gate as passed, and proceed as in step 5. For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the pre-work baseline check step was skipped or the branch predates it.
@@ -135,6 +135,14 @@ This prints only the overall percentage as a single number, so no further extrac
 ### Shell (Excluded)
 
 Shell is excluded from the coverage ratchet entirely. Never attempt to measure shell/bats coverage; always record it as `excluded` in `COVERAGE.md` and never include it in the decision comparison below.
+
+## Whole-Repo Test-Infrastructure Exclusion
+
+Some repos exist solely to provide test-support/test-infrastructure libraries consumed by *other* repos' test suites (test base classes, mocking helpers, fixtures) rather than application code. Their own production assemblies/packages are conventionally annotated to exclude them from coverage instrumentation entirely, e.g. a .NET assembly carrying `[assembly: ExcludeFromCodeCoverage]` with a justification such as "this is a unit test assembly - no need for coverage of the test code itself", even though the repo has real code and a real, passing test suite for it.
+
+This differs from `n/a (no code)`: code and tests exist and run, they are simply never instrumented, so a normal extraction run against them produces an empty or degenerate coverage report (e.g. an empty `<packages />` cobertura file) rather than a meaningful percentage.
+
+When every production assembly/package for a language in the repo carries this kind of blanket exclusion, treat that language the same way as Shell: record it as `excluded` in `COVERAGE.md` with a one-line rationale (e.g. `excluded - repo is test-support infrastructure only; all assemblies carry [assembly: ExcludeFromCodeCoverage]`), never attempt to measure it, and never include it in the decision comparison below. If only *some* assemblies/packages in the language carry the exclusion and others are real application code, this does not apply; measure normally, the excluded assemblies simply contribute no covered/coverable lines to the Overall figure.
 
 ## Non-Code-Only Branches (Skip, Don't Measure)
 
