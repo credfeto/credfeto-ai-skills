@@ -1,9 +1,17 @@
 ---
 name: credfeto-long-running-commands
-description: Run long or unbounded-duration commands (dotnet build, dotnet test, npm test, bun test, git commit/pre-commit, git push) safely in the background, poll for completion with a reliable string and a time-boxed deadline, and diagnose sandbox-caused false timeouts in benchmark or performance tests. Use whenever about to run one of these commands, whenever using a Monitor-style tool to watch a background task, or whenever a benchmark/performance test run fails with a timeout-shaped error.
+description: Run long or unbounded-duration commands (dotnet build, dotnet test, npm test, bun test, git commit/pre-commit, git push) safely in the background, poll for completion with a reliable string and a time-boxed deadline, distinguish a denied (never-started) command from a killed or in-flight one, and diagnose sandbox-caused false timeouts in benchmark or performance tests. Use whenever about to run one of these commands, whenever using a Monitor-style tool to watch a background task, whenever a tool call is denied by a pre-execution policy hook, or whenever a benchmark/performance test run fails with a timeout-shaped error.
 ---
 
 # Running Long or Unbounded Commands Safely
+
+## A Hook Denial Is Not a Killed or In-Flight Run (MANDATORY)
+
+Everything below covers polling a command that was **accepted** and is now running. A command rejected outright by a pre-execution policy hook (for example, for missing a required backgrounding parameter) is a different case entirely: it **never started**. There is nothing in flight, and no later notification will ever arrive for it.
+
+- Fix exactly what the denial states (e.g. add the missing backgrounding parameter) and retry immediately, in the same turn.
+- Never end a turn saying you are "waiting for it to finish" or "waiting for a completion notification" for a denied command; that command never ran, so nothing will ever complete.
+- Prefer the tool's own backgrounding parameter (e.g. `run_in_background: true`) over shell-level backgrounding (`&`, `nohup ... &`, `disown`); shell-level backgrounding is commonly blocked outright by this same class of hook and produces the identical denial-misread-as-in-flight failure.
 
 ## Never Truncate These Five Commands (MANDATORY)
 

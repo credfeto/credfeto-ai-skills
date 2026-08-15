@@ -12,6 +12,7 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced; if so, rebase first.
 - Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
+- **Before treating an existing PR as a blocker** to creating a new branch: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
 
 ## Destructive Commands (MANDATORY)

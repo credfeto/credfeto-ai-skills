@@ -86,6 +86,7 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [code-style](../skills/code-style/SKILL.md) | `credfeto-code-style` | `code-quality.instructions.md` |
 | [dotnet-coding-conventions](../skills/dotnet-coding-conventions/SKILL.md) | `credfeto-dotnet-coding-conventions` | `dotnet.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
+| [claude-hooks](../skills/claude-hooks/SKILL.md) | `credfeto-claude-hooks` | `claude-hooks.instructions.md` |
 
 ## Installation
 

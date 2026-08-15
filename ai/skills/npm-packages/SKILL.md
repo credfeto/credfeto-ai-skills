@@ -7,7 +7,7 @@ description: Pin npm/JavaScript/TypeScript package versions exactly and resolve 
 
 ## New Package Approval (MANDATORY)
 
-Adding any **new** npm package (an entry not already in `package.json`) requires explicit human approval after a full security review; this is not optional and applies regardless of how small or transitive the package seems. Before requesting approval, review:
+Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package, or the equivalent recognised first-party namespace in the npm ecosystem) is prohibited without explicit human approval after a full security review. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed. Before requesting approval, review:
 
 - **Provenance**: the source repository and publisher/maintainer identity, confirming the registry listing genuinely matches the claimed upstream project (guard against typosquatting and dependency confusion).
 - **Known vulnerabilities**: published advisories/CVEs for the exact proposed version and its transitive dependencies.
@@ -19,7 +19,7 @@ Present the human with, and wait for their explicit sign-off before touching `pa
 
 1. Package name, proposed version, and links to its source repository and registry listing.
 2. The findings of the security review above.
-3. Why it's needed: what it does that the standard library or an existing dependency cannot.
+3. Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
 4. Alternatives considered and why they were rejected.
 
 If working from a GitHub issue or PR, follow the Blocked Label workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `go ahead` / `looks good` / `lgtm`).
@@ -54,4 +54,4 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 - The same package is bumped to two different, unrelated versions on both sides and there is no clear "latest" (e.g. divergent major versions).
 - A security trade-off with no candidate that is both latest and unaffected.
 
-Note: this escalation boundary is about resolving an existing version conflict, not about adding a new package; adding any new package always requires the human approval in [New Package Approval](#new-package-approval-mandatory) above regardless of how the algorithm resolves any unrelated conflict.
+Note: this escalation boundary is about resolving an existing version conflict between versions of a package already in use; it does not relax [New Package Approval](#new-package-approval-mandatory) above, which always applies when the package being added is new and not first-party.

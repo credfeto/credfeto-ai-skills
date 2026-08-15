@@ -120,6 +120,8 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 | `On-Hold` | Needs further thought or cannot be implemented yet, do not start work |
 | `Blocked` | Needs human input before work can continue |
 
+An issue labelled `On-Hold` is not ready to be worked on; do not pick up or assign yourself to it. If the label is later removed, re-evaluate its priority and proceed normally.
+
 ## Blocked Label (MANDATORY)
 
 When asking a question in an issue or PR comment and waiting for an answer before continuing:
