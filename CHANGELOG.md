@@ -39,6 +39,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - New code-writer skill (credfeto-code-writer) covering the Code Writer agent role's implement-research-escalate-handoff procedure, extracted from agent-roles.instructions.md, which no existing skill covered despite every other named agent role having one
 - code-fixer skill: added the exact gh api command for threading a reply onto an inline PR review comment (including the -F vs -f in_reply_to typing gotcha), and registered github-cli.instructions.md as a source
 - Added the claude-hooks skill, generated from ai/global/claude-hooks.instructions.md, covering how to interpret a PreToolUse hook denial correctly
+- New tool-preferences skill (credfeto-tool-preferences) covering when to reach for Glob over find for simple file listing, extracted from the new tool-preferences.instructions.md, which no existing skill covered
 ### Fixed
 - All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
 - pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
@@ -113,6 +114,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added the On-Hold label re-evaluation clause to the github-issue skill, matching agent-roles.instructions.md
 - Added the PR-state verification step to the git-branch skill before treating an existing PR as a blocker, matching task-workflow.instructions.md's PR Lifecycle section
 - Added the hook-denial-vs-killed-run distinction to the long-running-commands skill, reflecting the new claude-hooks.instructions.md cross-references in task-workflow.instructions.md
+- Fixed a banned em dash character in the issue-plan-approval skill (credfeto-issue-plan-approval) to comply with the mandatory UK-English formatting rule that all generated skills must follow
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
@@ -135,6 +137,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - pre-work-healthcheck skill: COVERAGE.md bootstrap step now documents that a whole-repo test-infrastructure language can also be recorded as excluded with a one-line rationale, not just Shell, matching coverage-ratchet.instructions.md's new rule
 - code-fixer skill: added the HEREDOC-body rule for multi-paragraph gh pr comment replies, so a reply is never built with escaped \n sequences that GitHub renders as literal backslash-n text, matching github-cli.instructions.md's Comment and Body Text rule
 - git-branch and git-rebase skills: corrected stale wording about coverage baseline rebase conflicts to match the current git-rebasing.instructions.md text, naming COVERAGE.md explicitly and describing it as generated content read live from origin/main
+- Updated pre-work-healthcheck skill (credfeto-pre-work-healthcheck) to mandate backgrounding and waiting out the pre-commit baseline check rather than assuming automatic turn resumption, extracted from a new mandatory paragraph in git.instructions.md's Pre-Work Baseline Check section added after a confirmed live incident of the check being repeatedly abandoned across sessions
+- Updated code-tester skill (credfeto-code-tester) to add the mandatory background/poll/30-minute-deadline procedure for running dotnet build and dotnet test, plus sandbox-caused false-timeout diagnosis for benchmark tests, which was missing despite task-workflow.instructions.md already being a listed source
 ### Deprecated
 ### Removed
 ### Deployment Changes
