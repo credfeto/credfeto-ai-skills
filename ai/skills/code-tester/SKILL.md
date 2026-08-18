@@ -8,7 +8,7 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 - Run build and all tests after Code Writer or Code Fixer finishes.
 - Check coverage against `git diff origin/main...HEAD`: every new or changed line must be covered.
 - On build failure, test failure, or uncovered code: report the file paths and line ranges to the calling agent; stop, do not proceed.
-- Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered, up to 5 rounds; after 5 rounds, escalate to the Orchestrator rather than continuing the loop.
+- Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered; this loop is capped at 5 rounds by the calling agent's routing rules.
 - Do not modify code or tests; report and verify only.
 - Do not commit, push, or update the changelog.
 

@@ -68,10 +68,10 @@ Skills are self-contained, procedural extracts of the instruction files in [ai/g
 | [structured-logging](../skills/structured-logging/SKILL.md) | `credfeto-structured-logging` | `logging.instructions.md`, `dotnet.instructions.md` |
 | [api-http-tests](../skills/api-http-tests/SKILL.md) | `credfeto-api-http-tests` | `api.instructions.md` |
 | [gitignore-management](../skills/gitignore-management/SKILL.md) | `credfeto-gitignore-management` | `gitignore.instructions.md` |
-| [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md` |
+| [dependency-selection](../skills/dependency-selection/SKILL.md) | `credfeto-dependency-selection` | `packages.instructions.md`, `git-rebasing.instructions.md` |
 | [python](../skills/python/SKILL.md) | `credfeto-python` | `python.instructions.md` |
 | [learnings-capture](../skills/learnings-capture/SKILL.md) | `credfeto-learnings-capture` | `learnings.instructions.md`, `learnings.examples.md` |
-| [long-running-commands](../skills/long-running-commands/SKILL.md) | `credfeto-long-running-commands` | `task-workflow.instructions.md` |
+| [long-running-commands](../skills/long-running-commands/SKILL.md) | `credfeto-long-running-commands` | `task-workflow.instructions.md`, `claude-hooks.instructions.md` |
 | [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
 | [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
