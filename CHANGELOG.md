@@ -148,6 +148,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Updated code-tester skill (credfeto-code-tester) to add the mandatory background/poll/30-minute-deadline procedure for running dotnet build and dotnet test, plus sandbox-caused false-timeout diagnosis for benchmark tests, which was missing despite task-workflow.instructions.md already being a listed source
 - Correct the skill registry source-file lists for long-running-commands (add claude-hooks.instructions.md) and dependency-selection (drop the unused git.instructions.md) so each entry accurately reflects its skill's actual content
 - pr-sync skill: cross-referenced the git-branch skill's abandoned-branch check, since the PR-based existing-work check alone does not catch it
+- SDK - Updated DotNet SDK to 10.0.400
 ### Deprecated
 ### Removed
 ### Deployment Changes
