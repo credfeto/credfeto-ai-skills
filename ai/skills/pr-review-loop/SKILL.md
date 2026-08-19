@@ -59,8 +59,9 @@ This phase gates on the whole repo's per-language coverage, not just the lines t
 
 Only once all four phases pass (or there were no reviewable changes):
 
-1. Update the workflow board to a "human review" status, if configured, unless Phase D's success path already moved it there.
-2. Enable auto-merge:
+1. Safety net (belt-and-suspenders on top of the Compliance sub-agent's own check during Phase B): confirm a `.deleteme.now` placeholder file is not present in `git diff origin/main...HEAD --name-only`; if it is still present, remove it in its own commit, re-run the build/test verification role, then continue.
+2. Update the workflow board to a "human review" status, if configured, unless Phase D's success path already moved it there.
+3. Enable auto-merge:
 
    ```bash
    gh pr merge --auto --merge <number> --repo <owner/repo>

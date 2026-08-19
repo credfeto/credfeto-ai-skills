@@ -55,7 +55,7 @@ If hooks or formatters modify files **not in your intended change set**:
 When acting specifically as the dedicated Committer agent in a multi-agent workflow (split from Code Writer, PR Submitter, and other roles):
 
 - Use the `git` CLI only for commit and push; never `gh` or the GitHub API.
-- For a placeholder changelog entry (no code exists yet): commit `CHANGELOG.md` alone.
+- For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` (a short delete-before-merge comment as its content) for repos that skip changelog entries, such as `credfeto/cs-template` itself.
 - Otherwise: commit code and tests as one **GPG-signed** commit (Conventional Commits format, original prompt in the body as `Prompt: …`), and commit `CHANGELOG.md` separately, also GPG-signed, whenever a changelog correction accompanies it.
 - Push immediately after committing. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**

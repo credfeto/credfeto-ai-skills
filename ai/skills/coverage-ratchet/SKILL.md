@@ -72,7 +72,22 @@ git -C <repodir> add COVERAGE.md
 
 ### .NET
 
-Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic. Collect each unit test project's `.cobertura.xml`, generate one `reportgenerator` report **per assembly** for the component rows:
+Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic. Only unit test projects (`<AssemblyName>.Tests`) feed coverage; exclude `.Integration.Tests` and `.Benchmark.Tests`.
+
+Collect each unit test project's `.cobertura.xml` one project at a time (`cd` to the solution `src/` directory first and use a relative project path; absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK):
+
+```bash
+cd {solution-src-dir}
+dotnet test {AssemblyName}.Tests/{AssemblyName}.Tests.csproj \
+  -c Release \
+  -p:SolutionDir={solution-src-dir}/ \
+  -- --coverage --coverage-output-format cobertura \
+     --coverage-output {repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml
+```
+
+The `--` separator is required: coverage flags must be passed to the test host, not the `dotnet test` CLI. Always run in `-c Release`. `-p:SolutionDir=` must be an absolute path ending with `/`.
+
+Then generate one `reportgenerator` report **per assembly** for the component rows:
 
 ```bash
 dotnet reportgenerator \

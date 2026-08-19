@@ -171,6 +171,22 @@ Before branching:
 2. If any open PR's `headRefName` contains the issue number, that is prior work; resume it instead of creating a new branch.
 3. For any PR authored by `app/github-actions` (github is configured to auto-create PRs from pushed branches; these appear bot-authored but the commits are yours), verify the commit authors before taking ownership: `gh pr view <n> --repo <owner/repo> --json commits --jq '.commits[].authors[].login'`. If **all commits** are from your account, take ownership rather than duplicating work: update the title/body to match the proper format, add yourself as assignee, and treat it as your active PR. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is.
 4. Do **not** create a new branch or PR for the same issue; that would be duplicate work. If a duplicate pair already exists (a bot-created PR and one you authored yourself, for the same issue or branch): keep whichever has the more complete body and later review activity, and close the other with a comment explaining which PR supersedes it.
+5. This only catches work that already has an open PR. A branch may have been pushed and then abandoned before a PR was ever opened (e.g. a prior session died mid-task), so also check for a matching branch directly, using the `<type>/<issue-number>-<name>` naming convention:
+
+   ```bash
+   git ls-remote --heads origin "*/<issue-number>-*"
+   ```
+
+   - No match: branch fresh from `main` as normal.
+   - Match found: fetch it and compare against `main`:
+
+     ```bash
+     git fetch origin <branch>
+     git rev-list --count origin/main..origin/<branch>
+     ```
+
+     - `0` (not ahead of `main`): branch fresh from `main` as normal.
+     - `>0`: check it out and continue from there instead of branching again, rebasing first (see step 3 above) if `origin/main` has advanced.
 
 ## 7. Rules Compliance for In-Flight Work (MANDATORY)
 

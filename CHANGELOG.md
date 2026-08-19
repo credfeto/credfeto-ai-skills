@@ -116,6 +116,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added the hook-denial-vs-killed-run distinction to the long-running-commands skill, reflecting the new claude-hooks.instructions.md cross-references in task-workflow.instructions.md
 - Fixed a banned em dash character in the issue-plan-approval skill (credfeto-issue-plan-approval) to comply with the mandatory UK-English formatting rule that all generated skills must follow
 - Correct the code-tester skill, which asserted an Orchestrator-escalation outcome for the 5-round Code Writer/Tester loop that the source instruction files never state
+- pre-work-healthcheck skill: added a check for branches pushed but abandoned before a PR was opened, catching prior work the PR-only check misses
+- git-branch skill: added a check for branches pushed but abandoned before a PR was opened, catching prior work the PR-only check misses
+- git-commit skill: updated the Committer agent's placeholder-commit rule to cover the .deleteme.now convention used by template-skip repos, not CHANGELOG.md alone
+- pr-review-loop skill: added the missing .deleteme.now placeholder safety-net check to the Mark Ready phase
+- code-reviewer-subagents skill: added the missing leftover-placeholder (.deleteme.now) category to the Compliance sub-agent's checks
+- coverage-ratchet skill: inlined the missing .NET dotnet test coverage-collection command so the skill is runnable without consulting another instruction file
 ### Changed
 - Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
 - Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
@@ -141,6 +147,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Updated pre-work-healthcheck skill (credfeto-pre-work-healthcheck) to mandate backgrounding and waiting out the pre-commit baseline check rather than assuming automatic turn resumption, extracted from a new mandatory paragraph in git.instructions.md's Pre-Work Baseline Check section added after a confirmed live incident of the check being repeatedly abandoned across sessions
 - Updated code-tester skill (credfeto-code-tester) to add the mandatory background/poll/30-minute-deadline procedure for running dotnet build and dotnet test, plus sandbox-caused false-timeout diagnosis for benchmark tests, which was missing despite task-workflow.instructions.md already being a listed source
 - Correct the skill registry source-file lists for long-running-commands (add claude-hooks.instructions.md) and dependency-selection (drop the unused git.instructions.md) so each entry accurately reflects its skill's actual content
+- pr-sync skill: cross-referenced the git-branch skill's abandoned-branch check, since the PR-based existing-work check alone does not catch it
 ### Deprecated
 ### Removed
 ### Deployment Changes

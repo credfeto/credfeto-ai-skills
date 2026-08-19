@@ -142,6 +142,7 @@ Before starting any work in a repository:
 **Checking for existing work before branching (MANDATORY):**
 
 - Check branch names in all open PRs, not just PR authors. If any open PR's `headRefName` contains the issue number, that is your work from a prior session; resume it instead of creating a new branch.
+- This only catches work that already has a PR open. A branch pushed but never turned into a PR (session died first) needs a separate check before creating a new branch: see the git-branch skill.
 
 When you find a duplicate pair (a bot-created PR and one you authored yourself, for the same issue or branch):
 
