@@ -10,6 +10,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+### Added
+### Fixed
+### Changed
+### Deprecated
+### Removed
+### Deployment Changes
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [0.0.3] - 2026-08-20
+### Security
 - Pin GitHub Actions in reconcile-skills.yml to full commit SHAs to prevent supply-chain tampering via mutable tags (#8)
 ### Added
 - New git-rebase skill (credfeto-git-rebase) covering when to rebase and the full version-conflict-resolution algorithm, extracted from git-rebasing.instructions.md, which no existing skill fully credited despite being duplicated and drifting independently across four other skills
@@ -149,12 +160,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Correct the skill registry source-file lists for long-running-commands (add claude-hooks.instructions.md) and dependency-selection (drop the unused git.instructions.md) so each entry accurately reflects its skill's actual content
 - pr-sync skill: cross-referenced the git-branch skill's abandoned-branch check, since the PR-based existing-work check alone does not catch it
 - SDK - Updated DotNet SDK to 10.0.400
-### Deprecated
-### Removed
-### Deployment Changes
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
+
 ## [0.0.2] - 2026-07-16
 ### Added
 - New AI skills generated from previously uncaptured instruction content: secure-coding, error-handling, structured-logging, api-http-tests, gitignore-management, dependency-selection — registered in the skill registry
