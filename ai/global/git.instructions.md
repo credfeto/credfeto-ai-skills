@@ -12,12 +12,12 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
-If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the baseline hook below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure.
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the check below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step — that satisfies this baseline gate too; do not run it again here.
 
-Then, before starting any work on an issue or PR, run the hook against every tracked file to verify the repo is clean. Resolve `<hooks-path>` using the same `core.hooksPath` scope lookup as [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before-blocking) below:
+Otherwise (no rebase was needed, or you're starting a fresh branch from `main`), run this now, before starting any work on an issue or PR, to verify the repo is clean:
 
 ```bash
-<hooks-path>/pre-commit --all-files
+pre-commit-check
 ```
 
 Always run this check in the background — it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional and does not depend on how the check is invoked: see the mandatory [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) rules for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes — confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing "a Monitor notification will wake me up," and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe — the default assumption, absent that confirmation, must be that it is not.
@@ -37,16 +37,7 @@ When picking up a **new issue** (branching fresh from `main`, not resuming an ex
 
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
-Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
-
-1. Find the installed hooks path by checking `core.hooksPath` at each git config scope in order: the **first** scope where it is set is treated as sufficient; do not check the remaining scopes:
-   1. `git config --system --get core.hooksPath`
-   2. `git config --global --get core.hooksPath`
-   3. `git config --local --get core.hooksPath` (run inside the repo)
-   If none of the three scopes returns a value, the hook is **not installed**.
-2. Stage your changes.
-3. Run the pre-commit hook directly: `<hooks-path>/pre-commit`, using the path found in step 1.
-4. Only block if the hook **actually fails** with a real error.
+Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal — the pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
