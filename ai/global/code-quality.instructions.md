@@ -21,6 +21,14 @@ Some methods open real network connections, file handles, or database sessions, 
 - Write unit tests before every commit; every new behaviour must have corresponding tests.
 - See [git.instructions.md](git.instructions.md) for mandatory build and test verification before committing.
 
+### Fixing Pre-Commit Failures (MANDATORY)
+
+Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters) are improved incrementally precisely by encountering and fixing the problems they surface. If pre-commit reports an error that was not present before the current work started — whether caused by your own edits or a component tool catching something pre-existing — fixing it is part of the current work, not a reason to stop.
+
+- Do not stop or escalate merely because the failure is unexpected, was not present originally, or requires changes outside the files you set out to edit, including the pre-commit configuration or a component tool's own rules/config.
+- Only stop and ask if the issue is genuinely fatal: pre-commit cannot possibly be made to pass (e.g. a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control).
+- This does not relax [Build and Test Verification](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push): the fix must be a genuine fix, not a suppression, skip, or exclusion, unless separately authorised.
+
 ## Dead Code
 
 - Remove unreachable code rather than writing tests around it.

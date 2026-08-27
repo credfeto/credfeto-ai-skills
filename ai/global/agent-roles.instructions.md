@@ -75,45 +75,51 @@ After all code changes are pushed and all required CI checks pass, **before** en
 2. Run: `/simplify` against the diff. It applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them.
 3. If `/simplify` changed any files: run Changelog (correction) against the resulting diff; commit the code changes and, if the entry changed, `CHANGELOG.md` as a separate commit; push; then return to step 2 to re-run against the resulting diff.
 4. Once `/simplify` makes no further changes: proceed to Phase B.
-5. `/simplify` has its own iteration budget, separate from `MAX_REVIEW_ITERATIONS`, because it is expected to run more rounds and give up without blocking:
+5. `/simplify` has its own iteration budget, separate from Phase B/C/D's own budgets below, because it is expected to run more rounds and give up without blocking:
    - Track each round's diff size (lines changed by that round's `/simplify` commit) against the previous round's.
    - Once `SIMPLIFY_THRASH_LIMIT` rounds have run, if the current round is thrashing (its diff is flat or larger than the previous round's, i.e. not shrinking): give up immediately, even though `MAX_SIMPLIFY_ITERATIONS` has not been reached.
    - Otherwise, keep re-running up to `MAX_SIMPLIFY_ITERATIONS` rounds total; once that hard cap is reached without converging to no changes, give up regardless of whether the diff was still shrinking.
-   - Either way, giving up means: post a PR comment noting that simplify did not converge, then proceed to Phase B with the diff as it currently stands. Do not add `Blocked` and do not `STOP` — unlike Phases B-D below, non-convergence in Phase A never blocks the PR, because `/code-review` in Phase B re-covers the same reuse/simplification/efficiency categories as a safety net (see Conflict Resolution below).
+   - Either way, giving up means: post a PR comment noting that simplify did not converge, then proceed to Phase B with the diff as it currently stands. Do not add `Blocked` and do not `STOP`: non-convergence in Phase A never blocks the PR, because `/code-review` in Phase B re-covers the same reuse/simplification/efficiency categories as a safety net (see Conflict Resolution below). Phases B and C below have their own, similarly non-blocking, self-detected-non-convergence exit; exhausting either phase's numeric round cap still blocks (see each phase's step 4). Phase D's coverage gate has its own, separately documented blocking conditions, not limited to cap exhaustion (see Phase D step 3 below).
 
-#### Phase B: Code review (up to `MAX_REVIEW_ITERATIONS` rounds)
+#### Phase B: Code review (up to `MAX_CODE_REVIEW_ITERATIONS` rounds)
 
 1. Update Workflow board to **AI Review** (if board data is present in your CLAUDE.md).
 2. Run: `/code-review --comment`. This intentionally re-covers the reuse/simplification/efficiency categories Phase A's `/simplify` already applied: `/simplify` fixes silently, and this step verifies nothing was missed and separately checks correctness, which `/simplify` does not (security and compliance are not covered by either command; they remain Phase C's job). Expect step 2 to usually find nothing in the reuse/simplification/efficiency categories Phase A already handled.
-3. If inline PR comment findings were posted: fix each in its own commit; after each fix, run Changelog (correction) and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
-4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment listing them, add `Blocked` label, and **STOP**:
+3. If NO findings were posted: proceed to Phase C.
+4. Otherwise, judge convergence yourself from the PR's history of prior code-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_CODE_REVIEW_ITERATIONS`; otherwise the round-cap bullet below always fires first and the non-blocking exit can never trigger.
+   - If `MAX_CODE_REVIEW_ITERATIONS` rounds have already run (judged from the PR's history of code-review comments) and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add `Blocked` label, and **STOP**:
 
-   ```bash
-   gh pr edit <number> --repo <owner/repo> --add-label Blocked
-   ```
+     ```bash
+     gh pr edit <number> --repo <owner/repo> --add-label Blocked
+     ```
+
+   - Otherwise, if substantially repeating a prior round (not finding anything new; not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that code review is not converging, advance the board to **AI Security Review** (if board data present), post a one-line status comment, then proceed to Phase C. Do NOT add `Blocked`: this means no new correctness issues are surfacing, not that a known one is safe to ignore; the posted comment is what carries the unresolved findings forward to Human Review.
+   - Otherwise (either substantially new, or a repeat but fewer than `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have run so far, so one failed fix attempt is not yet enough evidence to give up, and the round cap has not been reached): fix each inline finding in its own commit; after each fix, run Changelog (correction) and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
 
 #### Conflict Resolution: Simplify/Code Review vs. Static Analyzer
 
 If a change proposed by `/simplify` (Phase A) or a finding raised by `/code-review` (Phase B) would conflict with a rule enforced by the build-time static analyzer stack (Roslynator, SonarAnalyzer, Meziantou, Threading, Security Code Scan, and others; see [task-workflow.instructions.md](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory)) or by `FunFair.CodeAnalysis` (see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md)), the static analyzer's rule always wins: do not apply the conflicting simplify/code-review suggestion, and keep the analyzer-compliant code as-is.
 
-#### Phase C: Security review (up to `MAX_REVIEW_ITERATIONS` rounds)
+#### Phase C: Security review (up to `MAX_SECURITY_REVIEW_ITERATIONS` rounds)
 
 1. Update Workflow board to **AI Security Review** (if board data present).
 2. Run: `/security-review`
-3. If findings are reported (inline or in output): post them as a PR comment if not already inline, fix each in its own commit; after each fix, run Changelog (correction) and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
-4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment, add `Blocked` label, **STOP**.
+3. If NO findings are reported: proceed to Phase D.
+4. This mirrors Phase B step 4 exactly (substituting security-review for code-review); keep both in sync when editing either. Judge convergence yourself from the PR's history of prior security-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_SECURITY_REVIEW_ITERATIONS`; otherwise the round-cap bullet below always fires first and the non-blocking exit can never trigger.
+   - If `MAX_SECURITY_REVIEW_ITERATIONS` rounds have already run (judged from the PR's history of security-review comments) and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add `Blocked` label, **STOP**.
+   - Otherwise, if substantially repeating a prior round (not finding anything new; not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that security review is not converging, advance the board to **AI Coverage** (if board data present), post a one-line status comment, then proceed to Phase D. Do NOT add `Blocked`: the same principle as Phase B's exit applies here (see Phase B step 4 above).
+   - Otherwise (either substantially new, or a repeat but fewer than `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have run so far, so one failed fix attempt is not yet enough evidence to give up, and the round cap has not been reached): post findings as a PR comment if not already inline, fix each in its own commit; after each fix, run Changelog (correction) and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
 
-#### Phase D: AI Coverage (up to `MAX_REVIEW_ITERATIONS` rounds)
+#### Phase D: AI Coverage (up to `MAX_COVERAGE_ITERATIONS` rounds)
 
 1. Update Workflow board to **AI Coverage** (if board data present).
 2. Run the [AI Coverage Phase Decision Procedure](coverage-ratchet.instructions.md#ai-coverage-phase-decision-procedure-mandatory) from [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md): compare the branch's live per-language coverage against the Overall figures in `COVERAGE.md` on `origin/main` (non-code-only branches — dependency bumps, workflow/SQL/shell/Docker/docs-only changes — and a missing `COVERAGE.md` both skip the comparison and pass automatically — see that file's [Non-Code-Only Branches](coverage-ratchet.instructions.md#non-code-only-branches-skip-dont-measure) and bootstrap rules).
-3. On failure (any language's branch coverage below its baseline): the procedure posts a status comment (exact format: [decision procedure step 6](coverage-ratchet.instructions.md#ai-coverage-phase-decision-procedure-mandatory)) and moves the board back to **Development**; **STOP** here, the next cycle picks the resulting Development work back up.
+3. On failure (any language's branch coverage below its baseline): the procedure judges the round cap and the round-over-round trend itself and acts accordingly (full branching, including the round-cap `Blocked` exit and the judged-unlikely-to-close `Blocked` exit, is at [decision procedure step 6](coverage-ratchet.instructions.md#ai-coverage-phase-decision-procedure-mandatory)), unlike Phase B/C's findings-based judgment, because coverage has a natural numeric signal to trend on. **STOP** after the procedure's status/`Blocked` comment either way; a status-comment outcome means the next cycle picks the resulting Development work back up, a `Blocked` outcome needs a human.
 4. On success: the procedure moves the board to **Human Review** and posts a status comment; proceed to Phase E.
-5. After `MAX_REVIEW_ITERATIONS` rounds (counted from prior `... - returning to Development` coverage comments) without the branch catching up: post a PR comment listing the still-failing languages and their gap, add `Blocked` label, and **STOP**.
 
 #### Phase E: Mark ready
 
-Only when all four phases pass (or no reviewable changes):
+Only once all four phases have completed without a `Blocked` outcome (each phase passed outright, or exited via its own non-blocking convergence path noted in a PR comment, or there were no reviewable changes):
 
 1. Safety net (belt-and-suspenders on top of the Code Reviewer Compliance check above): confirm `.deleteme.now` is not present in `git diff origin/main...HEAD --name-only` (see [Changelog](#changelog)); if it is still present, remove it in its own commit, re-run Code Tester, then continue.
 2. Update Workflow board to **Human Review** (if board data present), unless Phase D already moved it there on success.
