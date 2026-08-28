@@ -16,6 +16,8 @@ There is no separate baseline-capture step and no PR comment: the baseline is `C
 
 `COVERAGE.md`, at the repo root, is the sole persisted record of coverage. It is generated, never hand-edited, and is updated only by the AI Coverage phase itself (see [decision procedure](#ai-coverage-phase-decision-procedure-mandatory)) as part of a PR that later merges to `main` — there is no separate post-merge job.
 
+**Its absence is a signal, not a free pass.** If `COVERAGE.md` does not exist at the repo root, the coverage ratchet has simply never been applied to this repo yet — it does **not** mean coverage is exempt or that this phase can be silently skipped forever. Anyone making changes, or who has already made changes, to a repo without a `COVERAGE.md` **MUST** create it and thereafter maintain it: bootstrap it per the **Bootstrap** rule below (or, when picking up fresh work, per the [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work)), and from then on keep it updated on every PR via the [decision procedure](#ai-coverage-phase-decision-procedure-mandatory). Treating a missing file as "nothing to do here" is the single most common way the ratchet silently never gets applied to a repo.
+
 Format (values illustrative):
 
 ```text
