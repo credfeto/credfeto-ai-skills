@@ -92,7 +92,7 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 ## Avoid `git worktree`
 
-- Do not use `git worktree` to create additional working trees for a repo.
+- Do not use `git worktree` or the native `EnterWorktree` tool to create additional working trees for a repo.
 - Switch branches in the existing working directory (`git -C <dir> checkout <branch>` / `git -C <dir> switch <branch>`) instead.
 
 ## Branching
