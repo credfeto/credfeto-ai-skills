@@ -329,7 +329,7 @@ If `FunFair.Test.Common` or `FunFair.Test.Infrastructure` provides a helper for 
   var itemResult = AssertReallyNotNull(result);
   Assert.Equals("Hello World", itemResult.Name);
 
-  
+
   // WRONG (Value Type)
   Assert.NotNull(result);
   Assert.Equals("Hello World", result.Value!.Name);
@@ -338,7 +338,6 @@ If `FunFair.Test.Common` or `FunFair.Test.Infrastructure` provides a helper for 
   var itemResult = AssertReallyNotNull(result);
   Assert.Equals("Hello World", itemResult.Name);
     ```
-
 
 ## DI Setup Test Patterns
 
