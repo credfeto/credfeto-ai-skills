@@ -67,7 +67,9 @@ When a mock setup expression (NSubstitute, Moq, or equivalent) is used in more t
 
 ## Incidental File Cleanup
 
-- If a file you are already working on has issues unrelated to your current change (e.g. unused imports/usings, unreachable branches, inconsistent formatting, stale comments), clean them up so the file is the best it can be, while keeping to existing project standards, not inventing new ones.
+- If a file you are already working on has issues unrelated to your current change (e.g. unused imports/usings, unreachable branches, inconsistent formatting, stale comments, duplicated code, code-analysis warnings, or suppressions of code-analysis warnings), clean them up so the file is the best it can be, while keeping to existing project standards, not inventing new ones.
+- Duplication is not limited to the file itself: if the file duplicates code found elsewhere in the repo, eliminate the duplication (e.g. extract to a shared location) as part of this cleanup.
+- Resolve code-analysis warnings in the file, including pre-existing ones unrelated to your change. Prefer removing an existing suppression by refactoring the underlying code over leaving the suppression in place. Do not add a new suppression as a way to close this out — adding one is prohibited without explicit written permission (see [Warning Suppression and Errors](dotnet.instructions.md#warning-suppression-and-errors) for the .NET-specific mechanics; the same fix-the-root-cause-don't-suppress principle applies in every language).
 - Commit this cleanup separately from the feature/fix change.
 - If there are multiple distinct fix types in the file (e.g. unused imports and stale comments), fix and commit them one type at a time: each fix type is its own commit, per file.
 - Tests must pass after every cleanup commit.
