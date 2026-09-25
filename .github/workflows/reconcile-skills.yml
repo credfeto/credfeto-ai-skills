@@ -176,8 +176,10 @@ jobs:
           )
           # Scoped permissions: the agent may only read/edit files in the
           # workspace and run the specific tools reconciliation needs — no
-          # arbitrary bash. rm is limited to removing skill folders; the
-          # "Check deletions" step below rejects anything else it removed.
+          # arbitrary bash. rm is allowed under ai/skills/ only; the
+          # disallowed patterns reject parent-directory paths and extra
+          # targets, and the "Check deletions" step below fails the run if
+          # any tracked file outside a skill folder was removed.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
@@ -186,14 +188,18 @@ jobs:
               "Bash(dotnet changelog:*)" \
               "Bash(shellcheck:*)" \
               "Bash(checkbashisms:*)" \
-              "Bash(markdownlint:*)"
+              "Bash(markdownlint:*)" \
+            --disallowedTools \
+              "Bash(rm *..*)" \
+              "Bash(rm -r ai/skills/* *)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
       - name: "Check deletions"
         shell: bash
         run: |
-          UNEXPECTED=$(git ls-files --deleted | grep -v '^ai/skills/[^/]*/' || true)
+          DELETED=$(git ls-files --deleted)
+          UNEXPECTED=$(printf '%s' "${DELETED}" | grep -v -e '^ai/skills/[^/]*/' -e '^$' || true)
           if [ -n "${UNEXPECTED}" ]; then
             echo "::error::Files outside skill folders were deleted:"
             echo "${UNEXPECTED}"
