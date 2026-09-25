@@ -153,14 +153,20 @@ jobs:
           1. Read .ai-instructions, ai/global/index.md, and ai/local/index.md, and load the files they direct you to —
              in particular ai/local/skills.instructions.md, which defines the skill format, the generation rules,
              and the skill registry.
-          2. For every skill in the registry: re-read its source instruction files and the skill itself.
-             If the skill is stale, contradicts its sources, or is missing rules its sources now contain,
-             regenerate it following the generation rules. The instruction files are the source of truth.
+          2. For every skill in the registry: re-read its source instruction files (.ai-instructions,
+             ai/global and, where the registry lists them, ai/local) and the skill itself.
+             A skill must contain only what its sources state. Regenerate it following the generation rules
+             if it is stale, contradicts its sources, is missing rules its sources now contain, contains any
+             rule, instruction or wording that has no source, or still requires something its sources no
+             longer require. In the last case remove the requirement and reword the surrounding text so it
+             reads as if the requirement had never existed; do not leave notes about the removal.
+             The instruction files are the source of truth.
           3. Look for instruction content that now qualifies as a new skill (a repeatable workflow with a
              clear trigger and procedure). Create any such skill and add it to the registry. The installer
              auto-discovers skill folders, so it does not need editing for new skills.
-          4. If a skill's source rules have been removed from the instruction files, remove the skill and
-             its registry entry.
+          4. If a skill's source rules have been removed from the instruction files, delete the skill folder
+             with rm -r ai/skills/<skill> and remove its registry entry. That is the only deletion allowed:
+             never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path.
           5. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make — this repository's local rules require a changelog entry for
              every change.
@@ -170,16 +176,30 @@ jobs:
           )
           # Scoped permissions: the agent may only read/edit files in the
           # workspace and run the specific tools reconciliation needs — no
-          # arbitrary bash. The workflow, not the agent, commits and pushes.
+          # arbitrary bash. rm is limited to removing skill folders; the
+          # "Check deletions" step below rejects anything else it removed.
+          # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+              "Bash(rm -r ai/skills/*)" \
               "Bash(dotnet changelog:*)" \
               "Bash(shellcheck:*)" \
               "Bash(checkbashisms:*)" \
               "Bash(markdownlint:*)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+
+      - name: "Check deletions"
+        shell: bash
+        run: |
+          UNEXPECTED=$(git ls-files --deleted | grep -v '^ai/skills/[^/]*/' || true)
+          if [ -n "${UNEXPECTED}" ]; then
+            echo "::error::Files outside skill folders were deleted:"
+            echo "${UNEXPECTED}"
+            exit 1
+          fi
+          echo "Only skill folders were deleted"
 
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run
