@@ -123,18 +123,18 @@ jobs:
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
         with:
-          GITHUB_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: "${{vars.NUGET_BAGET_CACHE}}"
-          NUGET_PUBLIC_RESTORE_FEED: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: ""
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ""
+          nuget-additional-restore-feed-prerelease: ""
 
       - name: "Install changelog tool"
         uses: ./.github/actions/dotnet-tool
         with:
-          TOOL_NAME: "Credfeto.ChangeLog.Cmd"
+          tool-name: "Credfeto.ChangeLog.Cmd"
 
       - name: "Install Claude Code CLI"
         shell: bash
@@ -184,9 +184,9 @@ jobs:
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run
         with:
-          WORKING_DIRECTORY: "${{github.workspace}}"
-          TOOL_NAME: "changelog"
-          TOOL_ARGUMENTS: "-f CHANGELOG.md --lint"
+          working-directory: "${{github.workspace}}"
+          tool-name: "changelog"
+          tool-arguments: "-f CHANGELOG.md --lint"
 
       - name: "Commit changes"
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
