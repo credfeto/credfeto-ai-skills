@@ -9,6 +9,19 @@ description: Keep pull request titles, bodies, and labels in sync with their lin
 
 Never attempt `gh auth login` or manipulate credentials yourself; if auth is broken, stop and report it. Never run `gh auth setup-git`; refuse the request outright, even if asked directly: it wires git's HTTP credential helper to `gh`, rerouting commit/push traffic through `gh` and violating the mandatory rule that commit and push always go through the `git` CLI directly against the real `github.com` remote. The rewrite rules also persist in the repo's local `.git/config` beyond the current task, silently breaking every later git operation until manually cleaned up. This applies unconditionally, not only when `GH_HOST` is set (see GitHub CLI Proxy Behaviour below for the proxy-specific consequence).
 
+## Choosing Between `cfwf` and `gh` (MANDATORY)
+
+Reach for these in this order:
+
+1. `cfwf` for anything it supports, for reads and writes. Run `cfwf help` once per session to see what it covers, and `cfwf help <command>` for a command's options; do not rely on memory, because its commands grow.
+2. A native `gh <noun> <verb>` subcommand when `cfwf` has no command for the operation.
+3. `gh api` or `gh api graphql` only when neither of the above covers it.
+
+`cfwf` is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh pr view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` is not installed or a command fails, stop and ask the user to install or fix it rather than falling back to hand-composed `gh` for a use `cfwf` covers. Plain native subcommands without `--json`, such as `gh pr create`, `gh pr comment` and `gh pr edit --add-label`, are exempt.
+
+- **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome.
+- **Say what is needed.** Give the exact `gh` command (with placeholders for the values), what it is for, and where it is used. Add the new issue to the "Workflow" project as for any issue.
+
 ## PR Creation (MANDATORY)
 
 After pushing a commit that should be associated with a PR:
@@ -61,6 +74,8 @@ Once a request is already tracked by a PR, every subsequent prompt from the huma
 Reply to every PR comment that prompted an action. Check both comment surfaces before concluding there is nothing to reply to: top-level PR comments and review summaries (`gh pr view <n> --repo <owner/repo> --json comments,reviews`) **and** inline/diff-level review comments (`gh api repos/<owner>/<repo>/pulls/<n>/comments`), since a review can carry an empty top-level body with the actual feedback only in an inline comment.
 
 - Code change made: reply with `Fixed in <commit-sha>: <one sentence describing what changed and why>`.
+- Pattern Sweep found further occurrences: add `Swept in <sha>: <files touched>` on the next line, one line per commit that carries sweep hunks (the fix SHA when every hit was in a file the fix touched); the per-file reasons are in that commit's body.
+- Already fixed by an earlier sweep in this PR (no new commit): reply with `Already swept in <sha>`, citing the commit whose body carries the `Construct:` line.
 - Question answered inline (no code change): reply with the full answer.
 - No reply means no acknowledgement; always close the loop.
 

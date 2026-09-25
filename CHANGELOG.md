@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
+- Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
@@ -43,6 +44,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - secure-coding skill: added the missing rule to never read or print secret-bearing files and to exclude them from repo searches, matching security.instructions.md
 - shell-scripts skill: added the missing Argument Size Limits section on avoiding unbounded single-argument CLI calls, matching shell-scripts.instructions.md
 - numbering-conventions, claude-hooks, pr-review-loop, issue-plan-approval, pre-work-healthcheck, and code-cleanup-commits skills: removed em dash characters introduced by this reconciliation, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
+- Add the missing Pattern Sweep commit and IDE MCP code analysis steps to the ci-debugger skill, matching the CI Debugger role's sourced instructions
+- Restore the Pattern Sweep reply variants (Swept in / Already swept in) to the pr-sync and github-issue skills' Comment Replies sections, matching the sourced Comment Replies rule
+- Add the missing configured-NuGet-sources lookup step to the dotnet-coding-conventions skill, matching the dotnet.instructions.md NuGet Configuration rule
 ### Changed
 ### Deprecated
 ### Removed

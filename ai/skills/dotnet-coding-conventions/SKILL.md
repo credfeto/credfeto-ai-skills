@@ -1,6 +1,6 @@
 ---
 name: credfeto-dotnet-coding-conventions
-description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, use System.TimeProvider instead of obsolete time-source abstractions, and never modify nuget.config. Use whenever writing or reviewing .NET production code.
+description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, use System.TimeProvider instead of obsolete time-source abstractions, never modify nuget.config, and look up configured NuGet sources before searching for or adding a package. Use whenever writing or reviewing .NET production code.
 ---
 
 # .NET Coding Conventions
@@ -8,6 +8,7 @@ description: Follow .NET identifier naming conventions, prefer StringComparer ov
 ## Configuration (MANDATORY)
 
 - Never modify `nuget.config`; it is managed by the repo owner, not by AI.
+- Before searching for or adding a package, check which sources are actually configured: `dotnet nuget list source`. Use those sources for lookups rather than assuming nuget.org, since they may include a private feed, proxy, or mirror.
 
 ## Naming Conventions
 

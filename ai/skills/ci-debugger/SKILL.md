@@ -1,6 +1,6 @@
 ---
 name: credfeto-ci-debugger
-description: Diagnose a failing CI check by reading its full logs and finding the root cause, fixing it directly when the cause is code-related, or escalating with a machine-readable environment/infrastructure marker when the cause is a container image, missing tool, or transient infra problem. Use whenever a CI check fails on a PR and the cause is not yet known.
+description: Diagnose a failing CI check by reading its full logs and finding the root cause, fixing it directly (with its own Pattern Sweep commit, since no separate committer role follows this one) when the cause is code-related, or escalating with a machine-readable environment/infrastructure marker when the cause is a container image, missing tool, or transient infra problem. Use whenever a CI check fails on a PR and the cause is not yet known.
 ---
 
 # CI Failure Debugging
@@ -10,6 +10,8 @@ description: Diagnose a failing CI check by reading its full logs and finding th
 3. **Code-related cause**: fix it directly.
    - If the fix requires knowledge outside the instruction files (unfamiliar API, complex library usage), research it first rather than guessing or fabricating a fix.
    - If research determines the fix is **not possible** as scoped, stop and escalate to a human with the explanation rather than partially applying a guess.
+   - Apply IDE MCP code analysis to the fixed files.
+   - Run a Pattern Sweep for the fixed construct and commit it after the fix, since no separate committer role follows this one to do it.
 4. **Environmental or infrastructure cause** (a bug in the container image, a missing tool, a transient infra issue): escalate rather than attempting a workaround, using the Environment/Infrastructure Block Marker below so the block can auto-clear once the underlying fix actually ships.
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
