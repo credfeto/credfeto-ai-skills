@@ -29,21 +29,11 @@ On every agent run, for every PR being interacted with:
 3. Sync labels from all linked closing issues to the PR:
 
    ```bash
-   gh pr view <pr> --repo <owner/repo> --json closingIssuesReferences \
-     --jq '.closingIssuesReferences[].number' \
-   | while IFS= read -r n; do
-       gh issue view "$n" --repo <owner/repo> --json labels --jq '.labels[].name' \
-         || echo "Warning: could not fetch labels for issue $n" >&2
-     done \
-   | sort -u \
-   | grep -vE '^(Blocked|On-Hold)$' \
-   | while IFS= read -r label; do
-       gh pr edit <pr> --repo <owner/repo> --add-label "$label" \
-         || echo "Warning: could not add label '$label' to PR" >&2
-     done
+   cfwf closing-issue-labels --repo <owner/repo> --pr <pr>
+   gh pr edit <pr> --repo <owner/repo> --add-label "<label-1>,<label-2>"
    ```
 
-   The `Blocked` and `On-Hold` labels are explicitly excluded: workflow-control labels must never be synced from an issue to its PR.
+   `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On-Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` call as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
 
 4. Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed.
 
@@ -122,7 +112,7 @@ This convention only applies to PRs. Everything else about the Blocked-label con
 
 ## PR Lifecycle
 
-- Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
+- Only one active branch or open PR per user per repository at a time; do not create another until the current one is merged and closed.
 - **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory.
 - When adding work to an open PR (review comments, missing coverage, CI fixes), convert to draft first: `gh pr ready <number> --undo`. Keep it in draft until testing and review are both satisfied; only convert it back when ready for submission.
 - Assign yourself to PRs when creating or updating: `gh pr edit <number> --add-assignee @me`.

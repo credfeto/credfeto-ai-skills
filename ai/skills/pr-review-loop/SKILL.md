@@ -1,63 +1,76 @@
 ---
 name: credfeto-pr-review-loop
-description: Run the simplify, code-review, security-review, and coverage-ratchet passes on a pull request after all code changes are pushed and CI passes, before enabling auto-merge, including the changelog-correction step folded into each fix, how a static analyzer's rule always wins over a review suggestion, how the coverage ratchet gates on whole-repo per-language coverage rather than just the diff, and how to mark an environment-caused block for later auto-clearing. Use after CI is green on a PR and before marking it ready or enabling auto-merge.
+description: Run the simplify, code-review, security-review, and coverage-ratchet passes on a pull request after all code changes are pushed and CI passes, before enabling auto-merge, including the changelog-correction step and Pattern Sweep folded into each fix, how each review phase can exit without blocking once it stops finding anything new, how a static analyzer's rule always wins over a review suggestion, how the coverage ratchet gates on whole-repo per-language coverage rather than just the diff and blocks when it judges the gap unlikely to close, and how to mark an environment-caused block for later auto-clearing. Use after CI is green on a PR and before marking it ready or enabling auto-merge.
 ---
 
 # PR AI Review Loop
 
-After all code changes are pushed and all required CI checks pass, run these phases in order **before** enabling auto-merge on the PR. Phases B, C, and D are each capped at a configurable maximum number of rounds (`MAX_REVIEW_ITERATIONS`); pick a small fixed number (e.g. 5) if the repo does not define one. Phase A uses its own, separate budget (see below).
+After all code changes are pushed and all required CI checks pass, run these phases in order **before** enabling auto-merge on the PR. Phases B, C, and D each have their own configurable maximum number of rounds (`MAX_CODE_REVIEW_ITERATIONS`, `MAX_SECURITY_REVIEW_ITERATIONS`, `MAX_COVERAGE_ITERATIONS` respectively); pick small fixed numbers (e.g. 5) if the repo does not define them. Phase A uses its own, separate budget (see below).
 
 ## Phase A: Simplify (up to `MAX_SIMPLIFY_ITERATIONS` rounds, with a separate `SIMPLIFY_THRASH_LIMIT`)
 
 1. Update the workflow board to a "simplify" status, if one is configured (see [Updating a Workflow Board](#updating-a-workflow-board) below).
-2. Run a simplify pass against the diff that applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them.
+2. Run a simplify pass against the diff that applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them. Also apply IDE MCP code analysis to the modified files.
 3. If the simplify pass changed any files: run a changelog-correction pass against the resulting diff; commit the code changes and, if the changelog entry changed, commit `CHANGELOG.md` separately; push; then repeat step 2 against the resulting diff.
-4. Once the simplify pass makes no further changes, proceed to Phase B.
-5. Simplify has its own iteration budget, kept deliberately separate from `MAX_REVIEW_ITERATIONS` (used by Phases B-D below), because it is expected to run more rounds and give up without blocking:
+4. Once the simplify pass makes no further changes: run a Pattern Sweep for each construct in the net Phase A diff (the commits since step 1), not per round, since rounds may revert each other and each sweep would widen the next round's diff. A change with no repeatable construct (a local rename or restructuring) has nothing to sweep. If the sweep changed files: commit, run changelog-correction and commit `CHANGELOG.md` separately if the entry changed, push, then proceed to Phase B instead of returning to step 2 (Phase B re-covers the swept code).
+5. Simplify has its own iteration budget, kept deliberately separate from Phases B-D's budgets, because it is expected to run more rounds and give up without blocking:
    - Track each round's diff size (lines changed by that round's simplify commit) against the previous round's.
    - Once `SIMPLIFY_THRASH_LIMIT` rounds have run, if the current round is thrashing (its diff is flat or larger than the previous round's, i.e. not shrinking): give up immediately, even though `MAX_SIMPLIFY_ITERATIONS` has not been reached.
    - Otherwise, keep re-running up to `MAX_SIMPLIFY_ITERATIONS` rounds total; once that hard cap is reached without converging to no changes, give up regardless of whether the diff was still shrinking.
-   - Either way, giving up means: post a PR comment noting that simplify did not converge, then proceed to Phase B with the diff as it currently stands. **Do not add `Blocked` and do not stop**; unlike Phases B-D, non-convergence in Phase A never blocks the PR, because Phase B's code-review pass re-covers the same reuse/simplification/efficiency categories as a safety net.
+   - Either way, giving up means: post a PR comment noting that simplify did not converge, run step 4 in full (sweep, commit, changelog correction, push) on the diff as it currently stands, then proceed to Phase B. **Do not add `Blocked` and do not stop**; unlike Phases B-D, non-convergence in Phase A never blocks the PR, because Phase B's code-review pass re-covers the same reuse/simplification/efficiency categories as a safety net.
 
-## Phase B: Code Review (up to `MAX_REVIEW_ITERATIONS` rounds)
+## Phase B: Code Review (up to `MAX_CODE_REVIEW_ITERATIONS` rounds)
 
 1. Update the workflow board to a "review" status, if configured.
-2. Run a code-review pass that posts inline PR comments for its findings. This intentionally re-covers the reuse/simplification/efficiency categories Phase A already applied (Phase A fixes them silently; this step verifies nothing was missed) and separately checks correctness, which Phase A does not. Security and compliance are not covered here; they remain Phase C's job. Expect this step to usually find nothing in the categories Phase A already handled.
-3. If inline PR comment findings were posted: fix each in its own commit; after each fix, run a changelog-correction pass and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
-4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment listing them, add the `Blocked` label, and **stop**:
+2. Run a code-review pass that posts inline PR comments for its findings. This intentionally re-covers the reuse/simplification/efficiency categories Phase A already applied (Phase A fixes them silently; this step verifies nothing was missed) and separately checks correctness, which Phase A does not. Security and compliance are not covered here; they remain Phase C's job. Also apply IDE MCP code analysis to the modified files. Expect this step to usually find nothing in the categories Phase A already handled.
+3. If no findings were posted: proceed to Phase C.
+4. Otherwise, judge convergence from the PR's history of prior code-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_CODE_REVIEW_ITERATIONS`, otherwise the round-cap branch below always fires first and the non-blocking exit can never trigger.
+   - If `MAX_CODE_REVIEW_ITERATIONS` rounds have already run and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add the `Blocked` label, and **stop**:
 
-   ```bash
-   gh pr edit <number> --repo <owner/repo> --add-label Blocked
-   ```
+     ```bash
+     gh pr edit <number> --repo <owner/repo> --add-label Blocked
+     ```
+
+   - Otherwise, if substantially repeating a prior round (not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that code review is not converging, advance the board to a "security review" status if configured, post a one-line status comment, then proceed to Phase C. **Do not add `Blocked`**: this means no new correctness issues are surfacing, not that a known one is safe to ignore; the posted comment carries the unresolved findings forward to human review.
+   - Otherwise (substantively new findings, or a repeat but fewer than `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have run so far, and the round cap has not been reached): fix each finding, grouped by construct, in its own commit, with a Pattern Sweep for that construct (a finding that only re-reports a construct a sweep already touched is not substantively new for the convergence judgment above; a new bug in those files is); after each fix and its sweep, run a changelog-correction pass and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
 
 ## Conflict Resolution: Simplify/Code Review vs. Static Analyzer
 
 If a change proposed by the simplify pass (Phase A) or a finding raised by the code-review pass (Phase B) would conflict with a rule enforced by the project's build-time static analyzer stack, or by any org-owned code-analysis package, **the static analyzer's rule always wins**: do not apply the conflicting simplify/code-review suggestion, and keep the analyzer-compliant code as-is.
 
-## Phase C: Security Review (up to `MAX_REVIEW_ITERATIONS` rounds)
+## Phase C: Security Review (up to `MAX_SECURITY_REVIEW_ITERATIONS` rounds)
+
+This phase mirrors Phase B exactly, substituting security-review for code-review; keep both in sync when editing either.
 
 1. Update the workflow board to a "security review" status, if configured.
-2. Run a security-review pass against the diff.
-3. If findings are reported (inline or in output): post them as a PR comment if not already inline; fix each in its own commit; after each fix, run a changelog-correction pass and commit `CHANGELOG.md` separately if the entry changed; push; return to step 2.
-4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment, add the `Blocked` label, and **stop**.
+2. Run a security-review pass against the diff. Also apply IDE MCP code analysis to the modified files.
+3. If no findings are reported: proceed to Phase D.
+4. Otherwise, judge convergence from the PR's history of prior security-review comments, the same way as Phase B step 4 above (`MIN_REVIEW_CONVERGENCE_ROUNDS` must again be set below `MAX_SECURITY_REVIEW_ITERATIONS`):
+   - If `MAX_SECURITY_REVIEW_ITERATIONS` rounds have already run and findings remain: post a PR comment listing the unresolved findings, add the `Blocked` label, and **stop**.
+   - Otherwise, if substantially repeating a prior round AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that security review is not converging, advance the board to an "AI Coverage" status if configured, post a one-line status comment, then proceed to Phase D. **Do not add `Blocked`**, for the same reason as Phase B's equivalent exit.
+   - Otherwise: post findings as a PR comment if not already inline, fix each finding grouped by construct in its own commit with a Pattern Sweep, run changelog-correction and commit `CHANGELOG.md` separately if the entry changed after each fix and sweep, push, return to step 2.
 
-## Phase D: AI Coverage (up to `MAX_REVIEW_ITERATIONS` rounds)
+## Phase D: AI Coverage (up to `MAX_COVERAGE_ITERATIONS` rounds)
 
 This phase gates on the whole repo's per-language coverage, not just the lines the PR's own diff touches; it exists to catch a deleted test or an untouched-code regression that a diff-only coverage check would miss.
 
 1. Update the workflow board to an "AI Coverage" status, if configured.
 2. Run the coverage ratchet decision procedure:
-   1. If every file changed on the branch (relative to its merge-base with `main`) falls into a non-code category, dependency-manifest/version-pin bumps, CI workflow YAML beyond version pins, SQL, shell scripts, Dockerfiles, or documentation-only changes, skip straight to step 5 without measuring anything; nothing that changed could have moved any language's coverage.
+   1. If every file changed on the branch (relative to its merge-base with `main`) falls into a non-code category (dependency-manifest/version-pin bumps, CI workflow YAML beyond version pins, SQL, shell scripts, Dockerfiles, or documentation-only changes), skip straight to step 5 without measuring anything; nothing that changed could have moved any language's coverage.
    2. Fetch `origin/main` fresh and read its committed coverage-baseline file (e.g. `COVERAGE.md` at the repo root) without checking it out. If it does not exist yet, this is a first-time bootstrap: there is no baseline to compare against, so treat the gate as passed and continue to step 5.
    3. For each orchestrated language with a real baseline figure in that file (not "n/a" or "excluded"), measure that language's current overall line coverage on the branch's working tree.
    4. Compare branch vs. baseline **overall** coverage per language (never blended across languages, and never gated on a single project/component dipping while its language's overall holds or improves): any language whose branch overall is below its baseline overall fails the gate.
    5. **On success**: write/overwrite the coverage-baseline file with the numbers just measured (or the branch's current measurement, in the skip/bootstrap cases), commit and push it, move the board to **Human Review**, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop; do not let the board re-enter AI Coverage on the resulting CI run.
-   6. **On failure**: post one status-comment line per failing language in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development`, move the board back to **Development**, leave the coverage-baseline file untouched, and stop; the next work cycle picks the resulting Development work back up.
-3. **Round cap**: counting rounds from prior `... - returning to Development` coverage comments, after `MAX_REVIEW_ITERATIONS` rounds without the branch catching up: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and **stop**.
+   6. **On failure**, check the round cap first, then judge the round-over-round trend:
+      - **Round cap**: if `MAX_COVERAGE_ITERATIONS` rounds have already run (counted from prior `... - returning to Development` coverage comments) without the branch catching up, whether or not this round's trend is itself closing: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop. Do not write the coverage-baseline file.
+      - Otherwise, compare each still-failing language's overall this round against its overall in the most recent prior coverage comment that mentions that language by name (not necessarily the immediately preceding round, since a language that passed in a round leaves no comment mentioning it that round). Treat a language as trending, with nothing yet to compare, only when no prior comment mentions it at all, or this is the whole PR's first coverage round.
+      - **Gap closing** (every still-failing language's overall either improved versus its own previous round, or is trending per the carve-out above): post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), move the board back to **Development**, and stop. Do not write the coverage-baseline file.
+      - **Flat or worsening, and judged unlikely to close**: post a PR comment giving the per-language numbers, the round-over-round trend, and the specific reasoning for why coverage cannot realistically be raised further here, add the `Blocked` label, and stop. Do not write the coverage-baseline file. Unlike Phase B/C's self-detected non-convergence exit, this one blocks: a coverage round's pass/fail IS the ratchet's own verdict, so giving up here means proposing to waive the gate itself, not merely reporting that no new findings turned up; a human must see and agree with the reasoning before the gate is treated as satisfied.
+      - **Flat or worsening, but more rounds are still judged worth trying**: post the status comment as in the gap-closing case above, move the board back to **Development**, and stop. Do not write the coverage-baseline file.
 
 ## Phase E: Mark Ready
 
-Only once all four phases pass (or there were no reviewable changes):
+Only once all four phases have completed without a `Blocked` outcome (each phase passed outright, or exited via its own non-blocking convergence path noted in a PR comment, or there were no reviewable changes):
 
 1. Safety net (belt-and-suspenders on top of the Compliance sub-agent's own check during Phase B): confirm a `.deleteme.now` placeholder file is not present in `git diff origin/main...HEAD --name-only`; if it is still present, remove it in its own commit, re-run the build/test verification role, then continue.
 2. Update the workflow board to a "human review" status, if configured, unless Phase D's success path already moved it there.
@@ -91,36 +104,17 @@ This marker only applies to PRs; there is no environment session, and therefore 
 
 ## Updating a Workflow Board
 
-If the repo's agent-facing instructions define a workflow board (a GitHub Projects v2 board with a Status field, typically supplied as project ID / status field ID / per-status option IDs), update it at each phase transition above by running these steps in sequence:
+Always use the repo's `cfwf` tool for workflow board reads and writes; never hand-compose `gh project`, `gh repo view --json projectsV2`, or `gh api graphql` commands for it. Every command names the item with `--repo <owner/repo> --pr <number>`:
 
 ```bash
-# Step 1: resolve the item node ID
-ITEM_NODE_ID=$(gh api repos/<owner/repo>/pulls/<number> --jq '.node_id')
+# Move the PR to a status (matched by display name, case-insensitive)
+cfwf workflow-status --set --repo <owner/repo> --pr <number> --status "AI Review"
 
-# Step 2: add item to project and capture the project item ID (idempotent: safe to call again for an item already in the project)
-PROJECT_ITEM_ID=$(gh api graphql \
-  -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}' \
-  -f p="${WF_PROJECT_ID}" -f c="${ITEM_NODE_ID}" \
-  --jq '.data.addProjectV2ItemById.item.id')
-
-# Step 3: set the Status field
-gh api graphql \
-  -f query='mutation($p:ID!,$i:ID!,$f:ID!,$v:String!){updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$v}}){projectV2Item{id}}}' \
-  -f p="${WF_PROJECT_ID}" -f i="${PROJECT_ITEM_ID}" \
-  -f f="${WF_STATUS_FIELD_ID}" -f v="<STATUS_OPTION_ID>" > /dev/null
-
-# Step 4: verify the write actually persisted; retry up to 3 times with backoff if not
-for attempt in 1 2 3; do
-  ACTUAL=$(gh api graphql \
-    -f query='query($i:ID!){node(id:$i){... on ProjectV2Item{fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{optionId field{... on ProjectV2SingleSelectField{id}}}}}}}}' \
-    -f i="${PROJECT_ITEM_ID}" \
-    --jq ".data.node.fieldValues.nodes[] | select(.field.id==\"${WF_STATUS_FIELD_ID}\") | .optionId")
-  [ "$ACTUAL" = "<STATUS_OPTION_ID>" ] && break
-  sleep "$attempt"
-done
-[ "$ACTUAL" = "<STATUS_OPTION_ID>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
+# Read the current status
+cfwf workflow-status --check --repo <owner/repo> --pr <number>
 ```
 
-Step 4 is **mandatory, not optional**: `updateProjectV2ItemFieldValue` can return success (no GraphQL error) on an item that was just added by `addProjectV2ItemById`, without the field write actually persisting; a known eventual-consistency race in the Projects v2 API on freshly-added items. Reporting success without this read-back verification is a real bug that has shipped in practice because nothing threw. Never skip the verification step to save a round-trip.
+- `--set` adds the item to the board if it is not already there and sets the status, then prints confirmation; exit 0 means the write was accepted (do not re-read it to confirm; GitHub's state lags behind writes). A non-zero exit means the write failed.
+- `--check` prints the current status and exits non-zero if the item is not on the board. The output starts with the status name and may be followed by a parenthetical; match the name exactly and ignore anything after it.
 
-If no board configuration is present, skip all board updates silently; the comment/label flow above is sufficient on its own.
+Always attempt `cfwf` rather than deciding in advance that no board is configured: only conclude there is no board if `cfwf` itself reports finding no "Workflow" project linked to the repo, in which case skip board updates silently for the rest of the session.

@@ -23,7 +23,7 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## 3. Pre-Commit Baseline Check (MANDATORY)
 
-If you are resuming an existing work branch (rather than branching fresh from an up-to-date `main`), bring it up to date **before** running the baseline hook below, as three distinct, ordered steps:
+If you are resuming an existing work branch (rather than branching fresh from an up-to-date `main`), bring it up to date **before** running the baseline check below, as three distinct, ordered steps. If this rebase procedure runs `pre-commit-check` (see step 3 below), that already satisfies the baseline check further down this section; do not run it a second time.
 
 1. **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
@@ -36,7 +36,11 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
    These five rules are a deterministic algorithm: for every conflicting entry there is exactly one correct resolution. Apply it and continue; do not stop the rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice. Only stop and ask when a conflict genuinely falls outside it, for example the same package bumped to two unrelated versions with no clear "latest" (divergent major versions), or a security trade-off with no candidate that is both latest and unaffected.
 
-   Run the build and tests once the rebase completes. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. No coverage re-baseline step is needed here: coverage is always measured against `origin/main`'s live `COVERAGE.md`, so a plain rebase cannot make it stale.
+   Run the build and tests once the rebase completes. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. Then run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing (see the long-running-commands skill for the poll-loop shape and the 30-minute deadline). Do this after every rebase in a session, not only the first.
+   - If `pre-commit-check` fails with errors requiring manual fixes: fix and commit them on the current branch, then continue; if it still fails after fixing, comment on the issue/PR and label it `Blocked`, and do not continue work.
+   - If it only auto-fixes files (e.g. trailing whitespace) with everything else passing: commit those fixes directly on the current branch. Unlike the fresh-branch case below, there is no separate unmerged base-point to protect once work is already under way on this branch, so the new-branch/`Blocked` handling below does not apply here.
+
+   No coverage re-baseline step is needed here: coverage is always measured against `origin/main`'s live `COVERAGE.md`, so a plain rebase cannot make it stale.
 
    **If the rebase itself produces a conflict in `COVERAGE.md`**: do not hand-merge the percentages; it is generated content, not hand-authored. Take `main`'s copy:
 
@@ -49,13 +53,13 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
-Then, resolve `<hooks-path>` (see "Never block by deduction" below) and run the hook against every tracked file to verify the repo is clean:
+Otherwise (no rebase was needed, or you are starting a fresh branch from an up-to-date `main`), run the baseline check now, before starting any work on an issue or PR, to verify the repo is clean:
 
 ```bash
-<hooks-path>/pre-commit --all-files
+pre-commit-check
 ```
 
-**Always run this check in the background** — it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional; see the long-running-commands skill for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes — confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing a Monitor-style notification would wake it up, and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe — the default assumption, absent that confirmation, must be that it is not.
+**Always run this check in the background**: it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional; see the long-running-commands skill for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes; confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing a Monitor-style notification would wake it up, and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe; the default assumption, absent that confirmation, must be that it is not.
 
 1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue**, a clean base-point kept separate from the branch/issue for the requested work, and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
 2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
@@ -67,18 +71,9 @@ This ensures CI results are unambiguous; pre-existing failures are resolved befo
 
 ### Never block by deduction
 
-Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
+Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal; the pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
 
-1. Find the installed hooks path by checking `core.hooksPath` at each git config scope in order: the **first** scope where it is set is treated as sufficient; do not check the remaining scopes:
-   1. `git config --system --get core.hooksPath`
-   2. `git config --global --get core.hooksPath`
-   3. `git config --local --get core.hooksPath` (run inside the repo)
-   If none of the three scopes returns a value, the hook is **not installed**.
-2. Stage your changes.
-3. Run the pre-commit hook directly: `<hooks-path>/pre-commit`, using the path found in step 1.
-4. Only block if the hook **actually fails** with a real error.
-
-Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
+Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context. This carve-out also covers a required CLI tool that appears missing under [Language/Runtime Prerequisites](#1-languageruntime-prerequisites-mandatory) above: do not conclude a pre-commit hook tool is absent just because `command -v` finds nothing in the current shell; verify by staging and committing as described here before blocking.
 
 ### Pre-Commit Hook Known Incompatibilities
 
@@ -86,7 +81,7 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
 
 ## 4. COVERAGE.md Bootstrap for New Issues (MANDATORY)
 
-Only when picking up a **new issue** by branching fresh from an up-to-date `main` (not resuming an existing branch): once the baseline hook in step 3 passes cleanly, check whether `COVERAGE.md` exists at the repo root.
+Only when picking up a **new issue** by branching fresh from an up-to-date `main` (not resuming an existing branch): once the baseline hook in step 3 passes cleanly, check whether `COVERAGE.md` exists at the repo root. A missing `COVERAGE.md` means the coverage ratchet has never been applied to this repo, not that it can be skipped: if you are making changes, or have already made changes, to a repo without one, you **must** create it now and keep it maintained thereafter, regardless of whether the requested work touches code coverage at all. Do not treat this as a nice-to-have or defer it to a later PR; skipping it leaves the repo permanently ungated.
 
 - **If it exists**, nothing further is needed: coverage is always compared against `origin/main`'s live copy later in the workflow, so there is no per-branch capture step and nothing to refresh here.
 - **If it does not exist**, collect it now, while still on `main`, before creating the work branch:
@@ -95,7 +90,7 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
      - **Node**: pinned as Vitest with `@vitest/coverage-v8`; run `npx vitest run --coverage` with the `json-summary` reporter configured, then `jq '.total.lines.pct' coverage/coverage-summary.json`. Skip if the repo has no `package.json` with a configured test runner.
      - **Python**: pinned as `coverage.py` via `pytest`; run `coverage run -m pytest` then `coverage report --format=total` (prints only the overall percentage). Skip if the repo has no Python test suite.
      - **Shell**: always excluded; never attempt to measure it.
-  2. Write `COVERAGE.md` at the repo root, including every one of the four languages as a section even when skipped (`n/a (no code)` for a language with no code/tests present; `excluded` for Shell, always, or for another language where every production assembly/package in it is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure — record a one-line rationale beneath `excluded` in that case):
+  2. Write `COVERAGE.md` at the repo root, including every one of the four languages as a section even when skipped (`n/a (no code)` for a language with no code/tests present; `excluded` for Shell, always, or for another language where every production assembly/package in it is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure; record a one-line rationale beneath `excluded` in that case):
 
      ```text
      # Coverage
@@ -139,7 +134,7 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
 1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
 2. Run: `dotnet buildcheck -solution <solutionfilename>`
 3. If it fails:
-   - Fix all reported issues.
+   - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), this does not automatically require the standard new-package approval-and-wait: follow the pre-commit/component-tool package-change conflict-resolution path instead, which still falls back to approval-and-wait if its own security review finds a genuine blocker.
    - Verify with `dotnet build` and `dotnet test`.
    - Commit the fixes with a conventional commit message and push.
    - Only proceed with the original work once buildcheck passes cleanly.

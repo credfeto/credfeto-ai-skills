@@ -31,7 +31,7 @@ Every sequence below starts with the repo's Pre-Work Baseline Check as step 0; i
 | CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger |
 | Dependency update (e.g. Dependabot) | Pre-Work Baseline Check → Dependency Updater |
 
-A row starting with `Changelog (placeholder)` assumes the work item takes a changelog entry at all. If the work item hits the repo's changelog skip condition (e.g. a template repo that does not keep a changelog for AI-instruction-only changes), drop the leading `Changelog (placeholder) → Committer → PR Submitter` and start the row at its first `Code Writer` step instead; the PR then opens from that first real commit, and the `Changelog (correction)` step later in the row becomes a no-op.
+A row starting with `Changelog (placeholder)` assumes the work item takes a changelog entry at all. If the work item hits the repo's changelog skip condition (e.g. a template repo that does not keep a changelog for AI-instruction-only changes), the row runs **unchanged**: Changelog still runs first and Committer/PR Submitter still open the PR from that single-file commit, but Changelog commits a `.deleteme.now` placeholder file at the repo root (a short delete-before-merge comment as its content) instead of a `CHANGELOG.md` stub entry. Code Writer removes `.deleteme.now` as part of its first real change set, for Committer to commit as usual, and the later `Changelog (correction)` step is a no-op for these items.
 
 Standard loop pattern: Code Writer/Code Fixer loop with Code Tester up to 5 rounds; Code Reviewer loops up to 5 rounds, re-running both roles each round.
 

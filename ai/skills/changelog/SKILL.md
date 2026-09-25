@@ -7,7 +7,7 @@ description: Add or remove CHANGELOG.md entries using the dotnet changelog tool 
 
 Manage `CHANGELOG.md` entries using `Credfeto.Changelog.Cmd`; **never edit `CHANGELOG.md` manually**.
 
-`Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it. Always invoke it as `dotnet changelog`; never search for the binary or call it directly from `~/.dotnet/tools`.
+`Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it. Always invoke it as `dotnet changelog`; never search for the binary, add it to `PATH`, or call it directly from `~/.dotnet/tools`.
 
 ## When to Skip
 

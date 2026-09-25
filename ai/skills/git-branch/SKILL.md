@@ -11,7 +11,7 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - Ensure `main` is up-to-date with `origin` before starting.
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced; if so, rebase first.
-- Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
+- Only one active branch or open PR per user per repository at a time; do not create another until the current one is merged and closed.
 - **Before treating an existing PR as a blocker** to creating a new branch: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
 
@@ -21,7 +21,7 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 ## Avoid `git worktree`
 
-- Do not use `git worktree` to create additional working trees for a repo.
+- Do not use `git worktree` or the native `EnterWorktree` tool to create additional working trees for a repo.
 - Switch branches in the existing working directory (`git -C <dir> checkout <branch>` / `git -C <dir> switch <branch>`) instead.
 
 ## Branch Naming
@@ -82,7 +82,10 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 1. **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. Run the build and tests once the rebase completes. No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so resolve the conflict by regenerating it via the project's normal coverage-collection process rather than editing the percentages by hand.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. A rebase pulls in unknown content from `origin/main` (someone else's commits, plus any conflict resolutions of your own), so once it completes, run the build and tests, and run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing. This applies to every rebase in a session, not only the first one performed when resuming a branch; re-run both checks after each rebase.
+   - If `pre-commit-check` fails with errors requiring manual fixes, fix and commit them on the current branch, then continue; if it still fails after fixing, comment on and label the issue/PR `Blocked`.
+   - If it only auto-fixes files (e.g. trailing whitespace) with everything else passing, commit those fixes directly on the current branch; unlike bringing a fresh branch up to date before starting work, there is no separate unmerged base point to protect once work is already under way on this branch.
+   - No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so resolve the conflict by regenerating it via the project's normal coverage-collection process rather than editing the percentages by hand.
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 

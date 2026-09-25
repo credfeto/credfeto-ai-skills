@@ -7,7 +7,7 @@ description: Pin npm/JavaScript/TypeScript package versions exactly and resolve 
 
 ## New Package Approval (MANDATORY)
 
-Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package, or the equivalent recognised first-party namespace in the npm ecosystem) is prohibited without explicit human approval after a full security review. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed. Before requesting approval, review:
+Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package, or the equivalent recognised first-party namespace in the npm ecosystem) is prohibited without explicit human approval after a full security review. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed. Exception: a package a pre-commit component tool's own output (e.g. `npm audit`) demands as the specific fix for its failure; see [Conflict Resolution](#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) below. Before requesting approval, review:
 
 - **Provenance**: the source repository and publisher/maintainer identity, confirming the registry listing genuinely matches the claimed upstream project (guard against typosquatting and dependency confusion).
 - **Known vulnerabilities**: published advisories/CVEs for the exact proposed version and its transitive dependencies.
@@ -22,7 +22,23 @@ Present the human with, and wait for their explicit sign-off before touching `pa
 3. Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
 4. Alternatives considered and why they were rejected.
 
-If working from a GitHub issue or PR, follow the Blocked Label workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `go ahead` / `looks good` / `lgtm`).
+If working from a GitHub issue or PR, follow the Blocked Label workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `lgtm`).
+
+## Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes (MANDATORY)
+
+Pre-commit and its component tools are configured by humans, so a tool-reported error (e.g. from `npm audit`) demanding a specific package change is itself a human-authorised instruction, not a discretionary choice by the agent. When a tool's own output pins down the exact remediation, adding a package reference, changing an existing reference's metadata or version, or removing one, apply the fix and proceed without pausing for a fresh approval round-trip, even when it introduces a package not previously referenced anywhere in the repo.
+
+This does not remove the security review, only the wait:
+
+- Still carry out the full security review from [New Package Approval](#new-package-approval-mandatory) above for any package this newly introduces to the repo.
+- If the review finds a genuine blocker (a known vulnerability advisory, a provenance/typosquat mismatch, an incompatible licence, or a maintenance status so poor the package cannot be trusted), this exception does not apply: fall back to the full approval-and-wait process above, since the tool's output cannot have authorised a fix its own security review flags as unsafe.
+- If the review finds no blocker: post the findings for visibility and proceed with the fix and the current work without waiting for sign-off. If working from a GitHub issue or PR, post them as a normal comment; do not follow the Blocked Label workflow for this case. If not (no issue or PR), share them with the human directly (e.g. in chat).
+
+This exception applies only when the tool's output pins down the exact remediation with no choice among alternatives left to the agent (for example, several packages could resolve the same advisory, or the fix could be a version bump or a package swap): any such choice remains a discretionary package decision, not a tool mandate, and the full approval-and-wait process above still applies.
+
+## Registry Lookup
+
+Before searching for or installing a package, check which registry is actually configured: `npm config get registry`. Use that registry for lookups rather than assuming the public npm registry, since it may point at a private feed, proxy, or mirror.
 
 ## Fixed Package Versions (MANDATORY)
 

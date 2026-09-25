@@ -7,10 +7,11 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 
 - Run build and all tests after Code Writer or Code Fixer finishes.
 - Check coverage against `git diff origin/main...HEAD`: every new or changed line must be covered.
+- Apply IDE MCP code analysis to the changed files.
 - On build failure, test failure, or uncovered code: report the file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered; this loop is capped at 5 rounds by the calling agent's routing rules.
+- Carry any sweep record in the incoming hand-off through to the outgoing report unchanged.
 - Do not modify code or tests; report and verify only.
-- Do not commit, push, or update the changelog.
 
 ## No Self-Repair (MANDATORY)
 
@@ -21,6 +22,7 @@ This is a mechanical role: it must not interpret or fix failures. When a check f
 `dotnet build` and `dotnet test` (or the equivalent build/test commands for the project's language) have no bounded, predictable duration: a build runs through a full analyzer stack plus package restore, and a test run scales with what changed. A run has been killed mid-run by a foreground timeout in a live session. There is no timeout value that is both practical and safe to pick for either command, so do not try to pick one.
 
 - **Always run both via a background-task mechanism (e.g. `run_in_background`); never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
+- **Never wrap either command in a shell `timeout` command** as a substitute or a belt-and-braces addition, whether or not the background-task mechanism is also used: running the unwrapped command via the background-task mechanism is already unbounded and needs no additional wrapper.
 - Poll for completion using a specific string the command itself writes, subject to a 30-minute deadline:
   - `dotnet build` succeeded: poll for `Build succeeded.`
   - `dotnet test` all passed: poll for `Passed!`

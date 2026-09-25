@@ -7,7 +7,7 @@ description: Choose secure, actively-maintained, managed dependencies over nativ
 
 ## Third-Party Packages Require Human Approval (MANDATORY)
 
-Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package, or the equivalent recognised first-party namespace in another ecosystem) is prohibited without explicit human approval. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed.
+Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package, or the equivalent recognised first-party namespace in another ecosystem) is prohibited without explicit human approval. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed. Exception: a package change that a pre-commit component tool's own output demands as the specific fix for its failure; see [Pre-Commit/Component-Tool-Mandated Package Changes](#pre-commitcomponent-tool-mandated-package-changes-mandatory) below.
 
 Before requesting approval, carry out a full security review of the candidate package and version:
 
@@ -26,6 +26,18 @@ Then present the human with, and wait for their explicit sign-off before touchin
 
 If working from a GitHub issue or PR: post the review as a comment, add the `Blocked` label, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `go ahead` / `looks good` / `lgtm`).
 
+## Pre-Commit/Component-Tool-Mandated Package Changes (MANDATORY)
+
+Pre-commit and its component tools are configured by humans, so a tool-reported error demanding a specific package change is itself a human-authorised instruction, not a discretionary choice. When a tool's own output pins down the exact remediation, adding a package reference, changing an existing reference's metadata or version, or removing one, apply the fix and proceed without pausing for a fresh approval round-trip, even when it introduces a package not previously referenced anywhere in the repo.
+
+This does not remove the security review, only the wait:
+
+- Still carry out the full security review above for any package this newly introduces to the repo.
+- If the review finds a genuine blocker (a known vulnerability advisory, a provenance/typosquat mismatch, an incompatible licence, or a maintenance status so poor the package cannot be trusted), this exception does not apply: fall back to the full approval-and-wait process above, since the tool's output cannot have authorised a fix its own security review flags as unsafe.
+- If the review finds no blocker: post the findings for visibility and proceed with the fix and the current work without waiting for sign-off. If working from a GitHub issue or PR, post them as a normal comment; do not add the `Blocked` label for this case. If not, share them with the human directly (e.g. in chat).
+
+This exception applies only when the tool's output pins down the exact remediation with no choice among alternatives left to you (for example, several packages could resolve the same advisory, or the fix could be a version bump or a package swap): any such choice remains a discretionary package decision, and the full approval-and-wait process above still applies.
+
 ## Choosing Packages
 
 - Use only secure package versions; check for known vulnerabilities before adding a dependency.
@@ -33,6 +45,7 @@ If working from a GitHub issue or PR: post the review as a comment, add the `Blo
 - Avoid deprecated or obsolete packages and language features; if unavoidable, add a comment explaining why and when it can be removed.
 - Prefer the standard library; where insufficient, use well-known, actively-maintained third-party libraries.
 - If you find hand-rolled code duplicating standard-library or trusted-third-party functionality, raise a GitHub issue; do not modify it inline.
+- When looking up available packages, versions, or metadata, use the package sources actually configured on the system rather than assuming the public default registry; there may be a private feed, proxy, or mirror in use.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 
@@ -61,5 +74,3 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 - The same package is bumped to two different, unrelated versions on both sides and there is no clear "latest" (e.g. divergent major versions).
 - A security trade-off with no candidate that is both latest and unaffected.
-
-Note: this escalation boundary is about resolving an existing version conflict between versions of a package already in use; it does not relax [Third-Party Packages Require Human Approval](#third-party-packages-require-human-approval-mandatory) above, which always applies when the package being added is new.

@@ -80,3 +80,10 @@ fi
 ```
 
 Define `is_ai_agent` alongside the other output helpers near the top of the script, not inline at the point of use. Always keep the source URL comment.
+
+## Argument Size Limits
+
+Never pass a value of unbounded or externally-sourced size (an API response, accumulated log/comment data, file contents, etc.) as a single command-line argument to an external command. Use stdin (piping), or a temp file with a flag designed for it (e.g. `jq --slurpfile`/`--rawfile` instead of `--argjson`/`--arg`), instead.
+
+- This applies even when the total combined argument list looks well under `ARG_MAX`: a single argv string is separately capped at `MAX_ARG_STRLEN` (128KiB on Linux), and that per-string ceiling is the one that actually gets hit in practice with growing data.
+- Values that are inherently small and bounded (flags, IDs, short fixed strings, scalars) are fine as regular arguments.

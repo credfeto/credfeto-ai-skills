@@ -43,7 +43,7 @@ When a project is a test support library (provides mocks, helpers, or base types
 <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
 ```
 
-It must also import `UnitTests.props`:
+It must also import `UnitTests.props` (a temporary workaround required by the build-check tooling; drop it once the tooling no longer requires the import):
 
 ```xml
 <Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />
@@ -88,15 +88,6 @@ When writing unit tests that directly reference a source generator project via `
 ```
 
 This prevents the generator's Roslyn NuGet dependencies (e.g. `System.Collections.Immutable 9.0` exported via `GetDependencyTargetPaths`) from appearing alongside the .NET 10 in-box versions in the test project's reference list, which would cause CS1685 ("predefined type defined in multiple assemblies").
-
-## Asynchronous Code and Cancellation
-
-- Prefer async over sync wherever supported; never block on async operations (always await or use async continuations); propagate async through the call stack, with no synchronous wrappers around async operations.
-- Prefer `ValueTask`/`ValueTask<T>` over `Task`/`Task<T>` for test helper and mock methods: this avoids heap allocations on synchronous-completion paths. Only use `Task`/`Task<T>` where `ValueTask` is unsupported or the method always completes asynchronously.
-- All async methods, including test helpers, must accept and pass down a `CancellationToken`.
-- Never create a new `CancellationToken` when one has been provided, unless combining with a timeout via `CancellationTokenSource.CreateLinkedTokenSource`.
-- Prefer overloads that accept a `CancellationToken`.
-- Do not pass `CancellationToken.None` without an explicit documented reason.
 
 ## NSubstitute and FunFair.Test.Common Patterns
 
@@ -188,6 +179,26 @@ var item = collection[0];
 var item = Assert.Single(collection);
 ```
 
+`Assert.NotNull(result)` returns the checked element; capture it with `AssertReallyNotNull` if it is going to be used later in the test body, instead of asserting then dereferencing the original (still nullable-typed) variable:
+
+```csharp
+// WRONG (object)
+Assert.NotNull(result);
+Assert.Equals("Hello World", result.Name);
+
+// CORRECT
+var itemResult = AssertReallyNotNull(result);
+Assert.Equals("Hello World", itemResult.Name);
+
+// WRONG (value type)
+Assert.NotNull(result);
+Assert.Equals("Hello World", result.Value!.Name);
+
+// CORRECT
+var itemResult = AssertReallyNotNull(result);
+Assert.Equals("Hello World", itemResult.Name);
+```
+
 ## Test Date Values (MANDATORY)
 
 Never use hardcoded literal dates (e.g. `new DateTime(2024, 1, 1)`) in tests. Use the `MockDateTimeSources` helpers instead:
@@ -199,8 +210,6 @@ Never use hardcoded literal dates (e.g. `new DateTime(2024, 1, 1)`) in tests. Us
 | A date that advances over time (use sparingly) | `MockDateTimeSources.AdvancingDateTimeUseWithCaution` |
 
 `MockDateTimeSources.AdvancingDateTimeUseWithCaution` advances the clock as the test runs; only use it when the test genuinely requires elapsed time. Prefer `Past` or `Future` for all other cases.
-
-Production code must use `System.TimeProvider` (.NET 8+) for all time abstractions: never `Credfeto.Date.ICurrentTimeSource` or `FunFair.Common.Services.IDateTimeSource` (obsolete). In tests, use `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`; never roll a custom mock. Migrate any code touching `ICurrentTimeSource` or `IDateTimeSource` to `TimeProvider`/`FakeTimeProvider` as part of that work.
 
 ## Mock Setup Helpers
 

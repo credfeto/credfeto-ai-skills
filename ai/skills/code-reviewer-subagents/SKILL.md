@@ -8,12 +8,13 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 ## Orchestrating the Review
 
 1. Run `git diff origin/main...HEAD` to get the scope of changed code.
-2. Launch all six sub-agents below **in parallel** against that diff.
-3. Each sub-agent reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
-4. Fix each real finding in its own commit; skip false positives. Re-run the test suite after fixes.
-5. If fixing a finding requires knowledge outside the instruction files, invoke a research pass first; do not guess or fabricate. If research returns **Not possible**, leave the finding unresolved and escalate to the Orchestrator with the explanation.
-6. Report `{"clean": true}` or `{"clean": false, "fixes": [...]}`. Cap at 5 iterations.
-7. After 5 iterations, report any unresolved findings to the Orchestrator so each can be added as a PR comment for human consideration.
+2. Apply IDE MCP code analysis to the changed files.
+3. Launch all six sub-agents below **in parallel** against that diff.
+4. Each sub-agent reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
+5. Fix each real finding, grouped by construct, as its own change set, with a Pattern Sweep for that construct; skip false positives. Re-run the test suite after fixes. Carry every sweep record, incoming and own, into the outgoing report unchanged.
+6. If fixing a finding requires knowledge outside the instruction files, invoke a research pass first; do not guess or fabricate. If research returns **Not possible**, leave the finding unresolved and escalate to the Orchestrator with the explanation.
+7. Report `{"clean": true, "sweeps": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...]}`, where `sweeps` carries every sweep record. Cap at 5 iterations.
+8. After 5 iterations, report any unresolved findings to the Orchestrator so each can be added as a PR comment for human consideration.
 
 ### Posting a Finding as an Inline PR Comment
 

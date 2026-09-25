@@ -40,10 +40,19 @@ If hooks or formatters modify files **not in your intended change set**:
 ## 4. Commit Message Format
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
-- Include the user's original prompt verbatim in the commit body, prefixed with `Prompt:` followed by a space, not in the title.
 - Reference issue numbers in commit messages when applicable.
 - Commit messages must be written in UK English.
 - Do not use em dash characters (`—`) in commit messages; use a comma, colon, semicolon, or separate sentences instead.
+
+### Pattern Sweep Commits
+
+A commit produced by the Pattern Sweep rule (searching the whole repository for other occurrences of a construct after fixing a bug or accepting a review finding) must, in addition to the rules above:
+
+- Use the Conventional Commits type of the fix commit it derives from (the oldest, when it derives from several; `refactor` for a Phase A sweep of `/simplify` changes), with a title that states it is a sweep, e.g. `fix: apply null-guard fix to remaining call sites`.
+- Carry a `Construct: <one line naming the construct searched for>` line; this exact prefix is what later rounds search commit bodies for.
+- Reference every fix commit SHA it derives from and, where one exists, the review comment or finding.
+- List every file touched, one line per file, each stating why that site matches the original finding.
+- A fix commit that carries sweep hunks in files it already touches carries the same `Construct:` line and per-file lines; a fix commit whose sweep found nothing carries `Construct:` and `Swept: none`.
 
 ## 5. Push (MANDATORY)
 
@@ -56,7 +65,7 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 
 - Use the `git` CLI only for commit and push; never `gh` or the GitHub API.
 - For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` (a short delete-before-merge comment as its content) for repos that skip changelog entries, such as `credfeto/cs-template` itself.
-- Otherwise: commit code and tests as one **GPG-signed** commit (Conventional Commits format, original prompt in the body as `Prompt: …`), and commit `CHANGELOG.md` separately, also GPG-signed, whenever a changelog correction accompanies it.
+- Otherwise: commit the handed-over change set as one **GPG-signed** commit (Conventional Commits). When the hand-off carries sweep records, stage by whole file: everything except the sweep-only files is the fix commit (one per construct where change sets share no file; change sets that share a file form one fix commit whose body carries each `Construct:` line), then build once, then commit the sweep-only files as the sweep commit per the Pattern Sweep Commits format above, one per construct. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever a changelog correction accompanies it.
 - Push immediately after committing. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
 

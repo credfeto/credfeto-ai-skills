@@ -11,6 +11,7 @@ description: Handle secrets, validate untrusted input, sanitise output, model th
 - If a secret is accidentally committed, treat it as compromised immediately: rotate it and purge it from history.
 - Use environment variables, secrets managers, or platform vaults for all runtime secrets.
 - Refer to the current repository's own AI instructions for its project-specific secrets management approach.
+- Never read or print secret-bearing files (`.env`, `.database`, `.claude/`) and write repo searches to exclude them.
 
 ## Input Validation
 

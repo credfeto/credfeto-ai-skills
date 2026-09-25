@@ -22,18 +22,13 @@ Never attempt `gh auth login` or manipulate credentials yourself; if auth is bro
 
 ## Workflow Project Board (MANDATORY)
 
-Every issue raised, in any repository and via any flow (deliverable issues, ad-hoc intake tracking issues, AI-initiated issues, sub-issues), must be added to the "Workflow" GitHub project linked to that repository, immediately after creation.
-
-Each repository has its own linked project titled "Workflow", and many projects share that title across the owner, so never resolve the project by title alone across owners; find the project actually linked to the specific repository:
+Every issue raised, in any repository and via any flow (deliverable issues, ad-hoc intake tracking issues, AI-initiated issues, sub-issues), must be added to the "Workflow" GitHub project linked to that repository, immediately after creation:
 
 ```bash
-# Find the repo's linked Workflow project number
-gh api graphql -f query='query{repository(owner:"<owner>",name:"<repo>"){projectsV2(first:10){nodes{number title}}}}' \
-  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | .number'
-
-# Add the issue to it
-gh project item-add <project-number> --owner <owner> --url <issue-url>
+cfwf workflow-status --set --repo <owner>/<repo> --issue <number> --status "Not Started"
 ```
+
+Run this only for an issue you have just created: `--set` overwrites the status of an item already on the board, so never re-run it on an existing issue to "make sure".
 
 ## Issue Creation Flow (MANDATORY when asked to create or update an issue)
 
@@ -76,7 +71,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
    ```
 
 3. As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
-4. Do not proceed until an explicit human approval comment exists (`approved` / `go ahead` / `looks good` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first.
+4. Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first.
 5. Once approved and `Blocked` is removed:
    - If the request needs a code change, proceed and open a PR referencing the issue when ready.
    - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue.

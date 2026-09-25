@@ -1,6 +1,6 @@
 ---
 name: credfeto-code-style
-description: Write production code with well-chosen names instead of doc comments, only "why" inline comments, cyclomatic complexity kept below 20, weak (static) connascence preferred over strong (dynamic) forms, and immutable objects wherever possible. Use whenever writing or reviewing production code in any language.
+description: Write production code with well-chosen names instead of doc comments, only "why" inline comments, cyclomatic complexity kept below 20, weak (static) connascence preferred over strong (dynamic) forms, immutable objects wherever possible, async propagated through the call stack without blocking, parameterised tests preferred over duplicated test methods, and refactoring committed separately from feature or fix changes. Use whenever writing or reviewing production code in any language.
 ---
 
 # Code Style
@@ -21,6 +21,22 @@ description: Write production code with well-chosen names instead of doc comment
 - Prefer weak (static) connascence (Name, Type, Meaning) over strong (dynamic) forms (Execution, Timing, Identity); see [connascence.io](https://connascence.io/).
 - Where stronger connascence is unavoidable, keep it local (within a single method or class).
 
+## Asynchronous Code
+
+- Prefer async over sync wherever supported.
+- Never block on async operations, always await or use async continuations.
+- Propagate async through the call stack; no synchronous wrappers around async operations.
+
 ## Immutability
 
 Prefer immutable objects wherever possible, especially in async and multi-threaded code. Only break this for performance reasons when explicitly requested; note the reason in a comment.
+
+## Parameterised Tests
+
+Prefer parameterised tests over duplicated test methods: each behavioural variant is a data point, not a separate method. Use the idiomatic mechanism for the framework (xUnit `[Theory]`/`[InlineData]`, JUnit `@ParameterizedTest`, pytest `parametrize`, Jest `it.each`).
+
+## Refactoring
+
+- Review code after writing and testing to determine whether refactoring is needed.
+- Refactoring must be a separate commit from feature/fix changes.
+- Tests must pass after every refactoring commit.

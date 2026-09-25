@@ -1,6 +1,6 @@
 ---
 name: credfeto-issue-plan-approval
-description: Post an implementation plan on a GitHub issue and wait for explicit human approval before starting work on it, when picking up an issue that has no PR yet. Use when selecting or resuming a GitHub issue with no existing pull request, before writing any code against it.
+description: Post an implementation plan on a GitHub issue and wait for explicit human approval before starting work on it, when picking up an issue that has no PR yet, including how to keep waiting for approval within an interactive session rather than ending the turn. Use when selecting or resuming a GitHub issue with no existing pull request, before writing any code against it.
 ---
 
 # Issue Plan-First Approval Gate
@@ -11,7 +11,7 @@ When picking up a GitHub **issue** that has no existing PR, do not start impleme
 
 ```bash
 gh issue view <number> --repo <owner/repo> --json comments \
-  --jq '[.comments[].body] | any(test("## Implementation Plan"; "i"))'
+  --jq '[.comments[].body] | any(test("^## Implementation Plan"; "i"))'
 ```
 
 - `false` → no plan posted yet; go to [Post the Plan](#2-post-the-plan).
@@ -40,7 +40,7 @@ Produce a concrete implementation plan (using a planning mode if the tool provid
 <list or "None, ready to proceed pending approval">
 ```
 
-Then mark the issue Blocked, update the workflow board to a "planning" status if one is configured (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**:
+Then mark the issue Blocked, update the workflow board to a "Planning" status if one is configured (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**:
 
 ```bash
 gh issue edit <number> --repo <owner/repo> --add-label Blocked
@@ -48,55 +48,58 @@ gh issue edit <number> --repo <owner/repo> --add-label Blocked
 
 Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`; routing logic elsewhere only recognises `Blocked` when deciding whether to skip an item.
 
+Revise a plan only by posting a new `## Implementation Plan` comment, never by editing an existing one in place, so approval is always judged against the latest plan comment.
+
 ## 3. Check for Approval
 
-How approval is signalled depends on whether the repo uses a GitHub Projects workflow board for this (some repos configure one; check the repo's own agent-facing instructions for board field IDs before assuming one exists):
+How approval is signalled depends on whether the repo uses a GitHub Projects workflow board for this (some repos configure one; check the repo's own agent-facing instructions before assuming one exists):
 
-- **Board configured**: check whether a human has set the board status to **Approved**. If yes, proceed to implementation. If not yet, revise or re-post the plan, keep the issue Blocked, and stop.
-- **No board**: check for a human approval comment posted **after** the plan comment (keywords: `approved` / `go ahead` / `looks good` / `lgtm`, case-insensitive, whole word). If found, proceed to implementation. If not found, revise or re-post the plan, keep the issue Blocked, and stop.
+- **Board configured**: check whether a human with project write access (an `OWNER`, `MEMBER` or `COLLABORATOR`; the board only lets people with that access move a card) has set the board status to **Approved** (see [Updating a Workflow Board](#updating-a-workflow-board) below). If yes, proceed to implementation. If not yet, revise or re-post the plan (as a new comment, never in place), keep the issue Blocked, and stop.
+- **No board**: check for an approval comment posted **after** the plan comment, from a commenter whose `authorAssociation` is `OWNER`, `MEMBER` or `COLLABORATOR` (keywords: `approved` / `lgtm`, case-insensitive, whole word: an unconditional approval, not a question, a negation, or a qualified approval such as "approved, but ..."). If found, proceed to implementation. If not found, revise or re-post the plan (as a new comment, never in place), keep the issue Blocked, and stop.
 
 Approval always requires an explicit human action; never remove `Blocked` or treat the plan as approved automatically, no matter how much time has passed or how confident the plan seems.
 
-If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before treating it as approval and before removing `Blocked`. The record must survive even if the chat session is lost.
+If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before treating it as approval and before removing `Blocked`. The record must survive even if the chat session is lost. The one documented exception, which waives only the requirement that a human clears `Blocked` (never the mirror-comment requirement), is live-chat approval handled within an interactive session; see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session) below.
+
+**Check GitHub's live state, not just chat.** A human's approval action may land directly on the issue (a comment, a label change, moving the board card) without also being repeated in chat: they already have to open the issue to read the posted plan, so relaying it a second time in chat is not something to wait on. Before treating the issue as approved, still blocked, or unchanged, re-check its live state (labels, comments, and the board's status via a workflow-status check) rather than relying on stale memory or assuming silence in chat means nothing has happened on GitHub. This cuts both ways: a literal chat-only approval (a human typing `approved`/`lgtm` directly into the chat session) is still valid on its own, but must be mirrored as a GitHub comment so the record survives even if the chat session is lost; and an unexplained GitHub-side state change must not be treated as approval without confirming a human actually made it, since an automated board rule or a stray process flipping a field is not a human decision.
+
+## Waiting for Approval in an Interactive Session
+
+Applies only to an interactive session: one where a human has actually typed a message in it (an injected prompt or task notification does not count; if unsure, assume the session is unattended). An unattended run stops once the plan is posted and Blocked is added, and must not poll.
+
+- Once the plan is posted and Blocked added (or, on resume, once an existing plan is found not yet approved), "stop" means stop working on the issue, not stop watching it: take the latest plan comment's `createdAt` as the approval baseline and start a recurring, dynamically-paced check instead of ending the turn (e.g. via a scheduling/loop mechanism the tool provides), re-running the approval check above on each tick.
+- Each tick, decide from the labels, the latest plan comment, and any qualifying approval comment/board status posted after it, without stopping early so a half-finished approval is not missed:
+  - **Approved**: `Blocked` is absent, a plan exists, and either the board reads Approved (board configured) or a qualifying approval comment exists (no board), and the plan is still the same one taken as the baseline. Stop waiting and proceed to implementation (checking for an existing branch first).
+  - **Half-finished**: the approval signal is present but `Blocked` has not actually been cleared yet. Keep waiting and tell the human as soon as this is seen.
+  - **Otherwise**: not yet; wait silently.
+  - If the plan comment taken as the baseline has since been superseded by a newer one, treat the plan as changed: earlier approvals no longer count. If you revised the plan yourself, restart from posting the plan (re-add `Blocked`, new baseline); if someone else posted it, tell the human and wait for their direction.
+- Pace the wait with long idle intervals (e.g. around 20 minutes) while nothing has changed, rather than polling tightly; there is no overall cap on how long the wait may run. If no scheduling mechanism is available, do not poll at all: tell the human the issue is waiting and that saying `approved` in chat will continue the work.
+- **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval (not a question, a negation, or a qualified approval), act at once rather than waiting for the next tick:
+  1. Re-check that the message refers to this issue, the plan is still the baseline, `Blocked` is only the plan-approval block (no unresolved question, failed baseline check, or environment-block marker posted after the plan), and the plan has no unresolved open questions; if any check fails, ask instead of acting.
+  2. Post a mirror comment on the issue quoting the live instruction.
+  3. Remove the `Blocked` label.
+  4. If the repo has a workflow board, set its status to Approved.
+  5. Stop waiting and proceed to implementation as above.
 
 ## Scope: Issues Only, Never Re-Checked at PR Time
 
 This gate governs only picking up an issue that has **no existing PR**. Once a PR exists for the issue, this gate no longer applies: a PR is never opened for an issue until this gate has already been passed by a human, so the PR's own existence *is* the authorisation.
 
-A session working the PR phase must never re-derive or re-check approval from the PR's own workflow board card; that card is purely a phase marker for the separate PR review workflow, not a second approval gate. If a PR's own board card still reads an early-stage status (e.g. "Not Started", "Planning", or "Approved": for example because the session that opened the draft PR died before advancing its card, or a freshly-seeded board has not caught up yet), treat that as "Development" and continue with the PR review workflow: never block pending approval, and never treat the stale card as evidence the linked issue was never approved. (Confirmed incident: a PR-phase session misread its own lagging "Not Started" card this way and blocked instead of finishing deferred implementation.) The issue and PR cards are kept in step automatically, forward-only, by the orchestrating system itself; this is not something a session needs to reconcile by hand.
+A session working the PR phase must never re-derive or re-check approval from the PR's own workflow board card; that card is purely a phase marker for the separate PR review workflow, not a second approval gate. If a PR's own board card still reads an early-stage status (e.g. "Not Started", "Planning", or "Approved": for example because the session that opened the draft PR died before advancing its card, or a freshly-seeded board has not caught up yet), treat that as "Development" and continue with the PR review workflow: never block pending approval, and never treat the stale card as evidence the linked issue was never approved. The issue and PR cards are kept in step automatically, forward-only, by the orchestrating system itself; this is not something a session needs to reconcile by hand.
 
 ## Updating a Workflow Board
 
-If the repo's agent-facing instructions define a workflow board (a GitHub Projects v2 board with a Status field, typically supplied as project ID / status field ID / per-status option IDs), update it by running these steps in sequence whenever this gate changes the issue's status (e.g. to **Planning** after posting a plan):
+Always use the repo's `cfwf` tool for workflow board reads and writes; never hand-compose `gh project`, `gh repo view --json projectsV2`, or `gh api graphql` commands for it. Every command names the item with `--repo <owner/repo> --issue <number>`:
 
 ```bash
-# Step 1: resolve the item node ID
-ITEM_NODE_ID=$(gh api repos/<owner/repo>/issues/<number> --jq '.node_id')
+# Move the issue to a status (matched by display name, case-insensitive)
+cfwf workflow-status --set --repo <owner/repo> --issue <number> --status "Planning"
 
-# Step 2: add item to project and capture the project item ID (idempotent: safe to call again for an item already in the project)
-PROJECT_ITEM_ID=$(gh api graphql \
-  -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}' \
-  -f p="${WF_PROJECT_ID}" -f c="${ITEM_NODE_ID}" \
-  --jq '.data.addProjectV2ItemById.item.id')
-
-# Step 3: set the Status field
-gh api graphql \
-  -f query='mutation($p:ID!,$i:ID!,$f:ID!,$v:String!){updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$v}}){projectV2Item{id}}}' \
-  -f p="${WF_PROJECT_ID}" -f i="${PROJECT_ITEM_ID}" \
-  -f f="${WF_STATUS_FIELD_ID}" -f v="<STATUS_OPTION_ID>" > /dev/null
-
-# Step 4: verify the write actually persisted; retry up to 3 times with backoff if not
-for attempt in 1 2 3; do
-  ACTUAL=$(gh api graphql \
-    -f query='query($i:ID!){node(id:$i){... on ProjectV2Item{fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{optionId field{... on ProjectV2SingleSelectField{id}}}}}}}}' \
-    -f i="${PROJECT_ITEM_ID}" \
-    --jq ".data.node.fieldValues.nodes[] | select(.field.id==\"${WF_STATUS_FIELD_ID}\") | .optionId")
-  [ "$ACTUAL" = "<STATUS_OPTION_ID>" ] && break
-  sleep "$attempt"
-done
-[ "$ACTUAL" = "<STATUS_OPTION_ID>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
+# Read the current status
+cfwf workflow-status --check --repo <owner/repo> --issue <number>
 ```
 
-Step 4 is **mandatory, not optional**: `updateProjectV2ItemFieldValue` can return success (no GraphQL error) on an item that was just added by `addProjectV2ItemById`, without the field write actually persisting; a known eventual-consistency race in the Projects v2 API on freshly-added items. Reporting success without this read-back verification is a real bug that has shipped in practice because nothing threw. Never skip the verification step to save a round-trip.
+- `--set` adds the item to the board if it is not already there and sets the status, then prints confirmation; exit 0 means the write was accepted (do not re-read it to confirm; GitHub's state lags behind writes). A non-zero exit means the write failed.
+- `--check` prints the current status and exits non-zero if the item is not on the board. The output starts with the status name (e.g. `Approved`) and may be followed by a parenthetical; match the name exactly and ignore anything after it.
 
-If no board configuration is present, skip all board updates silently; the comment/label flow above is sufficient on its own.
+Always attempt `cfwf` rather than deciding in advance that no board is configured: only conclude there is no board if `cfwf` itself reports finding no "Workflow" project linked to the repo, in which case skip board updates silently for the rest of the session.

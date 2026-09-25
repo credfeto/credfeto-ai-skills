@@ -73,6 +73,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [python](../skills/python/SKILL.md) | `credfeto-python` | `python.instructions.md` |
 | [learnings-capture](../skills/learnings-capture/SKILL.md) | `credfeto-learnings-capture` | `learnings.instructions.md`, `learnings.examples.md` |
 | [long-running-commands](../skills/long-running-commands/SKILL.md) | `credfeto-long-running-commands` | `task-workflow.instructions.md`, `claude-hooks.instructions.md` |
+| [numbering-conventions](../skills/numbering-conventions/SKILL.md) | `credfeto-numbering-conventions` | `task-workflow.instructions.md` |
 | [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
 | [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
