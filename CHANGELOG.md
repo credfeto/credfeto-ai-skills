@@ -47,6 +47,20 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Add the missing Pattern Sweep commit and IDE MCP code analysis steps to the ci-debugger skill, matching the CI Debugger role's sourced instructions
 - Restore the Pattern Sweep reply variants (Swept in / Already swept in) to the pr-sync and github-issue skills' Comment Replies sections, matching the sourced Comment Replies rule
 - Add the missing configured-NuGet-sources lookup step to the dotnet-coding-conventions skill, matching the dotnet.instructions.md NuGet Configuration rule
+- dotnet-nuget-vulnerability-suppression skill: removed unsourced rationale sentences about global suppression risk not present in dotnet.instructions.md's NuGet Vulnerability Suppression section
+- git-commit skill: added the missing Fixing pre-commit failures (MANDATORY) subsection, matching code-quality.instructions.md
+- pr-sync skill: corrected the On-Hold label spelling to On Hold, matching task-workflow.instructions.md
+- github-issue skill: corrected the On-Hold label spelling to On Hold, restored the Implementation Plan template's a./Q1. numbering format and the open-questions-vs-embedded-decisions rule, and added the missing Pre-Closure Decision Check (MANDATORY) rule, matching task-workflow.instructions.md and agent-roles.instructions.md
+- github-workflows skill: removed an unsourced MANDATORY marker on the Version Pinning heading, matching github-workflows.instructions.md
+- issue-plan-approval skill: restored the exact a./Qn. numbering convention for the plan template, added the missing open-questions-vs-embedded-conditional-decisions rule, added the check-for-an-existing-branch-first step, and restored the timeout case to the live-chat approval Blocked check, matching agent-roles.instructions.md
+- pr-review-loop skill: replaced paraphrased board-status names with the literal cfwf display names, restored the Pattern Sweep 25-file gate exception to Phase A's never-blocks rule, and removed an invented default for the MAX_*_ITERATIONS constants, matching agent-roles.instructions.md
+- code-writer skill: removed a restatement of the Coding Researcher's pinned-dependency-versions rule that belongs solely to the agent-routing skill, matching agent-roles.instructions.md
+- code-fixer skill: restored the dropped Comment Replies detail on Swept in commit citation and the no-reply-means-no-acknowledgement principle, matching agent-roles.instructions.md
+- repo-auditor skill: expanded the six Code Reviewer sub-agent lenses to include their own minimise-false-positives, focus-on-impact, and exclusions rules, matching agent-roles.instructions.md
+- shell-scripts skill: removed an unsourced enumeration of specific GitHub Actions emoji indicators not stated in shell-scripts.instructions.md
+- dependency-selection skill: removed invented go ahead/looks good approval phrases not present in packages.instructions.md, which specifies only approved/lgtm
+- deprecation-handling skill: removed an invented MANDATORY marker and elaborated wording not present in code-quality.instructions.md's Deprecation Warnings During Tests section
+- code-cleanup-commits skill: removed an invented claim about a Construct: line and fix-commit SHA citations not stated in code-quality.instructions.md's Pattern Sweep section
 ### Changed
 ### Deprecated
 ### Removed

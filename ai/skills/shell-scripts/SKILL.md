@@ -12,7 +12,7 @@ description: Write standalone shell scripts that pass shellcheck/checkbashisms, 
 
 ## Output Helpers (MANDATORY)
 
-Use `die`, `success`, and `info` for all user-facing output in standalone shell scripts: never bare `echo` or `printf`. This applies to standalone shell scripts only; GitHub Actions `run:` steps use emoji indicators instead (`✅`/`❌`/`⚠️`/`ℹ️`).
+Use `die`, `success`, and `info` for all user-facing output in standalone shell scripts: never bare `echo` or `printf`. This applies to standalone shell scripts only; GitHub Actions `run:` steps use emoji indicators instead.
 
 ```sh
 die() {

@@ -46,7 +46,7 @@ On every agent run, for every PR being interacted with:
    gh pr edit <pr> --repo <owner/repo> --add-label "<label-1>,<label-2>"
    ```
 
-   `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On-Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` call as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
+   `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` call as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
 
 4. Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed.
 

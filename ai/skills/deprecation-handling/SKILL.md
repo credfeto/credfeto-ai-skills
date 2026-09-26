@@ -22,6 +22,6 @@ Fix the deprecation before committing; do not leave it for later.
    - What needs to be done to resolve it.
    - Label the issue `AI-Work`.
 
-## Rule (MANDATORY)
+## Rule
 
-Do not suppress or ignore deprecation warnings under any circumstances; every warning is either fixed immediately or tracked in an issue.
+Do not suppress or ignore deprecation warnings.

@@ -11,6 +11,15 @@ Follow every step below, in order, for every commit.
 
 Write unit tests before every commit; every new behaviour must have corresponding tests. Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
 
+### Fixing pre-commit failures (MANDATORY)
+
+Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters) are improved incrementally precisely by encountering and fixing the problems they surface. If pre-commit reports an error that was not present before the current work started, whether caused by your own edits or a component tool catching something pre-existing, fixing it is part of the current work, not a reason to stop.
+
+- Do not stop or escalate merely because the failure is unexpected, was not present originally, or requires changes outside the files you set out to edit, including the pre-commit configuration or a component tool's own rules/config.
+- Only stop and ask if the issue is genuinely fatal: pre-commit cannot possibly be made to pass (e.g. a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control).
+- This does not relax Build and Test Verification above: the fix must be a genuine fix, not a suppression, skip, or exclusion, unless separately authorised.
+- If a component tool's fix is a package change (adding, changing, or removing a package reference), this does not automatically require the standard new-package approval-and-wait; follow the pre-commit/component-tool package-change conflict-resolution path instead, which still falls back to approval-and-wait if its own security review finds a genuine blocker.
+
 ## 2. Branch Check (MANDATORY)
 
 - Run `git branch --show-current` and confirm it is the expected working branch before staging or committing.

@@ -1,6 +1,6 @@
 ---
 name: credfeto-github-issue
-description: Create and manage GitHub issues correctly, covering duplicate search, planned descriptions, priority/status labels, assignment, adding new issues to the repository's linked Workflow project board, correcting prior claims, and the Blocked label rules for AI-initiated issues, including the mandatory tracking issue required before starting any ad-hoc task. Use when asked to create a GitHub issue, when raising an issue autonomously, when a human asks you to do something and no existing issue or PR is already specified, when a PR or issue comment asks you to raise an issue, when selecting the next issue to work on, or when asking a blocking question and needing to mark an item Blocked.
+description: Create and manage GitHub issues correctly, covering duplicate search, planned descriptions, priority/status labels, assignment, adding new issues to the repository's linked Workflow project board, correcting prior claims, the pre-closure decision check, and the Blocked label rules for AI-initiated issues, including the mandatory tracking issue required before starting any ad-hoc task. Use when asked to create a GitHub issue, when raising an issue autonomously, when a human asks you to do something and no existing issue or PR is already specified, when a PR or issue comment asks you to raise an issue, when selecting the next issue to work on, when about to close an issue or PR, or when asking a blocking question and needing to mark an item Blocked.
 ---
 
 # GitHub Issue Management
@@ -29,7 +29,7 @@ Reach for these in this order:
 - Either find a **100% matching** existing issue (confirm with the user before linking) or create a new one with the original prompt and a clear description.
 - Assign yourself before starting: `gh issue edit <number> --add-assignee @me`.
 - Only work on unassigned issues or issues already assigned to you.
-- Skip any issue labelled `On-Hold` or `Blocked`.
+- Skip any issue labelled `On Hold` or `Blocked`.
 - Reference issue numbers in commit messages and branch names.
 - If work on an issue is abandoned, comment with findings before closing; do not abandon silently.
 
@@ -77,11 +77,13 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
    <what will be tested and how>
 
    ### Assumptions
-   <list or "None">
+   <list, using a lower-case alpha sequence (a., b., c., ...), or "None">
 
    ### Open questions
-   <list or "None, ready to proceed pending approval">
+   <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
    ```
+
+   Any conditional or deferred decision point in the Approach or Files-to-change text, a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open), must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate.
 
 3. As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
 4. Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first.
@@ -125,10 +127,10 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 
 | Label | Meaning |
 | --- | --- |
-| `On-Hold` | Needs further thought or cannot be implemented yet, do not start work |
+| `On Hold` | Needs further thought or cannot be implemented yet, do not start work |
 | `Blocked` | Needs human input before work can continue |
 
-An issue labelled `On-Hold` is not ready to be worked on; do not pick up or assign yourself to it. If the label is later removed, re-evaluate its priority and proceed normally.
+An issue labelled `On Hold` is not ready to be worked on; do not pick up or assign yourself to it. If the label is later removed, re-evaluate its priority and proceed normally.
 
 ## Blocked Label (MANDATORY)
 
@@ -204,6 +206,12 @@ Reply to every issue comment that prompted an action. Check both comment surface
 - Already fixed by an earlier sweep (no new commit): reply with `Already swept in <sha>`, citing the commit whose body carries the `Construct:` line.
 - Question answered inline (no code change): reply with the full answer.
 - No reply means no acknowledgement; always close the loop.
+
+## Pre-Closure Decision Check (MANDATORY)
+
+Before closing any issue or PR, check whether its Implementation Plan (Approach/Files-to-change text or an Open Question) or a later comment on it flagged a specific decision as required or pending (e.g. "needs policy sign-off", "pending a decision on X", an unresolved `Qn.`). If so, do not close until that specific item has a visible resolution of its own: a comment recording the decision, a link to the resolving issue/PR, or an explicit retraction, not just implicitly overtaken by whichever branch of the plan got implemented.
+
+This is stricter than an unresolved `Qn.` alone: an Open Question already blocks via the Blocked-label approval gate, and removal of that label is not itself sufficient evidence this check is satisfied; the check here is that the resolution was actually posted, not merely that the item is otherwise ready to close. Applies equally to issues and PRs.
 
 ## Correcting a Prior Claim (MANDATORY)
 

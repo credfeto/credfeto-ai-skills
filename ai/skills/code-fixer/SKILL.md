@@ -14,9 +14,10 @@ description: Address requested changes on an existing pull request, whether from
 - One fix change set per construct: group review comments by the construct they concern rather than committing one-for-one per comment, and pair each change set with a Pattern Sweep for that construct. Apply IDE MCP code analysis to the fixed files. Hand off to the test/build verification role after each fix and its sweep.
 - Respond to **every** review comment without exception. A reply that cites a commit SHA is posted only once the fix has actually been pushed, so the sweep record's file placement is final:
   - If the comment required a code change: reply with `Fixed in <commit-sha>: <one sentence describing what changed and why>`.
-  - If the Pattern Sweep for that fix found further occurrences: add `Swept in <commit-sha>: <files touched>` on the next line.
-  - If the comment was already addressed by an earlier sweep in this PR (no new commit needed): reply with `Already swept in <commit-sha>`, citing the commit that carries the sweep record.
+  - If the Pattern Sweep for that fix found further occurrences: add `Swept in <commit-sha>: <files touched>` on the next line, one line per commit that carries sweep hunks (the fix SHA itself when every hit was in a file the fix already touched); the per-file reasons live in that commit's body.
+  - If the comment was already addressed by an earlier sweep in this PR (no new commit needed): reply with `Already swept in <commit-sha>`, citing the commit whose body carries the `Construct:` line.
   - If the comment is a question or discussion point with no code change needed: reply with a full answer inline on the PR.
+  - No reply means no acknowledgement; always close the loop.
   - To reply to an inline/diff-level review comment so it threads correctly (rather than posting a disconnected top-level comment), use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
     ```bash
     gh api repos/<owner>/<repo>/pulls/<n>/comments \

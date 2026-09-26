@@ -34,11 +34,13 @@ Produce a concrete implementation plan (using a planning mode if the tool provid
 <what will be tested and how>
 
 ### Assumptions
-<list or "None">
+<list, using a lower-case alpha sequence (a., b., c., ...), or "None">
 
 ### Open questions
-<list or "None, ready to proceed pending approval">
+<list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
 ```
+
+**Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text — a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) — must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. A matching check applies again before the issue is later closed: do not close it while a decision flagged this way, or in a later comment, is still unresolved.
 
 Then mark the issue Blocked, update the workflow board to a "Planning" status if one is configured (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**:
 
@@ -54,8 +56,10 @@ Revise a plan only by posting a new `## Implementation Plan` comment, never by e
 
 How approval is signalled depends on whether the repo uses a GitHub Projects workflow board for this (some repos configure one; check the repo's own agent-facing instructions before assuming one exists):
 
-- **Board configured**: check whether a human with project write access (an `OWNER`, `MEMBER` or `COLLABORATOR`; the board only lets people with that access move a card) has set the board status to **Approved** (see [Updating a Workflow Board](#updating-a-workflow-board) below). If yes, proceed to implementation. If not yet, revise or re-post the plan (as a new comment, never in place), keep the issue Blocked, and stop.
-- **No board**: check for an approval comment posted **after** the plan comment, from a commenter whose `authorAssociation` is `OWNER`, `MEMBER` or `COLLABORATOR` (keywords: `approved` / `lgtm`, case-insensitive, whole word: an unconditional approval, not a question, a negation, or a qualified approval such as "approved, but ..."). If found, proceed to implementation. If not found, revise or re-post the plan (as a new comment, never in place), keep the issue Blocked, and stop.
+- **Board configured**: check whether a human with project write access (an `OWNER`, `MEMBER` or `COLLABORATOR`; the board only lets people with that access move a card) has set the board status to **Approved** (see [Updating a Workflow Board](#updating-a-workflow-board) below). If yes, check for an existing branch first (see below), then proceed to implementation. If not yet, revise or re-post the plan (as a new comment, never in place), keep the issue Blocked, and stop.
+- **No board**: check for an approval comment posted **after** the plan comment, from a commenter whose `authorAssociation` is `OWNER`, `MEMBER` or `COLLABORATOR` (keywords: `approved` / `lgtm`, case-insensitive, whole word: an unconditional approval, not a question, a negation, or a qualified approval such as "approved, but ..."). If found, check for an existing branch first (see below), then proceed to implementation. If not found, revise or re-post the plan (as a new comment, never in place), keep the issue Blocked, and stop.
+
+Either way, before skipping to implementation once approved, check whether a branch for this issue already exists (e.g. from an earlier session) and resume it rather than starting a fresh one.
 
 Approval always requires an explicit human action; never remove `Blocked` or treat the plan as approved automatically, no matter how much time has passed or how confident the plan seems.
 
@@ -75,7 +79,7 @@ Applies only to an interactive session: one where a human has actually typed a m
   - If the plan comment taken as the baseline has since been superseded by a newer one, treat the plan as changed: earlier approvals no longer count. If you revised the plan yourself, restart from posting the plan (re-add `Blocked`, new baseline); if someone else posted it, tell the human and wait for their direction.
 - Pace the wait with long idle intervals (e.g. around 20 minutes) while nothing has changed, rather than polling tightly; there is no overall cap on how long the wait may run. If no scheduling mechanism is available, do not poll at all: tell the human the issue is waiting and that saying `approved` in chat will continue the work.
 - **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval (not a question, a negation, or a qualified approval), act at once rather than waiting for the next tick:
-  1. Re-check that the message refers to this issue, the plan is still the baseline, `Blocked` is only the plan-approval block (no unresolved question, failed baseline check, or environment-block marker posted after the plan), and the plan has no unresolved open questions; if any check fails, ask instead of acting.
+  1. Re-check that the message refers to this issue, the plan is still the baseline, `Blocked` is only the plan-approval block (no comment posted after the plan asks a question, reports a failed baseline check or a timeout, or carries an environment-block marker), and the plan has no unresolved open questions; if any check fails, ask instead of acting.
   2. Post a mirror comment on the issue quoting the live instruction.
   3. Remove the `Blocked` label.
   4. If the repo has a workflow board, set its status to Approved.

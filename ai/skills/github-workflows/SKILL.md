@@ -91,7 +91,7 @@ Do not replace these; specialised tooling required:
 
 `anchore/sbom-action` is allowlisted as the specialised tooling for Syft-based SBOM generation: verified publisher (Anchore, Inc.), actively maintained, and the canonical purpose-built SBOM tool. A hand-rolled `curl`-based Syft binary install is not an acceptable substitute: it has no retry logic and fails transiently. `anchore/scan-action` (Grype-based vulnerability scanning) is deliberately **not** allowlisted: it duplicates `aquasecurity/trivy-action`'s already-allowlisted vulnerability-scanning role, with no demonstrated need for a second scanner or Grype's separate vulnerability feed; revisit if a concrete need emerges.
 
-## Version Pinning (MANDATORY)
+## Version Pinning
 
 Never use `@latest`, `@main`, `@master`, bare major tags (e.g. `@v6`), or branch refs.
 

@@ -23,11 +23,23 @@ Scans the full repository rather than a diff; no branch or PR is required, and f
 
 ## Sub-Agent Lenses
 
-Each lens applies the same false-positive-minimising critical instructions and finding categories it would use reviewing a diff, just against the group's full file set instead of only newly changed lines:
+Each lens applies the same false-positive-minimising critical instructions and finding categories it would use reviewing a diff, just against the group's full file set instead of only newly changed lines. Each reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
 
-- **Reuse**: existing utilities, library functions, shared components, or extension points not being used where applicable.
-- **Quality**: duplication, leaky single-responsibility violations, redundant mutable state, excessive complexity.
-- **Efficiency**: non-optimal algorithms, inappropriate data structures, redundant repeated work, unnecessary allocations.
-- **Correctness**: boundary conditions, incorrect conditionals, unhandled edge cases, logic mismatched to intent.
-- **Security**: high-confidence (>80% exploitability) input validation, authentication, crypto, and injection issues; excludes denial-of-service, rate limiting, and hard-coded secrets, which dedicated non-agentic tooling already covers.
-- **Compliance**: violations of the repo's own global and local instruction files, rule-hygiene duplication between them, quality-gate-weakening changes to lint/build rules, language/framework/documentation convention violations, and a leftover `.deleteme.now` placeholder file left in the repository.
+- **Reuse**: identify opportunities to reuse existing code instead of writing new code.
+  - Only flag cases where an existing utility or helper clearly covers the same need without modification; prioritise reuse that eliminates duplication across multiple call sites; do NOT flag cases where the existing code would require modification to be reused, since that is a refactor, not reuse.
+  - Categories: utilities, library functions, shared components, or extension points not being used where applicable.
+- **Quality**: identify code quality issues.
+  - Only flag clear violations, not stylistic preferences; prioritise issues that harm maintainability or introduce technical debt; do NOT report formatting or naming style issues, since those are enforced by linting tooling.
+  - Categories: duplication, leaky single-responsibility violations, redundant mutable state, excessive complexity.
+- **Efficiency**: identify inefficiencies.
+  - Only flag issues with measurable impact, not micro-optimisations; prioritise hot paths, loops, and data access patterns; do NOT report theoretical inefficiencies in cold paths that are not performance-critical.
+  - Categories: non-optimal algorithms, inappropriate data structures, redundant repeated work, unnecessary allocations.
+- **Correctness**: identify logic errors.
+  - Only flag cases where the logic provably does not match the intent of the change; prioritise errors that could cause incorrect results, data corruption, or silent failures; do NOT flag style or structural issues.
+  - Categories: boundary conditions, incorrect conditionals, unhandled edge cases, logic mismatched to intent.
+- **Security**: perform a security-focused review for high-confidence vulnerabilities with real exploitation potential.
+  - Only flag issues where you are >80% confident of actual exploitability; prioritise vulnerabilities that could lead to unauthorised access, data breaches, or system compromise; do NOT report denial-of-service, rate-limiting issues, or hard-coded secrets/credentials, since dedicated non-agentic tooling already covers those.
+  - Categories: input validation, authentication, crypto, and injection issues.
+- **Compliance**: check that files comply with all applicable rules in the repo's own instruction files.
+  - Only flag clear violations of explicit rules, not inferred or implied guidance; prioritise violations that would cause the files to fail review or break established conventions; do NOT re-report issues already in scope for the Reuse, Quality, Efficiency, Correctness, or Security lenses.
+  - Categories: violations of global instruction-file rules; violations of local instruction-file rules (not already covered by global rules); local rules that duplicate or restate a global rule (flag these for removal); changes that weaken the repo's own lint/build quality gates; language/framework/documentation convention violations; a leftover `.deleteme.now` placeholder file left in the repository.

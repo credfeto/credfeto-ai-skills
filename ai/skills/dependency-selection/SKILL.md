@@ -24,7 +24,7 @@ Then present the human with, and wait for their explicit sign-off before touchin
 3. Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
 4. Alternatives considered and why they were rejected.
 
-If working from a GitHub issue or PR: post the review as a comment, add the `Blocked` label, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `go ahead` / `looks good` / `lgtm`).
+If working from a GitHub issue or PR: post the review as a comment, add the `Blocked` label, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `lgtm`).
 
 ## Pre-Commit/Component-Tool-Mandated Package Changes (MANDATORY)
 
