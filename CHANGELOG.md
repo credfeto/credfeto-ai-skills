@@ -13,11 +13,11 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
-- COVERAGE.md baseline recording that this repository has no .NET, Node or Python code and that Shell is excluded, so the coverage ratchet is applied
 - Claude Code agent definitions for every pipeline role and each Code Reviewer lens, with per-agent model, tools and preloaded skills in ai/agents/config.yaml and an installer that puts them in ~/.claude/agents
 - Daily reconcile-agents workflow that keeps the agent definitions in step with the instruction files and config.yaml, failing the run if config.yaml, the installer or anything outside an agent folder is changed
 - Reconcile workflows fail when ai/agents/config.yaml preloads a skill that no longer exists, so agents never reference removed skills
 - Reconcile-agents fails when any generated agent's name, model, tools or preloaded skills differ from ai/agents/config.yaml, so a daily run cannot widen an agent's permissions
+- COVERAGE.md baseline recording that this repository has no .NET or Node code, that its Python CI helper scripts have no tests, and that Shell is excluded, so the coverage ratchet is applied
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
@@ -77,6 +77,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - The agent frontmatter check also fails on any key other than name, description, model, tools and skills, and on a missing description
 - Agent checks run as one YAML-parsing check-agents action on every pull request touching ai/ as well as in both reconcile workflows, so a PR removing a preloaded skill fails before merge
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
+- Reconcile lint steps use the committed markdownlint config explicitly and fail if any markdownlint config file changed, and the agent check reports empty config.yaml values instead of crashing
 ### Deprecated
 ### Removed
 ### Deployment Changes
