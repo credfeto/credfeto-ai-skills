@@ -69,6 +69,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - pr-review-loop skill: corrected Phase E's safety-net attribution of the .deleteme.now compliance check to the Code Reviewer role's Compliance sub-agent rather than Phase B, and added the missing code-quality.instructions.md source for the 25-file Pattern Sweep gate it already documented, matching agent-roles.instructions.md
 - claude-hooks skill: added the missing tool-preferences.instructions.md source, which the skill's secret-bearing-path exclusion list already drew from
 - code-cleanup-commits and code-style skills: moved the Refactoring section from code-style to code-cleanup-commits and removed code-style's out-of-scope Asynchronous Code and Parameterised Tests content (already owned by dotnet-coding-conventions and dotnet-test-patterns), keeping Immutability in code-style as the general code-quality rule it is, matching code-quality.instructions.md's commit-separation rules
+- MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
+- Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 ### Changed
 ### Deprecated
 ### Removed
