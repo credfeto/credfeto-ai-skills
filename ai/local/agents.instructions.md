@@ -73,10 +73,10 @@ These rules govern how the generated agents work together. They apply in additio
 ## Installation
 
 ```bash
-./ai/agents/install
+./install
 ```
 
-Install skills first (`./ai/skills/install`): agents preload skills by their installed names.
+The root `install` script runs `ai/skills/install` and then `ai/agents/install`: agents preload skills by their installed names, so skills must be installed first. Run `./ai/agents/install` on its own only when the skills are already installed.
 
 ## Automated Reconciliation
 
