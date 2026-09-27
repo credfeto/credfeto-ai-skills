@@ -6,6 +6,7 @@ import sys
 import yaml
 
 AGENTS_DIR = pathlib.Path("ai/agents")
+ALLOWED_KEYS = {"name", "description", "model", "tools", "skills"}
 
 
 def read_frontmatter(path):
@@ -39,6 +40,12 @@ def main():
         if frontmatter is None:
             failures.append(f"{definition}: missing YAML frontmatter")
             continue
+
+        for key in sorted(set(frontmatter) - ALLOWED_KEYS):
+            failures.append(f"{definition}: unexpected frontmatter {key!r}")
+
+        if not str(frontmatter.get("description") or "").strip():
+            failures.append(f"{definition}: missing description")
 
         actual = {
             "name": frontmatter.get("name"),

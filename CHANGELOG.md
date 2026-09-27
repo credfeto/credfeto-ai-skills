@@ -74,6 +74,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile workflows share one tool setup action and fail the run if a regenerated skill or agent does not pass markdownlint, so lint failures no longer reach main
 - Agent definitions point to their preloaded skills for IDE code analysis and Code Fixer reply rules instead of repeating the skill text, so each agent loads less duplicated context
 - Skills and agents reconcile workflows each commit only their own files and fail the run if they change the other's, so a skills run can no longer push agent or config.yaml changes to main
+- The agent frontmatter check also fails on any key other than name, description, model, tools and skills, and on a missing description
 ### Deprecated
 ### Removed
 ### Deployment Changes
