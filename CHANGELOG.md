@@ -80,6 +80,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - The agent check fails when config.yaml lists an agent with no AGENT.md, so a reconcile run can only delete an agent after a human removes its config.yaml entry
 - Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions
 - Reconcile-agents runs each time reconcile-skills completes instead of on its own schedule, so agents always follow that run's skills and neither workflow can cancel the other's waiting run
+- Removing an agent is a human-only change to config.yaml and ai/agents in one pull request; reconcile-agents may delete nothing and only follows successful reconcile-skills runs on main
 ### Deprecated
 ### Removed
 ### Deployment Changes
