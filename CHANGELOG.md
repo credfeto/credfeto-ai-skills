@@ -16,10 +16,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - New github-cli-pitfalls skill (credfeto-github-cli-pitfalls) covering gh/gh api/GraphQL failure modes with real-failure fixes (create-only assignee/label flags, --json field validation, stderr/jq corruption, stale-commit_id inline review comment 422s, ProjectV2Collaborator mutation quirks, -f/-F typing, sandbox-rejected shell shapes, HEREDOC body text), extracted from github-cli.instructions.md's Common Mistakes section, which no existing skill covered
 - COVERAGE.md baseline recording that this repository has no .NET, Node or Python code and that Shell is excluded, so the coverage ratchet is applied
 - Claude Code agent definitions for every pipeline role and each Code Reviewer lens, with per-agent model, tools and preloaded skills in ai/agents/config.yaml and an installer that puts them in ~/.claude/agents
-- Daily reconcile-agents workflow that keeps the agent definitions in step with the instruction files and config.yaml, failing the run if config.yaml, the installer or anything outside an agent folder is changed
 - Reconcile workflows fail when ai/agents/config.yaml preloads a skill that no longer exists, so agents never reference removed skills
 - Reconcile-agents fails when any generated agent's name, model, tools or preloaded skills differ from ai/agents/config.yaml, so a daily run cannot widen an agent's permissions
 - COVERAGE.md baseline recording that this repository has no .NET or Node code, that its Python CI helper scripts have no tests, and that Shell is excluded, so the coverage ratchet is applied
+- Reconcile-agents workflow that keeps the agent definitions in step with the instruction files and config.yaml after each successful reconcile-skills run, failing if it changes config.yaml, the installer or any skill file, or deletes anything
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
@@ -78,6 +78,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 - README installation command now names the skills installer ai/skills/install that actually exists
+- Reconcile-skills only checks that preloaded skills exist, so an agent mismatch can no longer fail every skills run and block the agents run that would fix it
 ### Changed
 - Reconcile workflows share one tool setup action and fail the run if a regenerated skill or agent does not pass markdownlint, so lint failures no longer reach main
 - Agent definitions point to their preloaded skills for IDE code analysis and Code Fixer reply rules instead of repeating the skill text, so each agent loads less duplicated context
