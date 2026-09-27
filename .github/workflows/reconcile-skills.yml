@@ -185,7 +185,7 @@ jobs:
 
       - name: "Lint skill markdown"
         shell: bash
-        run: markdownlint "ai/skills/**/*.md"
+        run: markdownlint "ai/skills/**/*.md" ai/local/skills.instructions.md
 
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run
