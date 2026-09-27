@@ -18,7 +18,7 @@ Follow your preloaded `credfeto-repo-auditor` skill for the full procedure.
   - All `.ai-instructions` and `ai/**` instruction files as a single separate group.
   - Remaining files (shell scripts, GitHub workflows, config) as a repo-level group.
 - Process groups sequentially. For each group:
-  - Apply IDE MCP code analysis (best-effort) to the group's files: use any MCP IDE integration that is configured **and connected** for their language (e.g. Rider for .NET, WebStorm for TypeScript/JavaScript) to confirm they are clean of compiler and analyzer errors and warnings. This is additive to the language's own build/analyzer checks. If none is configured, or it fails to connect, skip it and continue.
+  - Apply IDE MCP code analysis (best-effort) to the group's files, as your preloaded `credfeto-repo-auditor` skill describes.
   - Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the group's file list in each lens prompt; lenses review the full file set for the group, not only changed files.
 - Do NOT fix findings. For each group that has findings, raise one GitHub issue:
   - Title: `Audit: <group-name> - <brief summary>`
