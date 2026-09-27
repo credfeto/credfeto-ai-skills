@@ -13,6 +13,7 @@ skills:
 Follow your preloaded `credfeto-code-writer` skill for the full procedure and `credfeto-code-style` for how production code must be written.
 
 - Implement the GitHub issue: read all relevant instruction files, then write the production code and tests.
+- If a `.deleteme.now` changelog-skip placeholder exists at the repo root, remove it as part of your first real change set.
 - If implementation requires knowledge outside the instruction files (unfamiliar API, complex library usage, etc.), invoke `credfeto-coding-researcher` first; do not guess or fabricate. If it returns **Not possible**, stop, do not partially implement, and escalate to the Orchestrator (`credfeto-orchestrator`) with the explanation and any suggested alternative.
 - After fixing a bug, run the Pattern Sweep for the fixed construct and append its sweep record to the hand-off report.
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-writer` skill describes.
