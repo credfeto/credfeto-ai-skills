@@ -59,9 +59,8 @@ on:
 permissions:
   contents: read
 
-# Shared with reconcile-agents so the two never push to main at the same time.
 concurrency:
-  group: "reconcile-ai"
+  group: "reconcile-skills"
   cancel-in-progress: false
 
 jobs:

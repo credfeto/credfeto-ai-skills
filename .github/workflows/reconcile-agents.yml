@@ -10,9 +10,11 @@
 # reconcile-skills workflow does. ai/local is repo-specific and is never
 # touched by this sync.
 #
-# Runs an hour after reconcile-skills and shares its concurrency group, so the
-# two never push to main at the same time and agents are reconciled against
-# the day's reconciled skills.
+# Runs when each reconcile-skills run completes, so agents are always
+# reconciled against that run's skills and the two scheduled runs never push
+# to main at the same time. Each workflow has its own concurrency group, so a
+# queued run of one never cancels a waiting run of the other; a manual run that
+# overlaps the other workflow fails its push visibly instead.
 #
 # ai/agents/config.yaml and ai/agents/install are human-owned: the run fails if
 # the agent modifies either, or deletes anything outside an agent folder.
@@ -33,16 +35,16 @@
 name: "Reconcile AI Agents"
 
 on:
-  schedule:
-    - cron: "0 7 * * *" # Daily at 07:00 UTC, an hour after reconcile-skills
+  workflow_run:
+    workflows: ["Reconcile AI Skills"]
+    types: [completed]
   workflow_dispatch: # allow manual runs for testing
 
 permissions:
   contents: read
 
-# Shared with reconcile-skills so the two never push to main at the same time.
 concurrency:
-  group: "reconcile-ai"
+  group: "reconcile-agents"
   cancel-in-progress: false
 
 jobs:
