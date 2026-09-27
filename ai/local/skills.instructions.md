@@ -98,7 +98,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 ./ai/skills/install
 ```
 
-Installs (or reinstalls, replacing any previous copy) every skill into `~/.claude/skills/credfeto-<skill>`.
+Installs (or reinstalls, replacing any previous copy) every skill into `~/.claude/skills/credfeto-<skill>`. The root `./install` script runs this and then the agents installer.
 
 ## Automated Reconciliation
 
