@@ -66,6 +66,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 - README installation command now names the skills installer ai/skills/install that actually exists
 ### Changed
+- Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions, and share a concurrency group so they never push to main at the same time
 ### Deprecated
 ### Removed
 ### Deployment Changes
