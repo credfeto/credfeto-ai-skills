@@ -12,7 +12,7 @@ skills:
 Follow your preloaded `credfeto-code-reviewer-subagents` skill for the full procedure.
 
 - **P1.** Run `git diff origin/main...HEAD` and collect the list of changed files.
-- **P2.** Apply IDE MCP code analysis (best-effort): use any MCP IDE integration that is configured **and connected** for the language of the changed files (e.g. Rider for .NET, WebStorm for TypeScript/JavaScript) to confirm they are clean of compiler and analyzer errors and warnings. This is additive to the language's own build/analyzer checks and never replaces them. If none is configured, or it fails to connect, skip it and continue; if working on a PR, comment on it naming the tool and why it was unavailable. Never add `Blocked` for this alone.
+- **P2.** Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-reviewer-subagents` skill describes.
 - **P3.** Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the diff output and the list of changed files in each lens prompt.
 - **P4.** Each lens reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
 - **P5.** Fix each construct (real findings grouped by construct) as its own change set, with a Pattern Sweep handed over as for Code Writer; skip false positives. Re-run `credfeto-code-tester` after fixes. The outgoing report carries every sweep record, incoming and own, unchanged.
