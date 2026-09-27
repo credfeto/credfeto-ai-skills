@@ -19,13 +19,16 @@ description: Address requested changes on an existing pull request, whether from
   - If the comment is a question or discussion point with no code change needed: reply with a full answer inline on the PR.
   - No reply means no acknowledgement; always close the loop.
   - To reply to an inline/diff-level review comment so it threads correctly (rather than posting a disconnected top-level comment), use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
+
     ```bash
     gh api repos/<owner>/<repo>/pulls/<n>/comments \
       -X POST \
       -f body="<reply text>" \
       -F in_reply_to=<comment-id>
     ```
+
   - Whenever a reply body contains, or may contain, newlines (a multi-paragraph answer to a discussion point), build it with a HEREDOC so real newline characters are embedded; never use escaped `\n` sequences, which GitHub renders as literal backslash-n characters rather than line breaks:
+
     ```bash
     gh pr comment <number> --repo <owner>/<repo> --body "$(cat <<'COMMENT'
     First paragraph of the answer.
@@ -34,5 +37,6 @@ description: Address requested changes on an existing pull request, whether from
     COMMENT
     )"
     ```
+
 - If a fix requires knowledge outside the instruction files (unfamiliar API, complex library usage), research it first rather than guessing or fabricating a fix.
   - If research determines the fix is **not possible** as scoped, stop and escalate with the explanation; do not partially apply a guess.
