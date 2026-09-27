@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
+- COVERAGE.md baseline recording that this repository has no .NET, Node or Python code and that Shell is excluded, so the coverage ratchet is applied
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
