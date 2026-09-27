@@ -169,7 +169,9 @@ jobs:
       # The guard and lint steps below read actions and lint config from the working tree, so they are only trustworthy if the agent left them untouched.
       - name: "Check workflow and lint config files are unchanged"
         shell: bash
-        run: test -z "$(git status --porcelain -- .github .markdownlint.json .markdownlintignore)"
+        run: |
+          test -z "$(git status --porcelain -- .github .markdownlint.json .markdownlint.jsonc \
+            .markdownlint.yaml .markdownlint.yml .markdownlintrc .markdownlintignore)"
 
       - name: "Check deletions"
         uses: ./.github/actions/check-allowed-deletions
@@ -185,7 +187,7 @@ jobs:
 
       - name: "Lint skill markdown"
         shell: bash
-        run: markdownlint "ai/skills/**/*.md" ai/local/skills.instructions.md
+        run: markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md
 
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run
