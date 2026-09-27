@@ -168,7 +168,7 @@ jobs:
 
       - name: "Lint agent markdown"
         shell: bash
-        run: markdownlint "ai/agents/**/*.md"
+        run: markdownlint "ai/agents/**/*.md" ai/local/agents.instructions.md
 
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run
