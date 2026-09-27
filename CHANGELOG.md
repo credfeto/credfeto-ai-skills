@@ -70,7 +70,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 - README installation command now names the skills installer ai/skills/install that actually exists
 ### Changed
-- Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions, and share a concurrency group so they never push to main at the same time
 - Reconcile workflows share one tool setup action and fail the run if a regenerated skill or agent does not pass markdownlint, so lint failures no longer reach main
 - Agent definitions point to their preloaded skills for IDE code analysis and Code Fixer reply rules instead of repeating the skill text, so each agent loads less duplicated context
 - Skills and agents reconcile workflows each commit only their own files and fail the run if they change the other's, so a skills run can no longer push agent or config.yaml changes to main
@@ -79,6 +78,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile lint steps use the committed markdownlint config explicitly and fail if any markdownlint config file changed, and the agent check reports empty config.yaml values instead of crashing
 - The agent check fails when config.yaml lists an agent with no AGENT.md, so a reconcile run can only delete an agent after a human removes its config.yaml entry
+- Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions
+- Reconcile-agents runs each time reconcile-skills completes instead of on its own schedule, so agents always follow that run's skills and neither workflow can cancel the other's waiting run
 ### Deprecated
 ### Removed
 ### Deployment Changes
