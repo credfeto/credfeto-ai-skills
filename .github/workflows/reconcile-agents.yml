@@ -113,8 +113,8 @@ jobs:
              auto-discovers agent folders, so it does not need editing.
           4. If a role has been removed from agent-roles.instructions.md, delete its agent folder with
              rm -r ai/agents/<slug> and remove its registry entry. That is the only deletion allowed.
-          5. Never modify ai/agents/config.yaml or ai/agents/install, and never delete any file outside
-             ai/agents/<slug>/. The workflow fails the run if you do.
+          5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md,
+             and never delete any file outside ai/agents/<slug>/. The workflow fails the run if you do.
           6. Every AGENT.md must pass markdownlint.
           7. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make; this repository's local rules require a changelog entry for
@@ -147,6 +147,10 @@ jobs:
         shell: bash
         run: git diff --exit-code -- ai/agents/config.yaml ai/agents/install
 
+      - name: "Check skill files are unchanged"
+        shell: bash
+        run: test -z "$(git status --porcelain -- ai/skills ai/local/skills.instructions.md)"
+
       - name: "Check deletions"
         uses: ./.github/actions/check-allowed-deletions
         with:
@@ -167,7 +171,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           commit_message: "chore: daily agent reconciliation against instruction files"
-          file_pattern: "ai CHANGELOG.md"
+          file_pattern: "ai/agents ai/local/agents.instructions.md CHANGELOG.md"
           commit_user_name: "agents-reconciler[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "agents-reconciler[bot] <credfeto@users.noreply.github.com>"

@@ -133,7 +133,8 @@ jobs:
           4. If a skill's source rules have been removed from the instruction files, delete the skill folder
              with rm -r ai/skills/<skill> and remove its registry entry. That is the only deletion allowed:
              never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path.
-          5. Every SKILL.md must pass markdownlint.
+          5. Every SKILL.md must pass markdownlint. Never modify ai/agents/ or ai/local/agents.instructions.md;
+             agents are reconciled by a separate workflow, and this run fails if they change.
           6. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make — this repository's local rules require a changelog entry for
              every change.
@@ -167,6 +168,10 @@ jobs:
         with:
           allowed-parent: "ai/skills"
 
+      - name: "Check agent files are unchanged"
+        shell: bash
+        run: test -z "$(git status --porcelain -- ai/agents ai/local/agents.instructions.md)"
+
       - name: "Lint skill markdown"
         shell: bash
         run: markdownlint "ai/skills/**/*.md"
@@ -182,7 +187,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           commit_message: "chore: daily skill reconciliation against instruction files"
-          file_pattern: "ai CHANGELOG.md"
+          file_pattern: "ai/skills ai/local/skills.instructions.md CHANGELOG.md"
           commit_user_name: "skills-reconciler[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "skills-reconciler[bot] <credfeto@users.noreply.github.com>"
