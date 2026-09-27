@@ -179,6 +179,9 @@ jobs:
         shell: bash
         run: test -z "$(git status --porcelain -- ai/agents ai/local/agents.instructions.md)"
 
+      - name: "Check agent skills exist"
+        uses: ./.github/actions/check-agent-skills
+
       - name: "Lint skill markdown"
         shell: bash
         run: markdownlint "ai/skills/**/*.md"
