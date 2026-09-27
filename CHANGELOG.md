@@ -18,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile-agents fails when any generated agent's name, model, tools or preloaded skills differ from ai/agents/config.yaml, so a daily run cannot widen an agent's permissions
 - COVERAGE.md baseline recording that this repository has no .NET or Node code, that its Python CI helper scripts have no tests, and that Shell is excluded, so the coverage ratchet is applied
 - Reconcile-agents workflow that keeps the agent definitions in step with the instruction files and config.yaml after each successful reconcile-skills run, failing if it changes config.yaml, the installer or any skill file, or deletes anything
+- Root install script that installs every skill and then every agent in one command
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24

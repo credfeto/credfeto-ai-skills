@@ -28,11 +28,10 @@ See [ai/local/agents.instructions.md](ai/local/agents.instructions.md) for the a
 ## Installation
 
 ```bash
-./ai/skills/install
-./ai/agents/install
+./install
 ```
 
-Installs every skill into `~/.claude/skills` as `credfeto-<skill>` and every agent into `~/.claude/agents` as `credfeto-<agent>.md`, replacing any previous copy. Install skills first, because agents preload them by name. New Claude Code sessions discover both automatically.
+Installs every skill into `~/.claude/skills` as `credfeto-<skill>` and then every agent into `~/.claude/agents` as `credfeto-<agent>.md`, replacing any previous copy. Skills go first because agents preload them by name. New Claude Code sessions discover both automatically. To install only one kind, run `./ai/skills/install` or `./ai/agents/install` directly.
 
 ## Automated Reconciliation
 
