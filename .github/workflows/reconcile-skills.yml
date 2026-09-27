@@ -181,8 +181,11 @@ jobs:
         shell: bash
         run: test -z "$(git status --porcelain -- ai/agents ai/local/agents.instructions.md)"
 
-      - name: "Check agents match config.yaml"
+      # Only what a skills run can break: an agent mismatch here would block the agents run that fixes it.
+      - name: "Check preloaded skills exist"
         uses: ./.github/actions/check-agents
+        with:
+          skills-only: "true"
 
       - name: "Lint skill markdown"
         shell: bash
