@@ -163,11 +163,8 @@ jobs:
         with:
           allowed-parent: "ai/agents"
 
-      - name: "Check agent skills exist"
-        uses: ./.github/actions/check-agent-skills
-
-      - name: "Check agent frontmatter matches config.yaml"
-        uses: ./.github/actions/check-agent-frontmatter
+      - name: "Check agents match config.yaml"
+        uses: ./.github/actions/check-agents
 
       - name: "Lint agent markdown"
         shell: bash
