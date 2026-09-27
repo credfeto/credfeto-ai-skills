@@ -61,6 +61,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dependency-selection skill: removed invented go ahead/looks good approval phrases not present in packages.instructions.md, which specifies only approved/lgtm
 - deprecation-handling skill: removed an invented MANDATORY marker and elaborated wording not present in code-quality.instructions.md's Deprecation Warnings During Tests section
 - code-cleanup-commits skill: removed an invented claim about a Construct: line and fix-commit SHA citations not stated in code-quality.instructions.md's Pattern Sweep section
+- MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
+- Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 ### Changed
 ### Deprecated
 ### Removed
