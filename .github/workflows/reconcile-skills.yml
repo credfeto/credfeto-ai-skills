@@ -165,10 +165,10 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # The guard steps below run local actions from the working tree, so they are only trustworthy if the agent left .github untouched.
-      - name: "Check workflow files are unchanged"
+      # The guard and lint steps below read actions and lint config from the working tree, so they are only trustworthy if the agent left them untouched.
+      - name: "Check workflow and lint config files are unchanged"
         shell: bash
-        run: test -z "$(git status --porcelain -- .github)"
+        run: test -z "$(git status --porcelain -- .github .markdownlint.json .markdownlintignore)"
 
       - name: "Check deletions"
         uses: ./.github/actions/check-allowed-deletions
