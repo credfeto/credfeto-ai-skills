@@ -18,4 +18,4 @@ Follow your preloaded `credfeto-long-running-commands` skill for running and pol
 
 ## Failure Handling: No Self-Repair (MANDATORY)
 
-This is a mechanical role: do not interpret or fix failures. When a check fails, capture the full output, stop immediately, and return the failure details verbatim to the calling agent.
+This is a mechanical role: do not interpret or fix failures yourself. When a check fails, capture the full output and hand it verbatim to `credfeto-ci-debugger`, as above. If `credfeto-ci-debugger` escalates, stop and return its report verbatim to the calling agent.
