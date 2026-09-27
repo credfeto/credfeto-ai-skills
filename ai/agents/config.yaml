@@ -1,0 +1,153 @@
+---
+# Per-agent frontmatter settings for the generated agent definitions in
+# ai/agents/<slug>/AGENT.md. Keys are agent slugs; each agent is installed as
+# credfeto-<slug>. `name` is the source heading in agent-roles.instructions.md
+# and never appears in generated frontmatter. `skills` lists installed skill
+# names to preload at agent startup.
+
+default:
+  model: opus
+  tools: [Read, Grep, Glob, Skill]
+  skills: []
+
+orchestrator:
+  name: "Orchestrator"
+  model: opus
+  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob]
+  skills:
+    - credfeto-agent-routing
+    - credfeto-issue-plan-approval
+    - credfeto-pr-review-loop
+    - credfeto-pr-sync
+
+coding-researcher:
+  name: "Coding Researcher"
+  model: opus
+  tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill]
+  skills: []
+
+code-writer:
+  name: "Code Writer"
+  model: opus
+  tools: [Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  skills:
+    - credfeto-code-writer
+    - credfeto-code-style
+
+code-tester:
+  name: "Code Tester"
+  model: haiku
+  tools: [Bash, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  skills:
+    - credfeto-code-tester
+    - credfeto-long-running-commands
+
+code-reviewer:
+  name: "Code Reviewer"
+  model: opus
+  tools: [Bash, Agent, Read, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  skills:
+    - credfeto-code-reviewer-subagents
+
+code-reviewer-reuse:
+  name: "Code Reviewer: Reuse"
+  model: opus
+  tools: [Read, Grep, Glob, Skill]
+  skills: []
+
+code-reviewer-quality:
+  name: "Code Reviewer: Quality"
+  model: opus
+  tools: [Read, Grep, Glob, Skill]
+  skills:
+    - credfeto-code-style
+
+code-reviewer-efficiency:
+  name: "Code Reviewer: Efficiency"
+  model: opus
+  tools: [Read, Grep, Glob, Skill]
+  skills: []
+
+code-reviewer-correctness:
+  name: "Code Reviewer: Correctness"
+  model: fable
+  tools: [Read, Grep, Glob, Skill]
+  skills:
+    - credfeto-error-handling
+
+code-reviewer-security:
+  name: "Code Reviewer: Security"
+  model: opus
+  tools: [Read, Grep, Glob, Skill]
+  skills:
+    - credfeto-secure-coding
+
+code-reviewer-compliance:
+  name: "Code Reviewer: Compliance"
+  model: opus
+  tools: [Read, Grep, Glob, Skill]
+  skills:
+    - credfeto-language-conventions
+
+repo-auditor:
+  name: "Repo Auditor"
+  model: opus
+  tools: [Bash, Agent, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  skills:
+    - credfeto-repo-auditor
+
+code-fixer:
+  name: "Code Fixer"
+  model: opus
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  skills:
+    - credfeto-code-fixer
+
+rebase-agent:
+  name: "Rebase Agent"
+  model: sonnet
+  tools: [Bash, Read, Edit, Grep, Glob, Skill]
+  skills:
+    - credfeto-git-rebase
+
+ci-debugger:
+  name: "CI Debugger"
+  model: opus
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  skills:
+    - credfeto-ci-debugger
+
+changelog:
+  name: "Changelog"
+  model: haiku
+  tools: [Bash, Read, Skill]
+  skills:
+    - credfeto-changelog
+
+committer:
+  name: "Committer"
+  model: haiku
+  tools: [Bash, Skill]
+  skills:
+    - credfeto-git-commit
+
+pr-submitter:
+  name: "PR Submitter"
+  model: haiku
+  tools: [Bash, Skill]
+  skills:
+    - credfeto-pr-sync
+
+ci-monitor:
+  name: "CI Monitor"
+  model: haiku
+  tools: [Bash, Monitor, ScheduleWakeup, Skill]
+  skills:
+    - credfeto-long-running-commands
+
+dependency-updater:
+  name: "Dependency Updater"
+  model: opus
+  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill]
+  skills:
+    - credfeto-dependency-updater

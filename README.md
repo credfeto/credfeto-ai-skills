@@ -19,17 +19,24 @@ Each skill is a self-contained, procedural workflow extracted from the instructi
 
 See [ai/local/skills.instructions.md](ai/local/skills.instructions.md) for the skill format, generation rules, and registry.
 
+## Agents
+
+Each agent is a Claude Code custom agent definition for one role in the multi-agent pipeline (Orchestrator, Code Writer, Code Reviewer and its six review lenses, Committer, and so on), generated from the role definitions in the instruction files. [ai/agents/config.yaml](ai/agents/config.yaml) sets each agent's model, tools and preloaded skills.
+
+See [ai/local/agents.instructions.md](ai/local/agents.instructions.md) for the agent format, generation rules, and registry.
+
 ## Installation
 
 ```bash
 ./ai/skills/install
+./ai/agents/install
 ```
 
-Installs every skill into `~/.claude/skills` as `credfeto-<skill>`, replacing any previous copy. New Claude Code sessions discover them automatically.
+Installs every skill into `~/.claude/skills` as `credfeto-<skill>` and every agent into `~/.claude/agents` as `credfeto-<agent>.md`, replacing any previous copy. Install skills first, because agents preload them by name. New Claude Code sessions discover both automatically.
 
 ## Automated Reconciliation
 
-The [reconcile-skills workflow](.github/workflows/reconcile-skills.yml) runs every day, reconciling all skills against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the workflow file.
+The [reconcile-skills workflow](.github/workflows/reconcile-skills.yml) and [reconcile-agents workflow](.github/workflows/reconcile-agents.yml) run every day, reconciling all skills and agents against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the reconcile-skills workflow file.
 
 ## Changelog
 
