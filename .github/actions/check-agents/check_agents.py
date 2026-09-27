@@ -1,8 +1,8 @@
 """Fail if agent definitions disagree with ai/agents/config.yaml.
 
-Checks that every skill config.yaml preloads exists in ai/skills, and that
-every AGENT.md frontmatter has exactly the documented keys with the values
-config.yaml requires.
+Checks that every skill config.yaml preloads exists in ai/skills, that every
+agent config.yaml lists has an AGENT.md, and that every AGENT.md frontmatter
+has exactly the documented keys with the values config.yaml requires.
 """
 
 import pathlib
@@ -97,6 +97,12 @@ def main():
     config = yaml.safe_load(config_text) or {}
 
     failures = check_skills_exist(config)
+    for slug in sorted(set(config) - {"default"}):
+        if not (AGENTS_DIR / slug / "AGENT.md").is_file():
+            failures.append(
+                f"config.yaml lists {slug}, but "
+                f"{AGENTS_DIR / slug / 'AGENT.md'} does not exist"
+            )
     for definition in sorted(AGENTS_DIR.glob("*/AGENT.md")):
         failures.extend(check_frontmatter(definition, config))
 
