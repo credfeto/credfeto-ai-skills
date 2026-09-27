@@ -1,0 +1,46 @@
+--- # Fail if any tracked file outside the allowed folders was deleted from the working tree
+# Maintain in repo: credfeto-ai-skills
+name: "Check Allowed Deletions"
+description: "Fails if any tracked file deleted from the working tree lies outside a sub-folder of the allowed parent folder"
+
+inputs:
+  allowed-parent:
+    description: "Parent folder (e.g. ai/skills) whose immediate sub-folders may have files deleted; files directly in it may not"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Check deletions"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        ALLOWED_PARENT: "${{inputs.allowed-parent}}"
+      with:
+        script: |
+          const { execFileSync } = require('node:child_process');
+
+          const allowedParent = process.env.ALLOWED_PARENT.replace(/\/+$/, '');
+          const deleted = execFileSync('git', ['ls-files', '--deleted'], { encoding: 'utf8' })
+            .split(/\r?\n/)
+            .filter(Boolean);
+
+          const isInsideSubFolder = (path) => {
+            if (!path.startsWith(`${allowedParent}/`)) {
+              return false;
+            }
+
+            return path.slice(allowedParent.length + 1).includes('/');
+          };
+
+          const unexpected = deleted.filter((path) => !isInsideSubFolder(path));
+
+          if (unexpected.length === 0) {
+            core.info(`✅ Only ${allowedParent}/<folder>/ files were deleted`);
+            return;
+          }
+
+          for (const path of unexpected) {
+            core.error(`❌ Deleted outside ${allowedParent}/<folder>/: ${path}`, { file: path });
+          }
+
+          core.setFailed(`Files outside ${allowedParent}/<folder>/ were deleted`);
