@@ -76,6 +76,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills and agents reconcile workflows each commit only their own files and fail the run if they change the other's, so a skills run can no longer push agent or config.yaml changes to main
 - The agent frontmatter check also fails on any key other than name, description, model, tools and skills, and on a missing description
 - Agent checks run as one YAML-parsing check-agents action on every pull request touching ai/ as well as in both reconcile workflows, so a PR removing a preloaded skill fails before merge
+- The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 ### Deprecated
 ### Removed
 ### Deployment Changes
