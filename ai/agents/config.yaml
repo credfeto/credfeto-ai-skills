@@ -141,7 +141,7 @@ pr-submitter:
 ci-monitor:
   name: "CI Monitor"
   model: haiku
-  tools: [Bash, Monitor, ScheduleWakeup, Skill]
+  tools: [Bash, Agent, Monitor, ScheduleWakeup, Skill]
   skills:
     - credfeto-long-running-commands
 
