@@ -18,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Claude Code agent definitions for every pipeline role and each Code Reviewer lens, with per-agent model, tools and preloaded skills in ai/agents/config.yaml and an installer that puts them in ~/.claude/agents
 - Daily reconcile-agents workflow that keeps the agent definitions in step with the instruction files and config.yaml, failing the run if config.yaml, the installer or anything outside an agent folder is changed
 - Reconcile workflows fail when ai/agents/config.yaml preloads a skill that no longer exists, so agents never reference removed skills
+- Reconcile-agents fails when any generated agent's name, model, tools or preloaded skills differ from ai/agents/config.yaml, so a daily run cannot widen an agent's permissions
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
