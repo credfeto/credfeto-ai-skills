@@ -12,7 +12,9 @@ n/a (no code)
 
 ## Python
 
-n/a (no code)
+n/a (no tests)
+
+The only Python code is CI helper scripts under `.github/actions`, which have no test suite.
 
 ## Shell
 
