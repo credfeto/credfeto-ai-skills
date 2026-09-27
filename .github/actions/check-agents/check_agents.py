@@ -6,6 +6,7 @@ config.yaml requires.
 """
 
 import pathlib
+import re
 import sys
 
 import yaml
@@ -14,14 +15,16 @@ AGENTS_DIR = pathlib.Path("ai/agents")
 SKILLS_DIR = pathlib.Path("ai/skills")
 SKILL_PREFIX = "credfeto-"
 ALLOWED_KEYS = {"name", "description", "model", "tools", "skills"}
+FRONTMATTER = re.compile(r"\A---[ \t]*\n(.*?)\n---[ \t]*(?:\n|\Z)", re.DOTALL)
 
 
 def read_frontmatter(path):
     """Return the parsed YAML frontmatter of a file, or None if absent."""
-    parts = path.read_text(encoding="utf8").split("---", 2)
-    if len(parts) < 3 or parts[0].strip():
+    match = FRONTMATTER.match(path.read_text(encoding="utf8"))
+    if match is None:
         return None
-    return yaml.safe_load(parts[1]) or {}
+    parsed = yaml.safe_load(match.group(1))
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def resolve_entry(slug, config):
@@ -50,7 +53,10 @@ def check_skills_exist(config):
 
 def check_frontmatter(definition, config):
     """Return a failure for each frontmatter problem in one AGENT.md."""
-    frontmatter = read_frontmatter(definition)
+    try:
+        frontmatter = read_frontmatter(definition)
+    except yaml.YAMLError as error:
+        return [f"{definition}: invalid YAML frontmatter: {error}"]
     if frontmatter is None:
         return [f"{definition}: missing YAML frontmatter"]
 
