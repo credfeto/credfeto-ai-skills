@@ -1,0 +1,73 @@
+#!/bin/sh
+# Installs each agent in this folder into ~/.claude/agents as credfeto-<agent>.md
+# so Claude Code can discover them as personal agents.
+
+die() {
+    if [ -t 2 ]; then
+        printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
+    else
+        printf '\n✗ %s\n' "$*" >&2
+    fi
+    exit 1
+}
+
+success() {
+    if [ -t 1 ]; then
+        printf '\n\033[32m✓\033[0m %s\n' "$*"
+    else
+        printf '\n✓ %s\n' "$*"
+    fi
+}
+
+info() {
+    if [ -t 1 ]; then
+        printf '\n\033[32m→\033[0m %s\n' "$*"
+    else
+        printf '\n→ %s\n' "$*"
+    fi
+}
+
+AGENTS_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+[ -n "${AGENTS_SOURCE_DIR}" ] || die "could not determine the agents source directory"
+
+TARGET_ROOT="${HOME}/.claude/agents"
+
+mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+
+INSTALLED=0
+
+for agent_dir in "${AGENTS_SOURCE_DIR}"/*/; do
+    [ -d "${agent_dir}" ] || continue
+
+    agent_name=$(basename "${agent_dir}")
+
+    [ -f "${agent_dir}AGENT.md" ] || {
+        info "Skipping ${agent_name}: no AGENT.md found"
+        continue
+    }
+
+    target_file="${TARGET_ROOT}/credfeto-${agent_name}.md"
+
+    info "Installing ${agent_name} as credfeto-${agent_name}..."
+
+    cp "${agent_dir}AGENT.md" "${target_file}" || die "could not copy ${agent_name} to ${target_file}"
+
+    INSTALLED=$((INSTALLED + 1))
+done
+
+[ "${INSTALLED}" -gt 0 ] || die "no agents found to install in ${AGENTS_SOURCE_DIR}"
+
+# Agents renamed or removed from the source leave stale installed copies behind.
+for installed_file in "${TARGET_ROOT}"/credfeto-*.md; do
+    [ -f "${installed_file}" ] || continue
+
+    installed_name=$(basename "${installed_file}" .md)
+    source_name=${installed_name#credfeto-}
+
+    [ -f "${AGENTS_SOURCE_DIR}/${source_name}/AGENT.md" ] && continue
+
+    info "Removing stale ${installed_name}: no longer in ${AGENTS_SOURCE_DIR}"
+    rm -f "${installed_file}" || die "could not remove ${installed_file}"
+done
+
+success "Installed ${INSTALLED} agent(s) to ${TARGET_ROOT}"

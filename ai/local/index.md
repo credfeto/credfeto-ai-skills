@@ -18,3 +18,4 @@ This is an index of local instructions that apply to just this project.
 | --- | --- | --- |
 | [changelog.instructions.md](changelog.instructions.md) | Making any change in this repository | Overrides the global AI-instruction-files skip rule — every change here requires a changelog entry |
 | [skills.instructions.md](skills.instructions.md) | Creating, updating, or removing skills in `ai/skills/` | Skill format, generation from instruction files, update/sync rules, skill registry, installer |
+| [agents.instructions.md](agents.instructions.md) | Creating, updating, or removing agents in `ai/agents/`, or editing `ai/agents/config.yaml` | Agent format, `config.yaml`, generation from instruction files, agent contracts, update/sync rules, agent registry, installer |
