@@ -1,0 +1,41 @@
+--- # Install the tools the AI reconcile workflows need: dotnet, the changelog tool, markdownlint and Claude Code
+# Maintain in repo: credfeto-ai-skills
+name: "Setup AI Reconcile"
+description: "Installs dotnet, the changelog tool, markdownlint and the Claude Code CLI for the AI reconcile workflows"
+
+inputs:
+  github-token:
+    description: "Token used by the dotnet install"
+    required: true
+  nuget-public-restore-feed-cache:
+    description: "Public NuGet restore feed cache"
+    required: true
+  nuget-public-restore-feed:
+    description: "Public NuGet restore feed"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Install dotnet"
+      uses: ./.github/actions/dotnet-install
+      with:
+        github-token: "${{inputs.github-token}}"
+        nuget-public-restore-feed-cache: "${{inputs.nuget-public-restore-feed-cache}}"
+        nuget-public-restore-feed: "${{inputs.nuget-public-restore-feed}}"
+        nuget-additional-restore-feed-release-cache: ""
+        nuget-additional-restore-feed-prerelease-cache: ""
+        nuget-additional-restore-feed-release: ""
+        nuget-additional-restore-feed-prerelease: ""
+
+    - name: "Install changelog tool"
+      uses: ./.github/actions/dotnet-tool
+      with:
+        tool-name: "Credfeto.ChangeLog.Cmd"
+
+    # Claude Code is installed unpinned so it always knows about current models.
+    - name: "Install markdownlint and Claude Code CLI"
+      shell: bash
+      run: |
+        npm install -g --save-exact markdownlint-cli@0.49.1 @anthropic-ai/claude-code
+        echo "✅ markdownlint $(markdownlint --version) and Claude Code $(claude --version) installed"
