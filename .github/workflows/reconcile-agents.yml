@@ -113,8 +113,9 @@ jobs:
           3. If agent-roles.instructions.md now defines a role with no agent, create its agent (using the
              default: values in config.yaml when the role has no entry) and add it to the registry. The installer
              auto-discovers agent folders, so it does not need editing.
-          4. If a role has been removed from agent-roles.instructions.md, delete its agent folder with
-             rm -r ai/agents/<slug> and remove its registry entry. That is the only deletion allowed.
+          4. If a role has been removed from agent-roles.instructions.md and its entry is already gone from
+             ai/agents/config.yaml, delete its agent folder with rm -r ai/agents/<slug> and remove its registry
+             entry. That is the only deletion allowed; never delete an agent config.yaml still lists.
           5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md,
              and never delete any file outside ai/agents/<slug>/. The workflow fails the run if you do.
           6. Every AGENT.md must pass markdownlint.

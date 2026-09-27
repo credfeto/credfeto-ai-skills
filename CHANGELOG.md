@@ -78,6 +78,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Agent checks run as one YAML-parsing check-agents action on every pull request touching ai/ as well as in both reconcile workflows, so a PR removing a preloaded skill fails before merge
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile lint steps use the committed markdownlint config explicitly and fail if any markdownlint config file changed, and the agent check reports empty config.yaml values instead of crashing
+- The agent check fails when config.yaml lists an agent with no AGENT.md, so a reconcile run can only delete an agent after a human removes its config.yaml entry
 ### Deprecated
 ### Removed
 ### Deployment Changes
