@@ -5,6 +5,7 @@ agent config.yaml lists has an AGENT.md, and that every AGENT.md frontmatter
 has exactly the documented keys with the values config.yaml requires.
 """
 
+import os
 import pathlib
 import re
 import sys
@@ -91,20 +92,29 @@ def check_frontmatter(definition, config):
     return failures
 
 
+def check_agents_exist(config):
+    """Return a failure for each config.yaml agent with no AGENT.md."""
+    return [
+        f"config.yaml lists {slug}, but "
+        f"{AGENTS_DIR / slug / 'AGENT.md'} does not exist"
+        for slug in sorted(set(config) - {"default"})
+        if not (AGENTS_DIR / slug / "AGENT.md").is_file()
+    ]
+
+
 def main():
-    """Report every problem and return a non-zero exit code if any."""
+    """Report every problem and return a non-zero exit code if any.
+
+    With SKILLS_ONLY=true, only check that preloaded skills exist.
+    """
     config_text = (AGENTS_DIR / "config.yaml").read_text(encoding="utf8")
     config = yaml.safe_load(config_text) or {}
 
     failures = check_skills_exist(config)
-    for slug in sorted(set(config) - {"default"}):
-        if not (AGENTS_DIR / slug / "AGENT.md").is_file():
-            failures.append(
-                f"config.yaml lists {slug}, but "
-                f"{AGENTS_DIR / slug / 'AGENT.md'} does not exist"
-            )
-    for definition in sorted(AGENTS_DIR.glob("*/AGENT.md")):
-        failures.extend(check_frontmatter(definition, config))
+    if os.environ.get("SKILLS_ONLY", "false") != "true":
+        failures.extend(check_agents_exist(config))
+        for definition in sorted(AGENTS_DIR.glob("*/AGENT.md")):
+            failures.extend(check_frontmatter(definition, config))
 
     for failure in failures:
         print(f"::error::❌ {failure}")
