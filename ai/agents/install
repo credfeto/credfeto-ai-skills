@@ -35,9 +35,11 @@ MANIFEST="${TARGET_ROOT}/.credfeto-ai-skills-agents"
 
 mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
 
+NEW_MANIFEST="${MANIFEST}.new"
+
 PREVIOUS_MANIFEST=""
 [ -f "${MANIFEST}" ] && PREVIOUS_MANIFEST=$(cat "${MANIFEST}")
-: > "${MANIFEST}" || die "could not write ${MANIFEST}"
+: > "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
 
 INSTALLED=0
 
@@ -56,7 +58,7 @@ for agent_dir in "${AGENTS_SOURCE_DIR}"/*/; do
     info "Installing ${agent_name} as credfeto-${agent_name}..."
 
     cp "${agent_dir}AGENT.md" "${target_file}" || die "could not copy ${agent_name} to ${target_file}"
-    printf '%s\n' "${agent_name}" >> "${MANIFEST}" || die "could not write ${MANIFEST}"
+    printf '%s\n' "${agent_name}" >> "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
 
     INSTALLED=$((INSTALLED + 1))
 done
@@ -70,5 +72,8 @@ for previous_name in ${PREVIOUS_MANIFEST}; do
     info "Removing stale credfeto-${previous_name}: no longer in ${AGENTS_SOURCE_DIR}"
     rm -f "${TARGET_ROOT}/credfeto-${previous_name}.md" || die "could not remove credfeto-${previous_name}.md"
 done
+
+# Replaced only after a complete run, so a failed run keeps the previous record.
+mv "${NEW_MANIFEST}" "${MANIFEST}" || die "could not update ${MANIFEST}"
 
 success "Installed ${INSTALLED} agent(s) to ${TARGET_ROOT}"
