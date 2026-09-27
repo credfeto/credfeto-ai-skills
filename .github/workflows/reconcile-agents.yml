@@ -16,8 +16,9 @@
 # queued run of one never cancels a waiting run of the other; a manual run that
 # overlaps the other workflow fails its push visibly instead.
 #
-# ai/agents/config.yaml and ai/agents/install are human-owned: the run fails if
-# the agent modifies either, or deletes anything outside an agent folder.
+# ai/agents/config.yaml and ai/agents/install are human-owned, and removing an
+# agent is a human change: the run fails if the agent modifies either file or
+# deletes anything.
 #
 # Owner decision: changes are pushed straight to main for transparency; this
 # is a sanctioned exception to the "never commit to main" rule in
@@ -38,6 +39,7 @@ on:
   workflow_run:
     workflows: ["Reconcile AI Skills"]
     types: [completed]
+    branches: [main]
   workflow_dispatch: # allow manual runs for testing
 
 permissions:
@@ -49,6 +51,8 @@ concurrency:
 
 jobs:
   reconcile:
+    # Only follow a skills run that succeeded, so agents never get ahead of skills that were not pushed.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -115,11 +119,10 @@ jobs:
           3. If agent-roles.instructions.md now defines a role with no agent, create its agent (using the
              default: values in config.yaml when the role has no entry) and add it to the registry. The installer
              auto-discovers agent folders, so it does not need editing.
-          4. If a role has been removed from agent-roles.instructions.md and its entry is already gone from
-             ai/agents/config.yaml, delete its agent folder with rm -r ai/agents/<slug> and remove its registry
-             entry. That is the only deletion allowed; never delete an agent config.yaml still lists.
-          5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md,
-             and never delete any file outside ai/agents/<slug>/. The workflow fails the run if you do.
+          4. Never delete an agent or any other file, even if its role has been removed from
+             agent-roles.instructions.md; removing an agent is a human change to config.yaml and ai/agents.
+          5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md.
+             The workflow fails the run if you do.
           6. Every AGENT.md must pass markdownlint.
           7. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make; this repository's local rules require a changelog entry for
@@ -130,21 +133,15 @@ jobs:
           )
           # Scoped permissions: the agent may only read/edit files in the
           # workspace and run the specific tools reconciliation needs, with no
-          # arbitrary bash. rm is allowed under ai/agents/ only; the
-          # disallowed patterns reject parent-directory paths and extra
-          # targets. The steps below fail the run if config.yaml or install
-          # changed, or if any tracked file outside an agent folder was
-          # removed. The workflow, not the agent, commits and pushes.
+          # arbitrary bash and no rm. The steps below fail the run if
+          # config.yaml or install changed or any tracked file was deleted.
+          # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
-              "Bash(rm -r ai/agents/*)" \
               "Bash(dotnet changelog:*)" \
               "Bash(markdownlint:*)" \
-              "Bash(yamllint:*)" \
-            --disallowedTools \
-              "Bash(rm *..*)" \
-              "Bash(rm -r ai/agents/* *)"
+              "Bash(yamllint:*)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
@@ -163,10 +160,9 @@ jobs:
         shell: bash
         run: test -z "$(git status --porcelain -- ai/skills ai/local/skills.instructions.md)"
 
-      - name: "Check deletions"
-        uses: ./.github/actions/check-allowed-deletions
-        with:
-          allowed-parent: "ai/agents"
+      - name: "Check nothing was deleted"
+        shell: bash
+        run: test -z "$(git ls-files --deleted)"
 
       - name: "Check agents match config.yaml"
         uses: ./.github/actions/check-agents
