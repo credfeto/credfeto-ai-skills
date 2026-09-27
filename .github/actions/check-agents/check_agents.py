@@ -29,7 +29,7 @@ def read_frontmatter(path):
 
 def resolve_entry(slug, config):
     """Return an agent's config.yaml entry with default: values applied."""
-    return {**config.get("default", {}), **(config.get(slug) or {})}
+    return {**(config.get("default") or {}), **(config.get(slug) or {})}
 
 
 def check_skills_exist(config):
@@ -72,7 +72,7 @@ def check_frontmatter(definition, config):
     expected = {
         "name": f"credfeto-{definition.parent.name}",
         "model": entry.get("model"),
-        "tools": ", ".join(entry.get("tools", [])),
+        "tools": ", ".join(entry.get("tools") or []),
         "skills": list(entry.get("skills") or []),
     }
     actual = {
