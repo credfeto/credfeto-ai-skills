@@ -59,8 +59,9 @@ on:
 permissions:
   contents: read
 
+# Shared with reconcile-agents so the two never push to main at the same time.
 concurrency:
-  group: "reconcile-skills"
+  group: "reconcile-ai"
   cancel-in-progress: false
 
 jobs:
@@ -94,31 +95,11 @@ jobs:
           fetch-depth: 1
           token: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
-      - name: "Checkout cs-template"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: "credfeto/cs-template"
-          path: ".cs-template"
-          sparse-checkout: |
-            ai/global
-          fetch-depth: 1
-
       - name: "Sync AI instructions from cs-template"
-        shell: bash
-        run: |
-          cp .cs-template/.ai-instructions .ai-instructions
-          rsync -a --delete .cs-template/ai/global/ ai/global/
-          rm -rf .cs-template
-
-      - name: "Commit synced AI instructions"
-        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        uses: ./.github/actions/sync-ai-instructions
         with:
-          commit_message: "chore: sync ai instructions from cs-template"
-          file_pattern: ".ai-instructions ai/global"
-          commit_user_name: "skills-reconciler[bot]"
-          commit_user_email: "credfeto@users.noreply.github.com"
-          commit_author: "skills-reconciler[bot] <credfeto@users.noreply.github.com>"
-          skip_dirty_check: false
+          commit-user-name: "skills-reconciler[bot]"
+          commit-user-email: "credfeto@users.noreply.github.com"
 
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
@@ -196,16 +177,9 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
       - name: "Check deletions"
-        shell: bash
-        run: |
-          DELETED=$(git ls-files --deleted)
-          UNEXPECTED=$(printf '%s' "${DELETED}" | grep -v -e '^ai/skills/[^/]*/' -e '^$' || true)
-          if [ -n "${UNEXPECTED}" ]; then
-            echo "::error::Files outside skill folders were deleted:"
-            echo "${UNEXPECTED}"
-            exit 1
-          fi
-          echo "Only skill folders were deleted"
+        uses: ./.github/actions/check-allowed-deletions
+        with:
+          allowed-parent: "ai/skills"
 
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run
