@@ -45,7 +45,7 @@ code-tester:
 code-reviewer:
   name: "Code Reviewer"
   model: opus
-  tools: [Bash, Agent, Read, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
   skills:
     - credfeto-code-reviewer-subagents
 
