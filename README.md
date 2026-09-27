@@ -22,7 +22,7 @@ See [ai/local/skills.instructions.md](ai/local/skills.instructions.md) for the s
 ## Installation
 
 ```bash
-./ai/skills/install.sh
+./ai/skills/install
 ```
 
 Installs every skill into `~/.claude/skills` as `credfeto-<skill>`, replacing any previous copy. New Claude Code sessions discover them automatically.

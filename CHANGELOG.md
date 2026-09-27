@@ -72,6 +72,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - code-cleanup-commits and code-style skills: moved the Refactoring section from code-style to code-cleanup-commits and removed code-style's out-of-scope Asynchronous Code and Parameterised Tests content (already owned by dotnet-coding-conventions and dotnet-test-patterns), keeping Immutability in code-style as the general code-quality rule it is, matching code-quality.instructions.md's commit-separation rules
 - MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
+- README installation command now names the skills installer ai/skills/install that actually exists
 ### Changed
 ### Deprecated
 ### Removed
