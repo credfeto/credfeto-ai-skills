@@ -101,27 +101,12 @@ jobs:
           commit-user-name: "skills-reconciler[bot]"
           commit-user-email: "credfeto@users.noreply.github.com"
 
-      - name: "Install dotnet"
-        uses: ./.github/actions/dotnet-install
+      - name: "Setup AI reconcile tools"
+        uses: ./.github/actions/setup-ai-reconcile
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
-          nuget-additional-restore-feed-release-cache: ""
-          nuget-additional-restore-feed-prerelease-cache: ""
-          nuget-additional-restore-feed-release: ""
-          nuget-additional-restore-feed-prerelease: ""
-
-      - name: "Install changelog tool"
-        uses: ./.github/actions/dotnet-tool
-        with:
-          tool-name: "Credfeto.ChangeLog.Cmd"
-
-      - name: "Install Claude Code CLI"
-        shell: bash
-        run: |
-          npm install -g @anthropic-ai/claude-code
-          echo "✅ Claude Code $(claude --version) installed"
 
       - name: "Reconcile skills against instruction files"
         shell: bash
@@ -148,7 +133,8 @@ jobs:
           4. If a skill's source rules have been removed from the instruction files, delete the skill folder
              with rm -r ai/skills/<skill> and remove its registry entry. That is the only deletion allowed:
              never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path.
-          5. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+          5. Every SKILL.md must pass markdownlint; the workflow fails the run otherwise.
+             Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make — this repository's local rules require a changelog entry for
              every change.
           6. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs — this workflow commits and pushes your file changes itself.
@@ -180,6 +166,10 @@ jobs:
         uses: ./.github/actions/check-allowed-deletions
         with:
           allowed-parent: "ai/skills"
+
+      - name: "Lint skill markdown"
+        shell: bash
+        run: markdownlint "ai/skills/**/*.md"
 
       - name: "Validate changelog"
         uses: ./.github/actions/dotnet-tool-run

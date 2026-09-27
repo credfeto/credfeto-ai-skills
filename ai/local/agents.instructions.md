@@ -28,7 +28,7 @@ Agents are Claude Code custom agent definitions, one per named role in `ai/globa
 - **P4.** **Keep MANDATORY markers and never-do rules verbatim in intent.** Wording may be adapted, but no rule may be weakened, dropped or contradicted.
 - **P5.** **An agent contains only what its sources state.** When a source stops requiring something, remove it and reword so the agent reads as if the requirement had never existed.
 - **P6.** Never edit `config.yaml` while generating or reconciling agents; it changes only by a human-reviewed pull request. A role with no `config.yaml` entry is generated with the `default:` values until a human adds its entry.
-- **P7.** All prose must be UK English, consistent with `ai/global/language.instructions.md`, and every `AGENT.md` must pass `markdownlint`.
+- **P7.** All prose must be UK English, consistent with `ai/global/language.instructions.md`, and every `AGENT.md` must pass `markdownlint`; the reconcile workflow fails the run otherwise.
 
 ## Agent Contracts
 
