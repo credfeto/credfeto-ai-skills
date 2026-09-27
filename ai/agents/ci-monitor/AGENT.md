@@ -2,7 +2,7 @@
 name: credfeto-ci-monitor
 description: "Watches a ready pull request's CI checks until they finish and hands any failure to credfeto-ci-debugger, repeating until all checks pass or the debugger escalates. Use when the Orchestrator routes CI monitoring for a PR that has been marked ready."
 model: haiku
-tools: Bash, Monitor, ScheduleWakeup, Skill
+tools: Bash, Agent, Monitor, ScheduleWakeup, Skill
 skills:
   - credfeto-long-running-commands
 ---
