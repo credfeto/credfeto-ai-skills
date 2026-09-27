@@ -1,0 +1,11 @@
+--- # Fail if agent definitions disagree with ai/agents/config.yaml
+# Maintain in repo: credfeto-ai-skills
+name: "Check Agents"
+description: "Fails if a skill preloaded in ai/agents/config.yaml does not exist, or any AGENT.md frontmatter differs from config.yaml"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check agents match config.yaml"
+      shell: bash
+      run: python3 "${GITHUB_ACTION_PATH}/check_agents.py"
