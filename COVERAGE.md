@@ -24,4 +24,4 @@ Shell is always excluded from the coverage ratchet.
 
 ---
 
-Captured at commit `9a54ece` on 2026-09-27.
+Captured at commit `4ded20c` on 2026-09-28.
