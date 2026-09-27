@@ -69,8 +69,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - code-cleanup-commits skill: removed an invented claim about a Construct: line and fix-commit SHA citations not stated in code-quality.instructions.md's Pattern Sweep section
 - MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
-- README installation command now names the skills installer ai/skills/install that actually exists
 - Reconcile-skills only checks that preloaded skills exist, so an agent mismatch can no longer fail every skills run and block the agents run that would fix it
+- README installation instructions no longer name the non-existent ai/skills/install.sh
 ### Changed
 - Reconcile workflows share one tool setup action and fail the run if a regenerated skill or agent does not pass markdownlint, so lint failures no longer reach main
 - Agent definitions point to their preloaded skills for IDE code analysis and Code Fixer reply rules instead of repeating the skill text, so each agent loads less duplicated context
