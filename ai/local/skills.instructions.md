@@ -24,7 +24,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 3. **Extract procedures, not categories.** A skill is a workflow with a clear trigger ("about to commit", "collecting coverage"), not a dump of a whole instruction file. One instruction file may feed several skills; one skill may draw from several instruction files.
 4. **Keep MANDATORY markers and never-do rules verbatim in intent.** Wording may be adapted for the skill context, but no rule may be weakened, dropped, or contradicted.
 5. **A skill contains only what its source instruction files state.** No rule, instruction or wording may appear in a skill without a source. When a source stops requiring something, remove that requirement from the skill and reword the surrounding text so it reads as if the requirement had never existed; a skill is the current rule set, so it carries no notes about what was removed.
-6. All prose must be UK English, consistent with `ai/global/language.instructions.md`.
+6. All prose must be UK English, consistent with `ai/global/language.instructions.md`, and every `SKILL.md` must pass `markdownlint`; the reconcile workflow fails the run otherwise.
 7. Shell scripts in `ai/skills` must follow `ai/global/shell-scripts.instructions.md` — `#!/bin/sh` preferred, `shellcheck` and `checkbashisms` clean, and the `die`/`success`/`info` output helpers.
 
 ## Update Rules

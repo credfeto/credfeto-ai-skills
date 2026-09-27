@@ -77,6 +77,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - README installation command now names the skills installer ai/skills/install that actually exists
 ### Changed
 - Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions, and share a concurrency group so they never push to main at the same time
+- Reconcile workflows share one tool setup action and fail the run if a regenerated skill or agent does not pass markdownlint, so lint failures no longer reach main
 ### Deprecated
 ### Removed
 ### Deployment Changes
