@@ -10,6 +10,9 @@
 # reconcile-skills workflow does. ai/local is repo-specific and is never
 # touched by this sync.
 #
+# Also runs on a push to main that changes this workflow, config.yaml or any
+# local action it depends on.
+#
 # Runs when each reconcile-skills run completes, so agents are always
 # reconciled against that run's skills and the two scheduled runs never push
 # to main at the same time. Each workflow has its own concurrency group, so a
@@ -40,6 +43,21 @@ on:
     workflows: ["Reconcile AI Skills"]
     types: [completed]
     branches: [main]
+  # Re-run when this workflow or anything it depends on changes. Files the
+  # reconcile run commits itself are deliberately absent, so it never
+  # re-triggers itself.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reconcile-agents.yml"
+      - ".github/actions/sync-ai-instructions/**"
+      - ".github/actions/setup-ai-reconcile/**"
+      - ".github/actions/dotnet-install/**"
+      - ".github/actions/nuget/**"
+      - ".github/actions/dotnet-tool/**"
+      - ".github/actions/dotnet-tool-run/**"
+      - ".github/actions/check-agents/**"
+      - "ai/agents/config.yaml"
   workflow_dispatch: # allow manual runs for testing
 
 permissions:
@@ -52,7 +70,7 @@ concurrency:
 jobs:
   reconcile:
     # Only follow a skills run that succeeded, so agents never get ahead of skills that were not pushed.
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

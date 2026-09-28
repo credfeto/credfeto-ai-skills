@@ -8,6 +8,12 @@ on:
       - "ai/**"
       - ".github/actions/check-agents/**"
       - ".github/workflows/check-agents.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ai/**"
+      - ".github/actions/check-agents/**"
+      - ".github/workflows/check-agents.yml"
 
 permissions:
   contents: read

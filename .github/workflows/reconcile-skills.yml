@@ -54,6 +54,22 @@ name: "Reconcile AI Skills"
 on:
   schedule:
     - cron: "0 6 * * *" # Daily at 06:00 UTC
+  # Re-run when this workflow or anything it depends on changes. Files the
+  # reconcile run commits itself are deliberately absent, so it never
+  # re-triggers itself.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reconcile-skills.yml"
+      - ".github/actions/sync-ai-instructions/**"
+      - ".github/actions/setup-ai-reconcile/**"
+      - ".github/actions/dotnet-install/**"
+      - ".github/actions/nuget/**"
+      - ".github/actions/dotnet-tool/**"
+      - ".github/actions/dotnet-tool-run/**"
+      - ".github/actions/check-allowed-deletions/**"
+      - ".github/actions/check-agents/**"
+      - "ai/agents/config.yaml"
   workflow_dispatch: # allow manual runs for testing
 
 permissions:

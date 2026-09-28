@@ -91,6 +91,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions
 - Reconcile-agents runs each time reconcile-skills completes instead of on its own schedule, so agents always follow that run's skills and neither workflow can cancel the other's waiting run
 - Removing an agent is a human-only change to config.yaml and ai/agents in one pull request; reconcile-agents may delete nothing and only follows successful reconcile-skills runs on main
+- Reconcile-skills, reconcile-agents and the agent check also run on pushes to main that change the workflow, config.yaml or any local action they depend on, so a change to their own machinery takes effect immediately
 ### Deprecated
 ### Removed
 ### Deployment Changes
