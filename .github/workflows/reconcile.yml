@@ -1,0 +1,339 @@
+# Daily AI skill and agent reconciliation
+#
+# Runs Claude Code headless to reconcile every skill in ai/skills/ against the
+# current instruction files (ai/global, ai/local), then every agent definition
+# in ai/agents/ against its sources (ai/global/agent-roles.instructions.md, the
+# rules in ai/local/agents.instructions.md) and ai/agents/config.yaml, pushing
+# each job's changes directly to main.
+#
+# The skills job first mirrors .ai-instructions and ai/global/ from
+# credfeto/cs-template (a second, sparse actions/checkout of that public repo,
+# no token needed; only ai/global plus root files such as .ai-instructions are
+# fetched, not the whole repo) and commits any drift on its own, so Claude
+# always reconciles against the current upstream instructions rather than a
+# stale local copy. ai/local is repo-specific (see .ai-instructions) and is
+# never touched by this sync.
+#
+# The agents job runs only after the skills job succeeds and checks out the
+# branch tip, so agents are always reconciled against that run's pushed skills.
+# One workflow with one concurrency group means the two never push to main at
+# the same time, and a newer queued run always does both jobs.
+#
+# Runs daily, and on a push to main that changes this workflow,
+# ai/agents/config.yaml or any local action it depends on. Files the jobs
+# commit themselves are deliberately absent from the push filter, so a run
+# never re-triggers itself.
+#
+# ai/agents/config.yaml and ai/agents/install are human-owned, and removing an
+# agent is a human change: the agents job fails if it modifies either file or
+# deletes anything.
+#
+# Owner decision: changes are pushed straight to main for transparency; this
+# is a sanctioned exception to the "never commit to main" rule in
+# ai/global/git.instructions.md, and CI commits are not GPG signed.
+#
+# Setup: two repository secrets are required.
+#
+#   SOURCE_PUSH_TOKEN: a personal access token with contents write access to
+#   this repository, used for the checkout and the push to main (the default
+#   GITHUB_TOKEN is not used for pushing).
+#
+#   CLAUDE_CODE_OAUTH_TOKEN: a long-lived Claude Code OAuth token tied to your
+#   Claude subscription (Pro/Max). To create one:
+#
+#     1. On a machine where Claude Code is installed and logged in to your
+#        subscription, run:  claude setup-token
+#     2. Complete the browser authorisation and copy the token it prints
+#        (it starts with sk-ant-oat).
+#     3. Add it to this repository as an Actions secret named
+#        CLAUDE_CODE_OAUTH_TOKEN:
+#          - Web: Settings -> Secrets and variables -> Actions ->
+#            New repository secret
+#          - CLI: gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo credfeto/credfeto-ai-skills
+#
+#   To rotate: revoke the old token (claude.ai -> Settings), re-run
+#   "claude setup-token", and update the secret.
+#
+# Model: no --model flag is passed, so each run uses Claude Code's current
+# default model, which tracks Anthropic's recommended best model over time.
+# For the same reason the Claude Code CLI is installed unpinned; an old CLI
+# would not know about current models.
+
+---
+name: "Reconcile AI Skills and Agents"
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # Daily at 06:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reconcile.yml"
+      - ".github/actions/sync-ai-instructions/**"
+      - ".github/actions/setup-ai-reconcile/**"
+      - ".github/actions/dotnet-install/**"
+      - ".github/actions/nuget/**"
+      - ".github/actions/dotnet-tool/**"
+      - ".github/actions/dotnet-tool-run/**"
+      - ".github/actions/check-allowed-deletions/**"
+      - ".github/actions/check-agents/**"
+      - "ai/agents/config.yaml"
+  workflow_dispatch: # allow manual runs for testing
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "reconcile-ai"
+  cancel-in-progress: false
+
+jobs:
+  skills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: "Check required secrets"
+        shell: bash
+        run: |
+          FAILED=false
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
+            echo "::error::❌ CLAUDE_CODE_OAUTH_TOKEN secret is not set; see the comments at the top of this workflow for how to create it"
+            FAILED=true
+          fi
+          if [ -z "${SOURCE_PUSH_TOKEN}" ]; then
+            echo "::error::❌ SOURCE_PUSH_TOKEN secret is not set; see the comments at the top of this workflow"
+            FAILED=true
+          fi
+          if [ "${FAILED}" = "true" ]; then
+            exit 1
+          fi
+          echo "✅ Required secrets are set"
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      # Check out the branch tip, not the triggering commit: a queued run must see earlier runs' pushes.
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: "${{github.ref_name}}"
+          fetch-depth: 1
+          token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Sync AI instructions from cs-template"
+        uses: ./.github/actions/sync-ai-instructions
+        with:
+          commit-user-name: "skills-reconciler[bot]"
+          commit-user-email: "credfeto@users.noreply.github.com"
+
+      - name: "Setup AI reconcile tools"
+        uses: ./.github/actions/setup-ai-reconcile
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+
+      - name: "Reconcile skills against instruction files"
+        shell: bash
+        run: |
+          PROMPT=$(cat <<'RECONCILE_PROMPT'
+          You are running unattended in GitHub Actions on the main branch of this repository.
+
+          Task: reconcile every skill in ai/skills/ against the current instruction files.
+
+          1. Read .ai-instructions, ai/global/index.md, and ai/local/index.md, and load the files they direct you to,
+             in particular ai/local/skills.instructions.md, which defines the skill format, the generation rules,
+             and the skill registry.
+          2. For every skill in the registry: re-read its source instruction files (.ai-instructions,
+             ai/global and, where the registry lists them, ai/local) and the skill itself.
+             A skill must contain only what its sources state. Regenerate it following the generation rules
+             if it is stale, contradicts its sources, is missing rules its sources now contain, contains any
+             rule, instruction or wording that has no source, or still requires something its sources no
+             longer require. In the last case remove the requirement and reword the surrounding text so it
+             reads as if the requirement had never existed; do not leave notes about the removal.
+             The instruction files are the source of truth.
+          3. Look for instruction content that now qualifies as a new skill (a repeatable workflow with a
+             clear trigger and procedure). Create any such skill and add it to the registry. The installer
+             auto-discovers skill folders, so it does not need editing for new skills.
+          4. If a skill's source rules have been removed from the instruction files, delete the skill folder
+             with rm -r ai/skills/<skill> and remove its registry entry. That is the only deletion allowed:
+             never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path. Never delete
+             or rename a skill that ai/agents/config.yaml preloads; this run fails if you do.
+          5. Every SKILL.md must pass markdownlint. Never modify ai/agents/ or ai/local/agents.instructions.md;
+             agents are reconciled by a later job, and this run fails if they change.
+          6. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+             for every change you make; this repository's local rules require a changelog entry for
+             every change.
+          7. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
+          8. If every skill already matches its sources, change nothing and finish.
+          RECONCILE_PROMPT
+          )
+          # Scoped permissions: the agent may only read/edit files in the
+          # workspace and run the specific tools reconciliation needs, with no
+          # arbitrary bash. rm is allowed under ai/skills/ only; the
+          # disallowed patterns reject parent-directory paths and extra
+          # targets, and the "Check deletions" step below fails the run if
+          # any tracked file outside a skill folder was removed.
+          # The workflow, not the agent, commits and pushes.
+          claude -p "${PROMPT}" \
+            --permission-mode acceptEdits \
+            --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+              "Bash(rm -r ai/skills/*)" \
+              "Bash(dotnet changelog:*)" \
+              "Bash(shellcheck:*)" \
+              "Bash(checkbashisms:*)" \
+              "Bash(markdownlint:*)" \
+            --disallowedTools \
+              "Bash(rm *..*)" \
+              "Bash(rm -r ai/skills/* *)"
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+
+      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
+      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
+      - name: "Check only skill files changed"
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain -- . ':(exclude)ai/skills' \
+            ':(exclude)ai/local/skills.instructions.md' ':(exclude)CHANGELOG.md')"
+
+      - name: "Check deletions"
+        uses: ./.github/actions/check-allowed-deletions
+        with:
+          allowed-parent: "ai/skills"
+
+      # Only what a skills run can break: an agent mismatch here would block the agents job that fixes it.
+      - name: "Check preloaded skills exist"
+        uses: ./.github/actions/check-agents
+        with:
+          skills-only: "true"
+
+      - name: "Lint skill markdown"
+        shell: bash
+        run: markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md
+
+      - name: "Validate changelog"
+        uses: ./.github/actions/dotnet-tool-run
+        with:
+          working-directory: "${{github.workspace}}"
+          tool-name: "changelog"
+          tool-arguments: "-f CHANGELOG.md --lint"
+
+      - name: "Commit changes"
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        with:
+          commit_message: "chore: daily skill reconciliation against instruction files"
+          file_pattern: "ai/skills ai/local/skills.instructions.md CHANGELOG.md"
+          commit_user_name: "skills-reconciler[bot]"
+          commit_user_email: "credfeto@users.noreply.github.com"
+          commit_author: "skills-reconciler[bot] <credfeto@users.noreply.github.com>"
+          skip_dirty_check: false
+
+  agents:
+    # Runs only after the skills job succeeded, which already checked the secrets and pushed the cs-template sync.
+    needs: skills
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # Check out the branch tip so the skills job's push is included.
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: "${{github.ref_name}}"
+          fetch-depth: 1
+          token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Setup AI reconcile tools"
+        uses: ./.github/actions/setup-ai-reconcile
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+
+      - name: "Reconcile agents against instruction files"
+        shell: bash
+        run: |
+          PROMPT=$(cat <<'RECONCILE_PROMPT'
+          You are running unattended in GitHub Actions on the main branch of this repository.
+
+          Task: reconcile every agent definition in ai/agents/ against its sources and ai/agents/config.yaml.
+
+          1. Read .ai-instructions, ai/global/index.md, and ai/local/index.md, and load the files they direct you to,
+             in particular ai/local/agents.instructions.md, which defines the agent format, the generation rules,
+             the agent contracts, and the agent registry.
+          2. For every agent in the registry: re-read its sources (the sections of
+             ai/global/agent-roles.instructions.md and ai/global/task-workflow.instructions.md the registry lists,
+             and the Agent Contracts in ai/local/agents.instructions.md), its entry in ai/agents/config.yaml,
+             and the agent itself. Regenerate it following the generation rules if its frontmatter does not
+             match config.yaml, or its body is stale, contradicts its sources, is missing rules its sources now
+             contain, contains any rule, instruction or wording that has no source, or still requires something
+             its sources no longer require. In the last case remove the requirement and reword the surrounding
+             text so it reads as if the requirement had never existed; do not leave notes about the removal.
+          3. If agent-roles.instructions.md now defines a role with no agent, create its agent (using the
+             default: values in config.yaml when the role has no entry) and add it to the registry. The installer
+             auto-discovers agent folders, so it does not need editing.
+          4. Never delete an agent or any other file, even if its role has been removed from
+             agent-roles.instructions.md; removing an agent is a human change to config.yaml and ai/agents.
+          5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md.
+             The workflow fails the run if you do.
+          6. Every AGENT.md must pass markdownlint.
+          7. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+             for every change you make; this repository's local rules require a changelog entry for
+             every change.
+          8. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
+          9. If every agent already matches its sources and config.yaml, change nothing and finish.
+          RECONCILE_PROMPT
+          )
+          # Scoped permissions: the agent may only read/edit files in the
+          # workspace and run the specific tools reconciliation needs, with no
+          # arbitrary bash and no rm. The steps below fail the run if
+          # config.yaml or install changed or any tracked file was deleted.
+          # The workflow, not the agent, commits and pushes.
+          claude -p "${PROMPT}" \
+            --permission-mode acceptEdits \
+            --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+              "Bash(dotnet changelog:*)" \
+              "Bash(markdownlint:*)" \
+              "Bash(yamllint:*)"
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+
+      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
+      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
+      - name: "Check only agent files changed"
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain -- . ':(exclude)ai/agents' \
+            ':(exclude)ai/local/agents.instructions.md' ':(exclude)CHANGELOG.md')"
+
+      - name: "Check human-owned files are unchanged"
+        shell: bash
+        run: git diff --exit-code -- ai/agents/config.yaml ai/agents/install
+
+      - name: "Check nothing was deleted"
+        shell: bash
+        run: test -z "$(git ls-files --deleted)"
+
+      - name: "Check agents match config.yaml"
+        uses: ./.github/actions/check-agents
+
+      - name: "Lint agent markdown"
+        shell: bash
+        run: markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md
+
+      - name: "Validate changelog"
+        uses: ./.github/actions/dotnet-tool-run
+        with:
+          working-directory: "${{github.workspace}}"
+          tool-name: "changelog"
+          tool-arguments: "-f CHANGELOG.md --lint"
+
+      - name: "Commit changes"
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        with:
+          commit_message: "chore: daily agent reconciliation against instruction files"
+          file_pattern: "ai/agents ai/local/agents.instructions.md CHANGELOG.md"
+          commit_user_name: "agents-reconciler[bot]"
+          commit_user_email: "credfeto@users.noreply.github.com"
+          commit_author: "agents-reconciler[bot] <credfeto@users.noreply.github.com>"
+          skip_dirty_check: false

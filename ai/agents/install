@@ -1,0 +1,79 @@
+#!/bin/sh
+# Installs each agent in this folder into ~/.claude/agents as credfeto-<agent>.md
+# so Claude Code can discover them as personal agents.
+
+die() {
+    if [ -t 2 ]; then
+        printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
+    else
+        printf '\n✗ %s\n' "$*" >&2
+    fi
+    exit 1
+}
+
+success() {
+    if [ -t 1 ]; then
+        printf '\n\033[32m✓\033[0m %s\n' "$*"
+    else
+        printf '\n✓ %s\n' "$*"
+    fi
+}
+
+info() {
+    if [ -t 1 ]; then
+        printf '\n\033[32m→\033[0m %s\n' "$*"
+    else
+        printf '\n→ %s\n' "$*"
+    fi
+}
+
+AGENTS_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+[ -n "${AGENTS_SOURCE_DIR}" ] || die "could not determine the agents source directory"
+
+TARGET_ROOT="${HOME}/.claude/agents"
+MANIFEST="${TARGET_ROOT}/.credfeto-ai-skills-agents"
+
+mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+
+NEW_MANIFEST="${MANIFEST}.new"
+
+PREVIOUS_MANIFEST=""
+[ -f "${MANIFEST}" ] && PREVIOUS_MANIFEST=$(cat "${MANIFEST}")
+: > "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
+
+INSTALLED=0
+
+for agent_dir in "${AGENTS_SOURCE_DIR}"/*/; do
+    [ -d "${agent_dir}" ] || continue
+
+    agent_name=$(basename "${agent_dir}")
+
+    [ -f "${agent_dir}AGENT.md" ] || {
+        info "Skipping ${agent_name}: no AGENT.md found"
+        continue
+    }
+
+    target_file="${TARGET_ROOT}/credfeto-${agent_name}.md"
+
+    info "Installing ${agent_name} as credfeto-${agent_name}..."
+
+    cp "${agent_dir}AGENT.md" "${target_file}" || die "could not copy ${agent_name} to ${target_file}"
+    printf '%s\n' "${agent_name}" >> "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
+
+    INSTALLED=$((INSTALLED + 1))
+done
+
+[ "${INSTALLED}" -gt 0 ] || die "no agents found to install in ${AGENTS_SOURCE_DIR}"
+
+# Only agents this installer put there before are removed, so other credfeto-* agents are left alone.
+for previous_name in ${PREVIOUS_MANIFEST}; do
+    [ -f "${AGENTS_SOURCE_DIR}/${previous_name}/AGENT.md" ] && continue
+
+    info "Removing stale credfeto-${previous_name}: no longer in ${AGENTS_SOURCE_DIR}"
+    rm -f "${TARGET_ROOT}/credfeto-${previous_name}.md" || die "could not remove credfeto-${previous_name}.md"
+done
+
+# Replaced only after a complete run, so a failed run keeps the previous record.
+mv "${NEW_MANIFEST}" "${MANIFEST}" || die "could not update ${MANIFEST}"
+
+success "Installed ${INSTALLED} agent(s) to ${TARGET_ROOT}"

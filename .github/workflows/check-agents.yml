@@ -1,0 +1,38 @@
+--- # PR: check agent definitions against ai/agents/config.yaml
+# Maintain in repo: credfeto-ai-skills
+name: "PR: Check Agents"
+
+on:
+  pull_request:
+    paths:
+      - "ai/**"
+      - ".github/actions/check-agents/**"
+      - ".github/workflows/check-agents.yml"
+  # Reconcile runs already run this check before pushing, so main only
+  # re-runs it when the checker itself or config.yaml changes.
+  push:
+    branches: [main]
+    paths:
+      - ".github/actions/check-agents/**"
+      - ".github/workflows/check-agents.yml"
+      - "ai/agents/config.yaml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  check-agents:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: "Check agents match config.yaml"
+        uses: ./.github/actions/check-agents

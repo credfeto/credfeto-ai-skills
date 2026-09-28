@@ -1,0 +1,41 @@
+--- # Mirror .ai-instructions and ai/global from credfeto/cs-template and commit any drift
+# Maintain in repo: credfeto-ai-skills
+name: "Sync AI Instructions"
+description: "Mirrors .ai-instructions and ai/global from credfeto/cs-template into the workspace and commits any drift"
+
+inputs:
+  commit-user-name:
+    description: "Name of the bot committing the synced instructions"
+    required: true
+  commit-user-email:
+    description: "Email of the bot committing the synced instructions"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Checkout cs-template"
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        repository: "credfeto/cs-template"
+        path: ".cs-template"
+        sparse-checkout: |
+          ai/global
+        fetch-depth: 1
+
+    - name: "Sync AI instructions from cs-template"
+      shell: bash
+      run: |
+        cp .cs-template/.ai-instructions .ai-instructions
+        rsync -a --delete .cs-template/ai/global/ ai/global/
+        rm -rf .cs-template
+
+    - name: "Commit synced AI instructions"
+      uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+      with:
+        commit_message: "chore: sync ai instructions from cs-template"
+        file_pattern: ".ai-instructions ai/global"
+        commit_user_name: "${{inputs.commit-user-name}}"
+        commit_user_email: "${{inputs.commit-user-email}}"
+        commit_author: "${{inputs.commit-user-name}} <${{inputs.commit-user-email}}>"
+        skip_dirty_check: false
