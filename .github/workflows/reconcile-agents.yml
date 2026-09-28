@@ -10,9 +10,8 @@
 # reconcile-skills workflow does. ai/local is repo-specific and is never
 # touched by this sync.
 #
-# Also runs on a push to main that changes this workflow. A change to
-# config.yaml or a local action it depends on runs reconcile-skills, which
-# this workflow then follows.
+# A push to main that changes this workflow, config.yaml or a local action it
+# depends on runs reconcile-skills, which this workflow then follows.
 #
 # Runs when each reconcile-skills run completes, so agents are always
 # reconciled against that run's skills and the two scheduled runs never push
@@ -44,13 +43,9 @@ on:
     workflows: ["Reconcile AI Skills"]
     types: [completed]
     branches: [main]
-  # Every other dependency (its local actions and config.yaml) is in
-  # reconcile-skills' push filter, so a change to one runs skills first and
-  # this workflow follows it; listing them here too would run both at once.
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/reconcile-agents.yml"
+  # No push trigger: this workflow and all its dependencies are in
+  # reconcile-skills' push filter, so a change runs skills first and this
+  # workflow follows it, and the two never push to main at the same time.
   workflow_dispatch: # allow manual runs for testing
 
 permissions:
