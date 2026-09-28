@@ -35,7 +35,7 @@ Installs every skill into `~/.claude/skills` as `credfeto-<skill>` and then ever
 
 ## Automated Reconciliation
 
-The [reconcile-skills workflow](.github/workflows/reconcile-skills.yml) and [reconcile-agents workflow](.github/workflows/reconcile-agents.yml) run every day (the agents workflow after each skills run) and whenever their workflow, `ai/agents/config.yaml` or a local action they depend on changes on `main`, reconciling all skills and agents against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the reconcile-skills workflow file.
+The [reconcile-skills workflow](.github/workflows/reconcile-skills.yml) and [reconcile-agents workflow](.github/workflows/reconcile-agents.yml) run every day and whenever their workflow, `ai/agents/config.yaml` or a local action they depend on changes on `main` (the agents workflow always runs after the skills workflow), reconciling all skills and agents against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the reconcile-skills workflow file.
 
 ## Changelog
 

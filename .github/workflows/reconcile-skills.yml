@@ -54,9 +54,10 @@ name: "Reconcile AI Skills"
 on:
   schedule:
     - cron: "0 6 * * *" # Daily at 06:00 UTC
-  # Re-run when this workflow or anything it depends on changes. Files the
-  # reconcile run commits itself are deliberately absent, so it never
-  # re-triggers itself.
+  # Re-run when this workflow or anything it depends on changes. It must also
+  # list every dependency of reconcile-agents, which follows this workflow
+  # rather than triggering on them itself. Files the reconcile run commits
+  # itself are deliberately absent, so it never re-triggers itself.
   push:
     branches: [main]
     paths:
