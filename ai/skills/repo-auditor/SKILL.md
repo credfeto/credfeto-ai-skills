@@ -14,7 +14,7 @@ Scans the full repository rather than a diff; no branch or PR is required, and f
    - All SQL files as a single separate group, regardless of location.
    - All AI instruction files (the repo's own agent-facing rule files) as a single separate group.
    - Remaining files (shell scripts, CI workflow files, config) as a repo-level group.
-2. Process groups sequentially. For each group, apply IDE MCP code analysis to the group's files, then launch the six Code Reviewer sub-agent lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel** against that group's full file set, not just recently changed files.
+2. Process groups sequentially. For each group, apply IDE MCP code analysis to the group's files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure), then launch the six Code Reviewer sub-agent lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel** against that group's full file set, not just recently changed files.
 3. Do **not** fix findings. For each group that has findings, raise one GitHub issue:
    - Title: `Audit: <group-name> - <brief summary>`
    - Body: all findings from all sub-agents for that group, organised by sub-agent.

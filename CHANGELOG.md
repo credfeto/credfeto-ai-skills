@@ -19,6 +19,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Root install script that installs every skill and then every agent in one command
 - Reconcile workflow (replacing reconcile-skills) that reconciles the skills and then, once they succeed, every agent definition against the instruction files and ai/agents/config.yaml, in one workflow so the two never push to main at the same time; it runs daily and whenever the workflow, config.yaml or a local action it depends on changes on main
 - check-agents check, run on pull requests touching ai/ and by the reconcile workflow, that fails when a preloaded skill is missing, an agent listed in config.yaml has no AGENT.md, or an AGENT.md frontmatter has unexpected keys or differs from config.yaml
+- Add ide-mcp-code-analysis skill covering the best-effort MCP IDE analysis procedure, and point the agent-role skills that mention it at the new skill for the full best-effort and reporting rules.
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24

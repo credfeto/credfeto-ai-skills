@@ -8,7 +8,7 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 ## Orchestrating the Review
 
 1. Run `git diff origin/main...HEAD` to get the scope of changed code.
-2. Apply IDE MCP code analysis to the changed files.
+2. Apply IDE MCP code analysis to the changed files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure).
 3. Launch all six sub-agents below **in parallel** against that diff.
 4. Each sub-agent reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
 5. Fix each real finding, grouped by construct, as its own change set, with a Pattern Sweep for that construct; skip false positives. Re-run the test suite after fixes. Carry every sweep record, incoming and own, into the outgoing report unchanged.

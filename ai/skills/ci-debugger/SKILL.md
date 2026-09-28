@@ -10,7 +10,7 @@ description: Diagnose a failing CI check by reading its full logs and finding th
 3. **Code-related cause**: fix it directly.
    - If the fix requires knowledge outside the instruction files (unfamiliar API, complex library usage), research it first rather than guessing or fabricating a fix.
    - If research determines the fix is **not possible** as scoped, stop and escalate to a human with the explanation rather than partially applying a guess.
-   - Apply IDE MCP code analysis to the fixed files.
+   - Apply IDE MCP code analysis to the fixed files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure).
    - Run a Pattern Sweep for the fixed construct and commit it after the fix, since no separate committer role follows this one to do it.
 4. **Environmental or infrastructure cause** (a bug in the container image, a missing tool, a transient infra issue): escalate rather than attempting a workaround, using the Environment/Infrastructure Block Marker below so the block can auto-clear once the underlying fix actually ships.
 

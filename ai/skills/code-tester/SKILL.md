@@ -7,7 +7,7 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 
 - Run build and all tests after Code Writer or Code Fixer finishes.
 - Check coverage against `git diff origin/main...HEAD`: every new or changed line must be covered.
-- Apply IDE MCP code analysis to the changed files.
+- Apply IDE MCP code analysis to the changed files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure).
 - On build failure, test failure, or uncovered code: report the file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered; this loop is capped at 5 rounds by the calling agent's routing rules.
 - Carry any sweep record in the incoming hand-off through to the outgoing report unchanged.

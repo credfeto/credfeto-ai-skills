@@ -91,6 +91,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
 | [claude-hooks](../skills/claude-hooks/SKILL.md) | `credfeto-claude-hooks` | `claude-hooks.instructions.md`, `tool-preferences.instructions.md` |
 | [tool-preferences](../skills/tool-preferences/SKILL.md) | `credfeto-tool-preferences` | `tool-preferences.instructions.md` |
+| [ide-mcp-code-analysis](../skills/ide-mcp-code-analysis/SKILL.md) | `credfeto-ide-mcp-code-analysis` | `code-quality.instructions.md` |
 
 ## Installation
 
