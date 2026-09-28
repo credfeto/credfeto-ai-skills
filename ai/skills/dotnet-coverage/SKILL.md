@@ -79,6 +79,10 @@ Critical rules:
 - **`-p:SolutionDir=`**: must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`.
 - **`--coverage-output`**: use an absolute path pointing into the repo's `/coverage/` directory (gitignored). Name the file `{AssemblyName}.coverage.cobertura.xml`.
 
+### Running the Command (MANDATORY)
+
+Always run this `dotnet test` coverage command in the background and poll it to completion before continuing; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`. Poll for `Passed!` in the output, subject to a 30-minute deadline; see the long-running-commands skill for the poll-loop shape, the deadline, and how to distinguish a denied (never-started) command from a killed or in-flight one.
+
 `UnitTests.props` **must** contain the coverage extension package. If it is missing, stop and demand it is added:
 
 ```xml
@@ -89,7 +93,7 @@ Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data coll
 
 ## Generating Reports with reportgenerator
 
-After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator` (always via `dotnet`, never the raw binary).
+After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator` (always via `dotnet`, never the raw binary). Unlike the `dotnet test` coverage command above, `reportgenerator` may run in the foreground, but always with an explicit maximum timeout set on the tool call, never the tool's built-in default.
 
 **Always generate one report per assembly**: pass only that assembly's `.cobertura.xml` as input:
 

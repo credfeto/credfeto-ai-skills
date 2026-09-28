@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
+- New github-cli-pitfalls skill (credfeto-github-cli-pitfalls) covering gh/gh api/GraphQL failure modes with real-failure fixes (create-only assignee/label flags, --json field validation, stderr/jq corruption, stale-commit_id inline review comment 422s, ProjectV2Collaborator mutation quirks, -f/-F typing, sandbox-rejected shell shapes, HEREDOC body text), extracted from github-cli.instructions.md's Common Mistakes section, which no existing skill covered
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
@@ -61,6 +62,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dependency-selection skill: removed invented go ahead/looks good approval phrases not present in packages.instructions.md, which specifies only approved/lgtm
 - deprecation-handling skill: removed an invented MANDATORY marker and elaborated wording not present in code-quality.instructions.md's Deprecation Warnings During Tests section
 - code-cleanup-commits skill: removed an invented claim about a Construct: line and fix-commit SHA citations not stated in code-quality.instructions.md's Pattern Sweep section
+- dotnet-coverage skill: added the missing mandatory background-and-poll rule for the coverage test command and the reportgenerator foreground-timeout carve-out, matching task-workflow.instructions.md
+- dotnet-publish skill: replaced an over-broad copy of the general warning-suppression rules with a short explanation tying TreatWarningsAsErrors to the IL2xxx/IL3xxx trimming diagnostics this skill actually covers, matching dotnet.instructions.md
+- pr-sync skill: added the missing mandatory GitHub State Lags Behind Writes rule, matching github-cli.instructions.md
+- github-issue skill: restored a dropped mandatory clause in the ad-hoc prompt intake procedure and added the missing GitHub State Lags Behind Writes rule, matching task-workflow.instructions.md and github-cli.instructions.md
+- pr-review-loop skill: corrected Phase E's safety-net attribution of the .deleteme.now compliance check to the Code Reviewer role's Compliance sub-agent rather than Phase B, and added the missing code-quality.instructions.md source for the 25-file Pattern Sweep gate it already documented, matching agent-roles.instructions.md
+- claude-hooks skill: added the missing tool-preferences.instructions.md source, which the skill's secret-bearing-path exclusion list already drew from
+- code-cleanup-commits and code-style skills: moved the Refactoring section from code-style to code-cleanup-commits and removed code-style's out-of-scope Asynchronous Code and Parameterised Tests content (already owned by dotnet-coding-conventions and dotnet-test-patterns), keeping Immutability in code-style as the general code-quality rule it is, matching code-quality.instructions.md's commit-separation rules
 ### Changed
 ### Deprecated
 ### Removed

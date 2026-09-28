@@ -24,6 +24,14 @@ Reach for these in this order:
 - **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome.
 - **Say what is needed.** Give the exact `gh` command (with placeholders for the values), what it is for, and where it is used. Add the new issue to the "Workflow" project as for any issue (see Workflow Project Board below).
 
+## GitHub State Lags Behind Writes (MANDATORY)
+
+GitHub's API is asynchronous: a change can take seconds, sometimes longer, to show up in a read. This applies to anything that lags, including Workflow board fields, labels, and closing-issue references.
+
+- A write whose call succeeded is done. Do not re-read it to confirm.
+- Never spam GitHub while waiting for a change to show. Do not repeat a write, or poll or loop on a read, because a read straight after a write has not caught up yet.
+- A read that disagrees with a write you just made is lag, not a failure. If a later step reads it anyway, carry on and check again at a later step; repeat the write only if the value is still wrong then. There is no fixed wait.
+
 ## Before Starting Work
 
 - Either find a **100% matching** existing issue (confirm with the user before linking) or create a new one with the original prompt and a clear description.
@@ -56,7 +64,7 @@ This is distinct from Ad-Hoc Prompt Intake below, which covers being asked to _d
 
 ## Ad-Hoc Prompt Intake (MANDATORY)
 
-Applies whenever a human asks you to _do_ something in the context of a repo (a task, not a request to raise an issue) and no existing issue or PR has already been specified as the thing to work on. No exception for how trivial the request seems, and no exception for `credfeto/cs-template` itself.
+Applies whenever a human asks you to _do_ something in the context of a repo (a task, not a request to raise an issue) and no existing issue or PR has already been specified as the thing to work on. No exception for how trivial the request seems, no exception for `credfeto/cs-template` itself, and no "skip straight to diagnosis/fix in chat" alternative to offer or ask about: there is no path around this flow, so do not present it as a choice.
 
 1. Before taking any other action (including answering a read-only question), create a GitHub issue in the current repo:
    - Title: a concise summary of the prompt.

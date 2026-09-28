@@ -72,7 +72,7 @@ This phase gates on the whole repo's per-language coverage, not just the lines t
 
 Only once all four phases have completed without a `Blocked` outcome (each phase passed outright, or exited via its own non-blocking convergence path noted in a PR comment, or there were no reviewable changes):
 
-1. Safety net (belt-and-suspenders on top of the Compliance sub-agent's own check during Phase B): confirm a `.deleteme.now` placeholder file is not present in `git diff origin/main...HEAD --name-only`; if it is still present, remove it in its own commit, re-run the build/test verification role, then continue.
+1. Safety net (belt-and-suspenders on top of the Code Reviewer role's own Compliance sub-agent check, which already runs earlier in development, before this loop starts): confirm a `.deleteme.now` placeholder file is not present in `git diff origin/main...HEAD --name-only`; if it is still present, remove it in its own commit, re-run the build/test verification role, then continue.
 2. Update the workflow board to **Human Review**, if configured, unless Phase D's success path already moved it there.
 3. Enable auto-merge:
 

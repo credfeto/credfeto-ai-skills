@@ -53,6 +53,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md`, `agent-roles.instructions.md` |
 | [pr-sync](../skills/pr-sync/SKILL.md) | `credfeto-pr-sync` | `task-workflow.instructions.md`, `git.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
 | [github-issue](../skills/github-issue/SKILL.md) | `credfeto-github-issue` | `git.instructions.md`, `task-workflow.instructions.md`, `github-cli.instructions.md`, `agent-roles.instructions.md` |
+| [github-cli-pitfalls](../skills/github-cli-pitfalls/SKILL.md) | `credfeto-github-cli-pitfalls` | `github-cli.instructions.md` |
 | [github-workflows](../skills/github-workflows/SKILL.md) | `credfeto-github-workflows` | `github-workflows.instructions.md`, `github-workflows.examples.md`, `git-rebasing.instructions.md` |
 | [shell-scripts](../skills/shell-scripts/SKILL.md) | `credfeto-shell-scripts` | `shell-scripts.instructions.md`, `shell-scripts.examples.md` |
 | [firewall-rules](../skills/firewall-rules/SKILL.md) | `credfeto-firewall-rules` | `shell.firewall.instructions.md`, `shell.firewall.examples.md` |
@@ -76,7 +77,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [numbering-conventions](../skills/numbering-conventions/SKILL.md) | `credfeto-numbering-conventions` | `task-workflow.instructions.md` |
 | [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
-| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md` |
+| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md`, `code-quality.instructions.md` |
 | [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md`, `github-cli.instructions.md` |
 | [code-writer](../skills/code-writer/SKILL.md) | `credfeto-code-writer` | `agent-roles.instructions.md` |
 | [code-tester](../skills/code-tester/SKILL.md) | `credfeto-code-tester` | `agent-roles.instructions.md`, `task-workflow.instructions.md` |
@@ -88,7 +89,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [code-style](../skills/code-style/SKILL.md) | `credfeto-code-style` | `code-quality.instructions.md` |
 | [dotnet-coding-conventions](../skills/dotnet-coding-conventions/SKILL.md) | `credfeto-dotnet-coding-conventions` | `dotnet.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
-| [claude-hooks](../skills/claude-hooks/SKILL.md) | `credfeto-claude-hooks` | `claude-hooks.instructions.md` |
+| [claude-hooks](../skills/claude-hooks/SKILL.md) | `credfeto-claude-hooks` | `claude-hooks.instructions.md`, `tool-preferences.instructions.md` |
 | [tool-preferences](../skills/tool-preferences/SKILL.md) | `credfeto-tool-preferences` | `tool-preferences.instructions.md` |
 
 ## Installation

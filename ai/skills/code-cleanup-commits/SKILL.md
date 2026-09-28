@@ -1,17 +1,23 @@
 ---
 name: credfeto-code-cleanup-commits
-description: Keep dead-code removal, incidental file cleanup, and pattern-sweep fixes in their own commits, separate from the feature or fix change, and sweep the whole repository for other occurrences of a fixed construct before moving on. Use whenever removing unreachable code, tidying up unrelated issues in a file already being edited (unused imports, stale comments, unreachable branches, inconsistent formatting, duplicated code, code-analysis warnings or suppressions), or after fixing a bug or accepting a finding from a simplify, code-review, or security-review pass, or a human PR review comment.
+description: Keep dead-code removal, refactoring, incidental file cleanup, and pattern-sweep fixes in their own commits, separate from the feature or fix change, and sweep the whole repository for other occurrences of a fixed construct before moving on. Use whenever removing unreachable code, refactoring code after writing and testing it, tidying up unrelated issues in a file already being edited (unused imports, stale comments, unreachable branches, inconsistent formatting, duplicated code, code-analysis warnings or suppressions), or after fixing a bug or accepting a finding from a simplify, code-review, or security-review pass, or a human PR review comment.
 ---
 
 # Code Cleanup Commit Hygiene
 
-Dead-code removal, incidental cleanup, and pattern-sweep fixes are never bundled into a feature or fix commit. Each has its own commit boundary and its own pass/fail gate.
+Dead-code removal, refactoring, incidental cleanup, and pattern-sweep fixes are never bundled into a feature or fix commit. Each has its own commit boundary and its own pass/fail gate.
 
 ## Dead Code
 
 - Remove unreachable code rather than writing tests around it.
 - Dead/unreachable code removal is a separate commit from test changes, made after running tests on the entire handler or app; one method or function per commit.
 - Shared code removal is only done once the entire codebase has 100% coverage; each removal is its own commit.
+
+## Refactoring
+
+- Review code after writing and testing to determine whether refactoring is needed.
+- Refactoring must be a separate commit from feature/fix changes.
+- Tests must pass after every refactoring commit.
 
 ## Incidental File Cleanup
 
