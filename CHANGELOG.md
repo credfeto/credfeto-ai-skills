@@ -15,11 +15,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
 - New github-cli-pitfalls skill (credfeto-github-cli-pitfalls) covering gh/gh api/GraphQL failure modes with real-failure fixes (create-only assignee/label flags, --json field validation, stderr/jq corruption, stale-commit_id inline review comment 422s, ProjectV2Collaborator mutation quirks, -f/-F typing, sandbox-rejected shell shapes, HEREDOC body text), extracted from github-cli.instructions.md's Common Mistakes section, which no existing skill covered
 - Claude Code agent definitions for every pipeline role and each Code Reviewer lens, with per-agent model, tools and preloaded skills in ai/agents/config.yaml and an installer that puts them in ~/.claude/agents
-- Reconcile workflows fail when ai/agents/config.yaml preloads a skill that no longer exists, so agents never reference removed skills
-- Reconcile-agents fails when any generated agent's name, model, tools or preloaded skills differ from ai/agents/config.yaml, so a daily run cannot widen an agent's permissions
 - COVERAGE.md baseline recording that this repository has no .NET or Node code, that its Python CI helper scripts have no tests, and that Shell is excluded, so the coverage ratchet is applied
-- Reconcile-agents workflow that keeps the agent definitions in step with the instruction files and config.yaml after each successful reconcile-skills run, failing if it changes config.yaml, the installer or any skill file, or deletes anything
 - Root install script that installs every skill and then every agent in one command
+- Reconcile workflow (replacing reconcile-skills) that reconciles the skills and then, once they succeed, every agent definition against the instruction files and ai/agents/config.yaml, in one workflow so the two never push to main at the same time; it runs daily and whenever the workflow, config.yaml or a local action it depends on changes on main
+- check-agents check, run on pull requests touching ai/ and by the reconcile workflow, that fails when a preloaded skill is missing, an agent listed in config.yaml has no AGENT.md, or an AGENT.md frontmatter has unexpected keys or differs from config.yaml
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
@@ -77,21 +76,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - code-cleanup-commits and code-style skills: moved the Refactoring section from code-style to code-cleanup-commits and removed code-style's out-of-scope Asynchronous Code and Parameterised Tests content (already owned by dotnet-coding-conventions and dotnet-test-patterns), keeping Immutability in code-style as the general code-quality rule it is, matching code-quality.instructions.md's commit-separation rules
 - MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
-- Reconcile-skills only checks that preloaded skills exist, so an agent mismatch can no longer fail every skills run and block the agents run that would fix it
 - README installation instructions no longer name the non-existent ai/skills/install.sh
 ### Changed
-- Reconcile workflows share one tool setup action and fail the run if a regenerated skill or agent does not pass markdownlint, so lint failures no longer reach main
-- Agent definitions point to their preloaded skills for IDE code analysis and Code Fixer reply rules instead of repeating the skill text, so each agent loads less duplicated context
-- Skills and agents reconcile workflows each commit only their own files and fail the run if they change the other's, so a skills run can no longer push agent or config.yaml changes to main
-- The agent frontmatter check also fails on any key other than name, description, model, tools and skills, and on a missing description
-- Agent checks run as one YAML-parsing check-agents action on every pull request touching ai/ as well as in both reconcile workflows, so a PR removing a preloaded skill fails before merge
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
-- Reconcile lint steps use the committed markdownlint config explicitly and fail if any markdownlint config file changed, and the agent check reports empty config.yaml values instead of crashing
-- The agent check fails when config.yaml lists an agent with no AGENT.md, so a reconcile run can only delete an agent after a human removes its config.yaml entry
-- Reconcile workflows share composite actions for syncing AI instructions from cs-template and for guarding deletions
-- Reconcile-agents runs each time reconcile-skills completes instead of on its own schedule, so agents always follow that run's skills and neither workflow can cancel the other's waiting run
-- Removing an agent is a human-only change to config.yaml and ai/agents in one pull request; reconcile-agents may delete nothing and only follows successful reconcile-skills runs on main
-- Reconcile-skills, reconcile-agents and the agent check also run on pushes to main that change the workflow, config.yaml or any local action they depend on, so a change to their own machinery takes effect immediately
+- Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
+- The reconcile tool setup, cs-template sync and deletion guard are shared composite actions
+- Removing an agent is a human-only change to config.yaml and ai/agents in one pull request; the reconcile run never deletes agents
 ### Deprecated
 ### Removed
 ### Deployment Changes
