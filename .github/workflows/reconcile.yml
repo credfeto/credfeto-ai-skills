@@ -189,21 +189,18 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # The guard and lint steps below read actions and lint config from the working tree, so they are only trustworthy if the agent left them untouched.
-      - name: "Check workflow and lint config files are unchanged"
+      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
+      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
+      - name: "Check only skill files changed"
         shell: bash
         run: |
-          test -z "$(git status --porcelain -- .github .markdownlint.json .markdownlint.jsonc \
-            .markdownlint.yaml .markdownlint.yml .markdownlintrc .markdownlintignore)"
+          test -z "$(git status --porcelain -- . ':(exclude)ai/skills' \
+            ':(exclude)ai/local/skills.instructions.md' ':(exclude)CHANGELOG.md')"
 
       - name: "Check deletions"
         uses: ./.github/actions/check-allowed-deletions
         with:
           allowed-parent: "ai/skills"
-
-      - name: "Check agent files are unchanged"
-        shell: bash
-        run: test -z "$(git status --porcelain -- ai/agents ai/local/agents.instructions.md)"
 
       # Only what a skills run can break: an agent mismatch here would block the agents job that fixes it.
       - name: "Check preloaded skills exist"
@@ -301,20 +298,17 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # The guard and lint steps below read actions and lint config from the working tree, so they are only trustworthy if the agent left them untouched.
-      - name: "Check workflow and lint config files are unchanged"
+      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
+      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
+      - name: "Check only agent files changed"
         shell: bash
         run: |
-          test -z "$(git status --porcelain -- .github .markdownlint.json .markdownlint.jsonc \
-            .markdownlint.yaml .markdownlint.yml .markdownlintrc .markdownlintignore)"
+          test -z "$(git status --porcelain -- . ':(exclude)ai/agents' \
+            ':(exclude)ai/local/agents.instructions.md' ':(exclude)CHANGELOG.md')"
 
       - name: "Check human-owned files are unchanged"
         shell: bash
         run: git diff --exit-code -- ai/agents/config.yaml ai/agents/install
-
-      - name: "Check skill files are unchanged"
-        shell: bash
-        run: test -z "$(git status --porcelain -- ai/skills ai/local/skills.instructions.md)"
 
       - name: "Check nothing was deleted"
         shell: bash
