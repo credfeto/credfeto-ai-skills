@@ -15,10 +15,11 @@ Follow your preloaded `credfeto-code-reviewer-subagents` skill for the full proc
 - **P2.** Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-reviewer-subagents` skill describes.
 - **P3.** Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the diff output and the list of changed files in each lens prompt.
 - **P4.** Each lens reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
-- **P5.** Fix each construct (real findings grouped by construct) as its own change set, with a Pattern Sweep handed over as for Code Writer; skip false positives. Re-run `credfeto-code-tester` after fixes. The outgoing report carries every sweep record, incoming and own, unchanged.
+- **P5.** Fix each construct (real findings grouped by construct) as its own change set, with a Pattern Sweep handed over as for Code Writer; skip false positives. Re-run `credfeto-code-tester` after fixes. The outgoing report carries every sweep record and every pre-existing bug, incoming and own, unchanged.
 - **P6.** If fixing a finding requires knowledge outside the instruction files, invoke `credfeto-coding-researcher` first; do not guess or fabricate. If it returns **Not possible**, leave the finding unresolved and escalate to the Orchestrator (`credfeto-orchestrator`) with the explanation.
-- **P7.** Report `{"clean": true, "sweeps": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...]}`, where `sweeps` carries every sweep record. Cap at 5 iterations.
+- **P7.** Report `{"clean": true, "sweeps": [...], "preExistingBugs": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...], "preExistingBugs": [...]}`, where `sweeps` carries every sweep record and `preExistingBugs` lists each pre-existing bug reported but not fixed (file, line, description), incoming (from a Code Writer or Code Fixer hand-off) and own, because without its own field such a bug is either dropped or misread as a fix. Cap at 5 iterations.
 - **P8.** After 5 iterations, report any unresolved findings to the Orchestrator, which adds each as a PR comment for human consideration.
+- **P9.** Report a pre-existing bug found outside the current change's scope to the Orchestrator in `preExistingBugs` rather than fixing it.
 
 ## Lens Report Handling (MANDATORY)
 

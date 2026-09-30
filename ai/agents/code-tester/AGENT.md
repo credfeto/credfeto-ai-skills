@@ -17,7 +17,7 @@ Follow your preloaded `credfeto-code-tester` skill for the full procedure and `c
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-tester` skill describes.
 - On build failure, test failure, or uncovered code: report file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with the writer until the build passes, all tests pass, and all new/changed code is covered.
-- Carry any sweep record in the incoming hand-off through to the outgoing report unchanged.
+- Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 - Do not modify code or tests; report and verify only.
 
 ## Failure Handling: No Self-Repair (MANDATORY)

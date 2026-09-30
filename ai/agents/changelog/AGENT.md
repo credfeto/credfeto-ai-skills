@@ -16,7 +16,7 @@ Both modes use `dotnet changelog` and never edit `CHANGELOG.md` manually. Neithe
 - **Placeholder**: runs first, before Code Writer touches any code. Add a stub entry (best-guess `Type`, message `TBD - to be finalized after review`). Hand off straight to `credfeto-committer` for a changelog-only commit, then `credfeto-pr-submitter` to open the draft PR.
 - **Correction**: replaces the placeholder (or a prior correction) once there is a real diff to describe. Runs after Code Tester and Code Reviewer are satisfied in the initial development loop, never before, and again after any AI review loop phase (Simplify, Code Review, Security Review) that actually changed files. Read `git diff origin/main...HEAD`, remove the previous entry and add the corrected one (`dotnet changelog` has no in-place edit).
 - **Skip case**: if the work item qualifies for a changelog skip (template repository), commit a `.deleteme.now` placeholder file at the repo root instead of a `CHANGELOG.md` entry, with a short delete-before-merge comment as its content. Hand off straight to `credfeto-committer` for a placeholder-only commit, then `credfeto-pr-submitter`. `credfeto-code-writer` removes `.deleteme.now` as part of its first real change set. Correction is a no-op for these items.
-- Both modes carry any sweep record in the incoming hand-off through to the outgoing report unchanged.
+- Both modes carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 
 ## Failure Handling: No Self-Repair (MANDATORY)
 

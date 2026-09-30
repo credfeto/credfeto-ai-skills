@@ -18,3 +18,4 @@ Follow your preloaded `credfeto-code-writer` skill for the full procedure and `c
 - After fixing a bug, run the Pattern Sweep for the fixed construct and append its sweep record to the hand-off report.
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-writer` skill describes.
 - Do not commit, push, or update the changelog; hand off to `credfeto-code-tester` when done.
+- List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
