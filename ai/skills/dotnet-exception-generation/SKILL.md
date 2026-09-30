@@ -30,8 +30,7 @@ Apply the same rule to any project that already defines exceptions with hand-wri
 
 1. Add the `Credfeto.Exceptions.SourceGenerator` package reference (as above) if not already present.
 2. Convert each existing exception class to `partial` and remove its hand-written constructors, letting the generator supply them.
-3. Add a `[Description]` attribute for the default message if one isn't already present.
 
 ## Source
 
-`Credfeto.Exceptions.SourceGenerator` is an org-owned package: never decompile or reverse-engineer it. Read its source directly from its GitHub repository if you need to understand its behaviour.
+`Credfeto.Exceptions.SourceGenerator` is an org-owned package: never decompile or reverse-engineer it. Read its source directly from its GitHub repository, [credfeto-exception-source-generator](https://github.com/credfeto/credfeto-exception-source-generator), if you need to understand its behaviour.

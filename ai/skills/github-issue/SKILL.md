@@ -19,25 +19,26 @@ Reach for these in this order:
 2. A native `gh <noun> <verb>` subcommand when `cfwf` has no command for the operation.
 3. `gh api` or `gh api graphql` only when neither of the above covers it.
 
-`cfwf` is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh issue view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` is not installed or a command fails, stop and ask the user to install or fix it rather than falling back to hand-composed `gh` for a use `cfwf` covers. Plain native subcommands without `--json`, such as `gh pr create`, `gh issue comment` and `gh pr edit --add-label`, are exempt.
+`cfwf` is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh issue view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` (or any other required CLI tool) is not installed or a command fails, stop immediately and ask the user to install or fix it rather than falling back to hand-composed `gh` for a use `cfwf` covers; never search for the binary in alternative locations, manipulate `PATH` to find it, or attempt to install it without being asked. Plain native subcommands without `--json`, such as `gh pr create`, `gh issue comment` and `gh pr edit --add-label`, are exempt.
 
 - **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome.
 - **Say what is needed.** Give the exact `gh` command (with placeholders for the values), what it is for, and where it is used. Add the new issue to the "Workflow" project as for any issue (see Workflow Project Board below).
 
 ## GitHub State Lags Behind Writes (MANDATORY)
 
-GitHub's API is asynchronous: a change can take seconds, sometimes longer, to show up in a read. This applies to anything that lags, including Workflow board fields, labels, and closing-issue references.
+GitHub's API is asynchronous: a change can take seconds, sometimes longer, to show up in a read. This applies to anything that lags, including Workflow board fields, labels, and closing-issue references. It is GitHub's behaviour, not a fault in `gh`, `cfwf`, the orchestrator or the API proxy, so do not raise issues on `credfeto/credfeto-orchestrator` or `credfeto/github-api-proxy` for it.
 
 - A write whose call succeeded is done. Do not re-read it to confirm.
-- Never spam GitHub while waiting for a change to show. Do not repeat a write, or poll or loop on a read, because a read straight after a write has not caught up yet.
+- Never spam GitHub while waiting for a change to show. Do not repeat a write, or poll or loop on a read, because a read straight after a write has not caught up yet. (Waiting for a human to act is a different, sanctioned wait.)
 - A read that disagrees with a write you just made is lag, not a failure. If a later step reads it anyway, carry on and check again at a later step; repeat the write only if the value is still wrong then. There is no fixed wait.
 
 ## Before Starting Work
 
 - Either find a **100% matching** existing issue (confirm with the user before linking) or create a new one with the original prompt and a clear description.
+- The search itself is a normal, automatic part of this workflow: do not ask permission before running it. Any question is about what a match means once found (confirming a candidate before linking), never about whether to run the search itself.
 - Assign yourself before starting: `gh issue edit <number> --add-assignee @me`.
 - Only work on unassigned issues or issues already assigned to you.
-- Skip any issue labelled `On Hold` or `Blocked`.
+- Skip any issue labelled `On Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
 - Reference issue numbers in commit messages and branch names.
 - If work on an issue is abandoned, comment with findings before closing; do not abandon silently.
 
@@ -94,7 +95,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
    Any conditional or deferred decision point in the Approach or Files-to-change text, a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open), must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate.
 
 3. As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
-4. Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first.
+4. Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. Approval requires an explicit human action: a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment.
 5. Once approved and `Blocked` is removed:
    - If the request needs a code change, proceed and open a PR referencing the issue when ready.
    - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue.
@@ -151,6 +152,15 @@ When asking a question in an issue or PR comment and waiting for an answer befor
 3. Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`.
 4. Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost.
 
+## Trusted Commenters
+
+A trusted commenter is a human whose comment can approve a plan or ask for work. Decide it by the comment author's login, never by `authorAssociation` (`OWNER`, `MEMBER` or `COLLABORATOR`), because an account with collaborator access is not necessarily a human approver: the agent's own bot account is usually a collaborator.
+
+1. Trust only the logins in the "Trusted commenters" list the orchestrator passes in your CLAUDE.md.
+2. Never trust a comment whose author login is the bot login the orchestrator passes alongside that list, even if that login is also in the list, because a comment from the agent's own bot account is never a human approval. Match that login by name, never by whether `gh` reports `viewerDidAuthor` as `true`, because the agent can run as a trusted human's account and excluding every comment by that account would drop that human's real approvals. If no bot login is provided, exclude no login.
+3. If no list is provided (for example an interactive session started without the orchestrator), trust only the repository owner's login (the `<owner>` in `<owner/repo>`). If the owner is an organisation, no comment matches, so ask the human instead.
+4. Never write either approval keyword (`approved` or `lgtm`, in any case) in a comment you post unless that comment mirrors a real human approval, or the keyword sits inside a verbatim quote of a human's own words formatted as a Markdown quote (`>`). The ban covers every other comment, such as a re-block comment saying no approval was found, a status comment or a question; to refer to the words there, write "the two accepted approval keywords".
+
 ## Ad-Hoc Issue Requests From Comments (MANDATORY)
 
 Before continuing any review or CI loop, scan all comments on the current PR and its linked issue(s) from trusted commenters for ad-hoc requests to create a new GitHub issue: natural-language phrasing such as "raise an issue", "create an issue", "add an issue", "open an issue", "file an issue" (case-insensitive).
@@ -175,7 +185,7 @@ The same rule applies when picking up an issue: if a comment on it requests a su
 ## Label Rules (MANDATORY)
 
 - Always use `--add-label`; **never** `--label`, which replaces all existing labels.
-- Never remove labels from issues or PRs; GitHub workflows add classification labels automatically.
+- Never remove labels from issues or PRs; GitHub workflows add classification labels automatically. The sole exception is removing `Blocked` on a human's live-chat plan approval of an issue in an interactive session, carried out on their behalf after mirroring the approval as a GitHub comment.
 
 ## Comment Bodies (MANDATORY)
 
@@ -207,7 +217,7 @@ COMMENT
 
 ## Comment Replies (MANDATORY)
 
-Reply to every issue comment that prompted an action. Check both comment surfaces before concluding there is nothing to reply to: top-level issue comments and, where the issue is linked to a PR, any comments surfaced there that reference the issue.
+Reply to every PR or issue comment that prompted an action. "Every PR or issue comment" spans both comment surfaces: top-level PR/issue comments and review summaries (`gh pr view <n> --json comments,reviews`) **and** inline/diff-level review comments (`gh api repos/<owner>/<repo>/pulls/<n>/comments`); a review can carry an empty top-level body with the actual feedback only in an inline comment, so both must be checked before concluding there is nothing to reply to.
 
 - Code change made: reply with `Fixed in <commit-sha>: <one sentence describing what changed and why>`.
 - Pattern Sweep found further occurrences: add `Swept in <sha>: <files touched>` on the next line, one line per commit that carries sweep hunks (the fix SHA when every hit was in a file the fix touched); the per-file reasons are in that commit's body.

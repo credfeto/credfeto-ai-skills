@@ -13,19 +13,16 @@ Never commit IDE-specific files or folders, including:
 - `.vscode/`: Visual Studio Code
 - `.vs/`: Visual Studio
 
-These belong in the root `.gitignore`.
+These are covered by the root `.gitignore` in `credfeto/cs-template`; if any are missing, update there.
 
 ## Root `.gitignore`
 
-The root `.gitignore` is the global baseline, owned by `credfeto/cs-template`:
-
-- Only edit the root `.gitignore` directly in `credfeto/cs-template`. In any other repository, treat it as distributed via the standard template update mechanism.
-- If an IDE exclusion or other baseline entry is missing from the root `.gitignore` in a non-template repository, raise the gap in `credfeto/cs-template` rather than adding it locally.
+The root `.gitignore` is the global baseline: only edit it in `credfeto/cs-template`. Updates are distributed to derived repositories via the standard template update mechanism.
 
 ## Additional `.gitignore` Files
 
-Derived repositories may add `.gitignore` files for repo-specific concerns (language build output, generated content, local tooling artefacts), placed at the appropriate directory level (e.g. a nested `.gitignore` inside a subproject that has its own generated-output pattern).
+Derived repositories may add `.gitignore` files for repo-specific concerns (language build output, generated content, local tooling artefacts), placed at the appropriate directory level.
 
 ## Consistency
 
-When creating or modifying any `.gitignore`, check it against the root `.gitignore` to ensure no duplication or conflicts.
+When creating or modifying any `.gitignore`, check it against the root to ensure no duplication or conflicts.

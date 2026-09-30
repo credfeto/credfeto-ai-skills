@@ -83,6 +83,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
 - The reconcile tool setup, cs-template sync and deletion guard are shared composite actions
 - Removing an agent is a human-only change to config.yaml and ai/agents in one pull request; the reconcile run never deletes agents
+- Reconciled the pre-work-healthcheck, changelog, dotnet-coverage, dotnet-test-patterns, dotnet-owned-packages, dotnet-nuget-vulnerability-suppression and dotnet-exception-generation skills with their sources, adding the missing rules (including the ban on constructor-bypassing instantiation in tests) and removing unsourced wording
+- Reconciled the coverage-ratchet, git-commit, git-branch, git-rebase, pr-sync, github-issue, github-cli-pitfalls and github-workflows skills with their sources, adding missing rules (COVERAGE.md rebase conflicts, trusted commenters, CI check judging, scratch review branches) and removing unsourced anecdotes
+- Reconciled the firewall-rules, npm-packages, performance-benchmarking, docker, docker-rootless-podman-systemd and code-cleanup-commits skills with their sources, removing unsourced wording
+- Reconciled the secure-coding, structured-logging, gitignore-management, learnings-capture and long-running-commands skills with their sources, adding agent-found security bug reporting, source-generated logging rules and hook-denial handling, and removing unsourced wording
+- Reconciled the numbering-conventions, agent-routing, issue-plan-approval, pr-review-loop, code-reviewer-subagents, code-writer, code-tester, code-fixer and repo-auditor skills with their sources, adding the review-fix route, trusted-commenter approval, CI hand-off and pre-existing bug reporting rules
+- Reconciled the ci-debugger, dependency-updater, dotnet-nullable-and-warnings, claude-hooks and ide-mcp-code-analysis skills with their sources, adding missing CI Debugger and bot-PR rules and removing unsourced wording
 ### Deprecated
 ### Removed
 ### Deployment Changes

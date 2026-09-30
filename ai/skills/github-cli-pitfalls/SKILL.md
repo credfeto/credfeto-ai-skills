@@ -1,12 +1,12 @@
 ---
 name: credfeto-github-cli-pitfalls
-description: Reference of specific `gh` and `gh api`/GraphQL failure modes that have each actually broken a live session, with the exact fix for each. Use before composing an uncertain `gh`/`gh api` command, when a `gh`, `gh api`, or GraphQL call fails with an unexpected flag/field/type error, a `422 Validation Failed`, a `jq` parse error immediately after a `gh` call, or a shell command is rejected by the agent sandbox.
+description: Reference of specific `gh` and `gh api`/GraphQL failure modes, with the exact fix for each. Use before composing an uncertain `gh`/`gh api` command, when a `gh`, `gh api`, or GraphQL call fails with an unexpected flag/field/type error, a `422 Validation Failed`, a `jq` parse error immediately after a `gh` call, or a shell command is rejected by the agent sandbox.
 ---
 
 # GitHub CLI Pitfalls
 
-Each of these has actually broken a live session; check here before assuming a flag or field
-exists, or before guessing at why a `gh`/`gh api` call failed.
+Check here before assuming a `gh` flag or field exists, or before guessing at why a `gh`/`gh api`
+call failed.
 
 ## `--assignee`/`--label` Are Create-Only Flags
 
@@ -87,6 +87,11 @@ any of the schema's `oneOf` variants.
 `IFS=` assignments (e.g. a `while IFS= read -r` loop) and `env`/`unset` wrappers are rejected
 outright by the sandbox, regardless of what the underlying `gh` command would have done. Use flat
 commands, and pass lists in one call (e.g. `--add-label "a,b"`) instead of looping.
+
+Raw GraphQL query strings are also more likely to be misread as obfuscated/spam-shaped input by the
+sandbox's bash content filter than an equivalent flat `gh` invocation, and `gh api graphql`
+mutations are denied outright by the sandbox. Use `gh api`/`gh api graphql` only as a last resort,
+when neither `cfwf` nor a native `gh <noun> <verb>` subcommand covers the operation.
 
 ## Comment and Body Text: HEREDOC, Never `\n`
 

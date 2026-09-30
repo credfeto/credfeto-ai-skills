@@ -5,7 +5,7 @@ description: Keep dead-code removal, refactoring, incidental file cleanup, and p
 
 # Code Cleanup Commit Hygiene
 
-Dead-code removal, refactoring, incidental cleanup, and pattern-sweep fixes are never bundled into a feature or fix commit. Each has its own commit boundary and its own pass/fail gate.
+Dead-code removal, refactoring and incidental cleanup are committed separately from feature or fix changes, and a pattern sweep is committed separately from the fix that triggered it (except where every hit is in a file the fix already touches).
 
 ## Dead Code
 

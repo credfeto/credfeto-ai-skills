@@ -20,6 +20,12 @@ Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters
 - This does not relax Build and Test Verification above: the fix must be a genuine fix, not a suppression, skip, or exclusion, unless separately authorised.
 - If a component tool's fix is a package change (adding, changing, or removing a package reference), this does not automatically require the standard new-package approval-and-wait; follow the pre-commit/component-tool package-change conflict-resolution path instead, which still falls back to approval-and-wait if its own security review finds a genuine blocker.
 
+### Pre-commit hook verification (MANDATORY before blocking)
+
+Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal; the pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
+
+Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
+
 ## 2. Branch Check (MANDATORY)
 
 - Run `git branch --show-current` and confirm it is the expected working branch before staging or committing.
@@ -73,7 +79,7 @@ A commit produced by the Pattern Sweep rule (searching the whole repository for 
 When acting specifically as the dedicated Committer agent in a multi-agent workflow (split from Code Writer, PR Submitter, and other roles):
 
 - Use the `git` CLI only for commit and push; never `gh` or the GitHub API.
-- For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` (a short delete-before-merge comment as its content) for repos that skip changelog entries, such as `credfeto/cs-template` itself.
+- For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` (a short delete-before-merge comment as its content) for template-skip repos.
 - Otherwise: commit the handed-over change set as one **GPG-signed** commit (Conventional Commits). When the hand-off carries sweep records, stage by whole file: everything except the sweep-only files is the fix commit (one per construct where change sets share no file; change sets that share a file form one fix commit whose body carries each `Construct:` line), then build once, then commit the sweep-only files as the sweep commit per the Pattern Sweep Commits format above, one per construct. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever a changelog correction accompanies it.
 - Push immediately after committing. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
@@ -88,16 +94,17 @@ Outside that specific role split, sections 1-5 above are the complete workflow.
 
 ## Never Truncate Test/Commit Commands (MANDATORY)
 
-`git commit`/`pre-commit` has no bounded, predictable duration: `pre-commit` can run a heavy hook chain (e.g. full-project build checks, security scanners, lint stacks), and a commit has already been killed mid-run on a foreground timeout in a live session. There is no timeout value that is both practical and safe to pick, so do not try to pick one.
+`git commit`/`pre-commit`/`pre-commit-check` has no bounded, predictable duration: `pre-commit` can run a heavy hook chain (e.g. full-project build checks, security scanners, lint stacks). There is no timeout value that is both practical and safe to pick, so do not try to pick one.
 
 - **Always run `git commit` (including its pre-commit hook run) via `run_in_background`; never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
+- **Never wrap it in a shell `timeout` command** as a substitute or a belt-and-braces addition, whether or not `run_in_background` is also set; plain `run_in_background` on the unwrapped command is already unbounded and needs no additional wrapper.
 - Poll with the Monitor tool for a specific string the command itself writes, subject to a 30-minute deadline:
   - Pre-commit hooks passed: poll for `→ All checks passed.`
   - Pre-commit hooks failed: poll for `→` followed by `Failed` (check for both to distinguish pass/fail).
-  - If `git push` is also backgrounded (not itself required to run in the background), poll for `branch` (the branch tracking line in push output).
+  - `git push` completed: poll for `branch` (the branch tracking line in push output).
 - Never poll for `"exit code"`; that string is not reliably written to background task output files.
 - A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis; the only valid reasons to stop waiting are the tool itself reporting its timeout was hit, or the poll-loop deadline actually firing.
-- A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind. A `git commit` has been killed mid-run on a foreground timeout in practice; do not repeat this.
+- A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind.
 - If the 30-minute deadline fires, mark the work item `Blocked` and stop rather than continuing work.
 
 ## After Pushing

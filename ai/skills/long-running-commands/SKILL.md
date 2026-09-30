@@ -9,20 +9,42 @@ description: Run long or unbounded-duration commands (dotnet build, dotnet test,
 
 Everything below covers polling a command that was **accepted** and is now running. A command rejected outright by a pre-execution policy hook (for example, for missing a required backgrounding parameter) is a different case entirely: it **never started**. There is nothing in flight, and no later notification will ever arrive for it.
 
-- Fix exactly what the denial states (e.g. add the missing backgrounding parameter) and retry immediately, in the same turn.
-- Never end a turn saying you are "waiting for it to finish" or "waiting for a completion notification" for a denied command; that command never ran, so nothing will ever complete.
-- Prefer the tool's own backgrounding parameter (e.g. `run_in_background: true`) over shell-level backgrounding (`&`, `nohup ... &`, `disown`); shell-level backgrounding is commonly blocked outright by this same class of hook and produces the identical denial-misread-as-in-flight failure.
+- Fix the specific thing the denial names and retry immediately, in the same turn.
+- Never end a turn saying you are "waiting for it to finish" or "waiting for a completion notification" for a denied command; that command never ran, so nothing will ever complete. This matters most acutely in a single-shot session: there is no later turn for a notification to land in, so uncommitted work is silently abandoned, but the same misread is just as wrong in an interactive session with turns to spare.
+- Use the tool's own backgrounding parameter (`run_in_background: true`), never shell-level backgrounding (`&`, `nohup ... &`, `disown`); shell-level backgrounding is blocked outright by `enforce-background-for-long-running-commands` and produces the same denial-misread-as-in-flight failure.
+
+## Read the Denial's Stated Reason Literally (MANDATORY)
+
+- `git commands must use "git -C <dir>" format` means add `-C <dir>` to that git invocation, not a general git problem.
+- `git commit must run with run_in_background: true` means add that tool parameter, not switch to a different commit approach.
+- Fixing one hook's violation at a time and retrying can trigger a second hook's denial on the same call, so satisfy every applicable rule in the one call that is retried rather than discovering them one by one. The most common case is a command that must satisfy both a git-invocation-shape hook and a must-be-backgrounded hook at once: `git -C <dir> commit -m "..."` invoked with `run_in_background: true` set on that same tool call.
+- Different denials on similar-looking commands usually come from **different** hooks with **different** fixes; do not average them into one general theory (e.g. "backgrounding is broken"). Read the exact hook name and message each time. For example, a plain `dotnet test` without `run_in_background: true` is blocked by `enforce-background-for-long-running-commands`, while the same command with both `run_in_background: true` and a `timeout N` shell wrapper is blocked by `reject-obfuscated-commands` instead (`timeout` is categorically blocklisted): a wrapper-command rejection, unrelated to backgrounding. These are two independent, correctly-working checks, not one contradiction.
+
+## A Permission Denial Is Not a Hook Denial (MANDATORY)
+
+Claude Code has a second way to refuse a command: the permission system itself, sitting above the hook chain. Under `permissions.defaultMode: "dontAsk"`, a command that would normally prompt for approval is auto-denied instead. This is not a `PreToolUse` hook running; no hook name appears anywhere in the message.
+
+Tell the two apart by the message shape, not by guessing at a cause:
+
+- A **hook** denial names the hook and states a reason and a fix, in the shared form `Blocked (command did not run - fix and retry, do not wait for it): <reason>`.
+- A **permission** denial names no hook, states no rule, and gives no fix, typically just `Permission to use Bash has been denied because Claude Code is running in don't ask mode.`
+
+Both share one thing: the command **never ran**, so do not wait for it to finish.
+
+- The most common cause of a permission denial is a search command that omits its mandated exclusions for secret-bearing files (`.env`, `.database`, `.claude`). A Bash command naming a directory (`find <dir>`, `grep -r ... <dir>`, `cd <dir> && ...`) is modelled as a read of everything under it; without the exclusions it cannot be proven that a secret-bearing path will not be read, so the call escalates, and under `dontAsk` an escalation comes back as a denial rather than a prompt.
+- One command can get a hook denial when run in the foreground (named hook, stated fix) and a permission denial when run in the background (naming neither). These are two different denial shapes, not one broken session.
+- Identify which part of the command is being modelled as a broad read, narrow or exclude it, and retry before escalating to a human.
 
 ## Never Truncate These Commands (MANDATORY)
 
-`git commit`/`pre-commit`/`pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, and `bun test` have no bounded, predictable duration: `pre-commit` (and `pre-commit-check`, a wrapper that runs it against the existing checked-out repo) can run a heavy hook chain, `dotnet build` runs through a large analyzer stack plus package restore, and test runs scale with what changed. A commit or test run can be killed mid-run by a foreground timeout. There is no timeout value that is both practical and safe to pick for any of these commands, so do not try to pick one.
+`git commit`/`pre-commit`/`pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, and `bun test` have no bounded, predictable duration: `pre-commit` (and `pre-commit-check`, a wrapper that runs it against the existing checked-out repo) can run a heavy hook chain, `dotnet build` runs through a large analyzer stack plus package restore, and test runs scale with what changed. There is no timeout value that is both practical and safe to pick for any of these commands, so do not try to pick one.
 
 - **Always run these commands via a background-task mechanism (e.g. `run_in_background`); never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
-- **Never wrap any of these in a shell `timeout` command as a substitute or a belt-and-braces addition** (e.g. `timeout 590 dotnet test ...`), whether or not the background-task mechanism is also used. A `timeout` wrapper is commonly rejected outright by an obfuscated-command/wrapper-command policy hook, independently of any backgrounding rule: running the command unwrapped and backgrounded is already unbounded and needs no additional wrapper. A missing backgrounding parameter and a banned `timeout` wrapper are denied by different hooks and are unrelated; read which hook actually fired rather than assuming a single general conflict.
+- **Never wrap any of these in a shell `timeout` command as a substitute or a belt-and-braces addition** (e.g. `timeout 590 dotnet test ...`), whether or not the background-task mechanism is also used. `timeout` is on the categorical blocklist of the `reject-obfuscated-commands` hook and is rejected outright, independently of the backgrounding rule: running the command unwrapped and backgrounded is already unbounded and needs no additional wrapper. A missing backgrounding parameter and a banned `timeout` wrapper are denied by different hooks and are unrelated; read which hook actually fired rather than assuming a single general conflict.
 - Poll for completion using the reliable strings in the table below, subject to the 30-minute deadline in [Time-Box Every Poll Loop](#time-box-every-poll-loop-mandatory) below.
 - **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. The only valid reasons to stop waiting are: the tool itself reports its timeout was hit, or the poll-loop deadline actually fires.
-- A killed run does not just fail; it skips the target process's own cleanup (a shell `EXIT` trap, a runtime's `IDisposable`-style teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. A killed test run has left thousands of orphaned fixture directories under a shared runtime directory in practice, which went on to break an unrelated tool that walked the same path; a commit has separately been killed mid-run on a foreground timeout.
-- Other commands from the same toolchain (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this unconditional rule; they may run in the foreground, but **always with an explicit maximum timeout set on the tool call**, never the tool's built-in default (many shell tools default to a short timeout, e.g. 2 minutes, when none is given; set the maximum available explicitly, e.g. 600000ms/10 minutes). If even that maximum is not enough, background the command and poll instead of accepting a truncated run.
+- A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Orphaned temp directories under a shared path can break other tools that walk the same path.
+- Other `dotnet` commands (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this unconditional rule; they may run in the foreground, but **always with an explicit maximum timeout set on the tool call**, never the tool's built-in default (e.g. Claude Code's Bash tool defaults to 2 minutes when no `timeout` is given; use the maximum available, e.g. 600000ms/10 minutes, explicitly). If even that maximum is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
 
 ### Reliable poll strings by command
 
@@ -41,8 +63,8 @@ When watching a background task, the poll condition **must** be provably satisfi
 
 1. **Never poll for `"exit code"`**; that string is not reliably written to background task output files. Poll for a specific string the command itself writes (see table above).
 2. **Do not pipe after `grep -q` in a negation check.** `! grep -q "pattern" file | tail -1` does NOT detect absence: the pipe applies to grep's (empty) stdout, so `tail -1` exits 0 regardless, and `!` inverts that to always-false. Write `! grep -q "pattern" file` with no trailing pipe.
-3. **Verify the poll string exists in real output before writing the loop.** If you cannot confirm what string the command writes, run it in the foreground first (for a command that is safe to run in the foreground) and read its output, or consult its documentation.
-4. **Prefer foreground only for quick, bounded commands** (`git status`, a single `grep`, `ls`, and similar). Always background the commands listed above regardless of expected speed; background any other command that genuinely takes many minutes (e.g. a full integration-test run) when there is independent work to do while waiting.
+3. **Verify the poll string exists in real output before writing the loop.** If you cannot confirm what string the command writes, run the command in the foreground first and read its output.
+4. **Prefer foreground for quick, bounded commands** (`git status`, a single `grep`, `ls`, and similar). Always background the commands listed above regardless of expected speed; use `run_in_background: true` for any other command that genuinely takes many minutes (e.g. a full integration-test run) when there is independent work to do while waiting.
 
 ### Time-Box Every Poll Loop (MANDATORY)
 

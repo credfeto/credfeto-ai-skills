@@ -5,7 +5,7 @@ description: Collect .NET code coverage with Microsoft.Testing.Platform and gene
 
 # .NET Code Coverage Collection and Reporting
 
-Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests. 100% code coverage must be maintained; the exceptions in [Specific Coverage Rules](#specific-coverage-rules-mandatory) below are the only accepted gaps against that target.
+Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests. 100% code coverage must be maintained.
 
 ## Identifying Test Projects (MANDATORY)
 
@@ -38,7 +38,7 @@ When a project is a test support library (provides mocks, helpers, or base types
 <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
 ```
 
-It must also import `UnitTests.props` (required by `FunFair.BuildCheck` until the upstream fix lands):
+It must also import `UnitTests.props` (a temporary workaround required by `FunFair.BuildCheck`; drop it once `FunFair.BuildCheck` no longer requires the import):
 
 ```xml
 <Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />
@@ -83,6 +83,8 @@ Critical rules:
 
 Always run this `dotnet test` coverage command in the background and poll it to completion before continuing; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`. Poll for `Passed!` in the output, subject to a 30-minute deadline; see the long-running-commands skill for the poll-loop shape, the deadline, and how to distinguish a denied (never-started) command from a killed or in-flight one.
 
+### Coverage Extension Package
+
 `UnitTests.props` **must** contain the coverage extension package. If it is missing, stop and demand it is added:
 
 ```xml
@@ -125,7 +127,7 @@ The per-assembly reports remain the authoritative measure of test quality for ea
 
 ## Specific Coverage Rules (MANDATORY)
 
-- 100% code coverage must be maintained. The gaps below are the only accepted exceptions to that target.
+- 100% code coverage must be maintained.
 - If a source generator is used, it is because the source-generated version is **wanted**. Do not turn it off to reach 100% coverage. Source-generated code (classes decorated with `[GeneratedCode]`) should be excluded from coverage measurements; it is considered tested by the generator's author.
 - For methods whose success path requires live infrastructure (database connections, network sockets, file handles), that path is genuinely unreachable in a unit-test environment. Do not suppress PH2140, add `[ExcludeFromCodeCoverage]`, `[SuppressMessage]`, or any `coverage.settings.xml` `<Functions>` exclusion for the gap. Accept the coverage gap and note it; do not block work on it. Prefer mocking the success path first: if the underlying type or interface can be substituted, write a test that exercises it via a mock or substitute. Only if the path is genuinely unreachable in a unit test **and** is not covered by an integration-test project, escalate by raising a GitHub issue labelled `AI-Work`, `Low`, and `Blocked` to track getting it covered by integration tests.
 

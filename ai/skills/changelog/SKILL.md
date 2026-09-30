@@ -13,7 +13,7 @@ Manage `CHANGELOG.md` entries using `Credfeto.Changelog.Cmd`; **never edit `CHAN
 
 Do **not** add an entry if:
 
-- The repository name contains `-template` (e.g. `credfeto/cs-template`), kept blank for template consumers.
+- The repository name contains `-template` (e.g. `credfeto/cs-template`), kept blank for template consumers. The Changelog agent's Placeholder step still commits a `.deleteme.now` file instead.
 
 ## Entry Content
 

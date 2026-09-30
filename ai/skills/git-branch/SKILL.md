@@ -17,12 +17,20 @@ description: Create, name, and maintain git branches, covering branching rules, 
 
 ## Destructive Commands (MANDATORY)
 
-Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, has silently discarded real work in practice; the check costs one command and is never skippable "because it should be clean".
+Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, silently discards any uncommitted work that is there; the check costs one command and is never skippable "because it should be clean".
 
 ## Avoid `git worktree`
 
 - Do not use `git worktree` or the native `EnterWorktree` tool to create additional working trees for a repo.
 - Switch branches in the existing working directory (`git -C <dir> checkout <branch>` / `git -C <dir> switch <branch>`) instead.
+
+## Scratch Review Branches
+
+A local branch created only to review a PR, named `pr<number>-review` or `pr-<number>-review`, may be deleted without asking once the review is done, because it is a throwaway copy of an existing PR head and holds no work of its own.
+
+- Create it tracking the PR head: `git fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number>`, then `git branch --track pr<number>-review origin/pr/<number>`. `git branch -d` checks a branch against its upstream, so without one it checks against HEAD and refuses while the PR is still open, even though every commit is safe on the PR head.
+- Delete it with the same fetch chained to `git branch -d`, never `-D`: `git fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number> && git branch -d pr<number>-review`. The fetch is repeated because `origin/pr/<number>` sits inside origin's default refspec with no matching branch on origin, so any plain `git fetch origin` or `git pull` with `fetch.prune` set deletes it, and `-d` then checks against HEAD and refuses even an unchanged branch; the ref cannot live outside `refs/remotes/origin/*` instead, because `git branch --track` only accepts a ref that a remote's refspec maps. `-d` refuses unless the branch is merged into its upstream (or into HEAD when it has none). A branch still equal to the PR head is deleted (exit 0; the warning that it is not yet merged to HEAD is expected); a branch left with local commits is refused as `not fully merged` (exit 1). If git refuses, keep the branch and report it rather than forcing the deletion, because those local commits would otherwise be lost.
+- This covers local branches only. Deleting a remote branch, or any other local branch, still needs human approval.
 
 ## Branch Naming
 
@@ -67,7 +75,7 @@ Check for existing work (MANDATORY):
 When resuming work after an interruption:
 
 - Check the status of existing branches for the task; skip any that are already merged.
-- For an unmerged branch, decide whether to continue on it or delete it and recreate; do not resume it blindly without checking its state first.
+- For an unmerged branch, decide whether to continue on it or delete it and recreate.
 - Update the relevant issue with current status and next steps before resuming work on it.
 
 ## Pushing Branches
@@ -82,10 +90,17 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 1. **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. A rebase pulls in unknown content from `origin/main` (someone else's commits, plus any conflict resolutions of your own), so once it completes, run the build and tests, and run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing. This applies to every rebase in a session, not only the first one performed when resuming a branch; re-run both checks after each rebase.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. A rebase pulls in unknown content from `origin/main` (someone else's commits, plus any conflict resolutions of your own), so once it completes, run the build and tests, and run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing. This applies to every rebase in a session, not only the first one performed when resuming a branch; re-run both checks after each rebase. If a rebase was performed, its final `pre-commit-check` run also satisfies the pre-work baseline gate; do not run it again for that purpose.
    - If `pre-commit-check` fails with errors requiring manual fixes, fix and commit them on the current branch, then continue; if it still fails after fixing, comment on and label the issue/PR `Blocked`.
    - If it only auto-fixes files (e.g. trailing whitespace) with everything else passing, commit those fixes directly on the current branch; unlike bringing a fresh branch up to date before starting work, there is no separate unmerged base point to protect once work is already under way on this branch.
-   - No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so resolve the conflict by regenerating it via the project's normal coverage-collection process rather than editing the percentages by hand.
+   - No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so take `main`'s copy (during a rebase, `--ours` is the branch being rebased onto, i.e. `origin/main`):
+
+     ```bash
+     git -C <repodir> checkout --ours -- COVERAGE.md
+     git -C <repodir> add COVERAGE.md
+     ```
+
+     Continue the rebase as normal. Once it completes and the post-rebase build and tests pass, re-run the coverage extraction against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work. Do not leave `main`'s stale copy in place, and do not measure before the build and tests are confirmed green.
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
@@ -106,7 +121,7 @@ Rules:
 3. **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
 4. Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
 5. Lock files (`package-lock.json` and similar): do not hand-merge; resolve the manifest first, then regenerate the lock file with the package manager.
-6. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), the default is to fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. **Exception when acting specifically as the dedicated Rebase Agent role** (split from the Code Writer role in a multi-agent setup): report a build break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that scoped role. Outside that specific role split, the default (fix it) applies.
+6. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), the default is to fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. **Exception when acting specifically as the dedicated Rebase Agent role**: report a build break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that role. Outside that role, the default (fix it) applies.
 
 ### No Confirmation Needed When the Algorithm Resolves the Conflict
 
@@ -123,6 +138,8 @@ When a merge or rebase produces a conflict in `CHANGELOG.md`, keep the entries f
 
 ## Rebase Agent Scope (MANDATORY when acting in that role)
 
+- Rebase the named branch onto `origin/main`.
+- If the branch has an open PR, turn auto-merge off and convert the PR to draft before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 - Any other conflict, i.e. one outside the deterministic algorithm above: report verbatim to Orchestrator; do not resolve it yourself.
 

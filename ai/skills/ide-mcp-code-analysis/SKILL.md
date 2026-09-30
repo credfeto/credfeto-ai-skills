@@ -1,6 +1,6 @@
 ---
 name: credfeto-ide-mcp-code-analysis
-description: Best-effort use any configured and connected MCP IDE integration (e.g. Rider for .NET, WebStorm for TypeScript/JavaScript) to confirm changed files are clean of compiler and analyzer errors and warnings, additive to the language's own build/analyzer checks, skipping silently when no MCP is configured or a configured one fails to connect, and naming the gap in a PR comment when that happens. Use whenever writing, fixing, or reviewing code, including as part of a build/test verification step or a simplify, code-review, or security-review pass.
+description: Best-effort use any configured and connected MCP IDE integration (e.g. Rider for .NET, WebStorm for TypeScript/JavaScript) to confirm changed files are clean of compiler and analyzer errors and warnings, additive to the language's own build/analyzer checks, skipping the check when no MCP is configured or a configured one fails to connect, and naming the gap in a PR comment when working on a PR. Use whenever writing, fixing, or reviewing code, including as part of a build/test verification step or a simplify, code-review, or security-review pass.
 ---
 
 # IDE MCP Code Analysis

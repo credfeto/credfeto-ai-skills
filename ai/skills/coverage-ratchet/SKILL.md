@@ -9,11 +9,13 @@ Each orchestrated language's overall line-coverage percentage on the current bra
 
 This is not a repeat of a diff-only coverage check that only verifies new/changed lines are covered; the ratchet also catches a deleted test or a refactor that drops coverage of code the diff never touched.
 
-There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment this runs, read fresh every time.
+There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment this runs, read fresh every time. Every invocation is a fresh, memoryless session: nothing needs to be captured when branching and nothing needs refreshing after a rebase, because the baseline is always read live from `origin/main`.
 
 ## Committed Coverage File (MANDATORY)
 
 `COVERAGE.md`, at the repo root, is the sole persisted record of coverage. It is generated, never hand-edited, and is updated only by this decision procedure as part of a PR that later merges to `main`; there is no separate post-merge job.
+
+**Its absence is a signal, not a free pass.** If `COVERAGE.md` does not exist at the repo root, the coverage ratchet has simply never been applied to this repo yet; it does not mean coverage is exempt or that this phase can be silently skipped forever. Anyone making changes, or who has already made changes, to a repo without a `COVERAGE.md` **MUST** create it and thereafter maintain it: bootstrap it per the **Bootstrap** rule below (or, when picking up fresh work, per the pre-work baseline check), and from then on keep it updated on every PR via the decision procedure. Treating a missing file as "nothing to do here" is the single most common way the ratchet silently never gets applied to a repo.
 
 Format (values illustrative):
 
@@ -180,7 +182,7 @@ This is an optimisation, not the only safety net: even without this skip, a bran
 4. Compare branch vs. baseline **Overall** per language (component rows never gate):
    - Any language where branch Overall **<** baseline Overall: the ratchet fails; go to step 6.
    - All present languages branch Overall **>=** baseline Overall: the ratchet passes; continue to step 5.
-5. **On success**: write/overwrite `COVERAGE.md` with the numbers just measured (or, in the skip/bootstrap cases, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), commit and push it, update the workflow board to a "human review" status if one is configured, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
+5. **On success**: have Code Writer (docs only) write or overwrite `COVERAGE.md` on the branch with the numbers just measured (or, in the skip/bootstrap cases, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), and send it through the review-fix route (Code Writer, then Committer, PR Submitter and CI Monitor) without Code Tester or Changelog (correction), resuming at Phase E, because the Orchestrator measures but never edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Move the board to Human Review (if one is configured), post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
 6. **On failure**, check the round cap first, then judge the round-over-round trend:
    - **Round cap**: if the configured maximum number of coverage rounds (`MAX_COVERAGE_ITERATIONS`) has already run, counted from prior `... - returning to Development` coverage comments, without the branch catching up: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case.
    - Otherwise, compare each still-failing language's Overall this round against its Overall in the most recent prior coverage comment that mentions that language by name: not necessarily the immediately preceding round, since a language that passed in a round leaves no comment mentioning it for that round, so a later failure must be compared against its last-mentioned figure, not a stale or absent one. Treat a language as trending, with nothing yet to compare, only when no prior comment mentions it at all, or when this is the whole PR's first coverage round.

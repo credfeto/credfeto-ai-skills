@@ -166,6 +166,15 @@ Overloads accept `string`, typed object (serialised to JSON), or `HttpStatusCode
 - Custom `TimeProvider` fakes → `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`
 - Custom `IHttpClientFactory` setups → `MockCreateClientWithResponse`
 
+## Types You Cannot Construct or Mock (MANDATORY)
+
+Never use `RuntimeHelpers.GetUninitializedObject` or `FormatterServices.GetUninitializedObject` to get an instance of a type you cannot construct or mock; skipping the constructor skips the type's invariants and initialisation, so tests pass against an object that cannot exist in production.
+
+1. Look first for a real way to build the type: a public constructor or factory, a builder, or an existing fixture or test helper.
+2. Check the org test libraries (`FunFair.Test.Common` and `FunFair.Test.Infrastructure`).
+3. If none exists, stop and ask the human how to get a real instance, and add `Blocked`.
+4. Do not carry on, or write a workaround, until the human has answered.
+
 ## xunit Assertion Patterns
 
 `Assert.Single(collection)` returns the single element: capture it directly instead of asserting then indexing:
@@ -179,7 +188,7 @@ var item = collection[0];
 var item = Assert.Single(collection);
 ```
 
-`Assert.NotNull(result)` returns the checked element; capture it with `AssertReallyNotNull` if it is going to be used later in the test body, instead of asserting then dereferencing the original (still nullable-typed) variable:
+`Assert.NotNull(result)` returns the checked element; capture it with `AssertReallyNotNull` if it is going to be used later in the test body:
 
 ```csharp
 // WRONG (object)

@@ -13,7 +13,7 @@ Classify every `uses:` reference before adding or reviewing:
 - **Convert to github-script or local action**: all other third-party actions
 - **Acceptable as-is**: actions requiring specialised external tooling not expressible via the GitHub API or bash (see Cannot Convert below)
 
-When encountering existing third-party actions (including org-namespaced actions), replace with local equivalents where practical.
+When encountering existing third-party actions (including `credfeto/*`), replace with local equivalents where practical.
 
 ### Converting to github-script (wrap in local composite action)
 
@@ -127,7 +127,7 @@ When reviewing a PR run and you see a message similar to:
 > Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: `<action>@<version>`. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026.
 
 1. **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
-2. **Locate the workflow file** that references it; search `.github/workflows/` (and any linked template repository) for it.
+2. **Locate the workflow file** that references it; it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
 3. **Find the minimum compliant version**: enumerate candidate releases with `gh api --paginate repos/<owner>/<action>/releases --jq '.[].tag_name'`, then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
 4. **Raise an issue in the repo that owns the workflow file**, with:
    - **Title**: `chore: update <action> to a Node.js 24 compatible version`

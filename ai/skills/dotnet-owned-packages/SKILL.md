@@ -32,4 +32,4 @@ If a `Credfeto.*` or `FunFair.*` package is encountered that is **not** in the t
 
 ## Using the Registry
 
-When source is needed to understand behaviour (e.g. to fix a bug, write a test, or check an API surface), clone or browse the linked repository directly rather than using a decompiler.
+When source is needed to understand behaviour (e.g. to fix a bug or write a test), clone or browse the linked repository directly rather than using a decompiler.

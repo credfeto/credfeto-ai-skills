@@ -7,14 +7,21 @@ description: Determine whether a resumed work branch needs rebasing onto an upda
 
 ## When to Rebase
 
-If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date before running any pre-commit baseline check, as three distinct, ordered steps:
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date before running the pre-work baseline check, as three distinct, ordered steps:
 
 1. **Fetch**: `git -C <repodir> fetch origin main`. Always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`. A non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following the version-conflict-resolution algorithm below. A rebase pulls in unknown content from `origin/main` (someone else's commits, plus any conflict resolutions of your own), so once it completes, run the build and tests, and run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing. This applies to every rebase in a session, not only the first one performed when resuming a branch; re-run both checks after each rebase.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following the version-conflict-resolution algorithm below. A rebase pulls in unknown content from `origin/main` (someone else's commits, plus any conflict resolutions of your own), so once it completes, run the build and tests, and run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing. This applies to every rebase in a session, not only the first one performed when resuming a branch; re-run both checks after each rebase. If a rebase was performed, its final `pre-commit-check` run also satisfies the pre-work baseline gate; do not run it again for that purpose.
    - If `pre-commit-check` fails with errors requiring manual fixes, fix and commit them on the current branch, then continue; if it still fails after fixing, comment on and label the issue/PR `Blocked`.
    - If it only auto-fixes files (e.g. trailing whitespace) with everything else passing, commit those fixes directly on the current branch; unlike bringing a fresh branch up to date before starting work, there is no separate unmerged base point to protect once work is already under way on this branch.
-   - No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so resolve the conflict by regenerating it via the project's normal coverage-collection process rather than editing the percentages by hand.
+   - No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so take `main`'s copy (during a rebase, `--ours` is the branch being rebased onto, i.e. `origin/main`):
+
+     ```bash
+     git -C <repodir> checkout --ours -- COVERAGE.md
+     git -C <repodir> add COVERAGE.md
+     ```
+
+     Continue the rebase as normal. Once it completes and the post-rebase build and tests pass, re-run the coverage extraction against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work. Do not leave `main`'s stale copy in place, and do not measure before the build and tests are confirmed green.
 
 A branch just created fresh from an up-to-date `main` does not need this; it starts current by construction.
 
@@ -48,13 +55,14 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 ## Rebase Agent Role (MANDATORY when acting in that role)
 
-When acting specifically as the dedicated Rebase Agent (split from the Code Writer and Orchestrator roles in a multi-agent workflow):
+When acting specifically as the dedicated Rebase Agent:
 
 - Rebase the named branch onto `origin/main`.
+- If the branch has an open PR, turn auto-merge off and convert the PR to draft before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
 - If the version conflict resolution chosen per the algorithm above breaks the build, report the break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that scoped role. Outside that specific role split, the default (fix the breakage on the same branch, per rule 6 above) still applies.
 - Any conflict that falls outside the deterministic algorithm above: report it verbatim to the Orchestrator; do not resolve it yourself.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 
 ## CHANGELOG.md Conflicts
 
-If rebasing produces a conflict in `CHANGELOG.md` itself (as opposed to a committed coverage baseline file, see above), keep the entries from both sides rather than picking one.
+If rebasing produces a conflict in `CHANGELOG.md`, keep the entries from both sides rather than picking one.

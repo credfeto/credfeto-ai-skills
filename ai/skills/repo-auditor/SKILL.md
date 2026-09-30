@@ -7,7 +7,7 @@ description: Audit an entire repository (not a diff, no branch or PR required) b
 
 Scans the full repository rather than a diff; no branch or PR is required, and findings are reported as issues rather than fixed directly.
 
-## Procedure (MANDATORY)
+## Procedure
 
 1. Group files for review before starting:
    - One group per project/app unit (e.g. one per `.csproj` or equivalent logical unit).

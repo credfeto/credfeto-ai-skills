@@ -1,6 +1,6 @@
 ---
 name: credfeto-learnings-capture
-description: File a human-readable issue in credfeto/credfeto-notes whenever a memory file (an AI instructions file, such as CLAUDE.md, or any repo instructions/rules file) is created or updated to record something learned during work. Use immediately alongside such a memory-file update, never as a replacement for it.
+description: File a human-readable issue in credfeto/credfeto-notes whenever a memory file (an AI instruction/rule file) is created or updated to record something learned during work. Use immediately alongside such a memory-file update, never as a replacement for it.
 ---
 
 # Learnings Capture

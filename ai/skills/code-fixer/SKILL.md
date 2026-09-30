@@ -1,24 +1,24 @@
 ---
 name: credfeto-code-fixer
-description: Address requested changes on an existing pull request, whether from a GitHub CHANGES_REQUESTED review or a verbal/chat request, by fetching every comment surface, converting the PR to draft, and responding to each comment with its own commit. Use whenever a reviewer or the user asks for changes on an open PR that already exists.
+description: Address requested changes on an existing pull request, whether from a GitHub CHANGES_REQUESTED review, a verbal/chat request, or an AI review loop finding, by fetching every comment surface, turning auto-merge off and converting the PR to draft, fixing one construct per change set, and responding to every comment. Use whenever a reviewer, the user or the AI review loop asks for changes on an open PR that already exists.
 ---
 
 # Code Fixer Role
 
-- Address requested changes on an existing PR: both GitHub `CHANGES_REQUESTED` review status and verbal/chat requests for changes on an open PR trigger this role.
+- Address requested changes on an existing PR: GitHub `CHANGES_REQUESTED` review status, verbal/chat requests for changes on an open PR, and AI Review Loop findings (the simplify pass's edits and code-review and security-review findings, which reach this role through the loop's fix route) all trigger this role.
 - Fetch **both** comment surfaces before deciding there is nothing to address:
   - Top-level PR comments and review summaries: `gh pr view <n> --repo <owner/repo> --json comments,reviews,reviewDecision`
   - Inline/diff-level review comments: `gh api repos/<owner>/<repo>/pulls/<n>/comments`
   - A reviewer can submit a `CHANGES_REQUESTED` review with an empty top-level summary and put their actual feedback only in an inline diff comment. The review decision alone is enough to treat the PR as having unaddressed work, and the inline-comment endpoint is the only place its content is visible.
-- Convert the PR to draft before starting: `gh pr ready <number> --repo <owner/repo> --undo`.
-- One fix change set per construct: group review comments by the construct they concern rather than committing one-for-one per comment, and pair each change set with a Pattern Sweep for that construct. Apply IDE MCP code analysis to the fixed files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure). Hand off to the test/build verification role after each fix and its sweep.
-- Respond to **every** review comment without exception. A reply that cites a commit SHA is posted only once the fix has actually been pushed, so the sweep record's file placement is final:
+- Before starting, turn auto-merge off, then convert the PR to draft (`gh pr ready <number> --repo <owner/repo> --undo`). Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft, so the PR would merge as soon as it is marked ready again, before the AI Review Loop has reviewed the fix. Turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
+- One fix change set per construct (comments grouped by construct), with a Pattern Sweep for that construct handed over as for Code Writer. Apply IDE MCP code analysis to the fixed files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure). Hand off to Code Tester after each fix and its sweep.
+- Respond to **every** review comment without exception, across both comment surfaces. A reply that cites a commit SHA is posted once Committer has pushed, so the sweep record's file placement is final:
   - If the comment required a code change: reply with `Fixed in <commit-sha>: <one sentence describing what changed and why>`.
   - If the Pattern Sweep for that fix found further occurrences: add `Swept in <commit-sha>: <files touched>` on the next line, one line per commit that carries sweep hunks (the fix SHA itself when every hit was in a file the fix already touched); the per-file reasons live in that commit's body.
   - If the comment was already addressed by an earlier sweep in this PR (no new commit needed): reply with `Already swept in <commit-sha>`, citing the commit whose body carries the `Construct:` line.
   - If the comment is a question or discussion point with no code change needed: reply with a full answer inline on the PR.
   - No reply means no acknowledgement; always close the loop.
-  - To reply to an inline/diff-level review comment so it threads correctly (rather than posting a disconnected top-level comment), use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
+  - To reply to an inline/diff-level review comment, use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
 
     ```bash
     gh api repos/<owner>/<repo>/pulls/<n>/comments \
@@ -38,5 +38,5 @@ description: Address requested changes on an existing pull request, whether from
     )"
     ```
 
-- If a fix requires knowledge outside the instruction files (unfamiliar API, complex library usage), research it first rather than guessing or fabricating a fix.
-  - If research determines the fix is **not possible** as scoped, stop and escalate with the explanation; do not partially apply a guess.
+- If a fix requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, stop and escalate to the Orchestrator with the explanation; do not partially apply the fix.
+- List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.

@@ -19,7 +19,7 @@ description: Design and optimise performance-critical code, and back optimisatio
 
 ## Benchmark Workflow (MANDATORY for performance-critical code)
 
-1. **Write benchmarks alongside the code they measure**: commit them in the same or an adjacent commit, never as an afterthought.
+1. **Write benchmarks alongside the code they measure**: commit them alongside that code.
    - In .NET repositories, write benchmarks as xUnit tests in the benchmark test project (`<AssemblyName>.Benchmark.Tests`), using `FunFair.Test.Common` helpers: `Benchmark<BenchmarkClass>()` to run the benchmark and `SummaryExtensions.AssertAllocationsAtMost(...)` to assert measured thresholds (zero or explicit byte threshold). Do not roll custom benchmark or allocation-measurement helpers.
 2. **Ensure tests and benchmarks pass before optimising**: commit them first as a standalone commit, establishing a baseline.
 3. **Record the baseline**: regressions against it are not acceptable.

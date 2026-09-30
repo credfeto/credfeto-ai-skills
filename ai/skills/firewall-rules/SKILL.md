@@ -5,7 +5,7 @@ description: Manage firewalld rules safely using standard shell helpers for IPv4
 
 # Firewall Rule Management (`firewall-cmd`)
 
-Use the standard helpers below for all firewall rule management; never call `firewall-cmd` ad hoc.
+Use the three standard helpers below (`allow_ipv4`, `allow_ipv6` and `open_port_for_private_networks`) for all firewall rule management.
 
 ## Rules
 

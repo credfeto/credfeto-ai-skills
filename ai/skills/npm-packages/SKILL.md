@@ -69,5 +69,3 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 - The same package is bumped to two different, unrelated versions on both sides and there is no clear "latest" (e.g. divergent major versions).
 - A security trade-off with no candidate that is both latest and unaffected.
-
-Note: this escalation boundary is about resolving an existing version conflict between versions of a package already in use; it does not relax [New Package Approval](#new-package-approval-mandatory) above, which always applies when the package being added is new and not first-party.

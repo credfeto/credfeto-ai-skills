@@ -33,7 +33,7 @@ description: Author and run Dockerfiles and Compose files safely: runner detecti
 ## Security Basics
 
 - Prefer minimal base images (`-alpine`, `-slim`, or distroless) for runtime stages to reduce attack surface.
-- Scan images for known vulnerabilities before publishing (e.g. `docker scout`, `trivy`, or the CI-configured scanner); this is the container-image instance of the general dependency vulnerability scanning rule: scan in CI, assess and resolve promptly.
+- Scan images for known vulnerabilities before publishing (e.g. `docker scout`, `trivy`, or the CI-configured scanner).
 - Never bake secrets, credentials, or tokens into an image layer; see the Dockerfile Authoring section above.
 - Set explicit resource limits (memory/CPU) in compose/runtime configuration for anything other than local development; confirm the runner actually enforces them (e.g. `deploy.resources.limits` is a Swarm construct that some Compose V2 versions ignore outside Swarm mode) rather than assuming the field alone provides protection.
 - Run containers under least privilege: remove `sudo`/`doas` and other setuid privilege-escalation binaries from the final image, run as a non-root user, drop all capabilities by default and add back only the specific ones a service genuinely needs (e.g. `cap_drop: [ALL]` plus an explicit `cap_add` allowlist), and set `security_opt: [no-new-privileges:true]` (or the Podman equivalent) so the container can never acquire additional privileges at runtime.
