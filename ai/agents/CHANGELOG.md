@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Reconciled agent definitions with their sources: pre-existing bug reporting, draft and auto-merge handling for Code Fixer, Rebase Agent and CI Debugger, CI Debugger round counting, trusted commenter and CI check rules for Orchestrator, and CI Monitor rewritten
+- Rebase Agent no longer runs the post-rebase pre-commit-check itself; the Orchestrator runs it after the agent returns
 ### Deprecated
 ### Removed
 ### Deployment Changes
