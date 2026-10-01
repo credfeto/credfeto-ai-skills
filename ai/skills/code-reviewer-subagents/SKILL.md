@@ -57,7 +57,7 @@ Identify code quality issues.
 2. Focus on impact: prioritise issues that harm maintainability or introduce technical debt.
 3. Exclusions: do not report formatting or naming style issues; those are enforced by linting tooling.
 
-**Categories:** duplication (copy-paste code that should be extracted), responsibility (leaky abstractions or methods doing more than one thing), state (redundant or unnecessary mutable state), complexity (overly nested logic or methods too long to reason about).
+**Categories:** duplication (copy-paste code that should be extracted), responsibility (leaky abstractions or methods doing more than one thing, per the Single Responsibility Principle), state (redundant or unnecessary mutable state), complexity (overly nested logic or methods too long to reason about).
 
 ## Sub-Agent: Efficiency
 

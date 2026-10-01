@@ -84,8 +84,6 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 - Push immediately after committing. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
 
-Outside that specific role split, sections 1-5 above are the complete workflow.
-
 ## General Git Command Rules
 
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.

@@ -30,7 +30,7 @@ gh issue view <number> --repo <owner/repo> --json comments \
 
 ## 2. Post the Plan
 
-Produce a concrete implementation plan (using a planning mode if the tool provides one), then post it as an issue comment in **exactly** this format:
+Produce a concrete implementation plan (using `/plan`), then post it as an issue comment in **exactly** this format:
 
 ```text
 ## Implementation Plan
@@ -85,7 +85,12 @@ If a human answers or approves in a live chat session rather than posting a GitH
 
 Applies only to an interactive session: one where a human has actually typed a message in it (an injected prompt or task notification does not count; if unsure, assume the session is unattended, because an unattended run treated as interactive would poll or wait for a reply that never comes). An unattended run stops once the plan is posted and Blocked is added, and must not poll. Only the Orchestrator decides the run mode; it states the mode in every hand-off to a role whose rules depend on it, and that role uses the stated mode rather than judging it itself. A hand-off that states no mode means unattended.
 
-- **P1.** Once the plan is posted and Blocked added (or, on resume, once an existing plan is found not yet approved), "stop" means stop working on the issue, not stop watching it. Run the read in P2 once now and take its `plan` as the baseline (P3), then start a dynamic-pacing loop instead of ending the turn, carrying the baseline in the loop prompt, for example: `check whether issue <number> in <owner/repo> has been approved (plan baseline <plan>); if not, wait`.
+- **P1.** Once the plan is posted and Blocked added (or, on resume, once an existing plan is found not yet approved), "stop" means stop working on the issue, not stop watching it. Run the read in P2 once now and take its `plan` as the baseline (P3), then start a dynamic-pacing loop instead of ending the turn, carrying the baseline in the loop prompt so it is explicit on every tick:
+
+  ```text
+  /loop check whether issue <number> in <owner/repo> has been approved (plan baseline <plan>); if not, wait
+  ```
+
 - **P2.** Each tick, read all of the following, then decide (do not stop early, so a half-finished approval can be flagged):
   - The labels, the latest plan comment's `createdAt`, and the comments a trusted commenter posted after it. Replace `<trusted logins>` with the trusted logins, each quoted and separated by commas, and `<bot login>` with the bot login, quoted; if no bot login is provided, delete the line that contains `<bot login>`:
 
@@ -113,9 +118,9 @@ Applies only to an interactive session: one where a human has actually typed a m
   - **Half-finished**: the approval signal is present but `blocked` is still `true` (the human has not finished clearing it). Keep waiting and tell the human in chat when you first see it.
   - **Otherwise**: not yet, and wait silently. If `plan` is null, no plan comment was found: tell the human and stop the loop.
 - **P3.** The plan baseline is the `plan` value from the first read (the latest plan comment's `createdAt`, whether just posted or found on resume). The plan comment is found by its heading alone, so a plan posted under any account is seen. If a later tick returns a different `plan`, the plan changed and earlier approvals no longer count. On the board, a card only stays `Approved` for a plan that has not been re-posted, because every re-post resets the card to **Planning**. If you revised the plan, restart from posting the plan (`Blocked` re-added, board back to **Planning**, new baseline in the prompt); if someone else posted it, tell the human in chat and wait for their direction instead of treating it as the plan.
-- **P4.** Pace the loop with the scheduling mechanism the tool provides (for example `ScheduleWakeup` in dynamic loop mode), passing the same prompt back each tick. If none is available, do not poll: tell the human the issue is waiting and that saying `approved` in chat will continue the work.
-  - Wait 20 minutes between ticks while nothing has changed. There is no wait cap: the loop ends when the session does, and the 30-minute deadline for commands governs commands, not a wait for a human.
-  - On approval, whether found on a tick or given in chat, stop the loop, check for an existing branch, and continue to implementation.
+- **P4.** Pace the loop with `ScheduleWakeup`, as the `/loop` skill's dynamic mode does, passing the `/loop` prompt back each tick. If `ScheduleWakeup` is unavailable, do not poll: tell the human the issue is waiting and that saying `approved` in chat will continue the work.
+  - Wait `delaySeconds: 1200` (20 minutes) with `noop: true` while nothing has changed. There is no wait cap: the loop ends when the session does, and the 30-minute deadline for commands governs commands, not a wait for a human.
+  - On approval, whether found on a tick or given in chat, stop the loop with `ScheduleWakeup` and `stop: true`, check for an existing branch, and continue to implementation.
 - **P5.** **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval, do not wait for the next tick. This is the one place the agent acts on a chat message alone. A question ("is this approved yet?"), a negation ("not approved"), a qualified approval or a passing mention does not count; if in doubt, ask:
   - Re-run the P2 read and confirm the message refers to this issue, `plan` still equals the baseline, `Blocked` is only the plan-approval block and the plan has no unresolved Open questions; if any check fails, ask instead of acting. `Blocked` counts as only the plan-approval block when no comment posted after the latest plan comment asks a question, reports a failed baseline or a timeout, or carries an environment-block marker (`<!-- orchestrator:env-block`): read the comments after the plan and judge them.
   - Post a mirror comment on the issue quoting the live instruction.

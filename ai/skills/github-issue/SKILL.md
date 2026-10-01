@@ -95,7 +95,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
    Any conditional or deferred decision point in the Approach or Files-to-change text, a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open), must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate.
 
 3. As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
-4. Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. Approval requires an explicit human action: a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment.
+4. Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. Approval requires an explicit human action. If the repo has a Workflow board, a human with project write access sets the board status to **Approved** and removes `Blocked`; with no board, a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment.
 5. Once approved and `Blocked` is removed:
    - If the request needs a code change, proceed and open a PR referencing the issue when ready.
    - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue.
@@ -233,11 +233,11 @@ This is stricter than an unresolved `Qn.` alone: an Open Question already blocks
 
 ## Correcting a Prior Claim (MANDATORY)
 
-If a factual claim or finding previously posted in an issue body or comment turns out to be wrong (e.g. a root-cause statement, an evidence point, a "this is a deviation from process" assertion), post a **new comment** stating the correction and briefly why, quoting or referencing the original claim being corrected. Editing the body to also fix it is fine, but the comment is the mandatory part: a silent in-place body edit is not sufficient on its own, because GitHub only surfaces it as a small "edited" marker that a human reviewer can easily miss, unlike a comment which appears in the normal timeline. This rule is about retracting or fixing something substantive that was previously asserted as true, not routine housekeeping edits.
+If a factual claim or finding you previously posted in an issue/PR body or comment turns out to be wrong (e.g. a root-cause statement, an evidence point, a "this is a deviation from process" assertion), post a **new comment** stating the correction and briefly why, quoting or referencing the original claim being corrected. Editing the body to also fix it is fine, but the comment is the mandatory part: a silent in-place body edit is not sufficient on its own, because GitHub only surfaces it as a small "edited" marker that a human reviewer can easily miss, unlike a comment which appears in the normal timeline. This rule is about retracting or fixing something substantive that was previously asserted as true, not routine housekeeping edits.
 
 ## Prompt Traceability (MANDATORY)
 
-Once a request is already tracked by an issue (including one just created under Ad-Hoc Prompt Intake above), every subsequent prompt from the human that changes, redirects, or adds detail to that work must be recorded on that issue:
+Once a request is already tracked by an issue or PR (including one just created under Ad-Hoc Prompt Intake above), every subsequent prompt from the human that changes, redirects, or adds detail to that work must be recorded on that issue/PR:
 
 - Comment with the prompt (verbatim, or a faithful summary for long prompts) and how it was resolved: a code change, an answered question, a scope adjustment, etc.
 - Post this before or immediately after acting on the prompt; do not let several prompts accumulate unrecorded.

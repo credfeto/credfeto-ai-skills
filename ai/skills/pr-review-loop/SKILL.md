@@ -19,7 +19,7 @@ Every fix the loop needs runs: Code Fixer (or Code Writer, when the step names i
 ## Phase A: Simplify (up to `MAX_SIMPLIFY_ITERATIONS` rounds, with a separate `SIMPLIFY_THRASH_LIMIT`)
 
 1. Update the workflow board to **AI Simplify**, if one is configured (see [Updating a Workflow Board](#updating-a-workflow-board) below).
-2. Have Code Fixer run a simplify pass against the diff and keep its edits. The pass applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them, so it has to run in the role that edits files, not in the Orchestrator. Code Fixer also applies IDE MCP code analysis to the modified files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure).
+2. Have Code Fixer run `/simplify` against the diff and keep its edits. `/simplify` applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them, so it has to run in the role that edits files, not in the Orchestrator. Code Fixer also applies IDE MCP code analysis to the modified files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure).
 3. If the simplify pass changed any files: send the edits through the rest of the fix route, then return to step 2 to re-run against the resulting diff.
 4. Once the simplify pass makes no further changes: have Code Fixer run a Pattern Sweep for each construct in the net Phase A diff (the commits since step 1), not per round, since rounds may revert each other and each sweep would widen the next round's diff. A change with no repeatable construct (a local rename or restructuring) has nothing to sweep. If the sweep changed files: send it through the fix route as in step 3, then proceed to Phase B instead of returning to step 2 (Phase B re-covers the swept code).
 5. Simplify has its own iteration budget, kept deliberately separate from Phases B-D's budgets, because it is expected to run more rounds and give up without blocking:
@@ -31,7 +31,7 @@ Every fix the loop needs runs: Code Fixer (or Code Writer, when the step names i
 ## Phase B: Code Review (up to `MAX_CODE_REVIEW_ITERATIONS` rounds)
 
 1. Update the workflow board to **AI Review**, if configured.
-2. Run a code-review pass that posts inline PR comments for its findings. This intentionally re-covers the reuse/simplification/efficiency categories Phase A already applied (Phase A fixes them silently; this step verifies nothing was missed) and separately checks correctness, which Phase A does not. Security and compliance are not covered here; they remain Phase C's job. Also apply IDE MCP code analysis to the modified files. Expect this step to usually find nothing in the categories Phase A already handled.
+2. Run `/code-review --comment`. This intentionally re-covers the reuse/simplification/efficiency categories Phase A's `/simplify` already applied (`/simplify` fixes them silently; this step verifies nothing was missed) and separately checks correctness, which `/simplify` does not. Security and compliance are not covered here; they remain Phase C's job. Also apply IDE MCP code analysis to the modified files. Expect this step to usually find nothing in the categories Phase A already handled.
 3. If no findings were posted: proceed to Phase C.
 4. Otherwise, judge convergence from the PR's history of prior code-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_CODE_REVIEW_ITERATIONS`, otherwise the round-cap branch below always fires first and the non-blocking exit can never trigger.
    - If `MAX_CODE_REVIEW_ITERATIONS` rounds have already run and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add the `Blocked` label, and **stop**:
@@ -45,14 +45,14 @@ Every fix the loop needs runs: Code Fixer (or Code Writer, when the step names i
 
 ## Conflict Resolution: Simplify/Code Review vs. Static Analyzer
 
-If a change proposed by the simplify pass (Phase A) or a finding raised by the code-review pass (Phase B) would conflict with a rule enforced by the project's build-time static analyzer stack, or by any org-owned code-analysis package, **the static analyzer's rule always wins**: do not apply the conflicting simplify/code-review suggestion, and keep the analyzer-compliant code as-is.
+If a change proposed by `/simplify` (Phase A) or a finding raised by `/code-review` (Phase B) would conflict with a rule enforced by the project's build-time static analyzer stack, or by `FunFair.CodeAnalysis`, **the static analyzer's rule always wins**: do not apply the conflicting simplify/code-review suggestion, and keep the analyzer-compliant code as-is.
 
 ## Phase C: Security Review (up to `MAX_SECURITY_REVIEW_ITERATIONS` rounds)
 
 This phase mirrors Phase B exactly, substituting security-review for code-review; keep both in sync when editing either.
 
 1. Update the workflow board to **AI Security Review**, if configured.
-2. Run a security-review pass. Also apply IDE MCP code analysis to the modified files.
+2. Run `/security-review`. Also apply IDE MCP code analysis to the modified files.
 3. If no findings are reported: proceed to Phase D.
 4. Otherwise, judge convergence from the PR's history of prior security-review comments, the same way as Phase B step 4 above (`MIN_REVIEW_CONVERGENCE_ROUNDS` must again be set below `MAX_SECURITY_REVIEW_ITERATIONS`):
    - If `MAX_SECURITY_REVIEW_ITERATIONS` rounds have already run and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add the `Blocked` label, and **stop**.

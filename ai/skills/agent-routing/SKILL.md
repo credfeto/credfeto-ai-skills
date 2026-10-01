@@ -21,7 +21,7 @@ Mechanical roles must not interpret or fix failures. When a check fails: capture
 
 ## Routing Rules
 
-Every sequence below starts with the repo's Pre-Work Baseline Check. It is an implicit first step of every sequence, not merely a standalone rule, and must actually run before the first role in the row is invoked.
+Every sequence below starts with the repo's Pre-Work Baseline Check. It is an implicit first step of every sequence, not merely a standalone rule, and must actually run before the first role in the row is invoked. The "Rebase requested" row is the one exception: a branch is brought up to date before the baseline runs, so its Post-Rebase Check (`pre-commit-check`) is the baseline and is not run a second time.
 
 | Work type | Role sequence |
 | --- | --- |
@@ -29,7 +29,7 @@ Every sequence below starts with the repo's Pre-Work Baseline Check. It is an im
 | `CHANGES_REQUESTED` on an existing PR, a verbal/chat request for changes on an open PR, or a pre-existing bug the human has chosen to bring into an open PR's scope | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
 | Coverage-only task | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
 | Documentation-only | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (docs only) → Changelog (correction) → Committer → PR Submitter → CI Monitor |
-| Rebase requested | Pre-Work Baseline Check → Rebase Agent → PR Submitter → CI Monitor |
+| Rebase requested | Rebase Agent → Post-Rebase Check (`pre-commit-check`, with each reported issue fixed through the review-fix route until it is clean) → Committer → PR Submitter → CI Monitor |
 | CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger → CI Monitor |
 | Dependabot / dependency update | Pre-Work Baseline Check → Dependency Updater |
 

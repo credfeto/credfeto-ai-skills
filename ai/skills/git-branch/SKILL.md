@@ -12,7 +12,7 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced; if so, rebase first.
 - Only one active branch or open PR per user per repository at a time; do not create another until the current one is merged and closed.
-- **Before treating an existing PR as a blocker** to creating a new branch: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
+- **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
 
 ## Destructive Commands (MANDATORY)
@@ -74,9 +74,9 @@ Check for existing work (MANDATORY):
 
 When resuming work after an interruption:
 
-- Check the status of existing branches for the task; skip any that are already merged.
-- For an unmerged branch, decide whether to continue on it or delete it and recreate.
-- Update the relevant issue with current status and next steps before resuming work on it.
+- Check the status of existing issues and branches; skip merged branches.
+- For unmerged branches, decide whether to continue or delete and recreate.
+- Update the top-level issue with current status and next steps before resuming.
 
 ## Pushing Branches
 
@@ -90,19 +90,26 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 1. **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. A rebase pulls in unknown content from `origin/main` (someone else's commits, plus any conflict resolutions of your own), so once it completes, run the build and tests, and run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing. This applies to every rebase in a session, not only the first one performed when resuming a branch; re-run both checks after each rebase. If a rebase was performed, its final `pre-commit-check` run also satisfies the pre-work baseline gate; do not run it again for that purpose.
-   - If `pre-commit-check` fails with errors requiring manual fixes, fix and commit them on the current branch, then continue; if it still fails after fixing, comment on and label the issue/PR `Blocked`.
-   - If it only auto-fixes files (e.g. trailing whitespace) with everything else passing, commit those fixes directly on the current branch; unlike bringing a fresh branch up to date before starting work, there is no separate unmerged base point to protect once work is already under way on this branch.
-   - No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so take `main`'s copy (during a rebase, `--ours` is the branch being rebased onto, i.e. `origin/main`):
-
-     ```bash
-     git -C <repodir> checkout --ours -- COVERAGE.md
-     git -C <repodir> add COVERAGE.md
-     ```
-
-     Continue the rebase as normal. Once it completes and the post-rebase build and tests pass, re-run the coverage extraction against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work. Do not leave `main`'s stale copy in place, and do not measure before the build and tests are confirmed green.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below, then run the After Every Rebase check below. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step, and that satisfies the pre-work baseline gate too; do not run it again for that purpose.
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
+
+### After Every Rebase (MANDATORY)
+
+A rebase pulls in unknown content from `origin/main` (other people's commits, plus any conflict resolutions), so every rebase, of any form and for any reason, leaves the branch unverified until this check passes. It applies to every rebase in a session, not only the first one. The dedicated Rebase Agent does not run it itself, so the Orchestrator runs it as the Post-Rebase Check once the rebase is complete, or the role that performed the rebase directly runs it itself. The Orchestrator never implements directly, so it hands every fix, commit and push to the review-fix route (Code Fixer, Code Tester, Committer, PR Submitter, CI Monitor) rather than editing files itself.
+
+1. Run the build and tests, then run `pre-commit-check` against all tracked files, in the background and polled to completion before continuing.
+2. Fix every issue it reports, including issues that were already present before the rebase, because it covers the whole repository. Re-run `pre-commit-check` after each round of fixes and repeat until it reports no issues. Do not continue with any other work while issues remain, and do not suppress or weaken a check to make it pass.
+3. Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs. If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch; there is no separate unmerged base point to protect, because work is already under way on this branch.
+4. Only for an issue that genuinely cannot be fixed after real attempts: comment on the issue/PR with the verbatim output and label it `Blocked`. Difficulty is not a reason to escalate.
+5. No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so take `main`'s copy (during a rebase, `--ours` is the branch being rebased onto, i.e. `origin/main`):
+
+   ```bash
+   git -C <repodir> checkout --ours -- COVERAGE.md
+   git -C <repodir> add COVERAGE.md
+   ```
+
+   Continue the rebase as normal. Once it completes and the post-rebase build and tests pass, re-run the coverage extraction against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work. Do not leave `main`'s stale copy in place, and do not measure before the build and tests are confirmed green.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 
@@ -121,7 +128,7 @@ Rules:
 3. **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
 4. Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
 5. Lock files (`package-lock.json` and similar): do not hand-merge; resolve the manifest first, then regenerate the lock file with the package manager.
-6. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), the default is to fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. **Exception when acting specifically as the dedicated Rebase Agent role**: report a build break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that role. Outside that role, the default (fix it) applies.
+6. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. When acting as the dedicated Rebase Agent, report a build break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job.
 
 ### No Confirmation Needed When the Algorithm Resolves the Conflict
 
@@ -142,6 +149,7 @@ When a merge or rebase produces a conflict in `CHANGELOG.md`, keep the entries f
 - If the branch has an open PR, turn auto-merge off and convert the PR to draft before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 - Any other conflict, i.e. one outside the deterministic algorithm above: report verbatim to Orchestrator; do not resolve it yourself.
+- Do not run `pre-commit-check` or fix what it reports: that is the After Every Rebase check above, which the Orchestrator runs once this role returns, because this role is mechanical and must not interpret or fix failures.
 
 ## Command Failure Reporting
 

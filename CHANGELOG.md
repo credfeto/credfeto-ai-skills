@@ -89,6 +89,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled the secure-coding, structured-logging, gitignore-management, learnings-capture and long-running-commands skills with their sources, adding agent-found security bug reporting, source-generated logging rules and hook-denial handling, and removing unsourced wording
 - Reconciled the numbering-conventions, agent-routing, issue-plan-approval, pr-review-loop, code-reviewer-subagents, code-writer, code-tester, code-fixer and repo-auditor skills with their sources, adding the review-fix route, trusted-commenter approval, CI hand-off and pre-existing bug reporting rules
 - Reconciled the ci-debugger, dependency-updater, dotnet-nullable-and-warnings, claude-hooks and ide-mcp-code-analysis skills with their sources, adding missing CI Debugger and bot-PR rules and removing unsourced wording
+- Reconciled skills against current instruction files: agent-routing, code-cleanup-commits, code-reviewer-subagents, dotnet-dead-framework-guards, git-branch, git-commit, git-rebase, github-issue, github-workflows, ide-mcp-code-analysis, issue-plan-approval, npm-packages, pr-review-loop, pre-work-healthcheck
 ### Deprecated
 ### Removed
 ### Deployment Changes
