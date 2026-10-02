@@ -46,7 +46,7 @@ info() {
 - `info`: progress/step announcement, green `→`.
 - Always direct `die()` to stderr (`>&2`) so error messages are not captured by stdout pipelines.
 - Use `"$*"` to pass the message as a single string (required for `shellcheck` and `checkbashisms` compliance).
-- The `[ -t N ]` guards suppress ANSI codes when output is piped to a file, which lets tools like `grep` match the plain `→`/`✓`/`✗` characters without escape sequences.
+- The `[ -t N ]` guards suppress ANSI codes when output is piped to a file, which lets tools like `grep` match the plain `→` and `✓` characters without escape sequences.
 
 ### Usage Example
 

@@ -20,6 +20,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile workflow (replacing reconcile-skills) that reconciles the skills and then, once they succeed, every agent definition against the instruction files and ai/agents/config.yaml, in one workflow so the two never push to main at the same time; it runs daily and whenever the workflow, config.yaml or a local action it depends on changes on main
 - check-agents check, run on pull requests touching ai/ and by the reconcile workflow, that fails when a preloaded skill is missing, an agent listed in config.yaml has no AGENT.md, or an AGENT.md frontmatter has unexpected keys or differs from config.yaml
 - Add ide-mcp-code-analysis skill covering the best-effort MCP IDE analysis procedure, and point the agent-role skills that mention it at the new skill for the full best-effort and reporting rules.
+- New dotnet-analyzer-conflicts skill (credfeto-dotnet-analyzer-conflicts) covering the pre-approved resolution table for conflicting .NET analyzer diagnostics and the stop-and-escalate procedure for unlisted pairs, extracted from analyzer-conflicts.instructions.md, which no existing skill covered
 ### Fixed
 - Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
 - Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
@@ -78,6 +79,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 - README installation instructions no longer name the non-existent ai/skills/install.sh
+- shell-scripts skill: corrected the grep-guard note to name only the plain → and ✓ characters, matching shell-scripts.examples.md
+- dotnet-nullable-and-warnings skill: added the missing conflicting-diagnostics exception pointing to the dotnet-analyzer-conflicts skill, matching dotnet.instructions.md
+- long-running-commands and pr-review-loop skills: removed wording with no source (git push as a long-running command; iteration budgets being defined by the repo)
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main

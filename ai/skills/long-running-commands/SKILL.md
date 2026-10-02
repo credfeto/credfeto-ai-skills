@@ -1,6 +1,6 @@
 ---
 name: credfeto-long-running-commands
-description: Run long or unbounded-duration commands (dotnet build, dotnet test, npm test, bun test, git commit/pre-commit/pre-commit-check, git push) safely in the background rather than under a shell timeout wrapper, poll for completion with a reliable string and a time-boxed deadline, distinguish a denied (never-started) command from a killed or in-flight one, and diagnose sandbox-caused false timeouts in benchmark or performance tests. Use whenever about to run one of these commands, whenever using a Monitor-style tool to watch a background task, whenever a tool call is denied by a pre-execution policy hook, or whenever a benchmark/performance test run fails with a timeout-shaped error.
+description: Run long or unbounded-duration commands (dotnet build, dotnet test, npm test, bun test, git commit/pre-commit/pre-commit-check) safely in the background rather than under a shell timeout wrapper, poll for completion with a reliable string and a time-boxed deadline, distinguish a denied (never-started) command from a killed or in-flight one, and diagnose sandbox-caused false timeouts in benchmark or performance tests. Use whenever about to run one of these commands, whenever using a Monitor-style tool to watch a background task, whenever a tool call is denied by a pre-execution policy hook, or whenever a benchmark/performance test run fails with a timeout-shaped error.
 ---
 
 # Running Long or Unbounded Commands Safely

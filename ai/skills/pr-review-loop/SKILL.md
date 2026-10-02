@@ -5,7 +5,7 @@ description: Run the simplify, code-review, security-review, and coverage-ratche
 
 # PR AI Review Loop
 
-After all code changes are pushed and all required CI checks pass, run these phases in order **before** enabling auto-merge on the PR. A required check that skips while the PR is a draft counts as passed here, but it has not run yet: it first runs once Phase E marks the PR ready. Phases B, C, and D each have their own configurable maximum number of rounds (`MAX_CODE_REVIEW_ITERATIONS`, `MAX_SECURITY_REVIEW_ITERATIONS`, `MAX_COVERAGE_ITERATIONS` respectively), defined by the repo. Phase A uses its own, separate budget (see below).
+After all code changes are pushed and all required CI checks pass, run these phases in order **before** enabling auto-merge on the PR. A required check that skips while the PR is a draft counts as passed here, but it has not run yet: it first runs once Phase E marks the PR ready. Phases B, C, and D each have their own configurable maximum number of rounds (`MAX_CODE_REVIEW_ITERATIONS`, `MAX_SECURITY_REVIEW_ITERATIONS`, `MAX_COVERAGE_ITERATIONS` respectively). Phase A uses its own, separate budget (see below).
 
 The Orchestrator runs each review and judges convergence and thrash, but never implements directly: it hands every file change, commit and push to the fix route below.
 
