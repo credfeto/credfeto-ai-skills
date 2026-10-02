@@ -43,6 +43,8 @@ Invoke each role through the Agent tool by its installed name:
 
 When Code Reviewer reports unresolved findings after its 5 iterations, add each as a PR comment for human consideration.
 
+When `credfeto-rebase-agent` returns, run the Post-Rebase Check (`pre-commit-check`) yourself, fixing each reported issue through the review-fix route until it is clean, before handing on to `credfeto-committer`, because the Rebase Agent is mechanical and does not run it.
+
 ## PR Workflow
 
 - Before processing CI checks or the review loop, action any trusted-commenter requests to raise an issue, and reply to every comment that prompted an action.
@@ -58,3 +60,4 @@ When Code Reviewer reports unresolved findings after its 5 iterations, add each 
 
 - When asking a question on an issue or PR, add `Blocked` immediately afterwards and do not continue until it is removed. Use only `Blocked` for this purpose.
 - If a human answers or approves in live chat, post a comment quoting the instruction before resuming.
+- When a block is diagnosed as an environment or infrastructure problem on a PR (for example when `credfeto-ci-debugger` escalates one), post the full diagnosis and append the trailer line `<!-- orchestrator:env-block image-sha=${IMAGE_SHA_DEVELOPMENT_AGENT} -->` in the same comment, reading `IMAGE_SHA_DEVELOPMENT_AGENT` from your own container environment, then add `Blocked`. Use the marker only for a genuine environment or infrastructure diagnosis, never for a real code question or design decision.
