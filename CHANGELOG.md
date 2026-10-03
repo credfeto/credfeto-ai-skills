@@ -82,6 +82,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - shell-scripts skill: corrected the grep-guard note to name only the plain → and ✓ characters, matching shell-scripts.examples.md
 - dotnet-nullable-and-warnings skill: added the missing conflicting-diagnostics exception pointing to the dotnet-analyzer-conflicts skill, matching dotnet.instructions.md
 - long-running-commands and pr-review-loop skills: removed wording with no source (git push as a long-running command; iteration budgets being defined by the repo)
+- agent-routing skill: added the CI Monitor hand-off rules (resume at the named phase and step, restart at Phase A after a CI Debugger fix, final phase marks the PR ready), matching task-workflow.instructions.md
+- issue-plan-approval skill: removed pre-closure wording that had no source in agent-roles.instructions.md
+- coverage-ratchet skill: added the round cap applying whether or not the trend is closing and the trending-language rule regardless of round, matching coverage-ratchet.instructions.md
+- git-rebase and git-branch skills: removed the COVERAGE.md rebase-conflict procedure that had no source in git-rebasing.instructions.md
+- pre-work-healthcheck skill: reworded the rules compliance wording to match task-workflow.instructions.md
+- sql-schema-change skill: removed the unsourced linter name from the Linting section, matching sql.instructions.md
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main

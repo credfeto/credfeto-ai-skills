@@ -51,7 +51,7 @@ Produce a concrete implementation plan (using `/plan`), then post it as an issue
 <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
 ```
 
-**Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text — a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) — must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. A matching check applies again before the issue is later closed: do not close it while a decision flagged this way, or in a later comment, is still unresolved.
+**Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text — a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) — must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. A matching check applies when the issue is closed.
 
 Then mark the issue Blocked, update the workflow board to **Planning** if the repo has one (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**:
 

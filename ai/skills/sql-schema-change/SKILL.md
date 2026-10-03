@@ -7,7 +7,7 @@ description: Make SQL Server schema changes in projects that combine a DACPAC (M
 
 ## Linting
 
-Run a SQL linter appropriate for the dialect before every commit. Refer to the current repository's own AI instructions for the specific linter and command (commonly `sqlfluff`).
+Run a SQL linter appropriate for the dialect before every commit. Refer to the current repository's own AI instructions for the specific linter and command.
 
 ### `.sqlfluffignore` (MANDATORY when using MSBuild.Sdk.SqlProj)
 

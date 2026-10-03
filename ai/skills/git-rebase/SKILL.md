@@ -23,14 +23,7 @@ A rebase pulls in unknown content from `origin/main` (other people's commits, pl
 2. Fix every issue it reports, including issues that were already present before the rebase, because it covers the whole repository. Re-run `pre-commit-check` after each round of fixes and repeat until it reports no issues. Do not continue with any other work while issues remain, and do not suppress or weaken a check to make it pass.
 3. Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs. If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch; there is no separate unmerged base point to protect, because work is already under way on this branch.
 4. Only for an issue that genuinely cannot be fixed after real attempts: comment on the issue/PR with the verbatim output and label it `Blocked`. Difficulty is not a reason to escalate.
-5. No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; `COVERAGE.md` is generated content, not hand-authored, so take `main`'s copy (during a rebase, `--ours` is the branch being rebased onto, i.e. `origin/main`):
-
-   ```bash
-   git -C <repodir> checkout --ours -- COVERAGE.md
-   git -C <repodir> add COVERAGE.md
-   ```
-
-   Continue the rebase as normal. Once it completes and the post-rebase build and tests pass, re-run the coverage extraction against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work. Do not leave `main`'s stale copy in place, and do not measure before the build and tests are confirmed green.
+5. No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 

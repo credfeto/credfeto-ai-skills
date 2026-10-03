@@ -187,4 +187,4 @@ Before branching:
 
 ## 7. Rules Compliance for In-Flight Work (MANDATORY)
 
-Whenever an instruction file the repository loads (global or local) has been added or updated, re-evaluate all open branches and PRs against the new rules before continuing other work. Fix any non-compliance found; treat it the same as a CI failure.
+Whenever an instruction file is added or updated, re-evaluate all open branches and PRs against the new rules before continuing other work. Fix any non-compliance found; treat it the same as a CI failure.
