@@ -28,6 +28,10 @@
 # agent is a human change: the agents job fails if it modifies either file or
 # deletes anything.
 #
+# Neither job's agent may change .github: it is denied Edit there, and each job
+# checks .github is unchanged before running any local guard action, because
+# those are read from the working tree the agent has just edited.
+#
 # Owner decision: changes are pushed straight to main for transparency; this
 # is a sanctioned exception to the "never commit to main" rule in
 # ai/global/git.instructions.md, and CI commits are not GPG signed.
@@ -173,6 +177,11 @@ jobs:
           # disallowed patterns reject parent-directory paths and extra
           # targets, and the "Check deletions" step below fails the run if
           # any tracked file outside a skill folder was removed.
+          # Edit(.github/**) denies the file-editing tools under .github, where
+          # the local guard actions live; an Edit rule covers all of them, so
+          # no Write rule is needed (Claude Code ignores path-scoped Write
+          # rules). "Check .github was not modified" catches anything else,
+          # such as cp or mv, which acceptEdits auto-approves.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
@@ -183,10 +192,19 @@ jobs:
               "Bash(checkbashisms:*)" \
               "Bash(markdownlint:*)" \
             --disallowedTools \
+              "Edit(.github/**)" \
               "Bash(rm *..*)" \
               "Bash(rm -r ai/skills/* *)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+
+      # Runs before any local action: those are read from the working tree the reconcile has just edited, whereas this
+      # inline step was loaded at run start. Staging (ignored files too) makes new files, e.g. one shadowing an import, show.
+      - name: "Check .github was not modified"
+        shell: bash
+        run: |
+          git add --all --force -- .github
+          git diff --cached --exit-code HEAD -- .github
 
       # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
       # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
@@ -289,15 +307,30 @@ jobs:
           # workspace and run the specific tools reconciliation needs, with no
           # arbitrary bash and no rm. The steps below fail the run if
           # config.yaml or install changed or any tracked file was deleted.
+          # Edit(.github/**) denies the file-editing tools under .github, where
+          # the local guard actions live; an Edit rule covers all of them, so
+          # no Write rule is needed (Claude Code ignores path-scoped Write
+          # rules). "Check .github was not modified" catches anything else,
+          # such as cp or mv, which acceptEdits auto-approves.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
               "Bash(dotnet changelog:*)" \
               "Bash(markdownlint:*)" \
-              "Bash(yamllint:*)"
+              "Bash(yamllint:*)" \
+            --disallowedTools \
+              "Edit(.github/**)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
+
+      # Runs before any local action: those are read from the working tree the reconcile has just edited, whereas this
+      # inline step was loaded at run start. Staging (ignored files too) makes new files, e.g. one shadowing an import, show.
+      - name: "Check .github was not modified"
+        shell: bash
+        run: |
+          git add --all --force -- .github
+          git diff --cached --exit-code HEAD -- .github
 
       # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
       # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
