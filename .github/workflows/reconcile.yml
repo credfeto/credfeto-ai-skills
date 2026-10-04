@@ -76,6 +76,7 @@ on:
       - ".github/actions/dotnet-tool/**"
       - ".github/actions/dotnet-tool-run/**"
       - ".github/actions/check-allowed-deletions/**"
+      - ".github/actions/check-changed-scope/**"
       - ".github/actions/check-agents/**"
       - "ai/agents/config.yaml"
   workflow_dispatch: # allow manual runs for testing
@@ -189,13 +190,15 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
-      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
+      # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
+      # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
       - name: "Check only skill files changed"
-        shell: bash
-        run: |
-          test -z "$(git status --porcelain -- . ':(exclude)ai/skills' \
-            ':(exclude)ai/local/skills.instructions.md' ':(exclude)CHANGELOG.md')"
+        uses: ./.github/actions/check-changed-scope
+        with:
+          allowed-paths: |
+            ai/skills
+            ai/local/skills.instructions.md
+            CHANGELOG.md
 
       - name: "Check deletions"
         uses: ./.github/actions/check-allowed-deletions
@@ -298,17 +301,22 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
-      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
+      # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
+      # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
       - name: "Check only agent files changed"
-        shell: bash
-        run: |
-          test -z "$(git status --porcelain -- . ':(exclude)ai/agents' \
-            ':(exclude)ai/local/agents.instructions.md' ':(exclude)CHANGELOG.md')"
+        uses: ./.github/actions/check-changed-scope
+        with:
+          allowed-paths: |
+            ai/agents
+            ai/local/agents.instructions.md
+            CHANGELOG.md
 
       - name: "Check human-owned files are unchanged"
-        shell: bash
-        run: git diff --exit-code -- ai/agents/config.yaml ai/agents/install
+        uses: ./.github/actions/check-changed-scope
+        with:
+          protected-paths: |
+            ai/agents/config.yaml
+            ai/agents/install
 
       - name: "Check nothing was deleted"
         shell: bash
