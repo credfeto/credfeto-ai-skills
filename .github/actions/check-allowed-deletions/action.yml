@@ -1,12 +1,13 @@
 --- # Fail if any tracked file outside the allowed folders was deleted from the working tree
 # Maintain in repo: credfeto-ai-skills
 name: "Check Allowed Deletions"
-description: "Fails if any tracked file deleted from the working tree lies outside a sub-folder of the allowed parent folder"
+description: "Fails if any tracked file deleted from the working tree lies outside a sub-folder of the allowed parent folder (any deletion, if none)"
 
 inputs:
   allowed-parent:
-    description: "Parent folder (e.g. ai/skills) whose immediate sub-folders may have files deleted; files directly in it may not"
-    required: true
+    description: "Parent folder (e.g. ai/skills) whose sub-folders may have files deleted; files directly in it may not. Empty allows no deletions"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -20,6 +21,17 @@ runs:
           const { execFileSync } = require('node:child_process');
 
           const allowedParent = process.env.ALLOWED_PARENT.replace(/\/+$/, '');
+          const messages = allowedParent === ''
+            ? Object.freeze({
+              success: '✅ No files were deleted',
+              reason: 'Deleted',
+              failure: '❌ Files were deleted',
+            })
+            : Object.freeze({
+              success: `✅ No files outside ${allowedParent}/<folder>/ were deleted`,
+              reason: `Deleted outside ${allowedParent}/<folder>/`,
+              failure: `❌ Files outside ${allowedParent}/<folder>/ were deleted`,
+            });
           const deleted = execFileSync('git', ['ls-files', '--deleted'], { encoding: 'utf8' })
             .split(/\r?\n/)
             .filter(Boolean);
@@ -32,15 +44,16 @@ runs:
             return path.slice(allowedParent.length + 1).includes('/');
           };
 
+          // With no allowed parent, no repo-relative path starts with '/', so every deletion is unexpected.
           const unexpected = deleted.filter((path) => !isInsideSubFolder(path));
 
           if (unexpected.length === 0) {
-            core.info(`✅ Only ${allowedParent}/<folder>/ files were deleted`);
+            core.info(messages.success);
             return;
           }
 
           for (const path of unexpected) {
-            core.error(`❌ Deleted outside ${allowedParent}/<folder>/: ${path}`, { file: path });
+            core.error(`❌ ${messages.reason}: ${path}`, { file: path });
           }
 
-          core.setFailed(`Files outside ${allowedParent}/<folder>/ were deleted`);
+          core.setFailed(messages.failure);
