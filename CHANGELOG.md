@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
@@ -88,6 +89,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - git-rebase and git-branch skills: removed the COVERAGE.md rebase-conflict procedure that had no source in git-rebasing.instructions.md
 - pre-work-healthcheck skill: reworded the rules compliance wording to match task-workflow.instructions.md
 - sql-schema-change skill: removed the unsourced linter name from the Linting section, matching sql.instructions.md
+- Reconcile workflow: the scope guard, human-owned files guard and no-deletions guard now report which files changed (with their diff, capped at 200 lines) before failing, via a new check-changed-scope action and the existing check-allowed-deletions action, so a failed guard shows what tripped it - #30
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
@@ -104,9 +106,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code cleanup commits skill now records a no-hit pattern sweep as a pull request status comment
 - Reconciled skills (pre-work-healthcheck, git-commit, git-branch, git-rebase, pr-sync, github-issue, code-cleanup-commits, pr-review-loop) against current instruction files
 - Reconciled agent definitions against their sources and config.yaml: added missing SendMessage tool to several agents and brought the orchestrator body up to date
-- TBD - to be finalized after review
+- Reconcile workflow: use the check-required-secret action for CLAUDE_CODE_OAUTH_TOKEN - #30
 ### Deprecated
 ### Removed
+- src/FunFair.props, which is only permitted in funfair-tech repositories - #30
 ### Deployment Changes
 
 <!--
