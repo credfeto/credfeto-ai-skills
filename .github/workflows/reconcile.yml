@@ -319,8 +319,7 @@ jobs:
             ai/agents/install
 
       - name: "Check nothing was deleted"
-        shell: bash
-        run: test -z "$(git ls-files --deleted)"
+        uses: ./.github/actions/check-allowed-deletions
 
       - name: "Check agents match config.yaml"
         uses: ./.github/actions/check-agents
