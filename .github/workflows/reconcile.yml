@@ -69,6 +69,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/reconcile.yml"
+      - ".github/actions/check-required-secret/**"
       - ".github/actions/sync-ai-instructions/**"
       - ".github/actions/setup-ai-reconcile/**"
       - ".github/actions/dotnet-install/**"
@@ -93,24 +94,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: "Check required secrets"
+      # Inline and before Checkout, which uses this token, so a missing token is not reported as a checkout auth error.
+      - name: "Check Required Secrets: SOURCE_PUSH_TOKEN"
         shell: bash
         run: |
-          FAILED=false
-          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
-            echo "::error::❌ CLAUDE_CODE_OAUTH_TOKEN secret is not set; see the comments at the top of this workflow for how to create it"
-            FAILED=true
-          fi
           if [ -z "${SOURCE_PUSH_TOKEN}" ]; then
             echo "::error::❌ SOURCE_PUSH_TOKEN secret is not set; see the comments at the top of this workflow"
-            FAILED=true
-          fi
-          if [ "${FAILED}" = "true" ]; then
             exit 1
           fi
-          echo "✅ Required secrets are set"
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
           SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       # Check out the branch tip, not the triggering commit: a queued run must see earlier runs' pushes.
@@ -120,6 +112,12 @@ jobs:
           ref: "${{github.ref_name}}"
           fetch-depth: 1
           token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Check Required Secrets: CLAUDE_CODE_OAUTH_TOKEN"
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "CLAUDE_CODE_OAUTH_TOKEN"
+          secret-value: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
       - name: "Sync AI instructions from cs-template"
         uses: ./.github/actions/sync-ai-instructions
