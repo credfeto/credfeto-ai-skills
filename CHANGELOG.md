@@ -101,6 +101,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled the ci-debugger, dependency-updater, dotnet-nullable-and-warnings, claude-hooks and ide-mcp-code-analysis skills with their sources, adding missing CI Debugger and bot-PR rules and removing unsourced wording
 - Reconciled skills against current instruction files: agent-routing, code-cleanup-commits, code-reviewer-subagents, dotnet-dead-framework-guards, git-branch, git-commit, git-rebase, github-issue, github-workflows, ide-mcp-code-analysis, issue-plan-approval, npm-packages, pr-review-loop, pre-work-healthcheck
 - Rebase Agent no longer runs the post-rebase pre-commit-check itself; the Orchestrator runs it after the agent returns
+- Code cleanup commits skill now records a no-hit pattern sweep as a pull request status comment
 ### Deprecated
 ### Removed
 ### Deployment Changes
