@@ -1,0 +1,93 @@
+--- # Fail, listing the changes, if files changed outside the allowed paths or inside the protected paths
+# Maintain in repo: credfeto-ai-skills
+name: "Check Changed Scope"
+description: "Fails if any file outside the allowed paths, or any protected path, changed in the working tree; lists the changed entries and prints their diff"
+
+inputs:
+  allowed-paths:
+    description: "Newline-separated paths that may change; a change to anything outside them fails the step"
+    required: false
+    default: ""
+  protected-paths:
+    description: "Newline-separated paths that must not change, even when inside the allowed paths"
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: "Check changed scope"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        ALLOWED_PATHS: "${{inputs.allowed-paths}}"
+        PROTECTED_PATHS: "${{inputs.protected-paths}}"
+      with:
+        script: |
+          const parsePaths = (value) => value
+            .split(/\r?\n/)
+            .map((path) => path.trim())
+            .filter(Boolean);
+
+          const allowedPaths = parsePaths(process.env.ALLOWED_PATHS);
+          const protectedPaths = parsePaths(process.env.PROTECTED_PATHS);
+
+          if (allowedPaths.length === 0 && protectedPaths.length === 0) {
+            core.setFailed('❌ Neither allowed-paths nor protected-paths is set');
+            return;
+          }
+
+          const maxDiffLines = 200;
+
+          // exec.getExecOutput, not execFileSync: it has no 1 MiB output limit, so a large diff cannot abort the step before it is capped.
+          const git = async (args, options = {}) => (await exec.getExecOutput('git', args, { silent: true, ...options })).stdout;
+          const toLines = (text) => (text === '' ? [] : text.replace(/\r?\n$/, '').split(/\r?\n/));
+
+          // git diff HEAD omits untracked files, so diff each against /dev/null; --no-index exits 1 when they differ.
+          const untrackedDiff = async (pathspec) => {
+            const untracked = (await git(['ls-files', '--others', '--exclude-standard', '-z', '--', ...pathspec]))
+              .split('\0')
+              .filter(Boolean);
+            const diffs = [];
+            for (const path of untracked) {
+              diffs.push(...toLines(await git(['diff', '--no-index', '--', '/dev/null', path], { ignoreReturnCode: true })));
+            }
+
+            return diffs;
+          };
+
+          const checkUnchanged = async (pathspec, failure, success) => {
+            const changes = toLines(await git(['status', '--porcelain', '--untracked-files=all', '--', ...pathspec]));
+
+            if (changes.length === 0) {
+              core.info(success);
+              return;
+            }
+
+            core.setFailed(failure);
+            for (const change of changes) {
+              core.info(change);
+            }
+
+            const diffLines = [...toLines(await git(['diff', 'HEAD', '--', ...pathspec])), ...(await untrackedDiff(pathspec))];
+            for (const line of diffLines.slice(0, maxDiffLines)) {
+              core.info(line);
+            }
+
+            if (diffLines.length > maxDiffLines) {
+              core.info(`ℹ️ Diff truncated: ${diffLines.length - maxDiffLines} more lines not shown`);
+            }
+          };
+
+          if (allowedPaths.length > 0) {
+            await checkUnchanged(
+              ['.', ...allowedPaths.map((path) => `:(exclude)${path}`)],
+              `❌ Files changed outside the allowed scope: ${allowedPaths.join(', ')}`,
+              `✅ Only ${allowedPaths.join(', ')} changed`);
+          }
+
+          if (protectedPaths.length > 0) {
+            await checkUnchanged(
+              protectedPaths,
+              `❌ Protected files changed: ${protectedPaths.join(', ')}`,
+              `✅ ${protectedPaths.join(', ')} unchanged`);
+          }
