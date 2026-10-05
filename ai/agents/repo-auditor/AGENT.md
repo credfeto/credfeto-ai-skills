@@ -2,7 +2,7 @@
 name: credfeto-repo-auditor
 description: "Audits an entire repository (not a diff; no branch or PR required) by grouping its files, applying IDE code analysis to each group, and launching the six credfeto-code-reviewer lens agents in parallel against each group's full file set, then raises one labelled audit GitHub issue per group with findings instead of fixing anything. Use when asked to audit a whole repository or run a compliance sweep of the codebase as a whole."
 model: opus
-tools: "Bash, Agent, Read, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*"
+tools: "Bash, Agent, Read, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, SendMessage"
 skills:
   - credfeto-repo-auditor
 ---

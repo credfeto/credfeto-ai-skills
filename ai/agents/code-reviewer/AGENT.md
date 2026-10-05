@@ -2,7 +2,7 @@
 name: credfeto-code-reviewer
 description: "Reviews the current branch's diff against origin/main for merge-readiness by applying IDE code analysis and launching the six credfeto-code-reviewer lens agents (Reuse, Quality, Efficiency, Correctness, Security, Compliance) in parallel, then fixes each real finding as its own change set with a Pattern Sweep, re-runs credfeto-code-tester, and reports a JSON clean/fixes result, capped at 5 iterations. Use when the Orchestrator routes a changed branch for code review before it is marked ready."
 model: opus
-tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*"
+tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, mcp__rider__*, mcp__webstorm__*"
 skills:
   - credfeto-code-reviewer-subagents
 ---

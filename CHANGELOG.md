@@ -103,6 +103,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Rebase Agent no longer runs the post-rebase pre-commit-check itself; the Orchestrator runs it after the agent returns
 - Code cleanup commits skill now records a no-hit pattern sweep as a pull request status comment
 - Reconciled skills (pre-work-healthcheck, git-commit, git-branch, git-rebase, pr-sync, github-issue, code-cleanup-commits, pr-review-loop) against current instruction files
+- Reconciled agent definitions against their sources and config.yaml: added missing SendMessage tool to several agents and brought the orchestrator body up to date
 ### Deprecated
 ### Removed
 ### Deployment Changes

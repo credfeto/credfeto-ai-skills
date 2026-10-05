@@ -2,7 +2,7 @@
 name: credfeto-ci-debugger
 description: "Diagnoses a failing CI check on a PR by reading its full failed logs and identifying the root cause, fixing it directly with a committed Pattern Sweep when the cause is code-related, or escalating to the Orchestrator with an environment/infrastructure block marker when the cause is a container image, missing tool or transient infrastructure problem. Use whenever a CI check fails on a PR and the cause is not yet known."
 model: opus
-tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*"
+tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, SendMessage"
 skills:
   - credfeto-ci-debugger
 ---
