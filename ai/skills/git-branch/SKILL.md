@@ -75,6 +75,7 @@ Check for existing work (MANDATORY):
 When resuming work after an interruption:
 
 - Check the status of existing issues and branches; skip merged branches.
+- Check the PR or issue for an `<!-- uncommitted-work -->` comment and act on it only when both its author and its last editor are the agent's own bot login or a trusted commenter. If the PR (or issue) has since been merged or closed, edit the comment to say so, removing the marker, and stop. Otherwise check out the recorded branch (creating it from the recorded base if it was never pushed); unless the working tree already holds the recorded change, apply the recorded diff (`git apply --3way`) or re-apply the described change if the diff no longer applies. Hand the result to the role that would have committed it so it gets the normal build, test and commit steps, and only once that has pushed replace the comment's whole body with `Applied in <sha>`.
 - For unmerged branches, decide whether to continue or delete and recreate.
 - Update the top-level issue with current status and next steps before resuming.
 
@@ -100,8 +101,8 @@ A rebase pulls in unknown content from `origin/main` (other people's commits, pl
 
 1. Run the build and tests, then run `pre-commit-check` against all tracked files, in the background and polled to completion before continuing.
 2. Fix every issue it reports, including issues that were already present before the rebase, because it covers the whole repository. Re-run `pre-commit-check` after each round of fixes and repeat until it reports no issues. Do not continue with any other work while issues remain, and do not suppress or weaken a check to make it pass.
-3. Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs. If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch; there is no separate unmerged base point to protect, because work is already under way on this branch.
-4. Only for an issue that genuinely cannot be fixed after real attempts: comment on the issue/PR with the verbatim output and label it `Blocked`. Difficulty is not a reason to escalate.
+3. Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs. If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch in their own commit.
+4. Only for an issue where pre-commit cannot possibly be made to pass (for example a required external tool is missing from the environment and cannot be installed, the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation): comment on the issue/PR with the verbatim output and label it `Blocked`. Difficulty is not a reason to escalate.
 5. No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers.
 
 ## Resolving Version Conflicts When Merging or Rebasing
