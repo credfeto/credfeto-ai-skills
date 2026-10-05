@@ -90,6 +90,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - pre-work-healthcheck skill: reworded the rules compliance wording to match task-workflow.instructions.md
 - sql-schema-change skill: removed the unsourced linter name from the Linting section, matching sql.instructions.md
 - Reconcile workflow: the scope guard, human-owned files guard and no-deletions guard now report which files changed (with their diff, capped at 200 lines) before failing, via a new check-changed-scope action and the existing check-allowed-deletions action, so a failed guard shows what tripped it - #30
+- Reconcile no-deletions guard: deleted files with non-ASCII names inside a skill folder are no longer wrongly flagged - #30
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
