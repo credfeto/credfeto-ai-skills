@@ -109,6 +109,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled agent definitions against their sources and config.yaml: added missing SendMessage tool to several agents and brought the orchestrator body up to date
 - Reconcile workflow: use the check-required-secret action for CLAUDE_CODE_OAUTH_TOKEN - #30
 - Orchestrator and CI Monitor agents can use TaskStop to stop finished background watches - #32
+- Reconciled skills against current instructions: code-cleanup-commits, code-tester, code-writer, dotnet-coding-conventions, github-issue, github-workflows and shell-scripts
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30

@@ -28,9 +28,9 @@ description: Follow .NET identifier naming conventions, prefer StringComparer ov
 
 ## String Comparison
 
-- Prefer `StringComparer.<type>.Equals(x, y)` over `string.Equals(x, y, StringComparison.<type>)`.
+- Prefer `StringComparer.<type>.Equals(x, y)` over `string.Equals(x, y, StringComparison.<type>)`, enforced by FFS0050 (from the org-owned `FunFair.CodeAnalysis` package).
 - This applies to all `StringComparison` variants (`Ordinal`, `OrdinalIgnoreCase`, etc.).
-- Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase`.
+- Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase`, enforced by FFS0045 to FFS0048.
 
 ## Source File Organisation
 

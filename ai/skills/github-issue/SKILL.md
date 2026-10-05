@@ -21,7 +21,7 @@ Reach for these in this order:
 
 `cfwf` is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh issue view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` (or any other required CLI tool) is not installed or a command fails, stop immediately and ask the user to install or fix it rather than falling back to hand-composed `gh` for a use `cfwf` covers; never search for the binary in alternative locations, manipulate `PATH` to find it, or attempt to install it without being asked. Plain native subcommands without `--json`, such as `gh pr create`, `gh issue comment` and `gh pr edit --add-label`, are exempt.
 
-- **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome.
+- **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome. The uses these instructions themselves prescribe are already covered this way, so the search finds them and nothing more is needed.
 - **Say what is needed.** Give the exact `gh` command (with placeholders for the values), what it is for, and where it is used. Add the new issue to the "Workflow" project as for any issue (see Workflow Project Board below).
 
 ## GitHub State Lags Behind Writes (MANDATORY)
@@ -178,7 +178,7 @@ For each such request not yet actioned (no reply from you linking a newly create
      --label "<priority label from the request, or 'Medium' if unspecified>"
    ```
 
-3. Reply to the original comment with the new issue number: use `gh pr comment` if the request was on a PR, `gh issue comment` if it was on an issue.
+3. Reply to the original comment with the new issue number (`Raised as #<new-issue-number>.`): use `gh pr comment` if the request was on a PR, `gh issue comment` if it was on an issue (including a linked issue).
 4. Only continue with the rest of the workflow once every such request is actioned.
 
 The same rule applies when picking up an issue: if a comment on it requests a sub-issue, create it and reply before starting implementation work.
