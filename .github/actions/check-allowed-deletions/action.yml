@@ -27,14 +27,13 @@ runs:
             .filter(Boolean);
 
           const isInsideSubFolder = (path) => {
-            if (!path.startsWith(`${allowedParent}/`)) {
+            if (allowedParent === '' || !path.startsWith(`${allowedParent}/`)) {
               return false;
             }
 
             return path.slice(allowedParent.length + 1).includes('/');
           };
 
-          // With no allowed parent, no repo-relative path starts with '/', so every deletion is unexpected.
           const unexpected = deleted.filter((path) => !isInsideSubFolder(path));
 
           if (unexpected.length === 0) {
