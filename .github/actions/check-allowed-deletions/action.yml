@@ -22,8 +22,8 @@ runs:
 
           const allowedParent = process.env.ALLOWED_PARENT.replace(/\/+$/, '');
           const scope = allowedParent === '' ? '' : ` outside ${allowedParent}/<folder>/`;
-          const deleted = execFileSync('git', ['ls-files', '--deleted'], { encoding: 'utf8' })
-            .split(/\r?\n/)
+          const deleted = execFileSync('git', ['ls-files', '--deleted', '-z'], { encoding: 'utf8' })
+            .split('\0')
             .filter(Boolean);
 
           const isInsideSubFolder = (path) => {
