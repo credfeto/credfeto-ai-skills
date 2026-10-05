@@ -28,6 +28,14 @@
 # agent is a human change: the agents job fails if it modifies either file or
 # deletes anything.
 #
+# Neither job's agent may change .github: it is denied Edit(.github/**), which
+# covers all the file-editing tools (Claude Code ignores path-scoped Write
+# rules), and each job's inline "Check .github was not modified" step catches
+# anything else, such as cp or mv, which acceptEdits auto-approves. That step
+# runs before any local guard action, because those are read from the working
+# tree the agent has just edited, whereas the inline step was loaded at run
+# start.
+#
 # Owner decision: changes are pushed straight to main for transparency; this
 # is a sanctioned exception to the "never commit to main" rule in
 # ai/global/git.instructions.md, and CI commits are not GPG signed.
@@ -69,6 +77,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/reconcile.yml"
+      - ".github/actions/check-required-secret/**"
       - ".github/actions/sync-ai-instructions/**"
       - ".github/actions/setup-ai-reconcile/**"
       - ".github/actions/dotnet-install/**"
@@ -76,6 +85,7 @@ on:
       - ".github/actions/dotnet-tool/**"
       - ".github/actions/dotnet-tool-run/**"
       - ".github/actions/check-allowed-deletions/**"
+      - ".github/actions/check-changed-scope/**"
       - ".github/actions/check-agents/**"
       - "ai/agents/config.yaml"
   workflow_dispatch: # allow manual runs for testing
@@ -92,24 +102,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: "Check required secrets"
+      # Inline and before Checkout, which uses this token, so a missing token is not reported as a checkout auth error.
+      - name: "Check Required Secrets: SOURCE_PUSH_TOKEN"
         shell: bash
         run: |
-          FAILED=false
-          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
-            echo "::error::❌ CLAUDE_CODE_OAUTH_TOKEN secret is not set; see the comments at the top of this workflow for how to create it"
-            FAILED=true
-          fi
           if [ -z "${SOURCE_PUSH_TOKEN}" ]; then
             echo "::error::❌ SOURCE_PUSH_TOKEN secret is not set; see the comments at the top of this workflow"
-            FAILED=true
-          fi
-          if [ "${FAILED}" = "true" ]; then
             exit 1
           fi
-          echo "✅ Required secrets are set"
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
           SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       # Check out the branch tip, not the triggering commit: a queued run must see earlier runs' pushes.
@@ -119,6 +120,12 @@ jobs:
           ref: "${{github.ref_name}}"
           fetch-depth: 1
           token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Check Required Secrets: CLAUDE_CODE_OAUTH_TOKEN"
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "CLAUDE_CODE_OAUTH_TOKEN"
+          secret-value: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
       - name: "Sync AI instructions from cs-template"
         uses: ./.github/actions/sync-ai-instructions
@@ -174,6 +181,7 @@ jobs:
           # disallowed patterns reject parent-directory paths and extra
           # targets, and the "Check deletions" step below fails the run if
           # any tracked file outside a skill folder was removed.
+          # Edit(.github/**) protects the local guard actions; see the header.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
@@ -184,18 +192,29 @@ jobs:
               "Bash(checkbashisms:*)" \
               "Bash(markdownlint:*)" \
             --disallowedTools \
+              "Edit(.github/**)" \
               "Bash(rm *..*)" \
               "Bash(rm -r ai/skills/* *)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
-      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
-      - name: "Check only skill files changed"
+      # Runs before any local action; see the header. Staging (ignored files too) makes new files, e.g. one shadowing an
+      # import, show.
+      - name: "Check .github was not modified"
         shell: bash
         run: |
-          test -z "$(git status --porcelain -- . ':(exclude)ai/skills' \
-            ':(exclude)ai/local/skills.instructions.md' ':(exclude)CHANGELOG.md')"
+          git add --all --force -- .github
+          git diff --cached --exit-code HEAD -- .github
+
+      # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
+      # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
+      - name: "Check only skill files changed"
+        uses: ./.github/actions/check-changed-scope
+        with:
+          allowed-paths: |
+            ai/skills
+            ai/local/skills.instructions.md
+            CHANGELOG.md
 
       - name: "Check deletions"
         uses: ./.github/actions/check-allowed-deletions
@@ -288,31 +307,46 @@ jobs:
           # workspace and run the specific tools reconciliation needs, with no
           # arbitrary bash and no rm. The steps below fail the run if
           # config.yaml or install changed or any tracked file was deleted.
+          # Edit(.github/**) protects the local guard actions; see the header.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
               "Bash(dotnet changelog:*)" \
               "Bash(markdownlint:*)" \
-              "Bash(yamllint:*)"
+              "Bash(yamllint:*)" \
+            --disallowedTools \
+              "Edit(.github/**)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # Runs first: the later guard and lint steps read actions and lint config from the working tree, and
-      # anything outside this job's commit scope would otherwise be silently dropped while its changelog entry was kept.
-      - name: "Check only agent files changed"
+      # Runs before any local action; see the header. Staging (ignored files too) makes new files, e.g. one shadowing an
+      # import, show.
+      - name: "Check .github was not modified"
         shell: bash
         run: |
-          test -z "$(git status --porcelain -- . ':(exclude)ai/agents' \
-            ':(exclude)ai/local/agents.instructions.md' ':(exclude)CHANGELOG.md')"
+          git add --all --force -- .github
+          git diff --cached --exit-code HEAD -- .github
+
+      # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
+      # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
+      - name: "Check only agent files changed"
+        uses: ./.github/actions/check-changed-scope
+        with:
+          allowed-paths: |
+            ai/agents
+            ai/local/agents.instructions.md
+            CHANGELOG.md
 
       - name: "Check human-owned files are unchanged"
-        shell: bash
-        run: git diff --exit-code -- ai/agents/config.yaml ai/agents/install
+        uses: ./.github/actions/check-changed-scope
+        with:
+          protected-paths: |
+            ai/agents/config.yaml
+            ai/agents/install
 
       - name: "Check nothing was deleted"
-        shell: bash
-        run: test -z "$(git ls-files --deleted)"
+        uses: ./.github/actions/check-allowed-deletions
 
       - name: "Check agents match config.yaml"
         uses: ./.github/actions/check-agents

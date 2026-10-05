@@ -1,12 +1,13 @@
 --- # Fail if any tracked file outside the allowed folders was deleted from the working tree
 # Maintain in repo: credfeto-ai-skills
 name: "Check Allowed Deletions"
-description: "Fails if any tracked file deleted from the working tree lies outside a sub-folder of the allowed parent folder"
+description: "Fails if any tracked file deleted from the working tree lies outside a sub-folder of the allowed parent folder (any deletion, if none)"
 
 inputs:
   allowed-parent:
-    description: "Parent folder (e.g. ai/skills) whose immediate sub-folders may have files deleted; files directly in it may not"
-    required: true
+    description: "Parent folder (e.g. ai/skills) whose sub-folders may have files deleted; files directly in it may not. Empty allows no deletions"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -20,12 +21,13 @@ runs:
           const { execFileSync } = require('node:child_process');
 
           const allowedParent = process.env.ALLOWED_PARENT.replace(/\/+$/, '');
-          const deleted = execFileSync('git', ['ls-files', '--deleted'], { encoding: 'utf8' })
-            .split(/\r?\n/)
+          const scope = allowedParent === '' ? '' : ` outside ${allowedParent}/<folder>/`;
+          const deleted = execFileSync('git', ['ls-files', '--deleted', '-z'], { encoding: 'utf8' })
+            .split('\0')
             .filter(Boolean);
 
           const isInsideSubFolder = (path) => {
-            if (!path.startsWith(`${allowedParent}/`)) {
+            if (allowedParent === '' || !path.startsWith(`${allowedParent}/`)) {
               return false;
             }
 
@@ -35,12 +37,12 @@ runs:
           const unexpected = deleted.filter((path) => !isInsideSubFolder(path));
 
           if (unexpected.length === 0) {
-            core.info(`✅ Only ${allowedParent}/<folder>/ files were deleted`);
+            core.info(`✅ No files${scope} were deleted`);
             return;
           }
 
           for (const path of unexpected) {
-            core.error(`❌ Deleted outside ${allowedParent}/<folder>/: ${path}`, { file: path });
+            core.error(`❌ Deleted${scope}: ${path}`, { file: path });
           }
 
-          core.setFailed(`Files outside ${allowedParent}/<folder>/ were deleted`);
+          core.setFailed(`❌ Files${scope} were deleted`);

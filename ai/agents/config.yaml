@@ -13,7 +13,7 @@ default:
 orchestrator:
   name: "Orchestrator"
   model: opus
-  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage]
+  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop]
   skills:
     - credfeto-agent-routing
     - credfeto-issue-plan-approval
@@ -141,7 +141,7 @@ pr-submitter:
 ci-monitor:
   name: "CI Monitor"
   model: haiku
-  tools: [Bash, Agent, Monitor, ScheduleWakeup, Skill, SendMessage]
+  tools: [Bash, Agent, Monitor, ScheduleWakeup, Skill, SendMessage, TaskStop]
   skills:
     - credfeto-long-running-commands
 
