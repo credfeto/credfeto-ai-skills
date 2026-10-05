@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 - Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
+- TBD - to be finalized after review
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
