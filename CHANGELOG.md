@@ -116,6 +116,7 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 - Reconciled skills against current instruction files: updated pre-work-healthcheck, git-commit, git-branch, pr-sync, github-issue, dependency-selection, long-running-commands, numbering-conventions, agent-routing, issue-plan-approval, code-reviewer-subagents, code-writer, code-tester, ci-debugger, claude-hooks and dotnet-nuget-vulnerability-suppression to match their sources
 - issue-plan-approval and github-workflows skills: reworded to match their instruction files (removed an unsourced em dash pair and normalised a number range)
 - readme-documentation skill: wrote the Overview length as 2 to 3 sentences, matching documentation.instructions.md
+- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
