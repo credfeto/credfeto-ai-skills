@@ -113,6 +113,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled skills against current instructions: code-cleanup-commits, code-tester, code-writer, dotnet-coding-conventions, github-issue, github-workflows and shell-scripts
 - Reconciled skills against instruction files: coverage-ratchet, git-commit, pr-sync, issue-plan-approval, pr-review-loop, code-reviewer-subagents and dotnet-analyzer-conflicts
 - Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
+- Reconciled skills git-commit, long-running-commands and code-tester with the poll-deadline and background-work rules, and ci-debugger with the Blocked label rules
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30

@@ -42,7 +42,7 @@ Both share one thing: the command **never ran**, so do not wait for it to finish
 - **Always run these commands via a background-task mechanism (e.g. `run_in_background`); never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
 - **Never wrap any of these in a shell `timeout` command as a substitute or a belt-and-braces addition** (e.g. `timeout 590 dotnet test ...`), whether or not the background-task mechanism is also used. `timeout` is on the categorical blocklist of the `reject-obfuscated-commands` hook and is rejected outright, independently of the backgrounding rule: running the command unwrapped and backgrounded is already unbounded and needs no additional wrapper. A missing backgrounding parameter and a banned `timeout` wrapper are denied by different hooks and are unrelated; read which hook actually fired rather than assuming a single general conflict.
 - Poll for completion using the reliable strings in the table below, subject to the 30-minute deadline in [Time-Box Every Poll Loop](#time-box-every-poll-loop-mandatory) below.
-- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. The only valid reasons to stop waiting are: the tool itself reports its timeout was hit, or the poll-loop deadline actually fires.
+- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the poll-loop deadline fires, report and keep waiting as [Time-Box Every Poll Loop](#time-box-every-poll-loop-mandatory) describes, and when a `Monitor` watch's own timeout expires first, start a new watch.
 - A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Orphaned temp directories under a shared path can break other tools that walk the same path.
 - Other `dotnet` commands (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this unconditional rule; they may run in the foreground, but **always with an explicit maximum timeout set on the tool call**, never the tool's built-in default (e.g. Claude Code's Bash tool defaults to 2 minutes when no `timeout` is given; use the maximum available, e.g. 600000ms/10 minutes, explicitly). If even that maximum is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
 
@@ -68,28 +68,37 @@ When watching a background task, the poll condition **must** be provably satisfi
 
 ### Time-Box Every Poll Loop (MANDATORY)
 
-Always include a deadline so the session cannot hang forever:
+Time-box every poll loop to 30 minutes. The deadline ends one poll loop so a command that is taking unusually long is reported instead of waited on silently; it never ends the wait, and never the command:
 
 ```bash
 deadline=$(( $(date +%s) + 1800 ))
 until grep -q "Build succeeded." "${output_file}" 2>/dev/null; do
     sleep 15
     if [ "$(date +%s)" -ge "${deadline}" ]; then
-        echo "ERROR: timed out after 30 minutes waiting for build" >&2
+        echo "Still waiting after 30 minutes for build" >&2
         exit 1
     fi
 done
 ```
 
-If the deadline fires, mark the work item Blocked and stop; do not continue work:
+When the deadline fires, do not hand back and do not stop the command; report the overrun and then start a new poll loop on the same completion marker:
 
-```bash
-gh issue edit <number> --repo <owner/repo> --add-label "Blocked"
-gh issue comment <number> --repo <owner/repo> \
-    --body "Blocked: timed out after 30 minutes waiting for <what>. Last output: $(tail -5 "${output_file}" 2>/dev/null)"
-```
+- In an interactive session, tell the human the command is still running and which completion marker you are waiting for.
+- In an unattended run, post the same as a comment on the work item, without the `Blocked` label, because you are still working rather than waiting on a human:
 
-Use `gh pr edit` / `gh pr comment` instead if the work item is a PR. Then exit; do not continue work.
+  ```bash
+  gh issue comment <number> --repo <owner/repo> \
+      --body "Still waiting after 30 minutes for <what> (completion marker: <marker>); the command is still running. Last output: $(tail -5 "${output_file}" 2>/dev/null)"
+  ```
+
+  Use `gh pr comment` instead if the work item is a PR.
+
+## Finishing Background Work Before Handing Back (MANDATORY)
+
+- Never hand back while a background command you started (a build, a test run, `pre-commit-check`, or a commit or push that runs hooks) is still running: wait for the command's completion marker. Never stop such a command with `TaskStop`, because the command must finish and clean up after itself, and killing it can leave a stale `.git/index.lock`, partial build output or a push in an unknown state. If the command overruns the poll deadline, still neither hand back nor stop it: report the overrun as described above and keep waiting for the completion marker, because in an unattended `-p` run handing back kills a background command about five seconds later.
+- If you start a `Monitor` watch, record the task id `Monitor` returns; if you pace a wait with a `ScheduleWakeup` self-paced loop instead, note that you are using one. When you start a replacement watch, for example after the previous one expired, record the new task id, because only the latest watch is still running.
+- Once the command, or the condition a watch was waiting for, has finished, stop any `Monitor` watch or `ScheduleWakeup` self-paced loop you started before handing back: `TaskStop` with the recorded task id for a `Monitor` watch, `ScheduleWakeup` with `stop: true` for a self-paced loop. A watch left running outlives the hand-back in both run modes: in an interactive session a background sub-agent's tasks keep running until they finish, are stopped or time out, and every tick of the watch re-wakes the sub-agent and forces another hand-back; in an unattended `-p` run a `Monitor` watch keeps the run open, up to a ten-minute cap.
+- `TaskStop` is for watches only, because a watch only observes and loses nothing when stopped.
 
 ## Sandbox-Caused False Timeouts in Benchmark/Perf Tests (MANDATORY)
 
