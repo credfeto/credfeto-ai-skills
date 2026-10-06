@@ -33,6 +33,15 @@ gh api repos/<owner>/<repo>/pulls/<number>/comments \
 
 `commit_id` must be the PR's **current head SHA** (`gh pr view <number> --json headRefOid --jq '.headRefOid'`), and `path`/`line` must fall inside that commit's actual diff; otherwise the request fails.
 
+To reply to an existing review comment thread, use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
+
+```bash
+gh api repos/<owner>/<repo>/pulls/<number>/comments \
+  -X POST \
+  -f body="<reply text>" \
+  -F in_reply_to=<comment-id>
+```
+
 Each sub-agent below reviews only the newly changed code in the diff. When dispatched as part of a full-repository audit rather than a PR review, the scope becomes the full file set for whatever group is being audited instead.
 
 ## Sub-Agent: Reuse

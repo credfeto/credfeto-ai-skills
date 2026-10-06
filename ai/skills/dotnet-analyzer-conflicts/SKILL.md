@@ -45,7 +45,7 @@ When two diagnostics conflict and the pair, for that kind of code, is not in the
   **Reason for template propagation**: <why this should apply across all repos>"
   ```
 
-- **P3.** Add `Blocked` to the affected issue or PR (`gh issue edit <number> --repo <owner/repo> --add-label "Blocked"`, or `gh pr edit` for a PR) and wait for the repo owner's decision. Use only the `Blocked` label for this purpose. If a human answers in a live chat session rather than on GitHub, post the answer yourself as a comment, quoting the live instruction, before resuming work. Unlike a normal template rule escalation, work on the affected code does not carry on meanwhile, because the code cannot build while one of the two diagnostics stands.
+- **P3.** Add `Blocked` to the affected issue or PR (`gh issue edit <number> --repo <owner/repo> --add-label "Blocked"`, or `gh pr edit` for a PR) and wait for the repo owner's decision. Use only the `Blocked` label for this purpose. Do not continue working on the item until the label is removed. The accompanying comment must name the specific instruction that requires the stop (here, the unlisted pairs rule above). If a human answers in a live chat session rather than on GitHub, post the answer yourself as a comment, quoting the live instruction, before resuming work. Unlike a normal template rule escalation, work on the affected code does not carry on meanwhile, because the code cannot build while one of the two diagnostics stands.
 
 ## Adding an Entry
 

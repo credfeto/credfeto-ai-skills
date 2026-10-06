@@ -61,6 +61,8 @@ gh issue edit <number> --repo <owner/repo> --add-label Blocked
 
 Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`; the orchestrator only recognises `Blocked` when deciding whether to skip an item.
 
+Whenever `Blocked` is added, the accompanying comment must name the specific instruction that requires the stop, as a link to its section. A judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction; if no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
+
 Revise a plan only by posting a new `## Implementation Plan` comment, never by editing an existing one in place, so approval is always judged against the latest plan comment.
 
 Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically (the sole exception is live-chat approval in an interactive session, see below):

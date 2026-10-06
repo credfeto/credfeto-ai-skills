@@ -64,6 +64,10 @@ If a factual claim or finding previously posted in a PR body or comment turns ou
 
 This is distinct from the routine Title, Body, and Label Sync above, which requires ordinary in-place edits to keep a PR's title/body/labels synced with its linked issues; that is not a correction and needs no comment. This rule is about retracting or fixing something substantive that was previously asserted as true.
 
+## Pre-Closure Decision Check (MANDATORY)
+
+Before closing any PR, check whether its description or a later comment on it flagged a specific decision as required or pending (e.g. "needs policy sign-off", "pending a decision on X", an unresolved `Qn.`). If so, do not close until that specific item has a visible resolution of its own: a comment recording the decision, a link to the resolving issue/PR, or an explicit retraction, not just implicitly overtaken by whichever branch of the plan got implemented. Removal of the `Blocked` label is not itself sufficient evidence this check is satisfied; the resolution must actually have been posted.
+
 ## Label Management (MANDATORY)
 
 - Always use `--add-label` when adding labels; **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels.

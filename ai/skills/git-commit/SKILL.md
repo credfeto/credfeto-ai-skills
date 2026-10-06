@@ -90,6 +90,13 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 - When any git command fails, quote the exact stdout and stderr verbatim in any issue or PR comment before offering a diagnosis; never substitute a narrative for the actual error output.
 - Pre-commit hooks may make commits slow; wait for them to complete before assuming failure.
 
+## File Names and Git File Lists (MANDATORY)
+
+- Name every file you create with ASCII characters only, because git, shells and CI tools quote, escape or mangle non-ASCII names and break the scripts that read them.
+- Read git file lists NUL-separated, never split on newlines: files from elsewhere may have any name, and without `-z` git quotes and escapes non-ASCII or quote-containing paths, so the printed names no longer match the files.
+  - Produce the list with `-z`: `git ls-files -z`, `git diff --name-only -z`.
+  - Split captured output with `split('\0').filter(Boolean)`, because `-z` also ends the last entry with NUL and a plain split leaves a trailing empty name.
+
 ## Never Truncate Test/Commit Commands (MANDATORY)
 
 `git commit`/`pre-commit`/`pre-commit-check` has no bounded, predictable duration: `pre-commit` can run a heavy hook chain (e.g. full-project build checks, security scanners, lint stacks). There is no timeout value that is both practical and safe to pick, so do not try to pick one.

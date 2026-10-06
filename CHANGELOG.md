@@ -110,6 +110,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile workflow: use the check-required-secret action for CLAUDE_CODE_OAUTH_TOKEN - #30
 - Orchestrator and CI Monitor agents can use TaskStop to stop finished background watches - #32
 - Reconciled skills against current instructions: code-cleanup-commits, code-tester, code-writer, dotnet-coding-conventions, github-issue, github-workflows and shell-scripts
+- Reconciled skills against instruction files: coverage-ratchet, git-commit, pr-sync, issue-plan-approval, pr-review-loop, code-reviewer-subagents and dotnet-analyzer-conflicts
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30

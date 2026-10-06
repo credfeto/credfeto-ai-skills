@@ -116,7 +116,7 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
    gh pr checks <number> --repo <owner/repo> --required --json name,completedAt --jq '.[] | "\(.completedAt)\t\(.name)"'
    ```
 
-   A required check has a post-ready result when any of its rows completed at or after the ready time, because the same check can have one row from the run before the PR was marked ready and another from the run after it. Compare the two times as text, because both are UTC ISO 8601 times ending in `Z`. A check that has not completed yet has no post-ready result. Then:
+   A required check has a post-ready result when any of its rows completed at or after the ready time, because the same check can have one row from the run before the PR was marked ready and another from the run after it, and the run that marking ready starts can finish its skipped jobs within the same second. Compare the two times as text, because both are UTC ISO 8601 times ending in `Z`. A check that has not completed yet has no post-ready result. Then:
 
    ```bash
    gh pr merge --auto --merge <number> --repo <owner/repo>
@@ -127,6 +127,10 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
    - If the PR has an unreviewed commit, for example from a Rebase Agent or human push, first turn auto-merge off (`gh pr merge <number> --repo <owner/repo> --disable-auto`, only when the `autoMergeRequest` read prints something other than `null`) and convert the PR to draft (`gh pr ready <number> --repo <owner/repo> --undo`), then run this loop for it instead of enabling auto-merge, because unreviewed change must not merge, and a draft PR is what lets the loop's own Phase E mark it ready again and start the post-ready checks.
 
    The PR is already ready at this point, which matters because GitHub rejects enabling auto-merge on a draft PR. If enabling auto-merge fails (auto-merge not supported), leave the PR ready for a human to merge.
+
+## Justifying `Blocked`
+
+Whenever `Blocked` is added, the accompanying comment must name the specific instruction that requires the stop, as a link to its section. A judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction; if no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
