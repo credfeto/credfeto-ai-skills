@@ -11,7 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 - Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
-- TBD - to be finalized after review
+- Reconcile workflow: the unattended agent now runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so the agent cannot tamper with the guards or reach the push token - #34
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
@@ -110,6 +110,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled agent definitions against their sources and config.yaml: added missing SendMessage tool to several agents and brought the orchestrator body up to date
 - Reconcile workflow: use the check-required-secret action for CLAUDE_CODE_OAUTH_TOKEN - #30
 - Orchestrator and CI Monitor agents can use TaskStop to stop finished background watches - #32
+- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30
