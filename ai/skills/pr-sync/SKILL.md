@@ -66,7 +66,7 @@ This is distinct from the routine Title, Body, and Label Sync above, which requi
 
 ## Pre-Closure Decision Check (MANDATORY)
 
-Before closing any PR, check whether its description or a later comment on it flagged a specific decision as required or pending (e.g. "needs policy sign-off", "pending a decision on X", an unresolved `Qn.`). If so, do not close until that specific item has a visible resolution of its own: a comment recording the decision, a link to the resolving issue/PR, or an explicit retraction, not just implicitly overtaken by whichever branch of the plan got implemented. Removal of the `Blocked` label is not itself sufficient evidence this check is satisfied; the resolution must actually have been posted.
+Before closing any PR, check whether its Implementation Plan (Approach/Files-to-change text or an Open Question) or a later comment on it flagged a specific decision as required or pending (e.g. "needs policy sign-off", "pending a decision on X", an unresolved `Qn.`). If so, do not close until that specific item has a visible resolution of its own: a comment recording the decision, a link to the resolving issue/PR, or an explicit retraction, not just implicitly overtaken by whichever branch of the plan got implemented. Removal of the `Blocked` label is not itself sufficient evidence this check is satisfied; the resolution must actually have been posted.
 
 ## Label Management (MANDATORY)
 
@@ -107,7 +107,7 @@ Before processing CI checks or continuing the review loop below, scan **all** co
 For each such request not yet actioned (no reply from you linking a newly created issue):
 
 1. Search for an existing open or closed issue covering the same topic; do not create duplicates.
-2. If none exists, create it immediately: `gh issue create --repo <owner/repo> --title "<concise title>" --body "<description>" --label "<priority label, or 'Medium' if unspecified>"`.
+2. If none exists, create it immediately: `gh issue create --repo <owner/repo> --title "<concise title>" --body "<description>" --label "<priority label, or 'Medium' if unspecified>"`, then add it to the "Workflow" project immediately: `cfwf workflow-status --set --repo <owner/repo> --issue <number> --status "Not Started"` (only for the issue just created, because `--set` overwrites the status of an item already on the board).
 3. Reply to the original comment with the new issue number, using `gh pr comment` if the request was on the PR or `gh issue comment` if it was on a linked issue.
 4. Only continue with CI Checks and the rest of the workflow once every such request is actioned.
 

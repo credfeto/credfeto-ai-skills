@@ -116,6 +116,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 - Reconciled skills git-commit, long-running-commands and code-tester with the poll-deadline and background-work rules, and ci-debugger with the Blocked label rules
 - Reconcile orchestrator, ci-monitor and code-reviewer-compliance agents against their sources
+- Reconciled skills with instruction files: coverage-ratchet, dotnet-nuget-vulnerability-suppression, issue-plan-approval, long-running-commands and pr-sync
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30

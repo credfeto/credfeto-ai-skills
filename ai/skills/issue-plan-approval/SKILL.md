@@ -150,7 +150,7 @@ cfwf workflow-status --set --repo <owner/repo> --issue <number> --status "Planni
 cfwf workflow-status --check --repo <owner/repo> --issue <number>
 ```
 
-- `--set` adds the item to the board if it is not already there and sets the status, then prints confirmation; exit 0 means the write was accepted (do not re-read it to confirm; GitHub's state lags behind writes). A non-zero exit means the write failed.
+- `--set` adds the item to the board if it is not already there and sets the status, then prints confirmation; exit 0 means GitHub accepted the write; it deliberately does not read the value back, because GitHub's state lags behind writes. A non-zero exit means the write failed.
 - `--check` prints the current status and exits non-zero if the item is not on the board. The output starts with the status name (e.g. `Approved`): match the name exactly and ignore anything after it.
 
 If the repo's CLAUDE.md carries no Workflow board data, still attempt `cfwf`: only conclude there is no board if `cfwf` itself reports finding no "Workflow" project linked to the repo, in which case skip board updates silently for the rest of the session.
