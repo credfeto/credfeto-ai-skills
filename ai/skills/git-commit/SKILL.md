@@ -108,9 +108,10 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
   - Pre-commit hooks failed: poll for `→` followed by `Failed` (check for both to distinguish pass/fail).
   - `git push` completed: poll for `branch` (the branch tracking line in push output).
 - Never poll for `"exit code"`; that string is not reliably written to background task output files.
-- A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis; the only valid reasons to stop waiting are the tool itself reporting its timeout was hit, or the poll-loop deadline actually firing.
+- A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when a `Monitor` watch's own timeout expires first, start a new watch.
 - A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind.
-- If the 30-minute deadline fires, mark the work item `Blocked` and stop rather than continuing work.
+- Never hand back while the commit or push is still running, and never stop it with `TaskStop`, because killing it can leave a stale `.git/index.lock` or a push in an unknown state. Once it has finished, stop any `Monitor` watch you started before handing back.
+- The 30-minute deadline ends one poll loop so an unusually long command is reported instead of waited on silently; it never ends the wait, and never the command. When it fires, do not hand back and do not stop the command: report the overrun, then start a new poll loop on the same completion marker. In an interactive session, tell the human the command is still running and which completion marker you are waiting for. In an unattended run, post the same as a comment on the work item, without the `Blocked` label, because you are still working rather than waiting on a human.
 
 ## After Pushing
 

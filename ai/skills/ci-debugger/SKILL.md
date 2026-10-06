@@ -36,7 +36,7 @@ When a Blocked-ing failure is diagnosed as an environment/infrastructure problem
    ```
 
    Read `IMAGE_SHA_DEVELOPMENT_AGENT` from your own container environment (the same value printed at session start as part of "Image layer provenance"); this records which image build was current when you made the diagnosis.
-3. Apply the `Blocked` label: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`.
+3. Apply the `Blocked` label: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`. The accompanying comment must name the specific instruction that requires the stop; a judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction. If no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
 4. Use this marker **only** for a genuine environment/infrastructure diagnosis. `oneshot` auto-clears `Blocked` the moment it observes a differently-built agent image, with no further human involvement; marking a real code question or design decision this way would resume work before a human actually answered it.
 
 This convention only applies to PRs (there is no container session, and therefore no image to diagnose against, before a PR/branch exists).

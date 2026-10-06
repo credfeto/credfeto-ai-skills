@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 - Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
+- Reconcile workflow: the unattended agent now runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so the agent cannot tamper with the guards or reach the push token - #34
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
@@ -91,6 +92,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - sql-schema-change skill: removed the unsourced linter name from the Linting section, matching sql.instructions.md
 - Reconcile workflow: the scope guard, human-owned files guard and no-deletions guard now report which files changed (with their diff, capped at 200 lines) before failing, via a new check-changed-scope action and the existing check-allowed-deletions action, so a failed guard shows what tripped it - #30
 - Reconcile no-deletions guard: deleted files with non-ASCII names inside a skill folder are no longer wrongly flagged - #30
+- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
@@ -111,6 +113,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Orchestrator and CI Monitor agents can use TaskStop to stop finished background watches - #32
 - Reconciled skills against current instructions: code-cleanup-commits, code-tester, code-writer, dotnet-coding-conventions, github-issue, github-workflows and shell-scripts
 - Reconciled skills against instruction files: coverage-ratchet, git-commit, pr-sync, issue-plan-approval, pr-review-loop, code-reviewer-subagents and dotnet-analyzer-conflicts
+- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
+- Reconciled skills git-commit, long-running-commands and code-tester with the poll-deadline and background-work rules, and ci-debugger with the Blocked label rules
+- Reconcile orchestrator, ci-monitor and code-reviewer-compliance agents against their sources
+- Reconciled skills with instruction files: coverage-ratchet, dotnet-nuget-vulnerability-suppression, issue-plan-approval, long-running-commands and pr-sync
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30

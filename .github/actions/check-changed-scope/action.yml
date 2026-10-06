@@ -5,7 +5,7 @@ description: "Fails if any file outside the allowed paths, or any protected path
 
 inputs:
   allowed-paths:
-    description: "Newline-separated paths that may change; a change to anything outside them fails the step"
+    description: "Newline-separated paths that may change; a change to anything outside them fails the step, as does a path containing whitespace"
     required: false
     default: ""
   protected-paths:
@@ -13,10 +13,16 @@ inputs:
     required: false
     default: ""
 
+outputs:
+  allowed-paths-space-separated:
+    description: "The allowed paths joined with single spaces; the step fails if any allowed path contains whitespace"
+    value: "${{steps.check-changed-scope.outputs.allowed-paths-space-separated}}"
+
 runs:
   using: composite
   steps:
     - name: "Check changed scope"
+      id: check-changed-scope
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         ALLOWED_PATHS: "${{inputs.allowed-paths}}"
@@ -36,6 +42,15 @@ runs:
             return;
           }
 
+          // Space-separated consumers, such as git-auto-commit-action's file_pattern, would split such a path in two.
+          const pathsWithWhitespace = allowedPaths.filter((path) => /\s/.test(path));
+          if (pathsWithWhitespace.length > 0) {
+            core.setFailed(`❌ Allowed paths must not contain whitespace: ${pathsWithWhitespace.map((path) => `'${path}'`).join(', ')}`);
+            return;
+          }
+
+          core.setOutput('allowed-paths-space-separated', allowedPaths.join(' '));
+
           const maxDiffLines = 200;
 
           // exec.getExecOutput, not execFileSync: it has no 1 MiB output limit, so a large diff cannot abort the step before it is capped.
@@ -43,20 +58,24 @@ runs:
           const toLines = (text) => (text === '' ? [] : text.replace(/\r?\n$/, '').split(/\r?\n/));
 
           // git diff HEAD omits untracked files, so diff each against /dev/null; --no-index exits 1 when they differ.
+          // core.quotePath=false keeps non-ASCII names readable in the diff headers instead of octal-escaped.
           const untrackedDiff = async (pathspec) => {
             const untracked = (await git(['ls-files', '--others', '--exclude-standard', '-z', '--', ...pathspec]))
               .split('\0')
               .filter(Boolean);
             const diffs = [];
             for (const path of untracked) {
-              diffs.push(...toLines(await git(['diff', '--no-index', '--', '/dev/null', path], { ignoreReturnCode: true })));
+              diffs.push(...toLines(await git(['-c', 'core.quotePath=false', 'diff', '--no-index', '--', '/dev/null', path], { ignoreReturnCode: true })));
             }
 
             return diffs;
           };
 
           const checkUnchanged = async (pathspec, failure, success) => {
-            const changes = toLines(await git(['status', '--porcelain', '--untracked-files=all', '--', ...pathspec]));
+            // -z prints names unquoted; --no-renames keeps every entry one field, as -z gives a rename a second NUL-separated field.
+            const changes = (await git(['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames', '--', ...pathspec]))
+              .split('\0')
+              .filter(Boolean);
 
             if (changes.length === 0) {
               core.info(success);
@@ -68,7 +87,7 @@ runs:
               core.info(change);
             }
 
-            const diffLines = [...toLines(await git(['diff', 'HEAD', '--', ...pathspec])), ...(await untrackedDiff(pathspec))];
+            const diffLines = [...toLines(await git(['-c', 'core.quotePath=false', 'diff', 'HEAD', '--', ...pathspec])), ...(await untrackedDiff(pathspec))];
             for (const line of diffLines.slice(0, maxDiffLines)) {
               core.info(line);
             }
