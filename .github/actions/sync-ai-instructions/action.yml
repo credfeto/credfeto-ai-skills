@@ -10,6 +10,9 @@ inputs:
   commit-user-email:
     description: "Email of the bot committing the synced instructions"
     required: true
+  push-token:
+    description: "Token with contents write access to this repository, used only to push the synced instructions"
+    required: true
 
 runs:
   using: composite
@@ -22,6 +25,7 @@ runs:
         sparse-checkout: |
           ai/global
         fetch-depth: 1
+        persist-credentials: false
 
     - name: "Sync AI instructions from cs-template"
       shell: bash
@@ -30,8 +34,17 @@ runs:
         rsync -a --delete .cs-template/ai/global/ ai/global/
         rm -rf .cs-template
 
+    # The caller's checkout does not persist credentials, so the token reaches git only through this step's environment.
+    # The empty helper first clears any helper configured on the runner.
     - name: "Commit synced AI instructions"
       uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+      env:
+        GIT_CONFIG_COUNT: "2"
+        GIT_CONFIG_KEY_0: "credential.https://github.com.helper"
+        GIT_CONFIG_VALUE_0: ""
+        GIT_CONFIG_KEY_1: "credential.https://github.com.helper"
+        GIT_CONFIG_VALUE_1: "!f() { echo username=x-access-token; echo \"password=${PUSH_TOKEN}\"; }; f"
+        PUSH_TOKEN: "${{inputs.push-token}}"
       with:
         commit_message: "chore: sync ai instructions from cs-template"
         file_pattern: ".ai-instructions ai/global"

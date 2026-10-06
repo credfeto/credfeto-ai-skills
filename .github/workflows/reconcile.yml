@@ -4,37 +4,75 @@
 # current instruction files (ai/global, ai/local), then every agent definition
 # in ai/agents/ against its sources (ai/global/agent-roles.instructions.md, the
 # rules in ai/local/agents.instructions.md) and ai/agents/config.yaml, pushing
-# each job's changes directly to main.
+# each stage's changes directly to main.
 #
-# The skills job first mirrors .ai-instructions and ai/global/ from
-# credfeto/cs-template (a second, sparse actions/checkout of that public repo,
-# no token needed; only ai/global plus root files such as .ai-instructions are
-# fetched, not the whole repo) and commits any drift on its own, so Claude
-# always reconciles against the current upstream instructions rather than a
-# stale local copy. ai/local is repo-specific (see .ai-instructions) and is
-# never touched by this sync.
+# Five jobs run in order:
 #
-# The agents job runs only after the skills job succeeds and checks out the
-# branch tip, so agents are always reconciled against that run's pushed skills.
-# One workflow with one concurrency group means the two never push to main at
-# the same time, and a newer queued run always does both jobs.
+#   - sync mirrors .ai-instructions and ai/global/ from credfeto/cs-template (a
+#     second, sparse actions/checkout of that public repo, no token needed;
+#     only ai/global plus root files such as .ai-instructions are fetched, not
+#     the whole repo) and pushes any drift on its own, so Claude always
+#     reconciles against the current upstream instructions rather than a stale
+#     local copy. ai/local is repo-specific (see .ai-instructions) and is never
+#     touched by this sync.
+#   - skills-agent runs the skills agent and uploads its changes as a patch.
+#   - skills-apply validates that patch, applies it, runs the skill guards and
+#     pushes.
+#   - agents-agent and agents-apply do the same for agents, starting from the
+#     commit skills-apply pushed, so agents are always reconciled against that
+#     run's skills.
+#
+# sync and skills-apply record the commit they finish on as their head output,
+# even when they pushed nothing. The next agent job checks out exactly that
+# commit, and the next apply job fails unless the branch tip still equals it,
+# so a patch is only ever applied to the commit it was made from. One concurrency group means no
+# two jobs ever push at the same time, and a newer queued run always does every
+# stage.
 #
 # Runs daily, and on a push to main that changes this workflow,
 # ai/agents/config.yaml or any local action it depends on. Files the jobs
 # commit themselves are deliberately absent from the push filter, so a run
 # never re-triggers itself.
 #
-# ai/agents/config.yaml and ai/agents/install are human-owned, and removing an
-# agent is a human change: the agents job fails if it modifies either file or
-# deletes anything.
+# The agent can run code wherever it runs, so it runs only in the agent jobs,
+# which hold nothing worth pushing with: contents: read, no SOURCE_PUSH_TOKEN,
+# and a checkout with no token and persist-credentials: false. Their runner is
+# thrown away, and their only product is the patch artifact.
 #
-# Neither job's agent may change .github: it is denied Edit(.github/**), which
-# covers all the file-editing tools (Claude Code ignores path-scoped Write
-# rules), and each job's inline "Check .github was not modified" step catches
-# anything else, such as cp or mv, which acceptEdits auto-approves. That step
-# runs before any local guard action, because those are read from the working
-# tree the agent has just edited, whereas the inline step was loaded at run
-# start.
+# Each apply job treats that artifact as untrusted data. It checks out the
+# branch afresh and uses two local actions loaded from that clean checkout
+# before the patch touches it: check-base-commit fails unless the branch is
+# still on the commit the patch was made from, and apply-reconcile-patch
+# rejects the patch unless every file it adds, changes or deletes is a regular
+# 100644 text file with a plain ASCII name, inside the job's allowed paths,
+# outside its protected paths and .github, and allowed to be deleted if it is
+# deleted, and the patch holds no Claude token (sk-ant-). That validator
+# deliberately rejects binary, executable, symlink and non-ASCII-named files,
+# because no legitimate reconciliation creates one; the guard actions do not
+# rely on that restriction, so they still pass or fail correctly on any name a
+# human commits. Only then is the patch applied, so every later local action is
+# read from a tree that differs from the commit only in allowed paths. An empty
+# patch means no changes: the apply job skips its remaining steps and still
+# succeeds, so the job chain stays intact.
+#
+# SOURCE_PUSH_TOKEN reaches only the inline presence check that starts sync,
+# before anything is checked out, and the steps that push: the cs-template sync
+# and each apply job's Commit step, through a credential helper set in that
+# step's env. No checkout uses or persists it.
+#
+# Each agent's Bash rules allow markdownlint only as the exact command its
+# apply job's lint step runs, because markdownlint's --config and --rules
+# options load JavaScript modules, and allow dotnet changelog only as an add,
+# so the agent cannot run code of its own beside the Claude token.
+#
+# Neither agent may change .github: it is denied Edit(.github/**), which covers
+# all the file-editing tools (Claude Code ignores path-scoped Write rules), the
+# validator rejects any .github path, and each apply job's inline "Check .github
+# was not modified" step is a backstop straight after the patch is applied.
+#
+# ai/skills/install, ai/agents/config.yaml and ai/agents/install are
+# human-owned, and removing an agent is a human change: the apply jobs fail if
+# a patch modifies those files, and agents-apply fails if it deletes anything.
 #
 # Owner decision: changes are pushed straight to main for transparency; this
 # is a sanctioned exception to the "never commit to main" rule in
@@ -43,8 +81,9 @@
 # Setup: two repository secrets are required.
 #
 #   SOURCE_PUSH_TOKEN: a personal access token with contents write access to
-#   this repository, used for the checkout and the push to main (the default
-#   GITHUB_TOKEN is not used for pushing).
+#   this repository, used, through step env, only by the steps that push to
+#   main and the presence check before them (the default GITHUB_TOKEN is not
+#   used for pushing).
 #
 #   CLAUDE_CODE_OAUTH_TOKEN: a long-lived Claude Code OAuth token tied to your
 #   Claude subscription (Pro/Max). To create one:
@@ -84,6 +123,8 @@ on:
       - ".github/actions/nuget/**"
       - ".github/actions/dotnet-tool/**"
       - ".github/actions/dotnet-tool-run/**"
+      - ".github/actions/apply-reconcile-patch/**"
+      - ".github/actions/check-base-commit/**"
       - ".github/actions/check-allowed-deletions/**"
       - ".github/actions/check-changed-scope/**"
       - ".github/actions/check-agents/**"
@@ -98,11 +139,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  skills:
+  sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
+    outputs:
+      head: "${{steps.head.outputs.head}}"
     steps:
-      # Inline and before Checkout, which uses this token, so a missing token is not reported as a checkout auth error.
+      # Inline, because local actions only exist after Checkout, so a missing push token fails the run before anything runs.
       - name: "Check Required Secrets: SOURCE_PUSH_TOKEN"
         shell: bash
         run: |
@@ -119,7 +162,7 @@ jobs:
         with:
           ref: "${{github.ref_name}}"
           fetch-depth: 1
-          token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          persist-credentials: false
 
       - name: "Check Required Secrets: CLAUDE_CODE_OAUTH_TOKEN"
         uses: ./.github/actions/check-required-secret
@@ -132,11 +175,31 @@ jobs:
         with:
           commit-user-name: "skills-reconciler[bot]"
           commit-user-email: "credfeto@users.noreply.github.com"
+          push-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Record head commit"
+        id: head
+        shell: bash
+        run: echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  skills-agent:
+    needs: sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: "${{needs.sync.outputs.head}}"
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: "Setup AI reconcile tools"
         uses: ./.github/actions/setup-ai-reconcile
         with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{github.token}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
 
@@ -166,9 +229,11 @@ jobs:
              with rm -r ai/skills/<skill> and remove its registry entry. That is the only deletion allowed:
              never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path. Never delete
              or rename a skill that ai/agents/config.yaml preloads; this run fails if you do.
-          5. Every SKILL.md must pass markdownlint. Never modify ai/agents/ or ai/local/agents.instructions.md;
-             agents are reconciled by a later job, and this run fails if they change.
-          6. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+          5. Every SKILL.md must pass markdownlint. Check it with exactly this command, which is the only
+             markdownlint command you may run: markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md
+             Never modify ai/agents/ or ai/local/agents.instructions.md; agents are reconciled by a later job,
+             and this run fails if they change.
+          6. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make; this repository's local rules require a changelog entry for
              every change.
           7. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
@@ -179,18 +244,20 @@ jobs:
           # workspace and run the specific tools reconciliation needs, with no
           # arbitrary bash. rm is allowed under ai/skills/ only; the
           # disallowed patterns reject parent-directory paths and extra
-          # targets, and the "Check deletions" step below fails the run if
-          # any tracked file outside a skill folder was removed.
-          # Edit(.github/**) protects the local guard actions; see the header.
+          # targets, and skills-apply rejects the patch if it deletes any
+          # tracked file outside a skill folder.
+          # markdownlint is allowed only as the exact "Lint skill markdown"
+          # command, and dotnet changelog only as an add; see the header.
+          # Edit(.github/**) keeps the agent off the workflow; see the header.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
               "Bash(rm -r ai/skills/*)" \
-              "Bash(dotnet changelog:*)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
               "Bash(shellcheck:*)" \
               "Bash(checkbashisms:*)" \
-              "Bash(markdownlint:*)" \
+              'Bash(markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md)' \
             --disallowedTools \
               "Edit(.github/**)" \
               "Bash(rm *..*)" \
@@ -198,74 +265,171 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # Runs before any local action; see the header. Staging (ignored files too) makes new files, e.g. one shadowing an
-      # import, show.
+      # Fixed prefixes and no renames, external diff drivers or textconv, so the patch has the one format the validator
+      # accepts. An empty file means no changes.
+      - name: "Create patch"
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/patch"
+          git add --all
+          git diff --cached --binary --full-index --no-renames --no-ext-diff --no-textconv --src-prefix=a/ --dst-prefix=b/ HEAD \
+            > "${RUNNER_TEMP}/patch/changes.patch"
+
+      - name: "Upload patch"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: "skills-patch"
+          path: "${{runner.temp}}/patch/changes.patch"
+          retention-days: 1
+          if-no-files-found: "error"
+
+  skills-apply:
+    needs: [sync, skills-agent]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      head: "${{steps.head.outputs.head}}"
+    env:
+      ALLOWED_PATHS: |
+        ai/skills
+        ai/local/skills.instructions.md
+        CHANGELOG.md
+      PROTECTED_PATHS: |
+        ai/skills/install
+      ALLOWED_DELETION_PARENT: "ai/skills"
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: "${{github.ref_name}}"
+          fetch-depth: 1
+          persist-credentials: false
+
+      # The patch was made from this commit; any later push to the branch would make it apply to a different tree.
+      # Loaded, like the validator, from the clean checkout before the patch is downloaded.
+      - name: "Check base commit"
+        uses: ./.github/actions/check-base-commit
+        with:
+          expected-head: "${{needs.sync.outputs.head}}"
+
+      - name: "Download patch"
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: "skills-patch"
+          path: "${{runner.temp}}/patch"
+
+      - name: "Validate and apply patch"
+        id: patch
+        uses: ./.github/actions/apply-reconcile-patch
+        with:
+          patch-directory: "${{runner.temp}}/patch"
+          allowed-paths: "${{env.ALLOWED_PATHS}}"
+          protected-paths: "${{env.PROTECTED_PATHS}}"
+          allowed-deletion-parent: "${{env.ALLOWED_DELETION_PARENT}}"
+
+      # Inline, so it does not depend on the tree the patch has just changed. Staging (ignored files too) makes new files,
+      # e.g. one shadowing an import, show.
       - name: "Check .github was not modified"
+        if: steps.patch.outputs.has-changes == 'true'
         shell: bash
         run: |
           git add --all --force -- .github
           git diff --cached --exit-code HEAD -- .github
 
-      # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
-      # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
+      - name: "Setup AI reconcile tools"
+        if: steps.patch.outputs.has-changes == 'true'
+        uses: ./.github/actions/setup-ai-reconcile
+        with:
+          github-token: "${{github.token}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          install-claude-code: "false"
+
+      # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows.
       - name: "Check only skill files changed"
+        id: skills-scope
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-changed-scope
         with:
-          allowed-paths: |
-            ai/skills
-            ai/local/skills.instructions.md
-            CHANGELOG.md
+          allowed-paths: "${{env.ALLOWED_PATHS}}"
 
       - name: "Check deletions"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-allowed-deletions
         with:
-          allowed-parent: "ai/skills"
+          allowed-parent: "${{env.ALLOWED_DELETION_PARENT}}"
 
-      # Only what a skills run can break: an agent mismatch here would block the agents job that fixes it.
+      - name: "Check human-owned files are unchanged"
+        if: steps.patch.outputs.has-changes == 'true'
+        uses: ./.github/actions/check-changed-scope
+        with:
+          protected-paths: "${{env.PROTECTED_PATHS}}"
+
+      # Only what a skills run can break: an agent mismatch here would block the agents jobs that fix it.
       - name: "Check preloaded skills exist"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-agents
         with:
           skills-only: "true"
 
       - name: "Lint skill markdown"
+        if: steps.patch.outputs.has-changes == 'true'
         shell: bash
         run: markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md
 
       - name: "Validate changelog"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/dotnet-tool-run
         with:
           working-directory: "${{github.workspace}}"
           tool-name: "changelog"
           tool-arguments: "-f CHANGELOG.md --lint"
 
+      # The checkout does not persist credentials, so the token reaches git only through this step's environment.
+      # The empty helper first clears any helper configured on the runner. Inline rather than a shared local action, so
+      # the one step holding the token does not depend on the tree the patch has just changed.
       - name: "Commit changes"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        env:
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: "credential.https://github.com.helper"
+          GIT_CONFIG_VALUE_0: ""
+          GIT_CONFIG_KEY_1: "credential.https://github.com.helper"
+          GIT_CONFIG_VALUE_1: "!f() { echo username=x-access-token; echo \"password=${PUSH_TOKEN}\"; }; f"
+          PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
         with:
           commit_message: "chore: daily skill reconciliation against instruction files"
-          file_pattern: "ai/skills ai/local/skills.instructions.md CHANGELOG.md"
+          file_pattern: "${{steps.skills-scope.outputs.allowed-paths-space-separated}}"
           commit_user_name: "skills-reconciler[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "skills-reconciler[bot] <credfeto@users.noreply.github.com>"
           skip_dirty_check: false
 
-  agents:
-    # Runs only after the skills job succeeded, which already checked the secrets and pushed the cs-template sync.
-    needs: skills
+      # Not gated on has-changes: agents-agent checks out this commit even when there was nothing to push.
+      - name: "Record head commit"
+        id: head
+        shell: bash
+        run: echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  agents-agent:
+    needs: skills-apply
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
     steps:
-      # Check out the branch tip so the skills job's push is included.
       - name: "Checkout"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: "${{github.ref_name}}"
+          ref: "${{needs.skills-apply.outputs.head}}"
           fetch-depth: 1
-          token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          persist-credentials: false
 
       - name: "Setup AI reconcile tools"
         uses: ./.github/actions/setup-ai-reconcile
         with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{github.token}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
 
@@ -295,8 +459,9 @@ jobs:
              agent-roles.instructions.md; removing an agent is a human change to config.yaml and ai/agents.
           5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md.
              The workflow fails the run if you do.
-          6. Every AGENT.md must pass markdownlint.
-          7. Add a changelog entry with: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+          6. Every AGENT.md must pass markdownlint. Check it with exactly this command, which is the only
+             markdownlint command you may run: markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md
+          7. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make; this repository's local rules require a changelog entry for
              every change.
           8. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
@@ -305,68 +470,155 @@ jobs:
           )
           # Scoped permissions: the agent may only read/edit files in the
           # workspace and run the specific tools reconciliation needs, with no
-          # arbitrary bash and no rm. The steps below fail the run if
-          # config.yaml or install changed or any tracked file was deleted.
-          # Edit(.github/**) protects the local guard actions; see the header.
+          # arbitrary bash and no rm. agents-apply rejects the patch if it
+          # changes config.yaml or install or deletes any tracked file.
+          # markdownlint is allowed only as the exact "Lint agent markdown"
+          # command, and dotnet changelog only as an add; see the header.
+          # Edit(.github/**) keeps the agent off the workflow; see the header.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
-              "Bash(dotnet changelog:*)" \
-              "Bash(markdownlint:*)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
+              'Bash(markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md)' \
               "Bash(yamllint:*)" \
             --disallowedTools \
               "Edit(.github/**)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
-      # Runs before any local action; see the header. Staging (ignored files too) makes new files, e.g. one shadowing an
-      # import, show.
+      # Fixed prefixes and no renames, external diff drivers or textconv, so the patch has the one format the validator
+      # accepts. An empty file means no changes.
+      - name: "Create patch"
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/patch"
+          git add --all
+          git diff --cached --binary --full-index --no-renames --no-ext-diff --no-textconv --src-prefix=a/ --dst-prefix=b/ HEAD \
+            > "${RUNNER_TEMP}/patch/changes.patch"
+
+      - name: "Upload patch"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: "agents-patch"
+          path: "${{runner.temp}}/patch/changes.patch"
+          retention-days: 1
+          if-no-files-found: "error"
+
+  agents-apply:
+    needs: [skills-apply, agents-agent]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ALLOWED_PATHS: |
+        ai/agents
+        ai/local/agents.instructions.md
+        CHANGELOG.md
+      PROTECTED_PATHS: |
+        ai/agents/config.yaml
+        ai/agents/install
+      ALLOWED_DELETION_PARENT: ""
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: "${{github.ref_name}}"
+          fetch-depth: 1
+          persist-credentials: false
+
+      # The patch was made from this commit; any later push to the branch would make it apply to a different tree.
+      # Loaded, like the validator, from the clean checkout before the patch is downloaded.
+      - name: "Check base commit"
+        uses: ./.github/actions/check-base-commit
+        with:
+          expected-head: "${{needs.skills-apply.outputs.head}}"
+
+      - name: "Download patch"
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: "agents-patch"
+          path: "${{runner.temp}}/patch"
+
+      - name: "Validate and apply patch"
+        id: patch
+        uses: ./.github/actions/apply-reconcile-patch
+        with:
+          patch-directory: "${{runner.temp}}/patch"
+          allowed-paths: "${{env.ALLOWED_PATHS}}"
+          protected-paths: "${{env.PROTECTED_PATHS}}"
+          allowed-deletion-parent: "${{env.ALLOWED_DELETION_PARENT}}"
+
+      # Inline, so it does not depend on the tree the patch has just changed. Staging (ignored files too) makes new files,
+      # e.g. one shadowing an import, show.
       - name: "Check .github was not modified"
+        if: steps.patch.outputs.has-changes == 'true'
         shell: bash
         run: |
           git add --all --force -- .github
           git diff --cached --exit-code HEAD -- .github
 
-      # Runs first of the local-action guards, so changes outside this job's commit scope are reported before the later
-      # guard and lint steps use them; otherwise they would be silently dropped while their changelog entry was kept.
-      - name: "Check only agent files changed"
-        uses: ./.github/actions/check-changed-scope
+      - name: "Setup AI reconcile tools"
+        if: steps.patch.outputs.has-changes == 'true'
+        uses: ./.github/actions/setup-ai-reconcile
         with:
-          allowed-paths: |
-            ai/agents
-            ai/local/agents.instructions.md
-            CHANGELOG.md
+          github-token: "${{github.token}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          install-claude-code: "false"
 
-      - name: "Check human-owned files are unchanged"
+      # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows.
+      - name: "Check only agent files changed"
+        id: agents-scope
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-changed-scope
         with:
-          protected-paths: |
-            ai/agents/config.yaml
-            ai/agents/install
+          allowed-paths: "${{env.ALLOWED_PATHS}}"
 
       - name: "Check nothing was deleted"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-allowed-deletions
+        with:
+          allowed-parent: "${{env.ALLOWED_DELETION_PARENT}}"
+
+      - name: "Check human-owned files are unchanged"
+        if: steps.patch.outputs.has-changes == 'true'
+        uses: ./.github/actions/check-changed-scope
+        with:
+          protected-paths: "${{env.PROTECTED_PATHS}}"
 
       - name: "Check agents match config.yaml"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-agents
 
       - name: "Lint agent markdown"
+        if: steps.patch.outputs.has-changes == 'true'
         shell: bash
         run: markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md
 
       - name: "Validate changelog"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/dotnet-tool-run
         with:
           working-directory: "${{github.workspace}}"
           tool-name: "changelog"
           tool-arguments: "-f CHANGELOG.md --lint"
 
+      # The checkout does not persist credentials, so the token reaches git only through this step's environment.
+      # The empty helper first clears any helper configured on the runner. Inline rather than a shared local action, so
+      # the one step holding the token does not depend on the tree the patch has just changed.
       - name: "Commit changes"
+        if: steps.patch.outputs.has-changes == 'true'
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        env:
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: "credential.https://github.com.helper"
+          GIT_CONFIG_VALUE_0: ""
+          GIT_CONFIG_KEY_1: "credential.https://github.com.helper"
+          GIT_CONFIG_VALUE_1: "!f() { echo username=x-access-token; echo \"password=${PUSH_TOKEN}\"; }; f"
+          PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
         with:
           commit_message: "chore: daily agent reconciliation against instruction files"
-          file_pattern: "ai/agents ai/local/agents.instructions.md CHANGELOG.md"
+          file_pattern: "${{steps.agents-scope.outputs.allowed-paths-space-separated}}"
           commit_user_name: "agents-reconciler[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "agents-reconciler[bot] <credfeto@users.noreply.github.com>"
