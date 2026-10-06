@@ -34,7 +34,7 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 ## [0.0.5] - 2026-10-15
 ### Security
 - Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
-- TBD - to be finalized after review
+- Reconcile workflow: the unattended agent now runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so the agent cannot tamper with the guards or reach the push token - #34
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
@@ -147,6 +147,8 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 - Reconciled skills against current instruction files (issue title prefixes, coverage ratchet skip handling, claude-hooks block rule, removal of unsourced wording)
 - Agents: added the Hook Blocks in Hand-offs rule to every agent that runs commands
 - SDK - Updated DotNet SDK to 10.0.402
+- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
+### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30
 
