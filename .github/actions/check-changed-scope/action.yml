@@ -58,20 +58,24 @@ runs:
           const toLines = (text) => (text === '' ? [] : text.replace(/\r?\n$/, '').split(/\r?\n/));
 
           // git diff HEAD omits untracked files, so diff each against /dev/null; --no-index exits 1 when they differ.
+          // core.quotePath=false keeps non-ASCII names readable in the diff headers instead of octal-escaped.
           const untrackedDiff = async (pathspec) => {
             const untracked = (await git(['ls-files', '--others', '--exclude-standard', '-z', '--', ...pathspec]))
               .split('\0')
               .filter(Boolean);
             const diffs = [];
             for (const path of untracked) {
-              diffs.push(...toLines(await git(['diff', '--no-index', '--', '/dev/null', path], { ignoreReturnCode: true })));
+              diffs.push(...toLines(await git(['-c', 'core.quotePath=false', 'diff', '--no-index', '--', '/dev/null', path], { ignoreReturnCode: true })));
             }
 
             return diffs;
           };
 
           const checkUnchanged = async (pathspec, failure, success) => {
-            const changes = toLines(await git(['status', '--porcelain', '--untracked-files=all', '--', ...pathspec]));
+            // -z prints names unquoted; --no-renames keeps every entry one field, as -z gives a rename a second NUL-separated field.
+            const changes = (await git(['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames', '--', ...pathspec]))
+              .split('\0')
+              .filter(Boolean);
 
             if (changes.length === 0) {
               core.info(success);
@@ -83,7 +87,7 @@ runs:
               core.info(change);
             }
 
-            const diffLines = [...toLines(await git(['diff', 'HEAD', '--', ...pathspec])), ...(await untrackedDiff(pathspec))];
+            const diffLines = [...toLines(await git(['-c', 'core.quotePath=false', 'diff', 'HEAD', '--', ...pathspec])), ...(await untrackedDiff(pathspec))];
             for (const line of diffLines.slice(0, maxDiffLines)) {
               core.info(line);
             }
