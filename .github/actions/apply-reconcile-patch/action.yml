@@ -1,0 +1,312 @@
+--- # Validate an untrusted reconcile patch and apply it to the working tree only if every change is in scope
+# Maintain in repo: credfeto-ai-skills
+name: "Apply Reconcile Patch"
+description: "Rejects an untrusted patch unless every file it changes is a 100644 text file with a safe ASCII path in scope, then applies it to the work tree"
+
+inputs:
+  patch-directory:
+    description: "Folder the patch artifact was downloaded to; it must hold exactly one regular file of at most 5 MiB, and a 0-byte file means no changes"
+    required: true
+  allowed-paths:
+    description: "Newline-separated paths the patch may change; a change to anything outside them rejects the patch"
+    required: true
+  protected-paths:
+    description: "Newline-separated paths the patch must not change, even when inside the allowed paths"
+    required: false
+    default: ""
+  allowed-deletion-parent:
+    description: "Parent folder (e.g. ai/skills) whose sub-folders may have files deleted; files directly in it may not. Empty allows no deletions"
+    required: false
+    default: ""
+
+outputs:
+  has-changes:
+    description: "'true' if the patch changed files and was applied, 'false' if the patch was empty"
+    value: "${{steps.apply-reconcile-patch.outputs.has-changes}}"
+
+runs:
+  using: composite
+  steps:
+    - name: "Apply reconcile patch"
+      id: apply-reconcile-patch
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        PATCH_DIRECTORY: "${{inputs.patch-directory}}"
+        ALLOWED_PATHS: "${{inputs.allowed-paths}}"
+        PROTECTED_PATHS: "${{inputs.protected-paths}}"
+        ALLOWED_DELETION_PARENT: "${{inputs.allowed-deletion-parent}}"
+      with:
+        script: |
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const maxPatchBytes = 5 * 1024 * 1024;
+          const safePathPattern = /^[A-Za-z0-9._/@+-]+$/;
+          const rawHeaderPattern = /^:(\d{6}) (\d{6}) [0-9a-f]+ [0-9a-f]+ ([A-Z])\d*$/;
+          const expectedModes = { A: ['000000', '100644'], M: ['100644', '100644'], D: ['100644', '000000'] };
+          const forbiddenHeaderPatterns = [
+            /^(rename|copy) /,
+            /^(dis)?similarity index/,
+            /^(old|new) mode/,
+            /^GIT binary patch/,
+            /^(Binary files|Files) /,
+          ];
+          // git reads these modes with strtoul, which skips extra spaces, so each header must match its one exact form.
+          const strictHeaders = [
+            { header: /^(new file|deleted file) mode/, exactForm: /^(new file|deleted file) mode 100644$/ },
+            { header: /^index /, exactForm: /^index [0-9a-f]+\.\.[0-9a-f]+( 100644)?$/ },
+          ];
+
+          const parsePaths = (value) => value
+            .split(/\r?\n/)
+            .map((entry) => entry.trim().replace(/\/+$/, ''))
+            .filter(Boolean);
+
+          const allowedPaths = parsePaths(process.env.ALLOWED_PATHS);
+          const protectedPaths = parsePaths(process.env.PROTECTED_PATHS);
+          const deletionParent = process.env.ALLOWED_DELETION_PARENT.trim().replace(/\/+$/, '');
+
+          // JSON.stringify escapes newlines and control characters, so an untrusted path cannot inject a workflow command.
+          const show = (value) => JSON.stringify(value);
+          const reject = (message) => {
+            throw new Error(message);
+          };
+
+          // exec's env option replaces the environment rather than adding to it.
+          const git = async (args, { env = {}, input, allowedExitCodes = [0] } = {}) => {
+            const result = await exec.getExecOutput('git', args, { silent: true, ignoreReturnCode: true, input, env: { ...process.env, ...env } });
+            if (!allowedExitCodes.includes(result.exitCode)) {
+              reject(`git ${args[0]} failed with exit code ${result.exitCode}: ${show(result.stderr.trim())}`);
+            }
+
+            return result;
+          };
+
+          const readPatchArtifact = () => {
+            const entries = fs.readdirSync(process.env.PATCH_DIRECTORY);
+            if (entries.length !== 1) {
+              reject(`The patch artifact must hold exactly one file, but holds ${entries.length} entries`);
+            }
+
+            const patchPath = path.join(process.env.PATCH_DIRECTORY, entries[0]);
+            const stats = fs.lstatSync(patchPath);
+            if (!stats.isFile()) {
+              reject(`The patch artifact entry ${show(entries[0])} is not a regular file`);
+            }
+
+            if (stats.size > maxPatchBytes) {
+              reject(`The patch is ${stats.size} bytes, over the ${maxPatchBytes}-byte limit`);
+            }
+
+            return { patchPath, size: stats.size };
+          };
+
+          // A text patch never holds NUL, and hunk lines always start with a space, +, - or \, so these patterns only match headers.
+          const checkPatchText = (text) => {
+            if (text.includes('\0')) {
+              reject('The patch contains a NUL byte');
+            }
+
+            for (const line of text.split('\n')) {
+              if (forbiddenHeaderPatterns.some((pattern) => pattern.test(line))) {
+                reject(`The patch contains a forbidden header: ${show(line)}`);
+              }
+
+              if (strictHeaders.some(({ header, exactForm }) => header.test(line) && !exactForm.test(line))) {
+                reject(`The patch contains a header with a mode other than 100644: ${show(line)}`);
+              }
+            }
+          };
+
+          const parseRawDiff = (raw) => {
+            const fields = raw.split('\0').filter(Boolean);
+            if (fields.length % 2 !== 0) {
+              reject('git diff --raw output did not pair every header with a path');
+            }
+
+            const entries = [];
+            for (let index = 0; index < fields.length; index += 2) {
+              const match = rawHeaderPattern.exec(fields[index]);
+              if (!match) {
+                reject(`Unexpected git diff --raw header: ${show(fields[index])}`);
+              }
+
+              entries.push({ sourceMode: match[1], targetMode: match[2], status: match[3], path: fields[index + 1] });
+            }
+
+            return entries;
+          };
+
+          const isWithin = (filePath, parent) => filePath === parent || filePath.startsWith(`${parent}/`);
+
+          const pathProblem = (filePath) => {
+            if (!safePathPattern.test(filePath)) {
+              return 'has a character outside [A-Za-z0-9._/@+-]';
+            }
+
+            const segments = filePath.split('/');
+            if (segments.some((segment) => segment === '' || segment === '.' || segment === '..')) {
+              return 'has an empty, . or .. segment';
+            }
+
+            if (segments.some((segment) => segment.toLowerCase().startsWith('.git'))) {
+              return 'has a segment starting with .git';
+            }
+
+            // The .git segment rule already covers this; it stays explicit because .github is what this boundary protects.
+            if (isWithin(filePath, '.github')) {
+              return 'is under .github';
+            }
+
+            if (protectedPaths.some((protectedPath) => isWithin(filePath, protectedPath))) {
+              return 'is a protected path';
+            }
+
+            if (!allowedPaths.some((allowedPath) => isWithin(filePath, allowedPath))) {
+              return 'is outside the allowed paths';
+            }
+
+            return null;
+          };
+
+          const isDeletionAllowed = (filePath) => deletionParent !== ''
+            && filePath.startsWith(`${deletionParent}/`)
+            && filePath.slice(deletionParent.length + 1).includes('/');
+
+          const entryProblem = (entry) => {
+            const modes = expectedModes[entry.status];
+            if (!modes) {
+              return `has status ${entry.status}; only A, M and D are allowed`;
+            }
+
+            if (entry.sourceMode !== modes[0] || entry.targetMode !== modes[1]) {
+              return `changes mode ${entry.sourceMode} to ${entry.targetMode}; only regular 100644 files are allowed`;
+            }
+
+            if (entry.status === 'D' && !isDeletionAllowed(entry.path)) {
+              return deletionParent === '' ? 'is a deletion, and no deletions are allowed' : `is a deletion outside ${deletionParent}/<folder>/`;
+            }
+
+            return pathProblem(entry.path);
+          };
+
+          const checkWorkspaceClean = async () => {
+            const status = (await git(['status', '--porcelain', '-z', '--untracked-files=all'])).stdout;
+            if (status !== '') {
+              reject('The working tree or index is not clean before applying the patch');
+            }
+          };
+
+          const changesFromThrowawayIndex = async (patchPath) => {
+            const indexDirectory = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP, 'reconcile-index-'));
+            const env = { GIT_INDEX_FILE: path.join(indexDirectory, 'index') };
+            try {
+              await git(['read-tree', 'HEAD'], { env });
+              await git(['apply', '--cached', '--binary', patchPath], { env });
+              return parseRawDiff((await git(['diff', '--cached', '--raw', '-z', '--no-renames', 'HEAD'], { env })).stdout);
+            } finally {
+              fs.rmSync(indexDirectory, { recursive: true, force: true });
+            }
+          };
+
+          // The commit only stages what git add sees, so an ignored new file would be dropped while its changelog entry was kept.
+          const checkNoIgnoredAdditions = async (entries) => {
+            const added = entries.filter((entry) => entry.status === 'A').map((entry) => entry.path);
+            if (added.length === 0) {
+              return;
+            }
+
+            const input = Buffer.from(`${added.join('\0')}\0`);
+            const result = await git(['check-ignore', '--no-index', '-z', '--stdin'], { input, allowedExitCodes: [0, 1] });
+            const ignored = result.stdout.split('\0').filter(Boolean);
+            for (const filePath of ignored) {
+              core.error(`❌ A ${show(filePath)} is excluded by .gitignore, so the commit would drop it`);
+            }
+
+            if (ignored.length > 0) {
+              reject(`${ignored.length} added file(s) in the patch are excluded by .gitignore`);
+            }
+          };
+
+          const changeKeys = (entries) => entries.map((entry) => `${entry.status} ${entry.path}`).sort();
+
+          // Plain git status would report a deletion plus an addition of similar content as a rename, so build the set without rename detection.
+          const changesInWorkingTree = async () => {
+            const tracked = parseRawDiff((await git(['diff', 'HEAD', '--raw', '-z', '--no-renames'])).stdout);
+            const untracked = (await git(['ls-files', '--others', '--exclude-standard', '-z'])).stdout
+              .split('\0')
+              .filter(Boolean)
+              .map((filePath) => ({ status: 'A', path: filePath }));
+
+            return [...tracked, ...untracked];
+          };
+
+          const checkAppliedFiles = (entries) => {
+            for (const entry of entries.filter((change) => change.status !== 'D')) {
+              const stats = fs.lstatSync(entry.path);
+              if (!stats.isFile() || (stats.mode & 0o111) !== 0) {
+                reject(`After applying, ${show(entry.path)} is not a regular non-executable file`);
+              }
+            }
+          };
+
+          const run = async () => {
+            if (allowedPaths.length === 0) {
+              reject('allowed-paths is not set');
+            }
+
+            const { patchPath, size } = readPatchArtifact();
+            if (size === 0) {
+              core.info('ℹ️ The patch is empty; there are no changes to apply');
+              core.setOutput('has-changes', 'false');
+              return;
+            }
+
+            const text = fs.readFileSync(patchPath).toString('latin1');
+            checkPatchText(text);
+
+            await checkWorkspaceClean();
+            const validated = await changesFromThrowawayIndex(patchPath);
+            if (validated.length === 0) {
+              reject('The patch is not empty but changes no files');
+            }
+
+            const problems = validated
+              .map((entry) => ({ entry, problem: entryProblem(entry) }))
+              .filter((result) => result.problem !== null);
+            for (const { entry, problem } of problems) {
+              core.error(`❌ ${entry.status} ${show(entry.path)} ${problem}`);
+            }
+
+            if (problems.length > 0) {
+              reject(`${problems.length} change(s) in the patch are not allowed`);
+            }
+
+            await checkNoIgnoredAdditions(validated);
+
+            if (text.includes('sk-ant-')) {
+              reject('The patch contains a Claude token prefix (sk-ant-)');
+            }
+
+            await git(['apply', '--binary', patchPath]);
+
+            const applied = await changesInWorkingTree();
+            if (changeKeys(applied).join('\n') !== changeKeys(validated).join('\n')) {
+              reject('The files changed after applying the patch differ from the validated set');
+            }
+
+            checkAppliedFiles(validated);
+
+            for (const entry of validated) {
+              core.info(`✅ ${entry.status} ${entry.path}`);
+            }
+
+            core.notice(`✅ Applied a patch changing ${validated.length} file(s)`);
+            core.setOutput('has-changes', 'true');
+          };
+
+          try {
+            await run();
+          } catch (error) {
+            core.setFailed(`❌ ${error.message}`);
+          }
