@@ -182,7 +182,7 @@ This convention only applies to PRs. Everything else about the Blocked-label con
 - **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - When adding work to an open PR (review comments, missing coverage, CI fixes), turn auto-merge off if it is on, then convert to draft (`gh pr ready <number> --repo <owner/repo> --undo`), because otherwise GitHub could merge the new change as soon as its checks pass, before it is reviewed. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
 - Keep the PR in draft until the AI Review Loop has reviewed every new commit: only its final phase marks the PR ready, because PR creation always leaves the PR as draft, and it enables auto-merge only once every required check on the PR's current head has a result completed at or after the time the PR was last marked ready and none of them failed, because GitHub counts a check skipped on a draft as passed.
-- Assign yourself to PRs when creating or updating: `gh pr edit <number> --add-assignee @me`.
+- Assign yourself to PRs when creating or updating: `gh pr edit <number> --repo <owner/repo> --add-assignee @me`.
 
 ## Bot-Created PRs (MANDATORY: treat as your own)
 

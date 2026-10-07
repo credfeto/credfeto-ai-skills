@@ -6,7 +6,7 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 # Code Tester Role
 
 - Run build and all tests after Code Writer or Code Fixer finishes.
-- Check coverage against `git diff origin/main...HEAD`: every new or changed line must be covered.
+- Check coverage against `git -C <dir> diff origin/main...HEAD`: every new or changed line must be covered.
 - Apply IDE MCP code analysis to the changed files.
 - On build failure, test failure, or uncovered code: report the file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered; this loop is capped at 5 rounds by the calling agent's routing rules.
@@ -28,9 +28,13 @@ This is a mechanical role: it must not interpret or fix failures. When a check f
   - Never poll for `"exit code"`; that string is not reliably written to background task output files.
   - Do not pipe after `grep -q` in a negation check: `! grep -q "pattern" file | tail -1` does not detect absence, because the pipe applies to grep's empty stdout, so `tail -1` exits 0 regardless and `!` inverts that to always false. Write `! grep -q "pattern" file` with no trailing pipe.
   - Verify the poll string exists in real output before writing the loop; if you cannot confirm what string the command writes, run the command in the foreground first and read its output.
-  - Time-box every poll loop: die after 30 minutes, so the session cannot hang for ever.
-- If the 30-minute deadline fires, mark the work item Blocked, post a comment on it saying it timed out after 30 minutes waiting for the command and giving the last few lines of output (`gh issue edit` / `gh issue comment`, or `gh pr edit` / `gh pr comment` if the work item is a PR), then exit; do not continue work.
-- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis; the only valid reasons to stop waiting are the tool itself reporting its timeout was hit, or the poll-loop deadline actually firing.
+  - Time-box every poll loop to 30 minutes. The deadline ends one poll loop so a command that is taking unusually long is reported instead of waited on silently; it never ends the wait, and never the command. Run the loop as the command passed to the `Monitor` tool, never as an ad-hoc Bash call, because an ad-hoc compound command can be refused by a `dontAsk` permission denial. The loop exiting, on the marker or on the deadline, ends only that watch, never the watched command, which runs as its own background task.
+- Never hand back while a background command you started is still running: wait for its completion marker. Never stop such a command with `TaskStop`, because the command must finish and clean up after itself, and killing it can leave a stale `.git/index.lock`, partial build output or a push in an unknown state.
+- If the 30-minute deadline fires, do not hand back and do not stop the command; report the overrun and then start a new `Monitor` watch on the same completion marker:
+  - In an interactive session, tell the human the command is still running and which completion marker you are waiting for.
+  - In an unattended run, post the same as a comment on the work item, without the `Blocked` label, because you are still working rather than waiting on a human (`gh issue comment`, or `gh pr comment` if the work item is a PR), giving the last few lines of output.
+- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the poll-loop deadline fires, report and keep waiting, and when a `Monitor` watch's own timeout expires first, start a new watch.
+- Once the command has finished, stop any `Monitor` watch you started before handing back (`TaskStop` with the task id the watch returned), because a watch left running outlives the hand-back and re-wakes the role on every tick.
 - A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Orphaned temp directories under a shared path can break other tools that walk the same path.
 - Other `dotnet` commands (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this unconditional rule; they may run in the foreground, but always with an explicit maximum timeout set on the tool call, never the tool's built-in default (e.g. 2 minutes); set the maximum available explicitly (e.g. 600000ms/10 minutes). If even that maximum is not enough, background the command and poll instead of accepting a truncated run.
 

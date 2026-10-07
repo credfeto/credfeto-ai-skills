@@ -55,7 +55,7 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
-Otherwise (no rebase was needed, or you are starting a fresh branch from an up-to-date `main`), run the baseline check now, before starting any work on an issue or PR, to verify the repo is clean:
+If you are starting a fresh branch from an up-to-date `main`, run the baseline check now, before starting any work on an issue or PR, to verify the repo is clean. Resuming an existing branch that needed no rebase does not run it, because the commit hook covers it:
 
 ```bash
 pre-commit-check
@@ -63,7 +63,7 @@ pre-commit-check
 
 **Always run this check in the background**: it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional; see the long-running-commands skill for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes. A fresh, single-phase invocation that is never resumed starts with no memory of the wait, and the backgrounded check is killed when the turn ends, so the result is never seen. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe; absent that confirmation, assume it is not.
 
-1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes in **their own commit** on the work branch before any new work, separate from the requested work, then proceed. If no work branch exists yet (for example a new issue still waiting for plan approval), discard the auto-fixes instead, only in files that had no uncommitted changes before the check ran (`git checkout -- <files>`, after running `git status` first, as the check regenerates them), and re-run the check once the work branch is created, because committing on `main` is forbidden. Do not open a separate branch or issue for them or add `Blocked`, because only one branch/PR is open per repo at a time, so a separate base-fix branch could never be opened alongside the work; the dedicated commit keeps the baseline fix distinguishable from the work in CI and review.
+1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes in **their own commit** on the work branch before any new work, separate from the requested work, then proceed. If no work branch exists yet (for example a new issue still waiting for plan approval), discard the auto-fixes instead, only in files that had no uncommitted changes before the check ran (`git checkout -- <files>`, after running `git status` first, as the check regenerates them), and re-run the check once the work branch is created, because committing on `main` is forbidden. Do not open a separate branch or issue for them or add `Blocked`, because only one branch/PR is open per user per repository at a time, so a separate base-fix branch could never be opened alongside the work; the dedicated commit keeps the baseline fix distinguishable from the work in CI and review.
 2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
 3. If the check **still fails** after all fixing attempts and it is genuinely fatal (pre-commit cannot possibly be made to pass, for example a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation); otherwise keep fixing:
    - For an issue: comment on the issue, label it `Blocked`, and do not start work.
@@ -128,7 +128,7 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
      ```
 
      `<sha>` is the commit the numbers were measured against.
-  3. Create the work branch as normal and commit the resulting `COVERAGE.md` in **its own commit**, before starting the requested work. No separate branch or issue is needed for this bootstrap commit, as for the pre-commit auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against.
+  3. Create the work branch as normal and commit the resulting `COVERAGE.md` in **its own commit**, before starting the requested work. No separate branch or issue is needed for this bootstrap commit, as for the pre-commit auto-fix case above: only one branch/PR is allowed open per user per repository at a time, so there is no concurrent-bootstrap race to isolate against.
   4. `COVERAGE.md` will be overwritten again later in the same PR with the branch's live numbers once coverage is next measured; expect two commits touching the file over the branch's lifetime, that is not a conflict.
 
 ## 5. .NET Repository Health Check (MANDATORY when a `.csproj`, `.sln`, or `.slnx` file is present)

@@ -51,6 +51,8 @@ Produce a concrete implementation plan (using `/plan`), then post it as an issue
 <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
 ```
 
+Continue the assumption and `Q` numbering from the highest already used in the work item (issue and PR), never restarting at `a.` or `Q1`, because a number must name exactly one item for the life of the work item.
+
 **Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text — a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) — must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. A matching check applies when the issue is closed.
 
 Then mark the issue Blocked, update the workflow board to **Planning** if the repo has one (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**:
@@ -63,7 +65,7 @@ Use only the `Blocked` label for this purpose; never a substitute such as `do no
 
 Whenever `Blocked` is added, the accompanying comment must name the specific instruction that requires the stop, as a link to its section. A judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction; if no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
 
-Revise a plan only by posting a new `## Implementation Plan` comment, never by editing an existing one in place, so approval is always judged against the latest plan comment.
+Revise a plan only by posting a new `## Implementation Plan` comment, never by editing an existing one in place, so approval is always judged against the latest plan comment. A revised plan continues the `P`, `Q` and assumption numbering of the plan it supersedes.
 
 Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically (the sole exception is live-chat approval in an interactive session, see below):
 

@@ -33,7 +33,28 @@ Both share one thing: the command **never ran**, so do not wait for it to finish
 
 - The most common cause of a permission denial is a search command that omits its mandated exclusions for secret-bearing files (`.env`, `.database`, `.claude`). A Bash command naming a directory (`find <dir>`, `grep -r ... <dir>`, `cd <dir> && ...`) is modelled as a read of everything under it; without the exclusions it cannot be proven that a secret-bearing path will not be read, so the call escalates, and under `dontAsk` an escalation comes back as a denial rather than a prompt.
 - One command can get a hook denial when run in the foreground (named hook, stated fix) and a permission denial when run in the background (naming neither). These are two different denial shapes, not one broken session.
-- Identify which part of the command is being modelled as a broad read, narrow or exclude it, and retry before escalating to a human.
+- Identify which part of the command is being modelled as a broad read, narrow or exclude it, and retry, as the next section requires.
+
+### A `dontAsk` Denial Refuses One Command, Not Bash (MANDATORY)
+
+A `dontAsk` permission denial refuses only the one command it names. The message says "Permission to use Bash", but its scope is that single call: the command text did not match an allow rule, so it escalated, and under `dontAsk` the escalation came back as a denial. Bash stays available, and the next call is judged on its own text.
+
+Never stop the session, report that "Bash is disabled", or treat the task as blocked because of a permission denial: nothing in the environment changed; only that command's shape was refused. Instead:
+
+- **P1.** Rewrite the command in its rule-compliant form and retry it at once, in the same turn. Each of these shapes escalates for the same reason as a search without its exclusions: the permission system cannot prove what the call will touch from its text alone.
+  - `git -C <dir> <command>`, not `cd <dir>; git <command>` or `cd <dir> && git <command>`.
+  - Literal values, not `$VAR` or any other shell expansion, because an allow rule matches the text as written and cannot see what a variable expands to.
+  - One simple command per call, not a `;` or `&&` chain, because every part of a chain must match an allow rule on its own and one unmatched part denies the whole call; make separate tool calls instead.
+  - The mandated exclusions for secret-bearing files on every search.
+- **P2.** Only if the rule-compliant form is also denied, log it as the next section describes, then carry on with the rest of the task.
+
+### Logging an Allowlist Request (MANDATORY)
+
+A rule-compliant command that the permission system still denies needs a new allow rule, which only the owner can add. Record it where the owner collects these requests, so the need is not lost when the session ends:
+
+- **P1.** Read the comments on credfeto/credfeto-orchestrator#1167 (`gh issue view 1167 --repo credfeto/credfeto-orchestrator --comments`) and check whether the same command, or an allow rule that would cover it, is already listed. If it is, add nothing.
+- **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 with the exact denied command, why the task needs it, and the repository the session is working in.
+- **P3.** Continue with the rest of the task. The request is for the owner to act on later; it does not block the current work.
 
 ## Never Truncate These Commands (MANDATORY)
 
@@ -42,9 +63,16 @@ Both share one thing: the command **never ran**, so do not wait for it to finish
 - **Always run these commands via a background-task mechanism (e.g. `run_in_background`); never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
 - **Never wrap any of these in a shell `timeout` command as a substitute or a belt-and-braces addition** (e.g. `timeout 590 dotnet test ...`), whether or not the background-task mechanism is also used. `timeout` is on the categorical blocklist of the `reject-obfuscated-commands` hook and is rejected outright, independently of the backgrounding rule: running the command unwrapped and backgrounded is already unbounded and needs no additional wrapper. A missing backgrounding parameter and a banned `timeout` wrapper are denied by different hooks and are unrelated; read which hook actually fired rather than assuming a single general conflict.
 - Poll for completion using the reliable strings in the table below, subject to the 30-minute deadline in [Time-Box Every Poll Loop](#time-box-every-poll-loop-mandatory) below.
-- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. The only valid reasons to stop waiting are: the tool itself reports its timeout was hit, or the poll-loop deadline actually fires.
+- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the poll-loop deadline fires, report and keep waiting as the time-box section describes, and when a `Monitor` watch's own timeout expires first, start a new watch.
 - A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Orphaned temp directories under a shared path can break other tools that walk the same path.
 - Other `dotnet` commands (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this unconditional rule; they may run in the foreground, but **always with an explicit maximum timeout set on the tool call**, never the tool's built-in default (e.g. Claude Code's Bash tool defaults to 2 minutes when no `timeout` is given; use the maximum available, e.g. 600000ms/10 minutes, explicitly). If even that maximum is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
+
+### Finishing Background Work Before Handing Back
+
+- **P1.** A role never hands back while a background command it started (a build, a test run, `pre-commit-check`, or a commit or push that runs hooks) is still running: it waits for the command's completion marker. It never stops such a command with `TaskStop`, because the command must finish and clean up after itself, and killing it can leave a stale `.git/index.lock`, partial build output or a push in an unknown state. If the command overruns the poll deadline, the role still neither hands back nor stops it: it reports the overrun as the time-box section describes and keeps waiting for the completion marker, because in an unattended `-p` run handing back kills a background command about five seconds later (see P3), leaving the half-done state this rule prevents.
+- **P2.** A role that starts a `Monitor` watch records the task id `Monitor` returns, and a role that paces a wait with a `ScheduleWakeup` self-paced loop instead notes that it is using one, because the stop step in P3 needs it: `TaskStop` takes the watch's task id, and a self-paced loop is stopped a different way. When a role starts a replacement watch, for example after the previous one expired, it records the new task id, because only the latest watch is still running.
+- **P3.** Once the command, or the condition a watch was waiting for, has finished, the role stops any `Monitor` watch or `ScheduleWakeup` self-paced loop it started before handing back: `TaskStop` with the task id recorded in P2 for a `Monitor` watch, `ScheduleWakeup` with `stop: true` for a self-paced loop. This is because a watch left running outlives the hand-back in both run modes: in an interactive session a background sub-agent's tasks keep running until they finish, are stopped or time out, and every tick of the watch re-wakes the sub-agent and forces another hand-back; in an unattended `-p` run a background command is killed about five seconds after the final result, but a `Monitor` watch keeps the run open, up to a ten-minute cap.
+- **P4.** `TaskStop` is for watches only, because a watch only observes and loses nothing when stopped. The one other use is the Orchestrator's, on a sub-agent that has already delivered its final report and is only repeating it.
 
 ### Reliable poll strings by command
 
@@ -68,28 +96,30 @@ When watching a background task, the poll condition **must** be provably satisfi
 
 ### Time-Box Every Poll Loop (MANDATORY)
 
-Always include a deadline so the session cannot hang forever:
+Time-box every poll loop to 30 minutes. The deadline ends one poll loop so a command that is taking unusually long is reported instead of waited on silently; it never ends the wait, and never the command. The loop below is the command passed to the `Monitor` tool, never an ad-hoc Bash call, because an ad-hoc compound command can be refused by a `dontAsk` permission denial; the loop exiting, on the marker or on the deadline, ends only that watch, never the watched command, which runs as its own background task:
 
 ```bash
 deadline=$(( $(date +%s) + 1800 ))
 until grep -q "Build succeeded." "${output_file}" 2>/dev/null; do
     sleep 15
     if [ "$(date +%s)" -ge "${deadline}" ]; then
-        echo "ERROR: timed out after 30 minutes waiting for build" >&2
+        echo "Still waiting after 30 minutes for build" >&2
         exit 1
     fi
 done
 ```
 
-If the deadline fires, mark the work item Blocked and stop; do not continue work:
+When the deadline fires, the role does not hand back and does not stop the command; it reports the overrun and then starts a new `Monitor` watch on the same completion marker:
 
-```bash
-gh issue edit <number> --repo <owner/repo> --add-label "Blocked"
-gh issue comment <number> --repo <owner/repo> \
-    --body "Blocked: timed out after 30 minutes waiting for <what>. Last output: $(tail -5 "${output_file}" 2>/dev/null)"
-```
+- In an interactive session, tell the human the command is still running and which completion marker the role is waiting for.
+- In an unattended run, post the same as a comment on the work item, without the `Blocked` label, because the role is still working rather than waiting on a human:
 
-Use `gh pr edit` / `gh pr comment` instead if the work item is a PR. Then exit; do not continue work.
+  ```bash
+  gh issue comment <number> --repo <owner/repo> \
+      --body "Still waiting after 30 minutes for <what> (completion marker: <marker>); the command is still running. Last output: $(tail -5 "${output_file}" 2>/dev/null)"
+  ```
+
+  Use `gh pr comment` instead if the work item is a PR.
 
 ## Sandbox-Caused False Timeouts in Benchmark/Perf Tests (MANDATORY)
 

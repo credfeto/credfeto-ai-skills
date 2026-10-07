@@ -17,7 +17,7 @@ description: Create, name, and maintain git branches, covering branching rules, 
 
 ## Destructive Commands (MANDATORY)
 
-Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, silently discards any uncommitted work that is there; the check costs one command and is never skippable "because it should be clean".
+Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git -C <dir> stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, silently discards any uncommitted work that is there; the check costs one command and is never skippable "because it should be clean".
 
 ## Avoid `git worktree`
 
@@ -28,8 +28,8 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 A local branch created only to review a PR, named `pr<number>-review` or `pr-<number>-review`, may be deleted without asking once the review is done, because it is a throwaway copy of an existing PR head and holds no work of its own.
 
-- Create it tracking the PR head: `git fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number>`, then `git branch --track pr<number>-review origin/pr/<number>`. `git branch -d` checks a branch against its upstream, so without one it checks against HEAD and refuses while the PR is still open, even though every commit is safe on the PR head.
-- Delete it with the same fetch chained to `git branch -d`, never `-D`: `git fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number> && git branch -d pr<number>-review`. The fetch is repeated because `origin/pr/<number>` sits inside origin's default refspec with no matching branch on origin, so any plain `git fetch origin` or `git pull` with `fetch.prune` set deletes it, and `-d` then checks against HEAD and refuses even an unchanged branch; the ref cannot live outside `refs/remotes/origin/*` instead, because `git branch --track` only accepts a ref that a remote's refspec maps. `-d` refuses unless the branch is merged into its upstream (or into HEAD when it has none). A branch still equal to the PR head is deleted (exit 0; the warning that it is not yet merged to HEAD is expected); a branch left with local commits is refused as `not fully merged` (exit 1). If git refuses, keep the branch and report it rather than forcing the deletion, because those local commits would otherwise be lost.
+- Create it tracking the PR head, as two separate commands: `git -C <dir> fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number>`, then `git -C <dir> branch --track pr<number>-review origin/pr/<number>`. `git branch -d` checks a branch against its upstream, so without one it checks against HEAD and refuses while the PR is still open, even though every commit is safe on the PR head.
+- Delete it with the same fetch followed by `git branch -d`, never `-D`, as two separate commands: `git -C <dir> fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number>`, then `git -C <dir> branch -d pr<number>-review`. Run the delete only once the fetch has succeeded, because a failed fetch can leave `origin/pr/<number>` missing and `-d` then checks against HEAD instead. The fetch is repeated because `origin/pr/<number>` sits inside origin's default refspec with no matching branch on origin, so any plain `git fetch origin` or `git pull` with `fetch.prune` set deletes it, and `-d` then checks against HEAD and refuses even an unchanged branch; the ref cannot live outside `refs/remotes/origin/*` instead, because `git branch --track` only accepts a ref that a remote's refspec maps. `-d` refuses unless the branch is merged into its upstream (or into HEAD when it has none). A branch still equal to the PR head is deleted (exit 0; the warning that it is not yet merged to HEAD is expected); a branch left with local commits is refused as `not fully merged` (exit 1). If git refuses, keep the branch and report it rather than forcing the deletion, because those local commits would otherwise be lost.
 - This covers local branches only. Deleting a remote branch, or any other local branch, still needs human approval.
 
 ## Branch Naming
@@ -56,15 +56,15 @@ Check for existing work (MANDATORY):
 5. This only catches work that already has an open PR. A branch may have been pushed and then abandoned before a PR was ever opened (e.g. a prior session died mid-task), so also check for a matching branch directly, using the `<type>/<issue-number>-<name>` naming convention above:
 
    ```bash
-   git ls-remote --heads origin "*/<issue-number>-*"
+   git -C <dir> ls-remote --heads origin "*/<issue-number>-*"
    ```
 
    - No match: branch fresh from `main` as normal.
    - Match found: fetch it and compare against `main`:
 
      ```bash
-     git fetch origin <branch>
-     git rev-list --count origin/main..origin/<branch>
+     git -C <dir> fetch origin <branch>
+     git -C <dir> rev-list --count origin/main..origin/<branch>
      ```
 
      - `0` (not ahead of `main`): branch fresh from `main` as normal.
@@ -147,14 +147,15 @@ When a merge or rebase produces a conflict in `CHANGELOG.md`, keep the entries f
 
 ## Command Failure Reporting
 
-When any git command fails (push, rebase, fetch, etc.), quote the exact stdout and stderr output verbatim in any issue or PR comment before posting any explanation or diagnosis:
+When any git command fails (push, rebase, fetch, etc.), quote the exact stdout and stderr output verbatim in any issue or PR comment before posting any explanation or diagnosis.
+
+Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call. Quote the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks that appear in the pasted output:
 
 ```bash
-push_output=$(git -C /path push --force-with-lease 2>&1) || true
-gh pr comment NUMBER --repo OWNER/REPO --body "$(cat <<COMMENT
+gh pr comment NUMBER --repo OWNER/REPO --body "$(cat <<'COMMENT'
 git push failed with:
 
-${push_output}
+<exact stdout and stderr of the failed command>
 COMMENT
 )"
 ```

@@ -40,7 +40,7 @@ This exception applies only when the tool's output pins down the exact remediati
 
 ## Choosing Packages
 
-- Use only secure package versions; check for known vulnerabilities before adding a dependency.
+- Use only secure package versions.
 - In managed languages (.NET, JVM, Python), prefer managed libraries over native; only use native if it is the most actively maintained and stable option.
 - Avoid deprecated or obsolete packages and language features; if unavoidable, add a comment explaining why and when it can be removed.
 - Prefer the standard library; where insufficient, use well-known, actively-maintained third-party libraries.

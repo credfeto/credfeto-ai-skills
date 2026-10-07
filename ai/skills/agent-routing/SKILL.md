@@ -21,7 +21,7 @@ Mechanical roles must not interpret or fix failures. When a check fails: capture
 
 ## Routing Rules
 
-Every sequence below starts with the repo's Pre-Work Baseline Check. It is an implicit first step of every sequence, not merely a standalone rule, and must actually run before the first role in the row is invoked. The "Rebase requested" row is the one exception: a branch is brought up to date before the baseline runs, so its Post-Rebase Check (`pre-commit-check`) is the baseline and is not run a second time.
+Every sequence below starts with the repo's Pre-Work Baseline Check. It is an implicit first step of every sequence, not merely a standalone rule, and must actually run before the first role in the row is invoked, but only where the repo's rules on when to run `pre-commit-check` call for it: a fresh branch, or a rebase. The "Rebase requested" row is the one exception: a branch is brought up to date before the baseline runs, so its Post-Rebase Check (`pre-commit-check`) is the baseline and is not run a second time.
 
 | Work type | Role sequence |
 | --- | --- |

@@ -28,16 +28,17 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
 
 ## 2. Branch Check (MANDATORY)
 
-- Run `git branch --show-current` and confirm it is the expected working branch before staging or committing.
+- Run `git -C <dir> branch --show-current` and confirm it is the expected working branch before staging or committing.
 - **Never commit if the current branch is `main`.**
 - If the branch has switched to `main` and the upstream no longer exists (merged and deleted), create a new branch before continuing.
 
 ## 3. Commit Rules (MANDATORY)
 
-- **Never create an empty commit.** Verify `git diff --cached --name-only` lists at least one file before running `git commit`.
+- **Never create an empty commit.** Verify `git -C <dir> diff --cached --name-only` lists at least one file before running `git commit`.
 - Never amend an existing commit; always create a new one.
   - **Exception:** for a commit that has not yet been pushed to `origin`, the commit message may be amended (e.g. to fix wording or apply the Commit Message Format below). The set of files in the commit and their content must never be changed by such an amend, only the message.
 - One logical change per commit; do not batch unrelated changes.
+- Do not run `pre-commit-check` separately before a commit: `git commit` runs the same hooks automatically, so a separate run only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit.
 - **Never bypass hooks or formatters.** If they fail, stop and report the failure.
 - **Never bypass commit message validation.** If it fails, stop and report the failure.
 - **Never change linting or formatting rules to force a commit through.** If they fail, stop and report the failure.
@@ -87,7 +88,7 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 ## General Git Command Rules
 
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
-- When any git command fails, quote the exact stdout and stderr verbatim in any issue or PR comment before offering a diagnosis; never substitute a narrative for the actual error output.
+- When any git command fails, quote the exact stdout and stderr verbatim in any issue or PR comment before offering a diagnosis; never substitute a narrative for the actual error output. Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call, quoting the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks in the pasted output.
 - Pre-commit hooks may make commits slow; wait for them to complete before assuming failure.
 
 ## File Names and Git File Lists (MANDATORY)
@@ -108,9 +109,9 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
   - Pre-commit hooks failed: poll for `→` followed by `Failed` (check for both to distinguish pass/fail).
   - `git push` completed: poll for `branch` (the branch tracking line in push output).
 - Never poll for `"exit code"`; that string is not reliably written to background task output files.
-- A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis; the only valid reasons to stop waiting are the tool itself reporting its timeout was hit, or the poll-loop deadline actually firing.
+- A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the 30-minute poll-loop deadline fires, report the overrun (to the human in an interactive session, or as a comment on the work item without the `Blocked` label in an unattended run) and start a new watch on the same completion marker; when a `Monitor` watch's own timeout expires first, start a new watch.
+- Never stop a commit or push that is still running with `TaskStop`, and never hand back while it is still running; wait for its completion marker. Once it has finished, stop any `Monitor` watch you started.
 - A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind.
-- If the 30-minute deadline fires, mark the work item `Blocked` and stop rather than continuing work.
 
 ## After Pushing
 

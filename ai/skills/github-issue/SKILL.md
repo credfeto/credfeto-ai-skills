@@ -92,6 +92,8 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
    <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
    ```
 
+   Continue the assumption and `Q` numbering from the highest already used in the work item (issue and PR), never restarting at `a.` or `Q1`, so a number names exactly one item for the life of the work item. A revised plan continues the numbering of the plan it supersedes.
+
    Any conditional or deferred decision point in the Approach or Files-to-change text, a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open), must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate.
 
 3. As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
