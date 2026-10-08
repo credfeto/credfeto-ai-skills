@@ -113,6 +113,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled skills against current instructions: code-cleanup-commits, code-tester, code-writer, dotnet-coding-conventions, github-issue, github-workflows and shell-scripts
 - Reconciled skills against instruction files: coverage-ratchet, git-commit, pr-sync, issue-plan-approval, pr-review-loop, code-reviewer-subagents and dotnet-analyzer-conflicts
 - Agents: orchestrator and CI monitor regenerated to include TaskStop and watch-stopping rules from their sources
+- Skills: dotnet-test-patterns restored the rule that CI handles benchmarks and they are never run manually
+- Skills: github-issue now covers missing CLI tools and continued watching for plan approval in interactive sessions
+- Skills: long-running-commands allowlist request comments must use a HEREDOC body
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30

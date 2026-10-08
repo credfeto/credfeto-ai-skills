@@ -53,7 +53,7 @@ Never stop the session, report that "Bash is disabled", or treat the task as blo
 A rule-compliant command that the permission system still denies needs a new allow rule, which only the owner can add. Record it where the owner collects these requests, so the need is not lost when the session ends:
 
 - **P1.** Read the comments on credfeto/credfeto-orchestrator#1167 (`gh issue view 1167 --repo credfeto/credfeto-orchestrator --comments`) and check whether the same command, or an allow rule that would cover it, is already listed. If it is, add nothing.
-- **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 with the exact denied command, why the task needs it, and the repository the session is working in.
+- **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 with the exact denied command, why the task needs it, and the repository the session is working in, building the body with a HEREDOC so real newlines are embedded, never escaped `\n` sequences.
 - **P3.** Continue with the rest of the task. The request is for the owner to act on later; it does not block the current work.
 
 ## Never Truncate These Commands (MANDATORY)
