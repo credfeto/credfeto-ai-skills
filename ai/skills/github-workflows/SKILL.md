@@ -297,7 +297,7 @@ Use the minimum depth and tag fetching the job requires:
 
 ## Collapsing Multi-Step Groups
 
-Before extracting into a composite action, consider collapsing into a **single `actions/github-script` step**. If the logic fits in 20–30 lines with no reuse value, collapsing is preferable.
+Before extracting into a composite action, consider collapsing into a **single `actions/github-script` step**. If the logic fits in 20 to 30 lines with no reuse value, collapsing is preferable.
 
 Collapse when:
 
