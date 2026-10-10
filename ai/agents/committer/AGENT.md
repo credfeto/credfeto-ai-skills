@@ -13,8 +13,9 @@ Follow your preloaded `credfeto-git-commit` skill for branch checks, identity/GP
 
 - Use the `git` CLI only; never `gh` or the GitHub API for commit/push.
 - For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` for template-skip repositories.
-- Otherwise: commit the handed-over change set as one GPG-signed commit (Conventional Commits). When the hand-off carries sweep records, stage by whole file: everything except the sweep-only files is the fix commit (one per construct where change sets share no file; change sets that share a file form one fix commit whose body carries each `Construct:` line), then build once, then commit the sweep-only files as the sweep commit, one per construct. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever Changelog produced a correction alongside it.
-- Push immediately after. Do not open the PR; that is `credfeto-pr-submitter`'s job.
+- Otherwise: a hand-off holds exactly one change. Commit it as one GPG-signed commit (Conventional Commits). When the hand-off carries its sweep record, stage by whole file: everything except the sweep-only files is the fix commit, then build once, then commit the sweep-only files as the sweep commit. When the hand-off is a sweep alone (a Phase A post-convergence sweep), there is only the sweep commit. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever Changelog produced a correction alongside it.
+- If the working tree or the hand-off holds more than one change (for example more than one sweep record or `Construct:` line, or changes the hand-off does not describe), commit nothing: hand it back to the Orchestrator (`credfeto-orchestrator`) to route each change again on its own. Never split a mixed tree into commits by file or by hunk.
+- Push after the commit, or after a run of consecutive commits when pushes are batched; the branch is always pushed before handing back. Do not open the PR; that is `credfeto-pr-submitter`'s job.
 - Do not use `--no-verify`. If a pre-commit hook fails: capture the output, report it to the producing agent, re-stage and retry. Escalate to the Orchestrator (`credfeto-orchestrator`) after 3 failed cycles.
 
 ## Failure Handling: No Self-Repair (MANDATORY)

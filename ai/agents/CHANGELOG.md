@@ -16,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled agent definitions with their sources: pre-existing bug reporting, draft and auto-merge handling for Code Fixer, Rebase Agent and CI Debugger, CI Debugger round counting, trusted commenter and CI check rules for Orchestrator, and CI Monitor rewritten
 - Rebase Agent no longer runs the post-rebase pre-commit-check itself; the Orchestrator runs it after the agent returns
 - Orchestrator agent now runs the Post-Rebase Check after the Rebase Agent returns and records environment/infrastructure blocks with the env-block marker
+- Agents: added the one-change-at-a-time rule to Code Writer, Code Reviewer, Code Fixer, Committer and Orchestrator, and the Coding Researcher invocation cap to its callers
 ### Deprecated
 ### Removed
 ### Deployment Changes
