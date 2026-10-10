@@ -37,7 +37,8 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
 - **Never create an empty commit.** Verify `git -C <dir> diff --cached --name-only` lists at least one file before running `git commit`.
 - Never amend an existing commit; always create a new one.
   - **Exception:** for a commit that has not yet been pushed to `origin`, the commit message may be amended (e.g. to fix wording or apply the Commit Message Format below). The set of files in the commit and their content must never be changed by such an amend, only the message.
-- One logical change per commit; do not batch unrelated changes.
+- One logical change per commit; do not batch unrelated changes. Each change is made, tested and committed before the next starts.
+- Commit from a working tree that holds exactly one change. Never split a tree holding several changes into commits by file or by hunk; hand it back to the Orchestrator instead.
 - Do not run `pre-commit-check` separately before a commit: `git commit` runs the same hooks automatically, so a separate run only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit.
 - **Never bypass hooks or formatters.** If they fail, stop and report the failure.
 - **Never bypass commit message validation.** If it fails, stop and report the failure.
@@ -64,6 +65,7 @@ If hooks or formatters modify files **not in your intended change set**:
 
 A commit produced by the Pattern Sweep rule (searching the whole repository for other occurrences of a construct after fixing a bug or accepting a review finding) must, in addition to the rules above:
 
+- Follow its own fix commit immediately, before the next change is started; the exception is a Phase A post-convergence sweep in the AI Review Loop, which has no fix commit of its own.
 - Use the Conventional Commits type of the fix commit it derives from (the oldest, when it derives from several; `refactor` for a Phase A sweep of `/simplify` changes), with a title that states it is a sweep, e.g. `fix: apply null-guard fix to remaining call sites`.
 - Carry a `Construct: <one line naming the construct searched for>` line; this exact prefix is what later rounds search commit bodies for.
 - Reference every fix commit SHA it derives from and, where one exists, the review comment or finding.
@@ -72,7 +74,7 @@ A commit produced by the Pattern Sweep rule (searching the whole repository for 
 
 ## 5. Push (MANDATORY)
 
-- Push to `origin` after every commit.
+- Push to `origin` after every commit, or once after a run of consecutive commits when pushes are batched; the branch is always pushed before PR Submitter or CI Monitor runs and before the session ends.
 - **Always push a new branch with `-u`** to set up tracking: `git -C <repodir> push -u origin <branch>`. Subsequent pushes can use `git -C <repodir> push`.
 
 ## Committer Agent Additional Rules (MANDATORY when acting in that role)
@@ -81,8 +83,9 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 
 - Use the `git` CLI only for commit and push; never `gh` or the GitHub API.
 - For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` (a short delete-before-merge comment as its content) for template-skip repos.
-- Otherwise: commit the handed-over change set as one **GPG-signed** commit (Conventional Commits). When the hand-off carries sweep records, stage by whole file: everything except the sweep-only files is the fix commit (one per construct where change sets share no file; change sets that share a file form one fix commit whose body carries each `Construct:` line), then build once, then commit the sweep-only files as the sweep commit per the Pattern Sweep Commits format above, one per construct. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever a changelog correction accompanies it.
-- Push immediately after committing. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
+- Otherwise: a hand-off holds exactly one change. Commit it as one **GPG-signed** commit (Conventional Commits). When the hand-off carries its sweep record, stage by whole file: everything except the sweep-only files is the fix commit, then build once, then commit the sweep-only files as the sweep commit per the Pattern Sweep Commits format above. When the hand-off is a sweep alone (a Phase A post-convergence sweep), there is only the sweep commit. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever a changelog correction accompanies it.
+- If the working tree or the hand-off holds more than one change (for example more than one sweep record or `Construct:` line, or changes the hand-off does not describe), commit nothing: hand it back to the Orchestrator to route each change again on its own. Never split a mixed tree into commits by file or by hunk.
+- Push after the commit, or after a run of consecutive commits when pushes are batched; the branch is always pushed before handing back. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
 
 ## General Git Command Rules

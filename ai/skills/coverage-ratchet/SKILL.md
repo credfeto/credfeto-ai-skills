@@ -117,6 +117,8 @@ Skip .NET entirely if the repo has no `*.Tests` project.
 
 Pinned as **Vitest** with the **`@vitest/coverage-v8`** provider. Adding these to `package.json` for the first time still needs the normal third-party-package human-approval review; this only fixes which tool to propose.
 
+Configure the `json-summary` reporter alongside whatever other reporters the repo already uses, so it is calculated in the ratchet's terms in every language:
+
 ```typescript
 // vitest.config.ts
 export default defineConfig({
@@ -147,7 +149,7 @@ coverage run -m pytest
 coverage report --format=total
 ```
 
-This prints only the overall percentage as a single number, so no further extraction is needed. Components are packages, analogous to Node. Skip Python entirely if there is no Python test suite.
+This prints only the overall percentage as a single number, so no further extraction is needed. Components are packages, analogous to Node: one row per Python package/app with its own test suite in a monorepo layout, otherwise a single Overall (Python) row. Skip Python entirely if there is no Python test suite.
 
 ### Shell (Excluded)
 
@@ -182,10 +184,10 @@ This is an optimisation, not the only safety net: even without this skip, a bran
 4. Compare branch vs. baseline **Overall** per language (component rows never gate):
    - Any language where branch Overall **<** baseline Overall: the ratchet fails; go to step 6.
    - All present languages branch Overall **>=** baseline Overall: the ratchet passes; continue to step 5.
-5. **On success**: have Code Writer (docs only) write or overwrite `COVERAGE.md` on the branch with the numbers just measured (or, in the skip/bootstrap cases, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), and send it through the review-fix route (Code Writer, then Committer, PR Submitter and CI Monitor) without Code Tester or Changelog (correction), resuming at Phase E, because the Orchestrator measures but never edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Move the board to Human Review (if one is configured), post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
+5. **On success**: have Code Writer (docs only) write or overwrite `COVERAGE.md` on the branch with the numbers just measured (or, in the skip/bootstrap cases, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), and send it through the review-fix route (Code Writer, then Committer, PR Submitter and CI Monitor) without Code Tester or Changelog (correction), resuming at Phase E, because the Orchestrator measures but never edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Move the board to Human Review, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
 6. **On failure**, check the round cap first, then judge the round-over-round trend:
    - **Round cap**: if the configured maximum number of coverage rounds (`MAX_COVERAGE_ITERATIONS`) has already run, counted from prior `... - returning to Development` coverage comments, without the branch catching up, whether or not this round's trend is itself closing: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case.
    - Otherwise, compare each still-failing language's Overall this round against its Overall in the most recent prior coverage comment that mentions that language by name: not necessarily the immediately preceding round, since a language that passed in a round leaves no comment mentioning it for that round, so a later failure must be compared against its last-mentioned figure, not a stale or absent one. Treat a language as trending, with nothing yet to compare, only when no prior comment mentions it at all, regardless of which round this is, or when this is the whole PR's first coverage round.
-   - **Gap closing** (every still-failing language's Overall either improved versus its own previous coverage round, or is trending per the carve-out above): post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), move the board back to **Development** (if one is configured), and stop. Do not write `COVERAGE.md` in this case; the branch has nothing new worth recording yet.
+   - **Gap closing** (every still-failing language's Overall either improved versus its own previous coverage round, or is trending per the carve-out above): post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), move the board back to **Development**, and stop. Do not write `COVERAGE.md` in this case; the branch has nothing new worth recording yet.
    - **Flat or worsening, and judged unlikely to close**: post a PR comment giving the per-language numbers, the round-over-round trend, and the specific reasoning for why coverage cannot realistically be raised further here, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case: a coverage round's pass/fail IS the ratchet's own verdict, so giving up here means proposing to waive the gate itself, not merely reporting that no new findings turned up; a human must see and agree with the reasoning before the gate is treated as satisfied.
-   - **Flat or worsening, but more rounds are still judged worth trying**: post the status comment as in the gap-closing case above, move the board back to **Development** (if one is configured), and stop. Do not write `COVERAGE.md` in this case.
+   - **Flat or worsening, but more rounds are still judged worth trying**: post the status comment as in the gap-closing case above, move the board back to **Development**, and stop. Do not write `COVERAGE.md` in this case.

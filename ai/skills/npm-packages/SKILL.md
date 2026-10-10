@@ -40,6 +40,13 @@ This exception applies only when the tool's output pins down the exact remediati
 
 Before searching for or installing a package, check which registry is actually configured: `npm config get registry`. Use that registry for lookups rather than assuming the public npm registry, since it may point at a private feed, proxy, or mirror.
 
+## General Package Rules
+
+- Use only secure package versions.
+- Avoid deprecated or obsolete packages and language features; if unavoidable, add a comment explaining why and when it can be removed.
+- Prefer the standard library; where insufficient, use well-known actively-maintained third-party libraries.
+- If you find hand-rolled code duplicating standard-library or trusted-third-party functionality, raise a GitHub issue; do not modify it inline.
+
 ## Fixed Package Versions (MANDATORY)
 
 - Always use **exact (pinned) version numbers** in `package.json`, no `^` or `~` prefixes.

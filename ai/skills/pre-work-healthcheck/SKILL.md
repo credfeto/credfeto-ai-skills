@@ -36,7 +36,7 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
    These five rules are a deterministic algorithm: for every conflicting entry there is exactly one correct resolution. Apply it and continue; do not stop the rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice. Only stop and ask when a conflict genuinely falls outside it, for example the same package bumped to two unrelated versions with no clear "latest" (divergent major versions), or a security trade-off with no candidate that is both latest and unaffected.
 
-   Run the build and tests once the rebase completes. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. Then run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing (see the long-running-commands skill for the poll-loop shape and the 30-minute deadline). Do this after every rebase in a session, not only the first.
+   Run the build and tests once the rebase completes. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix. Then run `pre-commit-check` against all tracked files, in the background, polling it to completion before continuing (see the long-running-commands skill for the poll-loop shape and the 30-minute deadline). Do this after every rebase in a session, not only the first. When the Orchestrator runs this check, it never edits files itself: it hands every fix, commit and push to the fix route (Code Fixer, Code Tester, Committer, PR Submitter, CI Monitor).
    - Fix every issue `pre-commit-check` reports, including issues that were already present before the rebase, because it covers the whole repository. Re-run it after each round of fixes and repeat until it reports no issues. Do not continue with any other work while issues remain, and do not suppress or weaken a check to make it pass.
    - Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs, then continue.
    - Only for an issue that is genuinely fatal (pre-commit cannot possibly be made to pass, for example a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation): comment on the issue/PR with the verbatim output and label it `Blocked`, and do not continue work. Difficulty is not a reason to escalate.
@@ -55,6 +55,8 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
+Run `pre-commit-check` only when starting work on a new branch (the baseline check below), after a rebase, or when explicitly asked to, whether in an interactive session or in an issue. There are no other times to run it: `git commit` runs the same hooks automatically, so running it separately before a commit only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit.
+
 If you are starting a fresh branch from an up-to-date `main`, run the baseline check now, before starting any work on an issue or PR, to verify the repo is clean. Resuming an existing branch that needed no rebase does not run it, because the commit hook covers it:
 
 ```bash
@@ -63,9 +65,9 @@ pre-commit-check
 
 **Always run this check in the background**: it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional; see the long-running-commands skill for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes. A fresh, single-phase invocation that is never resumed starts with no memory of the wait, and the backgrounded check is killed when the turn ends, so the result is never seen. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe; absent that confirmation, assume it is not.
 
-1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes in **their own commit** on the work branch before any new work, separate from the requested work, then proceed. If no work branch exists yet (for example a new issue still waiting for plan approval), discard the auto-fixes instead, only in files that had no uncommitted changes before the check ran (`git checkout -- <files>`, after running `git status` first, as the check regenerates them), and re-run the check once the work branch is created, because committing on `main` is forbidden. Do not open a separate branch or issue for them or add `Blocked`, because only one branch/PR is open per user per repository at a time, so a separate base-fix branch could never be opened alongside the work; the dedicated commit keeps the baseline fix distinguishable from the work in CI and review.
+1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes in **their own commit** on the work branch before any new work, separate from the requested work, then proceed. If no work branch exists yet (for example a new issue still waiting for plan approval), discard the auto-fixes instead, only in files that had no uncommitted changes before the check ran (`git -C <dir> checkout -- <files>`, after running `git -C <dir> status` first, as the check regenerates them), and re-run the check once the work branch is created, because committing on `main` is forbidden. Do not open a separate branch or issue for them or add `Blocked`, because only one branch/PR is open per user per repository at a time, so a separate base-fix branch could never be opened alongside the work; the dedicated commit keeps the baseline fix distinguishable from the work in CI and review.
 2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
-3. If the check **still fails** after all fixing attempts and it is genuinely fatal (pre-commit cannot possibly be made to pass, for example a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation); otherwise keep fixing:
+3. If the check **still fails** after all fixing attempts and it is genuinely fatal (pre-commit cannot possibly be made to pass, for example a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation; otherwise keep fixing, as step 2 requires), cite that condition and:
    - For an issue: comment on the issue, label it `Blocked`, and do not start work.
    - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
@@ -171,15 +173,15 @@ Before branching:
 5. This only catches work that already has an open PR. A branch may have been pushed and then abandoned before a PR was ever opened (e.g. a prior session died mid-task), so also check for a matching branch directly, using the `<type>/<issue-number>-<name>` naming convention:
 
    ```bash
-   git ls-remote --heads origin "*/<issue-number>-*"
+   git -C <dir> ls-remote --heads origin "*/<issue-number>-*"
    ```
 
    - No match: branch fresh from `main` as normal.
    - Match found: fetch it and compare against `main`:
 
      ```bash
-     git fetch origin <branch>
-     git rev-list --count origin/main..origin/<branch>
+     git -C <dir> fetch origin <branch>
+     git -C <dir> rev-list --count origin/main..origin/<branch>
      ```
 
      - `0` (not ahead of `main`): branch fresh from `main` as normal.

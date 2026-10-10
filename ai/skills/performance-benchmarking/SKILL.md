@@ -26,7 +26,7 @@ description: Design and optimise performance-critical code, and back optimisatio
 4. **Optimise**, then re-run the benchmark.
 5. **Only commit the optimisation if it produces a measurable gain against the baseline**; otherwise discard the optimisation but keep the tests and benchmarks that were written to characterise it.
 
-**Never run `dotnet test` or `dotnet run` directly on a `*.Benchmark.Tests` project**: BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmark execution; never run benchmarks manually.
+**Never run `dotnet test` or `dotnet run` directly on a `*.Benchmark.Tests` project**: BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmark execution; never run benchmarks manually. Benchmarks are not functionality tests and must never be included in coverage runs.
 
 ## Environment Variables
 
