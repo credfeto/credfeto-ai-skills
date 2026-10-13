@@ -12,7 +12,7 @@ description: Write and maintain README.md with the required section order, refer
 
 1. **Title and one-line description**: state what the project does, not just what it is named.
 2. **Badges**: see Badge Guidelines below.
-3. **Overview**: 2–3 sentences explaining the purpose and key features.
+3. **Overview**: 2 to 3 sentences explaining the purpose and key features.
 4. **Quick Start / Simple Example**: the minimal copy-paste snippet that gets something working; no preamble.
 5. **Installation**: e.g. `dotnet add package <Name>` or the NuGet Package Manager command.
 6. **Usage / Examples**: one or two brief, self-contained examples; link to `docs/` for more complex ones.
