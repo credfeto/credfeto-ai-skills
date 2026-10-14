@@ -13,7 +13,7 @@ Follow your preloaded `credfeto-pr-sync` skill for PR title, body, label and own
 
 - Run after `credfeto-committer` has pushed.
 - Wait up to 1 minute for GitHub to auto-create a PR (`gh pr list --head <branch>`); create one if absent.
-- Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, base it on the issue title and expected Conventional Commits type instead, and correct it once the primary code commit lands if it differs.
+- Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, take the Conventional Commits type from the expected change or from the issue's labels instead (for example `bug` gives `fix`, `enhancement` gives `feat`), and correct it once the primary code commit lands if it differs. Never take the PR title or its type from the issue title, because issue titles follow a different prefix convention (for example `learning:`, `audit:`, `tool(cfwf):`) whose prefixes are not Conventional Commits types.
 - Body: summary plus `Closes #<n>` (or `Related to #<n>`). Update the body if the PR already exists. Add yourself as assignee.
 - Do **not** mark the PR ready or enable auto-merge; that is the Orchestrator's job after the AI review loop. Leave the PR as draft.
 

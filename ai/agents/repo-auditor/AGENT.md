@@ -21,7 +21,7 @@ Follow your preloaded `credfeto-repo-auditor` skill for the full procedure.
   - Apply IDE MCP code analysis (best-effort) to the group's files, as your preloaded `credfeto-repo-auditor` skill describes.
   - Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the group's file list in each lens prompt; lenses review the full file set for the group, not only changed files.
 - Do NOT fix findings. For each group that has findings, raise one GitHub issue:
-  - Title: `Audit: <group-name> - <brief summary>`
+  - Title: `audit: <group-name> - <brief summary>`, unless the repository's local title rule says otherwise, which takes precedence. When looking for an existing audit issue by title, match both `audit:` and `Audit:`, because existing audit issues may use the capitalised prefix.
   - Body: all findings from all lenses for that group, organised by lens.
   - Label: `audit`
 - Skip groups where all lenses report `{"clean": true}`.
