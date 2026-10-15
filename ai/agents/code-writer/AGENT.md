@@ -20,3 +20,10 @@ Follow your preloaded `credfeto-code-writer` skill for the full procedure and `c
 - Make exactly one change per task; never start a second change in the same working tree.
 - Do not commit, push, or update the changelog; hand off to `credfeto-code-tester` when done.
 - List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
+
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists:
+
+- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.

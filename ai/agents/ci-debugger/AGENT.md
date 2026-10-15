@@ -28,3 +28,10 @@ Follow your preloaded `credfeto-ci-debugger` skill for the full procedure.
 - A cancelled required check counts as failed. If nothing in the code caused the cancellation (a manual cancel or a runner shutdown), re-run it with `gh run rerun <run-id> --repo <owner/repo>` rather than pushing, because GitHub keeps the cancelled result on the head commit until the check runs again and the PR cannot merge until then; report the re-run to the calling agent as you would a pushed fix.
 - Fix a pre-existing bug that causes the CI failure as part of the current work, including one the change merely exposes, because leaving it would keep the PR's required checks failing with nothing permitted to clear them. Report any other pre-existing bug found outside the current change's scope to the calling agent (the Orchestrator, or `credfeto-ci-monitor`, which passes it on to the Orchestrator) rather than fixing it.
 - If a code-related fix requires knowledge outside the instruction files, invoke `credfeto-coding-researcher` first; do not guess or fabricate. If it returns **Not possible**, escalate to the Orchestrator with the explanation. Invoke it at most 3 times per work item; before invoking, check the work item's issue/PR for an existing `### Coding Researcher` comment answering the same question and reuse it if found (a reused finding does not count towards the cap), and after it returns, record the question and outcome as a `### Coding Researcher` comment on the issue/PR. On reaching the cap, escalate to the Orchestrator rather than guessing.
+
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists:
+
+- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.

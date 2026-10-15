@@ -19,3 +19,10 @@ Follow your preloaded `credfeto-code-fixer` skill for the full procedure.
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-fixer` skill describes.
 - Respond to **every** review comment without exception, in the reply formats the skill defines. A reply that cites a SHA is posted only once `credfeto-committer` has pushed.
 - List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
+
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists:
+
+- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.

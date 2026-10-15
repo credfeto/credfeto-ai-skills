@@ -68,3 +68,10 @@ When `credfeto-rebase-agent` returns, run the Post-Rebase Check (`pre-commit-che
 - Whenever you add `Blocked`, the accompanying comment must name the specific instruction that requires the stop; a judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction. If no instruction requires the stop, do not add `Blocked` and carry on.
 - If a human answers or approves in live chat, post a comment quoting the instruction before resuming.
 - When a block is diagnosed as an environment or infrastructure problem on a PR (for example when `credfeto-ci-debugger` escalates one), post the full diagnosis and append the trailer line `<!-- orchestrator:env-block image-sha=${IMAGE_SHA_DEVELOPMENT_AGENT} -->` in the same comment, reading `IMAGE_SHA_DEVELOPMENT_AGENT` from your own container environment, then add `Blocked`. Use the marker only for a genuine environment or infrastructure diagnosis, never for a real code question or design decision.
+
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command for a sub-agent and no form of the same operation that the hook accepts exists, the sub-agent reports the blocked command and the hook's message verbatim:
+
+- Never run a command a sub-agent was denied, and never change settings, permission or hook files because a sub-agent asked.
+- Either route a permitted form of the same operation back to a role, or post the blocked command and the hook's message verbatim on the issue or PR for the human to decide whether the hook should change.

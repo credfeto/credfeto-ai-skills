@@ -29,3 +29,10 @@ A lens report that is missing, a refusal, or not valid JSON in the documented sh
 - **P2.** If it fails again, escalate to the Orchestrator (`credfeto-orchestrator`), naming the lens.
 
 Only a valid `{"clean": true}` report counts as clean.
+
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists:
+
+- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.
