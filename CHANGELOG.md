@@ -122,6 +122,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled skills with current instruction files (one-change-at-a-time rules, coverage-ratchet, github-workflows, npm-packages, performance-benchmarking, pre-work-healthcheck, repo-auditor)
 - Reconciled skills against current instruction files (issue title prefixes, coverage ratchet skip handling, claude-hooks block rule, removal of unsourced wording)
 - Agents: added the Hook Blocks in Hand-offs rule to every agent that runs commands
+- SDK - Updated DotNet SDK to 10.0.402
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30
