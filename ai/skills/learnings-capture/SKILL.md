@@ -11,7 +11,7 @@ Memory files (AI instruction/rule files) are terse, procedural text written for 
 
 1. Write the issue in plain prose: what was learned, why it mattered, and what prompted it.
 2. Explain it as you would to a person unfamiliar with the AI rule files; do not restate instruction-file rule syntax.
-3. Create the issue with `gh issue create --repo credfeto/credfeto-notes` and the `AI-Work` label; see the command template below.
+3. Create the issue with `gh issue create --repo credfeto/credfeto-notes`, the `AI-Work` label and the title `learning: <description>`, unless the repository's local title rule takes precedence; see the command template below.
 4. Note the resulting issue URL in the commit message that updates the memory file.
 5. This is additional to, not a replacement for, the memory-file update itself.
 
@@ -19,7 +19,7 @@ Memory files (AI instruction/rule files) are terse, procedural text written for 
 
 ```bash
 gh issue create --repo credfeto/credfeto-notes \
-  --title "<short, human-readable description of what was learned>" \
+  --title "learning: <short, human-readable description of what was learned>" \
   --label "AI-Work" \
   --body "**Context**: <repo and task where this came up>
 

@@ -30,11 +30,11 @@ The `IDE0028` entry is applied as:
 When two diagnostics conflict and the pair, for that kind of code, is not in the table:
 
 - **P1.** Stop. Do not guess a resolution or suppress either diagnostic, because only the repo owner can grant permission to suppress.
-- **P2.** Raise an issue in `credfeto/cs-template` describing the conflict: both diagnostic IDs, the affected code, and the candidate resolutions. Give it the content that a template rule escalation asks for (source repository, current behaviour or gap, proposed rule text, and the reason for template propagation), using this command:
+- **P2.** Raise an issue in `credfeto/cs-template` describing the conflict: both diagnostic IDs, the affected code, and the candidate resolutions. Give it the content that a template rule escalation asks for (source repository, current behaviour or gap, proposed rule text, and the reason for template propagation), titled `<prefix>: <description>` where the prefix is a Conventional Commits type that matches the work (`feat`, `fix`, `docs`, `chore`, etc.) unless the repository's local title rule says otherwise, which takes precedence, using this command:
 
   ```bash
   gh issue create --repo credfeto/cs-template \
-    --title "<short description of the rule change>" \
+    --title "<prefix>: <short description of the rule change>" \
     --label "AI-Work" \
     --body "**Source repository**: <repo where need was discovered>
 

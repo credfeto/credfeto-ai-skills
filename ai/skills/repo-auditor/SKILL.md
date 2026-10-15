@@ -16,7 +16,7 @@ Scans the full repository rather than a diff; no branch or PR is required, and f
    - Remaining files (shell scripts, CI workflow files, config) as a repo-level group.
 2. Process groups sequentially. For each group, apply IDE MCP code analysis to the group's files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure), then launch the six Code Reviewer sub-agent lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel** against that group's full file set, not just recently changed files.
 3. Do **not** fix findings. For each group that has findings, raise one GitHub issue:
-   - Title: `Audit: <group-name> - <brief summary>`
+   - Title: `audit: <group-name> - <brief summary>`, unless the repository's local title rule says otherwise, which takes precedence. When looking for an existing audit issue by title, match both `audit:` and `Audit:`, because existing audit issues may use the capitalised prefix.
    - Body: all findings from all sub-agents for that group, organised by sub-agent.
    - Label: `audit`
 4. Skip groups where every sub-agent reports `{"clean": true}`; do not raise an issue for a clean group.

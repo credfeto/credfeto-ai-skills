@@ -81,7 +81,7 @@ Critical rules:
 
 ### Running the Command (MANDATORY)
 
-Always run this `dotnet test` coverage command in the background and poll it to completion before continuing; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`. Poll for `Passed!` in the output, subject to a 30-minute deadline; see the long-running-commands skill for the poll-loop shape, the deadline, and how to distinguish a denied (never-started) command from a killed or in-flight one.
+Always run this `dotnet test` coverage command in the background and poll it to completion before continuing; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`. Poll for `Passed!` in the output, subject to a 30-minute deadline; see the long-running-commands skill for the poll-loop shape and the deadline.
 
 ### Coverage Extension Package
 

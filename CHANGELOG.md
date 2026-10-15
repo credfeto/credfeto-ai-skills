@@ -120,6 +120,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: github-issue now covers missing CLI tools and continued watching for plan approval in interactive sessions
 - Skills: long-running-commands allowlist request comments must use a HEREDOC body
 - Reconciled skills with current instruction files (one-change-at-a-time rules, coverage-ratchet, github-workflows, npm-packages, performance-benchmarking, pre-work-healthcheck, repo-auditor)
+- Reconciled skills against current instruction files (issue title prefixes, coverage ratchet skip handling, claude-hooks block rule, removal of unsourced wording)
 ### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30
