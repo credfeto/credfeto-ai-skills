@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
 ### Changed
 ### Deprecated
 ### Removed

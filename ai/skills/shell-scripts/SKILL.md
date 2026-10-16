@@ -10,7 +10,7 @@ description: Write standalone shell scripts that pass shellcheck/checkbashisms, 
 - Prefer `#!/bin/sh`; only use `#!/bin/bash` if bash-specific functionality is genuinely required.
 - All `#!/bin/sh` scripts must pass `shellcheck` and `checkbashisms` before committing.
 
-## Output Helpers (MANDATORY)
+## Output Helpers
 
 Use `die`, `success`, and `info` for all user-facing output in standalone shell scripts: never bare `echo` or `printf`. This applies to standalone shell scripts only; GitHub Actions `run:` steps use emoji indicators instead.
 

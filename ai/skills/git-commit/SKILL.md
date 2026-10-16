@@ -92,7 +92,6 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
 - When any git command fails, quote the exact stdout and stderr verbatim in any issue or PR comment before offering a diagnosis; never substitute a narrative for the actual error output. Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call, quoting the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks in the pasted output.
-- Pre-commit hooks may make commits slow; wait for them to complete before assuming failure.
 
 ## File Names and Git File Lists (MANDATORY)
 
