@@ -87,7 +87,9 @@ dotnet test {AssemblyName}.Tests/{AssemblyName}.Tests.csproj \
      --coverage-output {repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml
 ```
 
-The `--` separator is required: coverage flags must be passed to the test host, not the `dotnet test` CLI. Always run in `-c Release`. `-p:SolutionDir=` must be an absolute path ending with `/`.
+The `--` separator is required: coverage flags must be passed to the test host, not the `dotnet test` CLI. Passing `--coverage` before `--` conflicts with xunit's argument parsing. Always run in `-c Release`. `-p:SolutionDir=` must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`. `--coverage-output` must be an absolute path pointing into the repo's `/coverage/` directory (gitignored), with the file named `{AssemblyName}.coverage.cobertura.xml`.
+
+Testing uses Microsoft.Testing.Platform, not VSTest. `UnitTests.props` must contain `<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />`; if it is missing, stop and demand it is added. Do not install `coverlet.collector`, `coverlet.msbuild` or any VSTest data collector, and do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present. Never run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects.
 
 Then generate one `reportgenerator` report **per assembly** for the component rows:
 
@@ -111,7 +113,7 @@ dotnet reportgenerator \
 jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json
 ```
 
-Skip .NET entirely if the repo has no `*.Tests` project.
+Skip .NET entirely if the repo has no `*.Tests` project. Never target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`; test support libraries (for example `*.Tests.Mocks`, `*.Tests.Common`) are not test projects.
 
 ### Node
 
@@ -191,3 +193,5 @@ This is an optimisation, not the only safety net: even without this skip, a bran
    - **Gap closing** (every still-failing language's Overall either improved versus its own previous coverage round, or is trending per the carve-out above): post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), move the board back to **Development**, and stop. Do not write `COVERAGE.md` in this case; the branch has nothing new worth recording yet.
    - **Flat or worsening, and judged unlikely to close**: post a PR comment giving the per-language numbers, the round-over-round trend, and the specific reasoning for why coverage cannot realistically be raised further here, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case: a coverage round's pass/fail IS the ratchet's own verdict, so giving up here means proposing to waive the gate itself, not merely reporting that no new findings turned up; a human must see and agree with the reasoning before the gate is treated as satisfied.
    - **Flat or worsening, but more rounds are still judged worth trying**: post the status comment as in the gap-closing case above, move the board back to **Development**, and stop. Do not write `COVERAGE.md` in this case.
+
+Whenever `Blocked` is added in step 6, the accompanying comment must name the specific instruction that requires the stop (here, this decision procedure's round-cap or judged-unlikely-to-close rule). Use only the `Blocked` label for this purpose, never a substitute such as `do not merge` or `needs review`.

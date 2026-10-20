@@ -85,7 +85,7 @@ any of the schema's `oneOf` variants.
 ## The Agent Sandbox Rejects Some Shell Shapes Outright
 
 `IFS=` assignments (e.g. a `while IFS= read -r` loop) and `env`/`unset` wrappers are rejected
-outright by the sandbox, regardless of what the underlying `gh` command would have done. Use flat
+outright by the sandbox. Use flat
 commands, and pass lists in one call (e.g. `--add-label "a,b"`) instead of looping.
 
 Raw GraphQL query strings are also more likely to be misread as obfuscated/spam-shaped input by the

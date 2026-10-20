@@ -18,6 +18,9 @@ Each Code Writer or Code Fixer task carries exactly one change (one finding, one
 - Never accumulate several changes in the working tree and split them into commits afterwards, whether by file or by hunk.
 - A change's Pattern Sweep is its own commit, made immediately after that change's fix commit and before the next change starts. The one exception is Phase A's post-convergence sweeps, which have no fix commit of their own; each is still its own change, committed before the next.
 - Pushes may be batched: Committer may push once after a run of consecutive commits instead of after each one, but the branch is always pushed before PR Submitter or CI Monitor runs.
+- Apply a Pattern Sweep in full whatever its size; never stop, add `Blocked` or defer it to a follow-up issue because of its size.
+- A Pattern Sweep hit that the build-time static analyzer stack already enforces differently is left as-is.
+- A Phase A sweep that finds no hits has no fix commit of its own, so it is recorded in Phase A's status comment on the PR instead.
 
 - In an interactive session, after each push the loop makes, hand CI to CI Monitor, stating the run mode and the phase and step to resume at, and pause the loop until CI Monitor returns, because nothing else would watch that run or return control to the loop. CI Monitor's all-pass rule then decides whether the loop resumes there or restarts at Phase A.
 - An unattended run carries on within the loop without waiting, because the PR stays in draft with auto-merge off until Phase E, and Code Fixer and CI Debugger turn auto-merge off and convert to draft before any later fix, so GitHub cannot merge a fix the loop has not reviewed.

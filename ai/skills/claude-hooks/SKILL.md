@@ -106,8 +106,8 @@ applies identically to a permission denial; do not wait for it to finish.
 The most common cause of a permission denial is a search command that omits its mandated
 exclusions. A Bash command naming a directory (`find <dir>`, `grep -r ... <dir>`, `cd <dir> && ...`)
 is modelled as a read of everything under it. Without the exclusions required for secret-bearing
-paths such as `.env`/`.env.*`/`*.env`/`.database`/`.claude/` (see the tool-preferences skill for the
-exact exclusion flags), it cannot be proven that a `.env`/`.database`/`.claude` path will not be read,
+paths such as `.env`/`.env.*`/`*.env`/`.database`/`.claude/` (the exact exclusion flags are listed
+under the `dontAsk` section below), it cannot be proven that a `.env`/`.database`/`.claude` path will not be read,
 so the call escalates, and under `dontAsk` an escalation comes back as a denial rather than a prompt.
 
 A `find` over a work tree containing a `.claude` directory, run without the mandated exclusions,
@@ -141,7 +141,11 @@ Instead:
    - One simple command per call, not a `;` or `&&` chain, because every part of a chain must match
      an allow rule on its own and one unmatched part denies the whole call; make separate tool
      calls instead.
-   - The mandated exclusions on every search (see the tool-preferences skill).
+   - The mandated exclusions on every search. `.env`, `.env.*`, `*.env`, `.database` and any `.claude/` directory hold credentials or private configuration, so never let a repository-wide search read them:
+     - `grep`/`rg`: add `--exclude='.env' --exclude='.env.*' --exclude='*.env' --exclude='.database' --exclude-dir='.claude'` (rg: `-g '!.env*' -g '!*.env' -g '!.database' -g '!.claude/'`).
+     - `find`: add `-not -path '*/.claude/*' -not -name '.env*' -not -name '*.env' -not -name '.database'`.
+     - `Glob`/`Grep` tools: use a pattern that cannot match them, or filter the result before reading any file.
+     - Never `cat`, `Read`, or print one of these files; if a value from it is genuinely needed, ask the user to run the command themselves.
 2. Only if the rule-compliant form is also denied, log it as described in the next section, then
    carry on with the rest of the task.
 

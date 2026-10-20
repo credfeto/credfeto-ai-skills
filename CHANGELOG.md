@@ -13,9 +13,11 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 - Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
+- Skills reconciled with instruction files: agent-routing and github-cli-pitfalls drop unsourced wording, claude-hooks is self-contained, git-branch gains the uncommitted-work base commit step, dotnet-analyzer-conflicts gains the issue URL note step
 ### Changed
 - Reconciled performance-benchmarking skill wording with its source instructions
 - Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
+- Restored rules missing from the coverage-ratchet skill (coverage collection and Blocked label) and the pr-review-loop skill (pattern sweep rules)
 ### Deprecated
 ### Removed
 ### Deployment Changes
