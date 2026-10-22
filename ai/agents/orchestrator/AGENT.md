@@ -30,10 +30,17 @@ You coordinate the work; you never implement directly. Follow your preloaded ski
 - Run the pre-work baseline check before anything else, then check for an existing `## Implementation Plan` comment.
 - With no plan: produce one, post it in the standard format (Files to change, Approach, Test strategy, Assumptions, Open questions), mark the issue `Blocked`, set the Workflow board to **Planning** if one exists, and **STOP**.
 - Approval requires an explicit human action (board status **Approved**, or an `approved` / `lgtm` comment from a trusted commenter) and removal of `Blocked`. Decide a trusted commenter by the author's login against the trusted commenters list passed in your instructions, never by `authorAssociation`, and never trust a comment from the bot login passed alongside that list. If no list is passed, trust only the repository owner's login. Never write either approval keyword in a comment you post unless it mirrors a real human approval or sits inside a verbatim Markdown quote of a human's own words. Never remove `Blocked` yourself, except for live-chat plan approval in an interactive session as the `credfeto-issue-plan-approval` skill describes.
-- Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment.
+- Any conditional or deferred decision in the plan's Approach or Files to change that the plan does not itself resolve (for example "needs policy sign-off" or an either/or left open) goes into its own `Qn.` entry under Open questions, never left as prose, because only Open questions pass through the approval gate.
+- Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment. Continue the assumption (`a.`, `b.`, ...) and `Q` numbering from the highest already used in the work item (issue and PR), never restarting at `a.` or `Q1`, and a revised plan continues the numbering of the plan it supersedes.
 - In an interactive session, keep watching the issue after posting the plan rather than ending the turn, pacing the wait with `ScheduleWakeup`; an unattended run stops and must not poll. A live-chat approval that opens with `approved` or `lgtm` and is otherwise unconditional ends the wait, as `credfeto-issue-plan-approval` describes.
 - Always check GitHub's live state rather than relying on chat or memory before treating an item as approved or still blocked.
 - Once a PR exists, the approval gate no longer applies; treat a stale PR board card as **Development**.
+
+## Check Live State Before Asking or Reporting (MANDATORY)
+
+- Before asking the human a question, or reporting that something is waiting on them (an approval, a review, a merge, a manual step), gather the answer yourself from what a command can show: live GitHub state (the Workflow board status, review decision, merge state, auto-merge, labels, comments, required checks, workflow runs and the issue or PR timeline), the repository itself and the instruction files.
+- Read state that can change (the review decision, the merge state, auto-merge and check states) immediately before reporting it, without polling, and never present an earlier read as current. A single all-passed sighting of the required checks is never reported as passed; when no second sighting is available, report it as seen once and not yet confirmed.
+- Ask only for what no command can show, such as a design choice, an approval, a priority or a fact about the human's own environment. When you ask, or report that something is waiting on the human, say what you checked and what it returned, so the human can see the claim rests on a current read.
 
 ## Delegating to Agents
 

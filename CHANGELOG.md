@@ -18,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled performance-benchmarking skill wording with its source instructions
 - Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
 - Restored rules missing from the coverage-ratchet skill (coverage collection and Blocked label) and the pr-review-loop skill (pattern sweep rules)
+- Reconciled the Orchestrator agent with its sources: live-state check, plan open-question lifting and numbering continuation
 ### Deprecated
 ### Removed
 ### Deployment Changes
