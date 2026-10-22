@@ -10,10 +10,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Reconcile workflow: the unattended agent now runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so the agent cannot tamper with the guards or reach the push token - #34
 ### Added
 ### Fixed
 - Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
 - Skills reconciled with instruction files: agent-routing and github-cli-pitfalls drop unsourced wording, claude-hooks is self-contained, git-branch gains the uncommitted-work base commit step, dotnet-analyzer-conflicts gains the issue URL note step
+- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
 ### Changed
 - Reconciled performance-benchmarking skill wording with its source instructions
 - Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
@@ -23,6 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: credfeto-dotnet-publish no longer allows trim/AOT warning suppression with owner permission
 - Skills: credfeto-claude-hooks search-exclusion rules aligned with tool preferences
 - Skills: removed unsourced re-run wording from performance-benchmarking and added the ad-hoc xargs/while-read rule to long-running-commands
+- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 ### Deprecated
 ### Removed
 ### Deployment Changes
@@ -34,7 +37,6 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 ## [0.0.5] - 2026-10-15
 ### Security
 - Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
-- Reconcile workflow: the unattended agent now runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so the agent cannot tamper with the guards or reach the push token - #34
 ### Added
 - New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
 - Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
@@ -119,7 +121,6 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 - Reconciled skills against current instruction files: updated pre-work-healthcheck, git-commit, git-branch, pr-sync, github-issue, dependency-selection, long-running-commands, numbering-conventions, agent-routing, issue-plan-approval, code-reviewer-subagents, code-writer, code-tester, ci-debugger, claude-hooks and dotnet-nuget-vulnerability-suppression to match their sources
 - issue-plan-approval and github-workflows skills: reworded to match their instruction files (removed an unsourced em dash pair and normalised a number range)
 - readme-documentation skill: wrote the Overview length as 2 to 3 sentences, matching documentation.instructions.md
-- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
 ### Changed
 - The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
 - Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
@@ -148,8 +149,6 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 - Reconciled skills against current instruction files (issue title prefixes, coverage ratchet skip handling, claude-hooks block rule, removal of unsourced wording)
 - Agents: added the Hook Blocks in Hand-offs rule to every agent that runs commands
 - SDK - Updated DotNet SDK to 10.0.402
-- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
-### Deprecated
 ### Removed
 - src/FunFair.props, which is only permitted in funfair-tech repositories - #30
 
