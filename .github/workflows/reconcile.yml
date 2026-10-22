@@ -336,15 +336,6 @@ jobs:
           git add --all --force -- .github
           git diff --cached --exit-code HEAD -- .github
 
-      - name: "Setup AI reconcile tools"
-        if: steps.patch.outputs.has-changes == 'true'
-        uses: ./.github/actions/setup-ai-reconcile
-        with:
-          github-token: "${{github.token}}"
-          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
-          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
-          install-claude-code: "false"
-
       # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows. It also fails if
       # a human-owned (protected) path changed.
       - name: "Check only skill files changed"
@@ -367,6 +358,15 @@ jobs:
         uses: ./.github/actions/check-agents
         with:
           skills-only: "true"
+
+      - name: "Setup AI reconcile tools"
+        if: steps.patch.outputs.has-changes == 'true'
+        uses: ./.github/actions/setup-ai-reconcile
+        with:
+          github-token: "${{github.token}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          install-claude-code: "false"
 
       - name: "Lint skill markdown"
         if: steps.patch.outputs.has-changes == 'true'
@@ -553,15 +553,6 @@ jobs:
           git add --all --force -- .github
           git diff --cached --exit-code HEAD -- .github
 
-      - name: "Setup AI reconcile tools"
-        if: steps.patch.outputs.has-changes == 'true'
-        uses: ./.github/actions/setup-ai-reconcile
-        with:
-          github-token: "${{github.token}}"
-          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
-          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
-          install-claude-code: "false"
-
       # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows. It also fails if
       # a human-owned (protected) path changed.
       - name: "Check only agent files changed"
@@ -581,6 +572,15 @@ jobs:
       - name: "Check agents match config.yaml"
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-agents
+
+      - name: "Setup AI reconcile tools"
+        if: steps.patch.outputs.has-changes == 'true'
+        uses: ./.github/actions/setup-ai-reconcile
+        with:
+          github-token: "${{github.token}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          install-claude-code: "false"
 
       - name: "Lint agent markdown"
         if: steps.patch.outputs.has-changes == 'true'
