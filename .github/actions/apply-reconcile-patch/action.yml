@@ -107,6 +107,10 @@ runs:
               reject('The patch contains a NUL byte');
             }
 
+            if (text.includes('sk-ant-')) {
+              reject('The patch contains a Claude token prefix (sk-ant-)');
+            }
+
             for (const line of text.split('\n')) {
               if (forbiddenHeaderPatterns.some((pattern) => pattern.test(line))) {
                 reject(`The patch contains a forbidden header: ${show(line)}`);
@@ -283,10 +287,6 @@ runs:
             }
 
             await checkNoIgnoredAdditions(validated);
-
-            if (text.includes('sk-ant-')) {
-              reject('The patch contains a Claude token prefix (sk-ant-)');
-            }
 
             await git(['apply', '--binary', patchPath]);
 
