@@ -345,25 +345,21 @@ jobs:
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           install-claude-code: "false"
 
-      # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows.
+      # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows. It also fails if
+      # a human-owned (protected) path changed.
       - name: "Check only skill files changed"
         id: skills-scope
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-changed-scope
         with:
           allowed-paths: "${{env.ALLOWED_PATHS}}"
+          protected-paths: "${{env.PROTECTED_PATHS}}"
 
       - name: "Check deletions"
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-allowed-deletions
         with:
           allowed-parent: "${{env.ALLOWED_DELETION_PARENT}}"
-
-      - name: "Check human-owned files are unchanged"
-        if: steps.patch.outputs.has-changes == 'true'
-        uses: ./.github/actions/check-changed-scope
-        with:
-          protected-paths: "${{env.PROTECTED_PATHS}}"
 
       # Only what a skills run can break: an agent mismatch here would block the agents jobs that fix it.
       - name: "Check preloaded skills exist"
@@ -566,25 +562,21 @@ jobs:
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           install-claude-code: "false"
 
-      # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows.
+      # Its output is the commit's file_pattern, so the commit covers exactly the paths this step allows. It also fails if
+      # a human-owned (protected) path changed.
       - name: "Check only agent files changed"
         id: agents-scope
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-changed-scope
         with:
           allowed-paths: "${{env.ALLOWED_PATHS}}"
+          protected-paths: "${{env.PROTECTED_PATHS}}"
 
       - name: "Check nothing was deleted"
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-allowed-deletions
         with:
           allowed-parent: "${{env.ALLOWED_DELETION_PARENT}}"
-
-      - name: "Check human-owned files are unchanged"
-        if: steps.patch.outputs.has-changes == 'true'
-        uses: ./.github/actions/check-changed-scope
-        with:
-          protected-paths: "${{env.PROTECTED_PATHS}}"
 
       - name: "Check agents match config.yaml"
         if: steps.patch.outputs.has-changes == 'true'
