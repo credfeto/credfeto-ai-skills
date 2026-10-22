@@ -37,16 +37,19 @@ runs:
       with:
         tool-name: "Credfeto.ChangeLog.Cmd"
 
-    - name: "Install markdownlint"
-      shell: bash
-      run: |
-        npm install -g --save-exact markdownlint-cli@0.49.1
-        echo "✅ markdownlint $(markdownlint --version) installed"
-
+    # One npm install call so each job pays for a single npm start-up.
     # Claude Code is installed unpinned so it always knows about current models.
-    - name: "Install Claude Code CLI"
-      if: inputs.install-claude-code == 'true'
+    - name: "Install npm tools"
       shell: bash
       run: |
-        npm install -g @anthropic-ai/claude-code
-        echo "✅ Claude Code $(claude --version) installed"
+        packages=("markdownlint-cli@0.49.1")
+        if [ "${INSTALL_CLAUDE_CODE}" = "true" ]; then
+          packages+=("@anthropic-ai/claude-code")
+        fi
+        npm install -g --save-exact "${packages[@]}"
+        echo "✅ markdownlint $(markdownlint --version) installed"
+        if [ "${INSTALL_CLAUDE_CODE}" = "true" ]; then
+          echo "✅ Claude Code $(claude --version) installed"
+        fi
+      env:
+        INSTALL_CLAUDE_CODE: "${{inputs.install-claude-code}}"
