@@ -84,8 +84,10 @@ runs:
             }
 
             core.setFailed(failure);
+            // core.info writes raw to stdout, so a -z name holding a newline could start a workflow command line;
+            // JSON.stringify escapes control characters but keeps non-ASCII readable. Entries are "XY path".
             for (const change of changes) {
-              core.info(change);
+              core.info(`${change.slice(0, 3)}${JSON.stringify(change.slice(3))}`);
             }
 
             const diffLines = [...toLines(await git(['diff', 'HEAD', '--', ...pathspec])), ...(await untrackedDiff(pathspec))];
