@@ -298,7 +298,7 @@ runs:
             checkAppliedFiles(validated);
 
             for (const entry of validated) {
-              core.info(`✅ ${entry.status} ${entry.path}`);
+              core.info(`✅ ${entry.status} ${show(entry.path)}`);
             }
 
             core.notice(`✅ Applied a patch changing ${validated.length} file(s)`);
