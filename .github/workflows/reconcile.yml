@@ -46,16 +46,18 @@
 # rejects the patch unless every file it adds, changes or deletes is a regular
 # 100644 text file with a plain ASCII name, inside the job's allowed paths,
 # outside its protected paths and .github, and allowed to be deleted if it is
-# deleted, and no Claude token (sk-ant-) appears anywhere in the patch except
-# in the context and removed lines of a hunk, which are already in the
-# repository; a file header or added line holding one rejects it. That
-# validator deliberately rejects binary, executable, symlink and
-# non-ASCII-named files, because no legitimate reconciliation creates one; the
-# guard actions do not rely on that restriction, so they still pass or fail
-# correctly on any name a human commits. Only then is the patch applied, so
-# every later local action is read from a tree that differs from the commit
-# only in allowed paths. An empty patch means no changes: the apply job skips
-# its remaining steps and still succeeds, so the job chain stays intact.
+# deleted. As a best-effort extra layer, it also rejects the patch when a file
+# header or added line holds the literal Claude token prefix sk-ant-; context
+# and removed lines are exempt because they are already in the repository.
+# That check catches only the literal prefix, so it does not stop an encoded
+# or split token. That validator deliberately rejects binary, executable,
+# symlink and non-ASCII-named files, because no legitimate reconciliation
+# creates one; the guard actions do not rely on that restriction, so they
+# still pass or fail correctly on any name a human commits. Only then is the
+# patch applied, so every later local action is read from a tree that differs
+# from the commit only in allowed paths. An empty patch means no changes: the
+# apply job skips its remaining steps and still succeeds, so the job chain
+# stays intact.
 #
 # SOURCE_PUSH_TOKEN reaches only the inline presence check that starts sync,
 # before anything is checked out, and the steps that push: the cs-template sync
