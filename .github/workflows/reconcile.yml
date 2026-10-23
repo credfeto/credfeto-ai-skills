@@ -66,6 +66,29 @@
 # and each apply job's Commit step, through a credential helper set in that
 # step's env. No checkout uses or persists it.
 #
+# Both agents run with the same permission model, differing only in their
+# stage's paths. --permission-mode dontAsk denies, rather than prompting for,
+# every tool call that would need approval and that no allow rule approves;
+# calls that need no approval, such as Claude Code's built-in read-only Bash
+# commands, still run (see below). acceptEdits is not used, because
+# it approves any edit, and rm, mv, cp and sed, anywhere in the working
+# directory, which would make the Edit rules below meaningless. The only Read
+# rule is Read(/**), which a command-line rule anchors at the working
+# directory. The Edit allow rules match exactly the stage's allowed paths
+# (SKILLS_ALLOWED_PATHS or AGENTS_ALLOWED_PATHS), and Edit rules also govern
+# Write and NotebookEdit; Claude Code never matches a path-scoped Write rule.
+# The agent is denied Edit on .github and on the stage's human-owned files,
+# and Read(//proc/**), which stops the file tools and the file commands Claude
+# Code recognises in Bash, such as cat and head, reading /proc/self/environ,
+# which holds the Claude token; the allowed linters can still open it, as
+# the remaining exposure below covers. The --settings JSON sets
+# permissions.blockReadsOutsideWorkingDirectories, so Read, Grep and Glob
+# refuse any path outside the checkout in every mode, and disableAllHooks.
+# --setting-sources user stops Claude Code loading the checkout's .claude
+# settings and .mcp.json, so nothing in the repository can add a hook, an MCP
+# server or a permission. --bare would also skip them, but it never reads an
+# OAuth token, so it cannot authenticate with CLAUDE_CODE_OAUTH_TOKEN.
+#
 # Each agent's Bash rules allow markdownlint only as the exact command its
 # apply job's lint step runs, because markdownlint's --config and --rules
 # options load JavaScript modules, and allow dotnet changelog only as an add,
@@ -74,10 +97,24 @@
 # glob, because a * in a Bash rule matches any text, spaces included, so a
 # rule with one would admit extra options such as --rules.
 #
-# Neither agent may change .github: it is denied Edit(.github/**), which covers
-# all the file-editing tools (Claude Code ignores path-scoped Write rules), the
-# validator rejects any .github path, and each apply job's inline "Check .github
-# was not modified" step is a backstop straight after the patch is applied.
+# Neither agent may change .github: besides its Edit(.github/**) denial, the
+# validator rejects any .github path, and each apply job's inline "Check
+# .github was not modified" step is a backstop straight after the patch is
+# applied.
+#
+# What remains exposed: CLAUDE_CODE_OAUTH_TOKEN is in the agent process's
+# environment, so these rules limit how it can leave rather than hide it.
+# Claude Code runs its built-in read-only Bash commands, such as echo and cat,
+# without an allow rule in every mode, and Read and Edit rules do not reach a
+# program that opens files itself, such as the allowed linters, whose
+# shellcheck, checkbashisms and yamllint rules accept any file argument,
+# /proc/self/environ included. Likewise Bash(rm -r ai/skills/*) matches
+# ai/skills/install and the Edit denial does not cover rm, so that file's
+# protection rests on skills-apply's validator and scope check. The agent has
+# no network tool, so the token could leave only in the patch, which the
+# pre-upload sk-ant- check stops when it holds the literal prefix, or in the
+# job log, where GitHub Actions masks the secret's exact value. Those rules,
+# that check and the exact Bash rules are what keep the token in.
 #
 # ai/skills/install, ai/agents/config.yaml and ai/agents/install are
 # human-owned, and removing an agent is a human change: the apply jobs fail if
@@ -263,26 +300,31 @@ jobs:
           8. If every skill already matches its sources, change nothing and finish.
           RECONCILE_PROMPT
           )
-          # Scoped permissions: the agent may only read/edit files in the
-          # workspace and run the specific tools reconciliation needs, with no
-          # arbitrary bash. rm is allowed under ai/skills/ only; the
+          # Permission model: see the header. dontAsk denies anything not
+          # allowed here; reads stay in the checkout, edits match
+          # SKILLS_ALLOWED_PATHS, and repository settings, hooks and MCP
+          # servers never load. rm is allowed under ai/skills/ only; the
           # disallowed patterns reject parent-directory paths and extra
           # targets, and skills-apply rejects the patch if it deletes any
           # tracked file outside a skill folder.
-          # markdownlint is allowed only as the exact "Lint skill markdown"
-          # command, and dotnet changelog only as an add; see the header.
-          # Edit(.github/**) keeps the agent off the workflow; see the header.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
-            --permission-mode acceptEdits \
-            --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+            --permission-mode dontAsk \
+            --setting-sources user \
+            --settings '{"disableAllHooks": true, "permissions": {"blockReadsOutsideWorkingDirectories": true}}' \
+            --allowedTools "Read(/**)" "Glob" "Grep" \
+              "Edit(/ai/skills/**)" \
+              "Edit(/ai/local/skills.instructions.md)" \
+              "Edit(/CHANGELOG.md)" \
               "Bash(rm -r ai/skills/*)" \
               "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
               "Bash(shellcheck:*)" \
               "Bash(checkbashisms:*)" \
               "Bash(markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md)" \
             --disallowedTools \
+              "Read(//proc/**)" \
               "Edit(.github/**)" \
+              "Edit(/ai/skills/install)" \
               "Bash(rm *..*)" \
               "Bash(rm -r ai/skills/* *)"
         env:
@@ -497,22 +539,29 @@ jobs:
           9. If every agent already matches its sources and config.yaml, change nothing and finish.
           RECONCILE_PROMPT
           )
-          # Scoped permissions: the agent may only read/edit files in the
-          # workspace and run the specific tools reconciliation needs, with no
-          # arbitrary bash and no rm. agents-apply rejects the patch if it
-          # changes config.yaml or install or deletes any tracked file.
-          # markdownlint is allowed only as the exact "Lint agent markdown"
-          # command, and dotnet changelog only as an add; see the header.
-          # Edit(.github/**) keeps the agent off the workflow; see the header.
+          # Permission model: see the header. dontAsk denies anything not
+          # allowed here; reads stay in the checkout, edits match
+          # AGENTS_ALLOWED_PATHS, and repository settings, hooks and MCP
+          # servers never load. There is no rm; agents-apply rejects the
+          # patch if it changes config.yaml or install or deletes any tracked
+          # file.
           # The workflow, not the agent, commits and pushes.
           claude -p "${PROMPT}" \
-            --permission-mode acceptEdits \
-            --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+            --permission-mode dontAsk \
+            --setting-sources user \
+            --settings '{"disableAllHooks": true, "permissions": {"blockReadsOutsideWorkingDirectories": true}}' \
+            --allowedTools "Read(/**)" "Glob" "Grep" \
+              "Edit(/ai/agents/**)" \
+              "Edit(/ai/local/agents.instructions.md)" \
+              "Edit(/CHANGELOG.md)" \
               "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
               "Bash(markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md)" \
               "Bash(yamllint:*)" \
             --disallowedTools \
-              "Edit(.github/**)"
+              "Read(//proc/**)" \
+              "Edit(.github/**)" \
+              "Edit(/ai/agents/config.yaml)" \
+              "Edit(/ai/agents/install)"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
