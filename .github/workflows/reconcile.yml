@@ -249,8 +249,9 @@ jobs:
              auto-discovers skill folders, so it does not need editing for new skills.
           4. If a skill's source rules have been removed from the instruction files, delete the skill folder
              with rm -r ai/skills/<skill> and remove its registry entry. That is the only deletion allowed:
-             never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path. Never delete
-             or rename a skill that ai/agents/config.yaml preloads; this run fails if you do.
+             never delete any file outside ai/skills/<skill>/, or any other path. Never modify or delete
+             ai/skills/install; this run fails if you do. Never delete or rename a skill that
+             ai/agents/config.yaml preloads; this run fails if you do.
           5. Every SKILL.md must pass markdownlint. Check it with exactly this command, which is the only
              markdownlint command you may run: markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md
              Never modify ai/agents/ or ai/local/agents.instructions.md; agents are reconciled by a later job,
