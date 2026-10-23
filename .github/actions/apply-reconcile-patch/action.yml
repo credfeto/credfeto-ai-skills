@@ -107,6 +107,7 @@ runs:
               reject('The patch contains a NUL byte');
             }
 
+            // Best effort only: this is an extra layer that catches the literal sk-ant- prefix, not an encoded or split token.
             // A token in a hunk's context or removed line is already in the repository, so only those lines are exempt.
             // Every other line is checked, including each file's header lines, so a token in a new file's name is caught.
             let inHunk = false;
