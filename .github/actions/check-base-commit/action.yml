@@ -1,0 +1,30 @@
+--- # Fail unless the checked-out commit is the one a patch was made from
+# Maintain in repo: credfeto-ai-skills
+name: "Check Base Commit"
+description: "Fails unless HEAD is the expected commit, so a patch is only ever applied to the tree it was made from"
+
+inputs:
+  expected-head:
+    description: "Full SHA of the commit the patch was made from"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Check base commit"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        EXPECTED_HEAD: "${{inputs.expected-head}}"
+      with:
+        script: |
+          const expected = process.env.EXPECTED_HEAD.trim();
+          const branch = process.env.GITHUB_REF_NAME;
+          const actual = (await exec.getExecOutput('git', ['rev-parse', 'HEAD'], { silent: true })).stdout.trim();
+
+          if (expected === '') {
+            core.setFailed('❌ expected-head is not set');
+          } else if (actual !== expected) {
+            core.setFailed(`❌ ${branch} is at ${actual}, not ${expected} where the patch was made`);
+          } else {
+            core.info(`✅ ${branch} is at ${expected}`);
+          }

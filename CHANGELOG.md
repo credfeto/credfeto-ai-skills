@@ -10,16 +10,19 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Reconcile workflow: the unattended agent runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so it cannot tamper with the guards or reach the push token. Its Claude Code permissions now use dontAsk mode instead of acceptEdits, with edits limited to its stage's allowed paths (.github and human-owned files denied), reads limited to the checkout (/proc denied), repository settings, hooks and .mcp.json not loaded, and Bash limited to named lint, changelog and skill-folder rm rules - #34
 ### Added
 ### Fixed
 - Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
 - Skills reconciled with instruction files: agent-routing and github-cli-pitfalls drop unsourced wording, claude-hooks is self-contained, git-branch gains the uncommitted-work base commit step, dotnet-analyzer-conflicts gains the issue URL note step
+- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
 ### Changed
 - Reconciled performance-benchmarking skill wording with its source instructions
 - Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
 - Restored rules missing from the coverage-ratchet skill (coverage collection and Blocked label) and the pr-review-loop skill (pattern sweep rules)
 - Reconciled the Orchestrator agent with its sources: live-state check, plan open-question lifting and numbering continuation
 - Reconciled skills with instruction files: added hook-block hand-off rules to agent skills, ad-hoc xargs/read-loop rule to claude-hooks, npm command and install rules to npm-packages; replaced unsourced content in git-branch, github-cli-pitfalls and shell-scripts
+- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 ### Deprecated
 ### Removed
 ### Deployment Changes
