@@ -65,7 +65,10 @@
 # Each agent's Bash rules allow markdownlint only as the exact command its
 # apply job's lint step runs, because markdownlint's --config and --rules
 # options load JavaScript modules, and allow dotnet changelog only as an add,
-# so the agent cannot run code of its own beside the Claude token.
+# so the agent cannot run code of its own beside the Claude token. The
+# markdownlint rule contains no wildcard and lints directories rather than a
+# glob, because a * in a Bash rule matches any text, spaces included, so a
+# rule with one would admit extra options such as --rules.
 #
 # Neither agent may change .github: it is denied Edit(.github/**), which covers
 # all the file-editing tools (Claude Code ignores path-scoped Write rules), the
@@ -232,7 +235,7 @@ jobs:
              never delete ai/skills/install, any file outside ai/skills/<skill>/, or any other path. Never delete
              or rename a skill that ai/agents/config.yaml preloads; this run fails if you do.
           5. Every SKILL.md must pass markdownlint. Check it with exactly this command, which is the only
-             markdownlint command you may run: markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md
+             markdownlint command you may run: markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md
              Never modify ai/agents/ or ai/local/agents.instructions.md; agents are reconciled by a later job,
              and this run fails if they change.
           6. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
@@ -259,7 +262,7 @@ jobs:
               "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
               "Bash(shellcheck:*)" \
               "Bash(checkbashisms:*)" \
-              'Bash(markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md)' \
+              "Bash(markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md)" \
             --disallowedTools \
               "Edit(.github/**)" \
               "Bash(rm *..*)" \
@@ -374,7 +377,7 @@ jobs:
       - name: "Lint skill markdown"
         if: steps.patch.outputs.has-changes == 'true'
         shell: bash
-        run: markdownlint --config .markdownlint.json "ai/skills/**/*.md" ai/local/skills.instructions.md
+        run: markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md
 
       - name: "Validate changelog"
         if: steps.patch.outputs.has-changes == 'true'
@@ -459,7 +462,7 @@ jobs:
           5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md.
              The workflow fails the run if you do.
           6. Every AGENT.md must pass markdownlint. Check it with exactly this command, which is the only
-             markdownlint command you may run: markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md
+             markdownlint command you may run: markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md
           7. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
              for every change you make; this repository's local rules require a changelog entry for
              every change.
@@ -479,7 +482,7 @@ jobs:
             --permission-mode acceptEdits \
             --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
               "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
-              'Bash(markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md)' \
+              "Bash(markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md)" \
               "Bash(yamllint:*)" \
             --disallowedTools \
               "Edit(.github/**)"
@@ -589,7 +592,7 @@ jobs:
       - name: "Lint agent markdown"
         if: steps.patch.outputs.has-changes == 'true'
         shell: bash
-        run: markdownlint --config .markdownlint.json "ai/agents/**/*.md" ai/local/agents.instructions.md
+        run: markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md
 
       - name: "Validate changelog"
         if: steps.patch.outputs.has-changes == 'true'
