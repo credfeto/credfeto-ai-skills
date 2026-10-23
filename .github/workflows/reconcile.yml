@@ -284,6 +284,7 @@ jobs:
           path: "${{runner.temp}}/patch/changes.patch"
           retention-days: 1
           if-no-files-found: "error"
+          overwrite: true
 
   skills-apply:
     needs: [sync, skills-agent]
@@ -502,6 +503,7 @@ jobs:
           path: "${{runner.temp}}/patch/changes.patch"
           retention-days: 1
           if-no-files-found: "error"
+          overwrite: true
 
   agents-apply:
     needs: [skills-apply, agents-agent]
