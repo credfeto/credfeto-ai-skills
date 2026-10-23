@@ -12,6 +12,7 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 - Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered; this loop is capped at 5 rounds by the calling agent's routing rules.
 - Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 - Do not modify code or tests; report and verify only.
+- When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in the incoming hand-off on unchanged.
 
 ## No Self-Repair
 

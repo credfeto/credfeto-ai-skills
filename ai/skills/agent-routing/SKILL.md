@@ -56,6 +56,14 @@ The Changelog role runs in two distinct modes, both of which hand off to Committ
 - **Placeholder** (first occurrence in a row): runs before Code Writer touches any code, so the branch/PR exists from the very start of work on the item. It adds a stub entry (best-guess type, message `TBD - to be finalized after review`), then hands off to Committer, which commits `CHANGELOG.md` alone, and PR Submitter, which opens the draft PR from that single-file commit.
 - **Correction** (second occurrence in a row): replaces the placeholder (or a prior correction) once there is a real diff to describe, after Code Tester and Code Reviewer are satisfied in the initial development loop, never before. It also re-runs after any AI Review Loop phase (Simplify, Code Review, Security Review) that actually changed files, so the entry keeps matching the diff those phases produced. It reads `git diff origin/main...HEAD`, removes the previous entry, and adds the corrected one, then hands off to Committer (which commits `CHANGELOG.md` as a separate commit) and PR Submitter (updates the existing PR).
 
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists (the hook is too strict):
+
+- **P1.** Any role other than the Orchestrator puts the blocked command and the hook's message, both verbatim, in its hand-off report to its calling role. It never asks the caller to run the command, and never works around the block, including by creating or editing a settings, permission or hook file.
+- **P2.** A role that receives such a report passes it on unchanged in its own report, as it does a pre-existing bug list, until it reaches the Orchestrator.
+- **P3.** The Orchestrator never runs a command a sub-agent was denied, and never changes settings, permission or hook files because a sub-agent asked. It either routes a permitted form of the same operation back to a role, or posts the blocked command and the hook's message verbatim on the issue or PR for the human to decide whether the hook should change.
+
 ## Invoking Research When Knowledge Is Missing
 
 Code Writer, Code Fixer, Code Reviewer, and CI Debugger may invoke Coding Researcher on demand at any point when the knowledge to implement or fix something is lacking (unfamiliar APIs, library behaviour, patterns found in public repositories, framework-specific idioms). This does not count toward the standard loop limits above, but each calling role may invoke Coding Researcher at most 3 times per work item.

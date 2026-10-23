@@ -13,3 +13,4 @@ description: Implement a GitHub issue by reading all relevant instruction files 
 - Make exactly one change per task; never start a second change in the same working tree.
 - Do not commit, push, or update the changelog. Hand off to the build/test verification step when the implementation is complete.
 - List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
+- When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.

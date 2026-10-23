@@ -19,6 +19,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
 - Restored rules missing from the coverage-ratchet skill (coverage collection and Blocked label) and the pr-review-loop skill (pattern sweep rules)
 - Reconciled the Orchestrator agent with its sources: live-state check, plan open-question lifting and numbering continuation
+- Reconciled skills with instruction files: added hook-block hand-off rules to agent skills, ad-hoc xargs/read-loop rule to claude-hooks, npm command and install rules to npm-packages; replaced unsourced content in git-branch, github-cli-pitfalls and shell-scripts
 ### Deprecated
 ### Removed
 ### Deployment Changes

@@ -1,6 +1,6 @@
 ---
 name: credfeto-github-cli-pitfalls
-description: Reference of specific `gh` and `gh api`/GraphQL failure modes, with the exact fix for each. Use before composing an uncertain `gh`/`gh api` command, when a `gh`, `gh api`, or GraphQL call fails with an unexpected flag/field/type error, a `422 Validation Failed`, a `jq` parse error immediately after a `gh` call, or a shell command is rejected by the agent sandbox.
+description: Reference of specific `gh` and `gh api`/GraphQL failure modes, with the exact fix for each. Use before composing an uncertain `gh`/`gh api` command, when a `gh`, `gh api`, or GraphQL call fails with an unexpected flag/field/type error, a `422 Validation Failed`, a `jq` parse error immediately after a `gh` call, or a shell command is rejected by the Claude Code hooks.
 ---
 
 # GitHub CLI Pitfalls
@@ -82,16 +82,17 @@ review comment, see above) must use `-F`. Using `-f` for it fails with
 `"in_reply_to" is not a permitted key" / "is not a number"`, because the string form doesn't match
 any of the schema's `oneOf` variants.
 
-## The Agent Sandbox Rejects Some Shell Shapes Outright
+## The Claude Code Hooks Reject Some Shell Shapes Outright
 
-`IFS=` assignments (e.g. a `while IFS= read -r` loop) and `env`/`unset` wrappers are rejected
-outright by the sandbox. Use flat
-commands, and pass lists in one call (e.g. `--add-label "a,b"`) instead of looping.
+The Claude Code hooks reject some shell shapes outright, such as `env`/`unset` wrappers and
+`xargs` and `while IFS= read` loop shapes. Use flat commands instead: run `gh` directly and scope
+it with its own flags (for example `--repo <owner>/<repo>`) rather than wrapping it to set or clear
+a variable, and avoid `xargs` and loops.
 
-Raw GraphQL query strings are also more likely to be misread as obfuscated/spam-shaped input by the
-sandbox's bash content filter than an equivalent flat `gh` invocation, and `gh api graphql`
-mutations are denied outright by the sandbox. Use `gh api`/`gh api graphql` only as a last resort,
-when neither `cfwf` nor a native `gh <noun> <verb>` subcommand covers the operation.
+Raw GraphQL query strings are also more likely than an equivalent flat `gh` invocation to be
+refused before they run, and `gh api graphql` mutations are refused outright. Use
+`gh api`/`gh api graphql` only as a last resort, when neither `cfwf` nor a native
+`gh <noun> <verb>` subcommand covers the operation.
 
 ## Comment and Body Text: HEREDOC, Never `\n`
 
