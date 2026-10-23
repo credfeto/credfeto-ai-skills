@@ -37,7 +37,9 @@
 # The agent can run code wherever it runs, so it runs only in the agent jobs,
 # which hold nothing worth pushing with: contents: read, no SOURCE_PUSH_TOKEN,
 # and a checkout with no token and persist-credentials: false. Their runner is
-# thrown away, and their only product is the patch artifact.
+# thrown away, and their only product is the patch artifact. Because artifacts
+# on this public repository are downloadable, each agent job fails before
+# uploading if the patch holds the literal sk-ant- anywhere.
 #
 # Each apply job treats that artifact as untrusted data. It checks out the
 # branch afresh and uses two local actions loaded from that clean checkout
@@ -300,6 +302,17 @@ jobs:
         env:
           ALLOWED_PATHS: "${{env.SKILLS_ALLOWED_PATHS}}"
 
+      # Stricter than the validator (any sk-ant-, context lines too) as it exists to stop the upload; prints no patch text.
+      - name: "Check patch for Claude token"
+        shell: bash
+        run: |
+          rc=0
+          grep -q -F -- 'sk-ant-' "${RUNNER_TEMP}/patch/changes.patch" || rc=$?
+          if [ "${rc}" -ne 1 ]; then
+            echo "::error::The patch contains the Claude token prefix sk-ant-, or could not be read; not uploading it"
+            exit 1
+          fi
+
       - name: "Upload patch"
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -516,6 +529,17 @@ jobs:
             > "${RUNNER_TEMP}/patch/changes.patch"
         env:
           ALLOWED_PATHS: "${{env.AGENTS_ALLOWED_PATHS}}"
+
+      # Stricter than the validator (any sk-ant-, context lines too) as it exists to stop the upload; prints no patch text.
+      - name: "Check patch for Claude token"
+        shell: bash
+        run: |
+          rc=0
+          grep -q -F -- 'sk-ant-' "${RUNNER_TEMP}/patch/changes.patch" || rc=$?
+          if [ "${rc}" -ne 1 ]; then
+            echo "::error::The patch contains the Claude token prefix sk-ant-, or could not be read; not uploading it"
+            exit 1
+          fi
 
       - name: "Upload patch"
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
