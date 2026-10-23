@@ -39,7 +39,11 @@
 # and a checkout with no token and persist-credentials: false. Their runner is
 # thrown away, and their only product is the patch artifact. Because artifacts
 # on this public repository are downloadable, each agent job fails before
-# uploading if the patch holds the literal sk-ant- anywhere.
+# uploading if the patch holds the literal sk-ant- anywhere. Owner decision:
+# that check is inline bash despite its if, a sanctioned exception to
+# ai/global/github-workflows.instructions.md, because a local action would be
+# loaded from the checkout the agent has just edited, whereas inline run: text
+# comes from the workflow file at dispatch.
 #
 # Each apply job treats that artifact as untrusted data. It checks out the
 # branch afresh and uses two local actions loaded from that clean checkout
@@ -346,6 +350,8 @@ jobs:
           ALLOWED_PATHS: "${{env.SKILLS_ALLOWED_PATHS}}"
 
       # Stricter than the validator (any sk-ant-, context lines too) as it exists to stop the upload; prints no patch text.
+      # Inline by owner decision, not a local action, which would load from the
+      # checkout the agent has just edited (see the header).
       - name: "Check patch for Claude token"
         shell: bash
         run: |
@@ -581,6 +587,8 @@ jobs:
           ALLOWED_PATHS: "${{env.AGENTS_ALLOWED_PATHS}}"
 
       # Stricter than the validator (any sk-ant-, context lines too) as it exists to stop the upload; prints no patch text.
+      # Inline by owner decision, not a local action, which would load from the
+      # checkout the agent has just edited (see the header).
       - name: "Check patch for Claude token"
         shell: bash
         run: |
