@@ -359,14 +359,13 @@ jobs:
           allowed-parent: "${{env.ALLOWED_DELETION_PARENT}}"
 
       # Only what a skills run can break: an agent mismatch here would block the agents jobs that fix it.
+      # This and the lint and changelog steps are not gated on has-changes, so a run with no patch still checks the branch.
       - name: "Check preloaded skills exist"
-        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-agents
         with:
           skills-only: "true"
 
       - name: "Setup AI reconcile tools"
-        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/setup-ai-reconcile
         with:
           github-token: "${{github.token}}"
@@ -375,12 +374,10 @@ jobs:
           install-claude-code: "false"
 
       - name: "Lint skill markdown"
-        if: steps.patch.outputs.has-changes == 'true'
         shell: bash
         run: markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md
 
       - name: "Validate changelog"
-        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/dotnet-tool-run
         with:
           working-directory: "${{github.workspace}}"
@@ -576,12 +573,11 @@ jobs:
         with:
           allowed-parent: "${{env.ALLOWED_DELETION_PARENT}}"
 
+      # This and the lint and changelog steps are not gated on has-changes, so a run with no patch still checks the branch.
       - name: "Check agents match config.yaml"
-        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-agents
 
       - name: "Setup AI reconcile tools"
-        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/setup-ai-reconcile
         with:
           github-token: "${{github.token}}"
@@ -590,12 +586,10 @@ jobs:
           install-claude-code: "false"
 
       - name: "Lint agent markdown"
-        if: steps.patch.outputs.has-changes == 'true'
         shell: bash
         run: markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md
 
       - name: "Validate changelog"
-        if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/dotnet-tool-run
         with:
           working-directory: "${{github.workspace}}"
