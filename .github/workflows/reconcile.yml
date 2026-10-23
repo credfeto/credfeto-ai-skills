@@ -139,6 +139,19 @@ on:
 permissions:
   contents: read
 
+# The paths each stage may change. Its agent job (skills-agent, agents-agent) stages ignored files inside them and its
+# apply job (skills-apply, agents-apply) validates and commits only them. Workflow level, because job-level env cannot
+# read the env context and each stage's agent and apply jobs both need them.
+env:
+  SKILLS_ALLOWED_PATHS: |
+    ai/skills
+    ai/local/skills.instructions.md
+    CHANGELOG.md
+  AGENTS_ALLOWED_PATHS: |
+    ai/agents
+    ai/local/agents.instructions.md
+    CHANGELOG.md
+
 concurrency:
   group: "reconcile-ai"
   cancel-in-progress: false
@@ -271,14 +284,19 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
       # Fixed prefixes and no renames, external diff drivers or textconv, so the patch has the one format the validator
-      # accepts. An empty file means no changes.
+      # accepts. An empty file means no changes. Ignored files are staged too, but only inside the allowed paths, so a
+      # file the agent created on an ignored path reaches the validator, which rejects it, instead of being silently
+      # dropped while its changelog entry is kept.
       - name: "Create patch"
         shell: bash
         run: |
           mkdir -p "${RUNNER_TEMP}/patch"
           git add --all
+          printf '%s' "${ALLOWED_PATHS}" | git add --all --force --pathspec-from-file=-
           git diff --cached --binary --full-index --no-renames --no-ext-diff --no-textconv --src-prefix=a/ --dst-prefix=b/ HEAD \
             > "${RUNNER_TEMP}/patch/changes.patch"
+        env:
+          ALLOWED_PATHS: "${{env.SKILLS_ALLOWED_PATHS}}"
 
       - name: "Upload patch"
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -296,10 +314,6 @@ jobs:
     outputs:
       head: "${{steps.head.outputs.head}}"
     env:
-      ALLOWED_PATHS: |
-        ai/skills
-        ai/local/skills.instructions.md
-        CHANGELOG.md
       PROTECTED_PATHS: |
         ai/skills/install
       ALLOWED_DELETION_PARENT: "ai/skills"
@@ -329,7 +343,7 @@ jobs:
         uses: ./.github/actions/apply-reconcile-patch
         with:
           patch-directory: "${{runner.temp}}/patch"
-          allowed-paths: "${{env.ALLOWED_PATHS}}"
+          allowed-paths: "${{env.SKILLS_ALLOWED_PATHS}}"
           protected-paths: "${{env.PROTECTED_PATHS}}"
           allowed-deletion-parent: "${{env.ALLOWED_DELETION_PARENT}}"
 
@@ -349,7 +363,7 @@ jobs:
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-changed-scope
         with:
-          allowed-paths: "${{env.ALLOWED_PATHS}}"
+          allowed-paths: "${{env.SKILLS_ALLOWED_PATHS}}"
           protected-paths: "${{env.PROTECTED_PATHS}}"
 
       - name: "Check deletions"
@@ -487,14 +501,19 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
       # Fixed prefixes and no renames, external diff drivers or textconv, so the patch has the one format the validator
-      # accepts. An empty file means no changes.
+      # accepts. An empty file means no changes. Ignored files are staged too, but only inside the allowed paths, so a
+      # file the agent created on an ignored path reaches the validator, which rejects it, instead of being silently
+      # dropped while its changelog entry is kept.
       - name: "Create patch"
         shell: bash
         run: |
           mkdir -p "${RUNNER_TEMP}/patch"
           git add --all
+          printf '%s' "${ALLOWED_PATHS}" | git add --all --force --pathspec-from-file=-
           git diff --cached --binary --full-index --no-renames --no-ext-diff --no-textconv --src-prefix=a/ --dst-prefix=b/ HEAD \
             > "${RUNNER_TEMP}/patch/changes.patch"
+        env:
+          ALLOWED_PATHS: "${{env.AGENTS_ALLOWED_PATHS}}"
 
       - name: "Upload patch"
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -510,10 +529,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      ALLOWED_PATHS: |
-        ai/agents
-        ai/local/agents.instructions.md
-        CHANGELOG.md
       PROTECTED_PATHS: |
         ai/agents/config.yaml
         ai/agents/install
@@ -544,7 +559,7 @@ jobs:
         uses: ./.github/actions/apply-reconcile-patch
         with:
           patch-directory: "${{runner.temp}}/patch"
-          allowed-paths: "${{env.ALLOWED_PATHS}}"
+          allowed-paths: "${{env.AGENTS_ALLOWED_PATHS}}"
           protected-paths: "${{env.PROTECTED_PATHS}}"
           allowed-deletion-parent: "${{env.ALLOWED_DELETION_PARENT}}"
 
@@ -564,7 +579,7 @@ jobs:
         if: steps.patch.outputs.has-changes == 'true'
         uses: ./.github/actions/check-changed-scope
         with:
-          allowed-paths: "${{env.ALLOWED_PATHS}}"
+          allowed-paths: "${{env.AGENTS_ALLOWED_PATHS}}"
           protected-paths: "${{env.PROTECTED_PATHS}}"
 
       - name: "Check nothing was deleted"
