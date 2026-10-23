@@ -25,9 +25,9 @@
 # sync and skills-apply record the commit they finish on as their head output,
 # even when they pushed nothing. The next agent job checks out exactly that
 # commit, and the next apply job fails unless the branch tip still equals it,
-# so a patch is only ever applied to the commit it was made from. One concurrency group means no
-# two jobs ever push at the same time, and a newer queued run always does every
-# stage.
+# so a patch is only ever applied to the commit it was made from. One
+# concurrency group means no two jobs ever push at the same time, and a newer
+# queued run always does every stage.
 #
 # Runs daily, and on a push to main that changes this workflow,
 # ai/agents/config.yaml or any local action it depends on. Files the jobs
