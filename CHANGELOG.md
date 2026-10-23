@@ -10,7 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
-- Reconcile workflow: the unattended agent now runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so the agent cannot tamper with the guards or reach the push token, and its markdownlint permission is limited to one exact command that cannot load extra options or code - #34
+- Reconcile workflow: the unattended agent runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so it cannot tamper with the guards or reach the push token. Its Claude Code permissions now use dontAsk mode instead of acceptEdits, with edits limited to its stage's allowed paths (.github and human-owned files denied), reads limited to the checkout (/proc denied), repository settings, hooks and .mcp.json not loaded, and Bash limited to named lint, changelog and skill-folder rm rules - #34
 ### Added
 ### Fixed
 - Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
