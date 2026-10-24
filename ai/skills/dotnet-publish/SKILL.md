@@ -31,4 +31,4 @@ Raise a GitHub issue in the current repository describing the incompatibility (p
 
 ## Warning Rules for Trim and AOT Diagnostics
 
-Every project builds with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, so the `IL2xxx` trim-analysis and `IL3xxx` AOT-compatibility warnings above are already build-breaking. Do not suppress them (`#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]`) without explicit written permission from the repo owner; fix the root cause instead. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.
+Every project builds with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, so the `IL2xxx` trim-analysis and `IL3xxx` AOT-compatibility warnings above are already build-breaking. Do not suppress them (`#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]`); fix the root cause instead. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.

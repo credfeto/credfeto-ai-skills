@@ -141,7 +141,7 @@ Instead:
    - One simple command per call, not a `;` or `&&` chain, because every part of a chain must match
      an allow rule on its own and one unmatched part denies the whole call; make separate tool
      calls instead.
-   - The mandated exclusions on every search. `.env`, `.env.*`, `*.env`, `.database` and any `.claude/` directory hold credentials or private configuration, so never let a repository-wide search read them:
+   - The mandated exclusions on every search. `.env`, `.env.*`, `*.env`, `.database`, any `.claude/` directory, and any file local instructions mark as secret-bearing hold credentials or private configuration, so never let a repository-wide search read them, whether via Bash or a built-in tool. The pre-execution deny hooks are the backstop for this rule, not the first line of defence: a denied search means the command was written wrongly, not that the hook is over-strict:
      - `grep`/`rg`: add `--exclude='.env' --exclude='.env.*' --exclude='*.env' --exclude='.database' --exclude-dir='.claude'` (rg: `-g '!.env*' -g '!*.env' -g '!.database' -g '!.claude/'`).
      - `find`: add `-not -path '*/.claude/*' -not -name '.env*' -not -name '*.env' -not -name '.database'`.
      - `Glob`/`Grep` tools: use a pattern that cannot match them, or filter the result before reading any file.
