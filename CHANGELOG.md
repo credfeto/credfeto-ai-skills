@@ -22,6 +22,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled skills with instruction files: added hook-block hand-off rules to agent skills, ad-hoc xargs/read-loop rule to claude-hooks, npm command and install rules to npm-packages; replaced unsourced content in git-branch, github-cli-pitfalls and shell-scripts
 - Skills: credfeto-dotnet-publish no longer allows trim/AOT warning suppression with owner permission
 - Skills: credfeto-claude-hooks search-exclusion rules aligned with tool preferences
+- Skills: removed unsourced re-run wording from performance-benchmarking and added the ad-hoc xargs/while-read rule to long-running-commands
 ### Deprecated
 ### Removed
 ### Deployment Changes

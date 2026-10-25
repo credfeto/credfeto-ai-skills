@@ -39,6 +39,15 @@ Fixing and retrying means retrying **the same operation** in a form the hook acc
 
 In both cases, retrying the same operation in a form the hook accepts is fine: literal paths instead of variables, `git -C <dir>` instead of `cd && git`, `run_in_background: true` on the same call.
 
+## Ad-Hoc Commands Never Use `xargs` or `while IFS= read` Loops (MANDATORY)
+
+Never use `xargs` or a `while IFS= read` loop in an ad-hoc Bash tool call. `reject-obfuscated-commands` refuses both before the command runs:
+
+- `xargs` is on `command-blocklist`, which wins over `command-allowlist`, so any command containing it is rejected.
+- `IFS` is on `env-var-blocklist`, so an assignment to it is rejected, whether it is a standalone statement or a per-command prefix such as `IFS= read`. Dropping the prefix does not help, because `read` is not on `command-allowlist` either.
+
+Instead, write one flat command per call: name the paths directly, or pass the whole list in one call (for example `shellcheck a.sh b.sh`, or `gh issue edit <n> --repo <owner/repo> --add-label "a,b"`).
+
 ## A Permission Denial Is Not a Hook Denial (MANDATORY)
 
 Claude Code has a second way to refuse a command: the permission system itself, sitting above the hook chain. Under `permissions.defaultMode: "dontAsk"`, a command that would normally prompt for approval is auto-denied instead. This is not a `PreToolUse` hook running; no hook name appears anywhere in the message.
