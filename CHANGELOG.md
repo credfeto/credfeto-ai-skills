@@ -10,10 +10,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Reconcile workflow: the unattended agent runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so it cannot tamper with the guards or reach the push token. Its Claude Code permissions now use dontAsk mode instead of acceptEdits, with edits limited to its stage's allowed paths (.github and human-owned files denied), reads limited to the checkout (/proc denied), repository settings, hooks and .mcp.json not loaded, and Bash limited to named lint and skill-folder rm rules, plus dotnet changelog adds of the Added, Changed, Deprecated, Removed, Fixed and Security entry types - #34
 ### Added
 ### Fixed
 - Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
 - Skills reconciled with instruction files: agent-routing and github-cli-pitfalls drop unsourced wording, claude-hooks is self-contained, git-branch gains the uncommitted-work base commit step, dotnet-analyzer-conflicts gains the issue URL note step
+- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
 ### Changed
 - Reconciled performance-benchmarking skill wording with its source instructions
 - Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
@@ -23,6 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: credfeto-dotnet-publish no longer allows trim/AOT warning suppression with owner permission
 - Skills: credfeto-claude-hooks search-exclusion rules aligned with tool preferences
 - Skills: removed unsourced re-run wording from performance-benchmarking and added the ad-hoc xargs/while-read rule to long-running-commands
+- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 ### Deprecated
 ### Removed
 ### Deployment Changes
