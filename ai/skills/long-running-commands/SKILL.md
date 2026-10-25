@@ -48,6 +48,8 @@ Never use `xargs` or a `while IFS= read` loop in an ad-hoc Bash tool call. `reje
 
 Instead, write one flat command per call: name the paths directly, or pass the whole list in one call (for example `shellcheck a.sh b.sh`, or `gh issue edit <n> --repo <owner/repo> --add-label "a,b"`).
 
+Committed scripts and workflow steps do not pass through these hooks, so a fixed per-file command there may still use `xargs -0r`.
+
 ## A Permission Denial Is Not a Hook Denial (MANDATORY)
 
 Claude Code has a second way to refuse a command: the permission system itself, sitting above the hook chain. Under `permissions.defaultMode: "dontAsk"`, a command that would normally prompt for approval is auto-denied instead. This is not a `PreToolUse` hook running; no hook name appears anywhere in the message.

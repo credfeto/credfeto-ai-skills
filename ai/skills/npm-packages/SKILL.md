@@ -43,7 +43,7 @@ Before searching for, adding or updating a package, check which registry is actu
 ## Running npm Commands (MANDATORY)
 
 - Run every npm command as one plain command from the working directory. When `package-lock.json` is not at the repo root, add `--prefix <dir>`, where `<dir>` is the relative path inside the repo holding it (e.g. `src`).
-- Run `npm ci` and `npm install` with the tool's `run_in_background`, then wait for them to finish and read their output. Never stop such a command part-way, never poll for `"exit code"` (it is not reliably written to background task output; poll for a string the command itself writes), and time-box each poll loop to 30 minutes: when the deadline passes, report that the command is still running and keep waiting rather than stopping it.
+- Run `npm ci` and `npm install` with the tool's `run_in_background`, then wait for them and read their output.
 - Never add a `cd`, a `--prefix` outside the allowed directories, a redirect to a file (`> $TMPDIR/npm.log`), a `;`/`&&` chain, or a pipe (such as `| tail`): a `cd`, chain, redirect or pipe makes the permission allow list reject the call, and a `--prefix` outside the allowed directories is blocked by the `enforce-allowed-dirs` hook, while the plain form is allowed.
 
 ## Installing Dependencies (MANDATORY)

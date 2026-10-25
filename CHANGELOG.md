@@ -26,6 +26,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: credfeto-claude-hooks search-exclusion rules aligned with tool preferences
 - Skills: removed unsourced re-run wording from performance-benchmarking and added the ad-hoc xargs/while-read rule to long-running-commands
 - Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
+- Reconcile long-running-commands skill with xargs rule for committed scripts
+- Reconcile npm-packages skill with its source instructions
+- Add missing consistency rule to gitignore-management skill
 ### Deprecated
 ### Removed
 ### Deployment Changes
