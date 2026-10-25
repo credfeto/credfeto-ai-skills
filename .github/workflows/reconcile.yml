@@ -95,11 +95,15 @@
 #
 # Each agent's Bash rules allow markdownlint only as the exact command its
 # apply job's lint step runs, because markdownlint's --config and --rules
-# options load JavaScript modules, and allow dotnet changelog only as an add,
-# so the agent cannot run code of its own beside the Claude token. The
-# markdownlint rule contains no wildcard and lints directories rather than a
-# glob, because a * in a Bash rule matches any text, spaces included, so a
-# rule with one would admit extra options such as --rules.
+# options load JavaScript modules. The markdownlint rule contains no wildcard
+# and lints directories rather than a glob, because a * in a Bash rule matches
+# any text, spaces included, so a rule with one would admit extra options such
+# as --rules. dotnet changelog is allowed only as an add of one of the listed
+# Keep a Changelog types, but each of those rules ends in -m *, so the message
+# can carry extra options. Until credfeto/credfeto-changelog-manager#389 makes
+# the tool's operations exclusive, an -x and -v pair in that text can still
+# write the release notes to any path, such as .git/config, which the later
+# git add would act on.
 #
 # Neither agent may change .github: besides its Edit(.github/**) denial, the
 # validator rejects any .github path, and each apply job's inline "Check
@@ -298,8 +302,9 @@ jobs:
              Never modify ai/agents/ or ai/local/agents.instructions.md; agents are reconciled by a later job,
              and this run fails if they change.
           6. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
-             for every change you make; this repository's local rules require a changelog entry for
-             every change.
+             for every change you make, where <Type> is one of Added, Changed, Deprecated, Removed, Fixed
+             or Security, which are the only types you may use; this repository's local rules require a
+             changelog entry for every change.
           7. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
           8. If every skill already matches its sources, change nothing and finish.
           RECONCILE_PROMPT
@@ -321,7 +326,12 @@ jobs:
               "Edit(/ai/local/skills.instructions.md)" \
               "Edit(/CHANGELOG.md)" \
               "Bash(rm -r ai/skills/*)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Added -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Changed -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Deprecated -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Removed -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Fixed -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Security -m *)" \
               "Bash(shellcheck:*)" \
               "Bash(checkbashisms:*)" \
               "Bash(markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md)" \
@@ -539,8 +549,9 @@ jobs:
           6. Every AGENT.md must pass markdownlint. Check it with exactly this command, which is the only
              markdownlint command you may run: markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md
           7. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
-             for every change you make; this repository's local rules require a changelog entry for
-             every change.
+             for every change you make, where <Type> is one of Added, Changed, Deprecated, Removed, Fixed
+             or Security, which are the only types you may use; this repository's local rules require a
+             changelog entry for every change.
           8. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
           9. If every agent already matches its sources and config.yaml, change nothing and finish.
           RECONCILE_PROMPT
@@ -560,7 +571,12 @@ jobs:
               "Edit(/ai/agents/**)" \
               "Edit(/ai/local/agents.instructions.md)" \
               "Edit(/CHANGELOG.md)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a:*)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Added -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Changed -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Deprecated -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Removed -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Fixed -m *)" \
+              "Bash(dotnet changelog -f CHANGELOG.md -a Security -m *)" \
               "Bash(markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md)" \
               "Bash(yamllint:*)" \
             --disallowedTools \
