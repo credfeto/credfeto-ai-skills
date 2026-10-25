@@ -45,6 +45,19 @@
 # loaded from the checkout the agent has just edited, whereas inline run: text
 # comes from the workflow file at dispatch.
 #
+# Each agent job also fails unless the agent examined every skill or agent.
+# The prompt requires its final response to end with the exact folder name of
+# every skill or agent between the lines RECONCILED-BEGIN and RECONCILED-END,
+# and claude's output is copied with tee to a file under RUNNER_TEMP. In the
+# same step, before the agent runs, .github/scripts/check-reconciled-names.sh
+# is copied to RUNNER_TEMP and the expected names are listed from the folders
+# under ai/skills or ai/agents at HEAD, so neither comes from a tree the agent
+# has edited. After the agent finishes, that copy fails the job, reporting each
+# missing and unknown name, if the block is missing or its names differ from
+# the expected names. The block shows the agent claims to have examined each
+# one; it cannot prove the agent read it. The -x and -v hole described below
+# could still write to RUNNER_TEMP.
+#
 # Each apply job treats that artifact as untrusted data. It checks out the
 # branch afresh and uses two local actions loaded from that clean checkout
 # before the patch touches it: check-base-commit fails unless the branch is
@@ -182,6 +195,7 @@ on:
       - ".github/actions/check-allowed-deletions/**"
       - ".github/actions/check-changed-scope/**"
       - ".github/actions/check-agents/**"
+      - ".github/scripts/check-reconciled-names.sh"
       - "ai/agents/config.yaml"
   workflow_dispatch: # allow manual runs for testing
 
@@ -306,9 +320,23 @@ jobs:
              or Security, which are the only types you may use; this repository's local rules require a
              changelog entry for every change.
           7. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
-          8. If every skill already matches its sources, change nothing and finish.
+          8. Examine every skill folder in ai/skills/ against its sources; spot checks and sampling are not
+             acceptable. You may split the work across sub-agents with the Agent tool, but each sub-agent must
+             follow every rule of this prompt. Do not rely on git history to decide what changed: the clone is
+             shallow and holds only the current commit.
+          9. Only your final response is captured. End it with a line containing exactly RECONCILED-BEGIN, then
+             the exact folder name under ai/skills/ of every skill that existed when this run started, including
+             any you deleted and excluding any you created, one per line with nothing else on the line, then a
+             line containing exactly RECONCILED-END. This run fails if that block is missing or if any name in
+             it is missing or is not one of those skill folders.
+          10. If every skill already matches its sources, change nothing and finish, still ending with that block.
           RECONCILE_PROMPT
           )
+          # Completeness check: see the header. The check script and the
+          # expected names are taken from the checkout before the agent runs.
+          mkdir -p "${RUNNER_TEMP}/reconcile"
+          cp .github/scripts/check-reconciled-names.sh "${RUNNER_TEMP}/reconcile/"
+          git ls-tree -d --name-only HEAD -- ai/skills/ | sed 's|^ai/skills/||' > "${RUNNER_TEMP}/reconcile/expected-skills.txt"
           # Permission model: see the header. dontAsk denies anything not
           # allowed here; reads stay in the checkout, edits match
           # SKILLS_ALLOWED_PATHS, and repository settings, hooks and MCP
@@ -340,7 +368,11 @@ jobs:
               "Edit(.github/**)" \
               "Edit(/ai/skills/install)" \
               "Bash(rm *..*)" \
-              "Bash(rm -r ai/skills/* *)"
+              "Bash(rm -r ai/skills/* *)" \
+            | tee "${RUNNER_TEMP}/reconcile/skills-output.txt"
+          sh "${RUNNER_TEMP}/reconcile/check-reconciled-names.sh" skills \
+            "${RUNNER_TEMP}/reconcile/expected-skills.txt" \
+            "${RUNNER_TEMP}/reconcile/skills-output.txt"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
@@ -553,9 +585,24 @@ jobs:
              or Security, which are the only types you may use; this repository's local rules require a
              changelog entry for every change.
           8. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
-          9. If every agent already matches its sources and config.yaml, change nothing and finish.
+          9. Examine every agent folder in ai/agents/ against its sources and config.yaml; spot checks and
+             sampling are not acceptable. You may split the work across sub-agents with the Agent tool, but
+             each sub-agent must follow every rule of this prompt. Do not rely on git history to decide what
+             changed: the clone is shallow and holds only the current commit.
+          10. Only your final response is captured. End it with a line containing exactly RECONCILED-BEGIN, then
+              the exact folder name under ai/agents/ of every agent that existed when this run started,
+              excluding any you created, one per line with nothing else on the line, then a line containing
+              exactly RECONCILED-END. This run fails if that block is missing or if any name in it is missing
+              or is not one of those agent folders.
+          11. If every agent already matches its sources and config.yaml, change nothing and finish, still
+              ending with that block.
           RECONCILE_PROMPT
           )
+          # Completeness check: see the header. The check script and the
+          # expected names are taken from the checkout before the agent runs.
+          mkdir -p "${RUNNER_TEMP}/reconcile"
+          cp .github/scripts/check-reconciled-names.sh "${RUNNER_TEMP}/reconcile/"
+          git ls-tree -d --name-only HEAD -- ai/agents/ | sed 's|^ai/agents/||' > "${RUNNER_TEMP}/reconcile/expected-agents.txt"
           # Permission model: see the header. dontAsk denies anything not
           # allowed here; reads stay in the checkout, edits match
           # AGENTS_ALLOWED_PATHS, and repository settings, hooks and MCP
@@ -583,7 +630,11 @@ jobs:
               "Read(//proc/**)" \
               "Edit(.github/**)" \
               "Edit(/ai/agents/config.yaml)" \
-              "Edit(/ai/agents/install)"
+              "Edit(/ai/agents/install)" \
+            | tee "${RUNNER_TEMP}/reconcile/agents-output.txt"
+          sh "${RUNNER_TEMP}/reconcile/check-reconciled-names.sh" agents \
+            "${RUNNER_TEMP}/reconcile/expected-agents.txt" \
+            "${RUNNER_TEMP}/reconcile/agents-output.txt"
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
