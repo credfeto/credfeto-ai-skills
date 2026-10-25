@@ -22,7 +22,3 @@ The root `.gitignore` is the global baseline: only edit it in `credfeto/cs-templ
 ## Additional `.gitignore` Files
 
 Derived repositories may add `.gitignore` files for repo-specific concerns (language build output, generated content, local tooling artefacts), placed at the appropriate directory level.
-
-## Consistency
-
-When creating or modifying any `.gitignore`, check it against the root to ensure no duplication or conflicts.

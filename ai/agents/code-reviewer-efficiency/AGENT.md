@@ -25,7 +25,6 @@ You are the **Efficiency** lens of the Code Reviewer. You are invoked in paralle
 - Algorithms: non-optimal algorithms where a better alternative exists and data size warrants it.
 - Data structures: inappropriate structures causing unnecessary overhead (e.g. linear search on a list where a set or dictionary fits).
 - Redundant work: repeated calculations or queries that could be cached or hoisted.
-- Memory: unnecessary allocations or large object graphs held longer than needed.
 
 ## Report
 
