@@ -48,6 +48,8 @@ Never use `xargs` or a `while IFS= read` loop in an ad-hoc Bash tool call. `reje
 
 Instead, write one flat command per call: name the paths directly, or pass the whole list in one call (for example `shellcheck a.sh b.sh`, or `gh issue edit <n> --repo <owner/repo> --add-label "a,b"`).
 
+Committed scripts and workflow steps do not pass through these hooks, so a fixed per-file command there may still use `xargs -0r`.
+
 ## A Permission Denial Is Not a Hook Denial (MANDATORY)
 
 Claude Code has a second way to refuse a command: the permission system itself, sitting above the hook chain. Under `permissions.defaultMode: "dontAsk"`, a command that would normally prompt for approval is auto-denied instead. This is not a `PreToolUse` hook running; no hook name appears anywhere in the message.
@@ -88,12 +90,19 @@ A rule-compliant command that the permission system still denies needs a new all
 
 `git commit`/`pre-commit`/`pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, and `bun test` have no bounded, predictable duration: `pre-commit` (and `pre-commit-check`, a wrapper that runs it against the existing checked-out repo) can run a heavy hook chain, `dotnet build` runs through a large analyzer stack plus package restore, and test runs scale with what changed. There is no timeout value that is both practical and safe to pick for any of these commands, so do not try to pick one.
 
+- **Run only one of these commands at a time**; see One Long-Running Command at a Time below.
 - **Always run these commands via a background-task mechanism (e.g. `run_in_background`); never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
 - **Never wrap any of these in a shell `timeout` command as a substitute or a belt-and-braces addition** (e.g. `timeout 590 dotnet test ...`), whether or not the background-task mechanism is also used. `timeout` is on the categorical blocklist of the `reject-obfuscated-commands` hook and is rejected outright, independently of the backgrounding rule: running the command unwrapped and backgrounded is already unbounded and needs no additional wrapper. A missing backgrounding parameter and a banned `timeout` wrapper are denied by different hooks and are unrelated; read which hook actually fired rather than assuming a single general conflict.
 - Poll for completion using the reliable strings in the table below, subject to the 30-minute deadline in [Time-Box Every Poll Loop](#time-box-every-poll-loop-mandatory) below.
 - **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the poll-loop deadline fires, report and keep waiting as the time-box section describes, and when a `Monitor` watch's own timeout expires first, start a new watch.
 - A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Orphaned temp directories under a shared path can break other tools that walk the same path.
 - Other `dotnet` commands (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this unconditional rule; they may run in the foreground, but **always with an explicit maximum timeout set on the tool call**, never the tool's built-in default (e.g. Claude Code's Bash tool defaults to 2 minutes when no `timeout` is given; use the maximum available, e.g. 600000ms/10 minutes, explicitly). If even that maximum is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
+
+### One Long-Running Command at a Time (MANDATORY)
+
+- **P1.** A role never starts a long-running command while another long-running command it started is still running: it waits for the first command's completion marker (see the poll strings below) before starting the next. "Long-running" means every command named in the Never Truncate These Commands section above (`git commit`/`pre-commit`/`pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`) plus any other build, test or lint run started with `run_in_background` (for example `bats test/`). `Monitor` watches and `ScheduleWakeup` loops are not long-running commands for this rule. This is because each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+- **P2.** The rule applies across the whole session, not only within one role: the Orchestrator never has two roles running long-running commands at the same time, and never starts its own long-running command while a role it launched is running one.
+- **P3.** A role that must run several checks (for example `pre-commit-check` and then `bats test/`) runs them one after another, never in parallel, each waiting for the previous one's completion marker.
 
 ### Finishing Background Work Before Handing Back
 
@@ -120,7 +129,7 @@ When watching a background task, the poll condition **must** be provably satisfi
 1. **Never poll for `"exit code"`**; that string is not reliably written to background task output files. Poll for a specific string the command itself writes (see table above).
 2. **Do not pipe after `grep -q` in a negation check.** `! grep -q "pattern" file | tail -1` does NOT detect absence: the pipe applies to grep's (empty) stdout, so `tail -1` exits 0 regardless, and `!` inverts that to always-false. Write `! grep -q "pattern" file` with no trailing pipe.
 3. **Verify the poll string exists in real output before writing the loop.** If you cannot confirm what string the command writes, run the command in the foreground first and read its output.
-4. **Prefer foreground for quick, bounded commands** (`git status`, a single `grep`, `ls`, and similar). Always background the commands listed above regardless of expected speed; use `run_in_background: true` for any other command that genuinely takes many minutes (e.g. a full integration-test run) when there is independent work to do while waiting.
+4. **Prefer foreground for quick, bounded commands** (`git status`, a single `grep`, `ls`, and similar). Always background the commands listed above regardless of expected speed, and run only one at a time; use `run_in_background: true` for any other command that genuinely takes many minutes (e.g. a full integration-test run) when there is independent work to do while waiting.
 
 ### Time-Box Every Poll Loop (MANDATORY)
 

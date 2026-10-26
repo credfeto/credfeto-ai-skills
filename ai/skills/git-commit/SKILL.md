@@ -26,6 +26,8 @@ Never block work based on inspecting config files and deducing that a tool might
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
+Known hook incompatibility: for `dotenv-linter`, use `entry: dotenv-linter check`; v3.x requires the `check` subcommand before the filename.
+
 ## 2. Branch Check (MANDATORY)
 
 - Run `git -C <dir> branch --show-current` and confirm it is the expected working branch before staging or committing.
@@ -105,6 +107,7 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 `git commit`/`pre-commit`/`pre-commit-check` has no bounded, predictable duration: `pre-commit` can run a heavy hook chain (e.g. full-project build checks, security scanners, lint stacks). There is no timeout value that is both practical and safe to pick, so do not try to pick one.
 
 - **Always run `git commit` (including its pre-commit hook run) via `run_in_background`; never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
+- **Run only one long-running command at a time.** Never start a commit, build, test or lint run (`git commit`/`pre-commit`/`pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, or any other build, test or lint run started in the background) while another one you started is still running: wait for the first command's completion marker before starting the next, and run several checks one after another, never in parallel. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 - **Never wrap it in a shell `timeout` command** as a substitute or a belt-and-braces addition, whether or not `run_in_background` is also set; plain `run_in_background` on the unwrapped command is already unbounded and needs no additional wrapper.
 - Poll with the Monitor tool for a specific string the command itself writes, subject to a 30-minute deadline:
   - Pre-commit hooks passed: poll for `→ All checks passed.`
@@ -114,6 +117,13 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 - A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the 30-minute poll-loop deadline fires, report the overrun (to the human in an interactive session, or as a comment on the work item without the `Blocked` label in an unattended run) and start a new watch on the same completion marker; when a `Monitor` watch's own timeout expires first, start a new watch.
 - Never stop a commit or push that is still running with `TaskStop`, and never hand back while it is still running; wait for its completion marker. Once it has finished, stop any `Monitor` watch you started.
 - A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind.
+
+## Work That Cannot Be Committed (MANDATORY)
+
+When a session cannot save its work through a commit (a file-edit, commit or push tool is denied, or the environment will not outlive the session), the work must not be lost silently, because the next run would otherwise redo it from scratch or never learn it was attempted.
+
+- **P1.** Keep your own uncommitted changes: before any command that can discard them, run `git status` and stash or commit anything you did not just create and intend to discard; discard only changes you can see are wrong, never as stray churn.
+- **P2.** Before the session ends, record the work in a single comment on the PR (or the issue if there is no PR yet), editing it if it already exists. Start it with the hidden marker `<!-- uncommitted-work -->`, then give the tool or action that was denied, the branch name, the base commit SHA and a precise description of the change (a `Construct:` line and file list, as for a Pattern Sweep) so it can be re-applied if the diff no longer applies. The base is where the local work diverged from the pushed branch (`git merge-base HEAD @{upstream}`, or `git merge-base HEAD origin/main` when the branch was never pushed), so the diff includes local commits whose push was denied but never reverts someone else's pushed commits. Capture the diff of only the files you changed with `git add -N <files that still exist>` then `git -C <dir> diff --binary <base> -- <files>` (listing deleted files too), so your new files, staged changes and unpushed commits are included but no other untracked file is, and never include a file holding secrets, because the comment may be public. Put the diff in a collapsed `<details>` block if the whole comment body then stays under 60,000 characters; otherwise the description alone is the record.
 
 ## After Pushing
 

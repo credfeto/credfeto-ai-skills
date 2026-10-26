@@ -40,4 +40,5 @@ description: Address requested changes on an existing pull request, whether from
 
 - If a fix requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, stop and escalate to the Orchestrator with the explanation; do not partially apply the fix.
 - List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
+- Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
 - When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.

@@ -20,7 +20,8 @@ Scans the full repository rather than a diff; no branch or PR is required, and f
    - Body: all findings from all sub-agents for that group, organised by sub-agent.
    - Label: `audit`
 4. Skip groups where every sub-agent reports `{"clean": true}`; do not raise an issue for a clean group.
-5. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+5. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
+6. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 
 ## Sub-Agent Lenses
 

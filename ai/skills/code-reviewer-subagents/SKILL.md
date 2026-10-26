@@ -16,7 +16,8 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 7. Report `{"clean": true, "sweeps": [...], "preExistingBugs": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...], "preExistingBugs": [...]}`, where `sweeps` carries every sweep record and `preExistingBugs` lists each pre-existing bug reported but not fixed (file, line, description), incoming (from a Code Writer or Code Fixer hand-off) and own, because without its own field such a bug is either dropped or misread as a fix. Cap at 5 iterations.
 8. After 5 iterations, report any unresolved findings to the Orchestrator; the Orchestrator adds each as a PR comment for human consideration.
 9. Report a pre-existing bug found outside the current change's scope to the Orchestrator in `preExistingBugs` rather than fixing it.
-10. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the Orchestrator. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in an incoming hand-off on unchanged.
+10. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
+11. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the Orchestrator. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in an incoming hand-off on unchanged.
 
 ### Posting a Finding as an Inline PR Comment
 

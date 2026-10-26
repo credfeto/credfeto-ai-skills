@@ -23,7 +23,8 @@ description: Diagnose a failing CI check by reading its full logs and finding th
      ```
 
 7. Fix a pre-existing bug that causes the CI failure as part of the current work, including one the change merely exposes, because leaving it would keep the PR's required checks failing with nothing permitted to clear them. Report any other pre-existing bug found outside the current change's scope to the calling role (Orchestrator, or CI Monitor, which passes it on to the Orchestrator) rather than fixing it.
-8. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+8. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
+9. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
