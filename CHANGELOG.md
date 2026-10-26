@@ -10,8 +10,20 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
-- Reconcile workflow: the unattended agent runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so it cannot tamper with the guards or reach the push token. Its Claude Code permissions now use dontAsk mode instead of acceptEdits, with edits limited to its stage's allowed paths (.github and human-owned files denied), reads limited to the checkout (/proc denied), repository settings, hooks and .mcp.json not loaded, and Bash limited to named lint and skill-folder rm rules, plus dotnet changelog adds of the Added, Changed, Deprecated, Removed, Fixed and Security entry types - #34
 ### Added
+### Fixed
+### Changed
+### Deprecated
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+
+## [0.0.6] - 2026-10-26
+### Security
+- Reconcile workflow: the unattended agent runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so it cannot tamper with the guards or reach the push token. Its Claude Code permissions now use dontAsk mode instead of acceptEdits, with edits limited to its stage's allowed paths (.github and human-owned files denied), reads limited to the checkout (/proc denied), repository settings, hooks and .mcp.json not loaded, and Bash limited to named lint and skill-folder rm rules, plus dotnet changelog adds of the Added, Changed, Deprecated, Removed, Fixed and Security entry types - #34
 ### Fixed
 - Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
 - Skills reconciled with instruction files: agent-routing and github-cli-pitfalls drop unsourced wording, claude-hooks is self-contained, git-branch gains the uncommitted-work base commit step, dotnet-analyzer-conflicts gains the issue URL note step
@@ -29,13 +41,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 - SDK - Updated DotNet SDK to 10.0.403
 - Agents: add the One Long-Running Command at a Time rule to every agent that runs commands
-### Deprecated
-### Removed
-### Deployment Changes
-
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 
 ## [0.0.5] - 2026-10-15
 ### Security
