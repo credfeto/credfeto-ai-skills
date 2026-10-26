@@ -28,6 +28,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: removed unsourced re-run wording from performance-benchmarking and added the ad-hoc xargs/while-read rule to long-running-commands
 - Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
 - SDK - Updated DotNet SDK to 10.0.403
+- Agents: add the One Long-Running Command at a Time rule to every agent that runs commands
 ### Deprecated
 ### Removed
 ### Deployment Changes

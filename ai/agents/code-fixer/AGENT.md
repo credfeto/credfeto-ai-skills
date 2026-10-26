@@ -20,6 +20,10 @@ Follow your preloaded `credfeto-code-fixer` skill for the full procedure.
 - Respond to **every** review comment without exception, in the reply formats the skill defines. A reply that cites a SHA is posted only once `credfeto-committer` has pushed.
 - List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
 
+## One Long-Running Command at a Time (MANDATORY)
+
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`); `Monitor` watches and `ScheduleWakeup` loops are not long-running commands for this rule. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+
 ## Hook Blocks in Hand-offs (MANDATORY)
 
 When a hook blocks a command and no form of the same operation that the hook accepts exists:

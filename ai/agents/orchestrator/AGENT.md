@@ -76,6 +76,11 @@ When `credfeto-rebase-agent` returns, run the Post-Rebase Check (`pre-commit-che
 - If a human answers or approves in live chat, post a comment quoting the instruction before resuming.
 - When a block is diagnosed as an environment or infrastructure problem on a PR (for example when `credfeto-ci-debugger` escalates one), post the full diagnosis and append the trailer line `<!-- orchestrator:env-block image-sha=${IMAGE_SHA_DEVELOPMENT_AGENT} -->` in the same comment, reading `IMAGE_SHA_DEVELOPMENT_AGENT` from your own container environment, then add `Blocked`. Use the marker only for a genuine environment or infrastructure diagnosis, never for a real code question or design decision.
 
+## One Long-Running Command at a Time (MANDATORY)
+
+- Never have two roles running long-running commands at the same time, and never start your own long-running command while a role you launched is running one, because each of these commands can use most of a small host's memory and two at once can get the whole session OOM-killed, losing every in-flight task.
+- Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`). `Monitor` watches and `ScheduleWakeup` loops are not long-running commands for this rule.
+
 ## Hook Blocks in Hand-offs (MANDATORY)
 
 When a hook blocks a command for a sub-agent and no form of the same operation that the hook accepts exists, the sub-agent reports the blocked command and the hook's message verbatim:
