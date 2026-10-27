@@ -37,7 +37,7 @@ Fixing and retrying means retrying **the same operation** in a form the hook acc
 
   Instead, stop that operation and report the blocked command and the hook's message, both verbatim, to the calling role, or to the Orchestrator if there is no calling role, so the human can decide whether the hook should change.
 
-In both cases, retrying the same operation in a form the hook accepts is fine: literal paths instead of variables, `git -C <dir>` instead of `cd && git`, `run_in_background: true` on the same call.
+In both cases, retrying the same operation in a form the hook accepts is fine: literal paths instead of variables, `git -C <dir>` instead of `cd && git`, `run_in_background: true` on the same call. An agent that hits a `git grep` block and stops to ask is behaving correctly; the answer is that the block is correct and plain `grep` is the permitted form.
 
 ## Ad-Hoc Commands Never Use `xargs` or `while IFS= read` Loops (MANDATORY)
 

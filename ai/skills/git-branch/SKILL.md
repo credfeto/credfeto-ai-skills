@@ -15,6 +15,12 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
 
+## Pre-Commit Branch Check
+
+- Run `git -C <dir> branch --show-current` and confirm it is the expected working branch before staging or committing.
+- Never commit if the current branch is `main`.
+- If the branch has switched to `main` and the upstream no longer exists (merged and deleted), create a new branch before continuing.
+
 ## Destructive Commands (MANDATORY)
 
 Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git -C <dir> stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, silently discards any uncommitted work that is there; the check costs one command and is never skippable "because it should be clean".

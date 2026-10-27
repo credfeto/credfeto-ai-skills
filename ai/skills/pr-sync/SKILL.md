@@ -140,6 +140,8 @@ Then act immediately; do **not** busy-loop, sleep, or use `--watch`, in any mode
 - gh or API error → report the error rather than routing a CI failure, because no check has failed and CI Debugger would look for a failure that does not exist.
 - CI consistently failing and cannot be fixed → mark the PR blocked: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`. A required check still failing after 3 CI Debugger rounds for that check on the PR also counts, because further rounds would only repeat the cycle.
 
+An analyzer findings comment (`<!-- sarif-summary: ... -->`) on the PR is handled by the sarif-summary-findings skill.
+
 CI Debugger posts a one-line status comment after each pushed fix or re-run, in the form `### CI Debugger: <fix pushed|re-run started> for <check name>` (the check name exactly as `gh pr checks` reports it). Your own routing status comment does not count towards the cap, because it records a routing decision rather than a round. Count a `### CI Debugger:` comment for a check towards the cap only when both of these hold:
 
 - Its author is the bot login or a trusted commenter (see Trusted Commenters above), because anyone else could post one and get the PR marked `Blocked` before a single fix attempt.

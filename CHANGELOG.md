@@ -13,6 +13,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Added the pre-commit branch check to the git-branch skill
+- CI Debugger skill states that the Orchestrator routing status comment does not count towards the round cap
+- Aligned the coverage-ratchet skill wording with its sources
+- Aligned the dotnet-test-patterns unconstructable-type rule with its sources
+- Added the git grep hook-block clarification to the long-running-commands skill
+- Added the COVERAGE.md rebase-conflict rule to the pr-review-loop skill
+- pr-sync skill now routes analyzer findings comments to sarif-summary-findings
+- github-issue skill sets the board status to Planning after each plan post
 ### Deprecated
 ### Removed
 ### Deployment Changes

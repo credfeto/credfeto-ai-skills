@@ -172,8 +172,8 @@ Never use `RuntimeHelpers.GetUninitializedObject` or `FormatterServices.GetUnini
 
 1. Look first for a real way to build the type: a public constructor or factory, a builder, or an existing fixture or test helper.
 2. Check the org test libraries (`FunFair.Test.Common` and `FunFair.Test.Infrastructure`).
-3. If none exists, stop and ask the human how to get a real instance, and add `Blocked`.
-4. Do not carry on, or write a workaround, until the human has answered.
+3. If none exists, stop and ask the human how to get a real instance. Post the question and add `Blocked`. In an interactive session, ask in chat and mirror the answer as a comment.
+4. Do not carry on, or write a workaround, until the human has answered, because a workaround written in the meantime is the constructor-bypassing shortcut this rule forbids.
 
 ## xunit Assertion Patterns
 
