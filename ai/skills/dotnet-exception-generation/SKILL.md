@@ -29,7 +29,7 @@ Use `Credfeto.Exceptions.SourceGenerator` to define exception types; it generate
 Apply the same rule to any project that already defines exceptions with hand-written constructors:
 
 1. Add the `Credfeto.Exceptions.SourceGenerator` package reference (as above) if not already present.
-2. Convert each existing exception class to `partial` and remove its hand-written constructors, letting the generator supply them.
+2. Convert each existing hand-written exception class to `partial`; do not hand-write exception constructors, because the generator supplies them.
 
 ## Source
 

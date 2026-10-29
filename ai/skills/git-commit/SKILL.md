@@ -40,6 +40,7 @@ Known hook incompatibility: for `dotenv-linter`, use `entry: dotenv-linter check
 - Never amend an existing commit; always create a new one.
   - **Exception:** for a commit that has not yet been pushed to `origin`, the commit message may be amended (e.g. to fix wording or apply the Commit Message Format below). The set of files in the commit and their content must never be changed by such an amend, only the message.
 - One logical change per commit; do not batch unrelated changes. Each change is made, tested and committed before the next starts.
+- Refactoring, dead code removal and incidental file cleanup are each committed separately from feature/fix changes; tests must pass after every such commit. Dead code removal is one method or function per commit, and cleanup of several distinct fix types in a file is one commit per fix type, per file.
 - Commit from a working tree that holds exactly one change. Never split a tree holding several changes into commits by file or by hunk; hand it back to the Orchestrator instead.
 - Do not run `pre-commit-check` separately before a commit: `git commit` runs the same hooks automatically, so a separate run only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit.
 - **Never bypass hooks or formatters.** If they fail, stop and report the failure.
@@ -77,6 +78,8 @@ A commit produced by the Pattern Sweep rule (searching the whole repository for 
 ## 5. Push (MANDATORY)
 
 - Push to `origin` after every commit, or once after a run of consecutive commits when pushes are batched; the branch is always pushed before PR Submitter or CI Monitor runs and before the session ends.
+- Pre-commit hooks may make commits slow; wait for them to complete before assuming failure.
+- For coverage tasks, work file by file: write tests until the file reaches target coverage, commit the test file and push immediately, update the sub-issue to mark the file done, then move to the next file. For complex files, commit, push and update after each round rather than waiting until the file is fully complete.
 - **Always push a new branch with `-u`** to set up tracking: `git -C <repodir> push -u origin <branch>`. Subsequent pushes can use `git -C <repodir> push`.
 
 ## Committer Agent Additional Rules (MANDATORY when acting in that role)
@@ -145,7 +148,7 @@ Before committing a change to an instruction file (`ai/global/**` or `ai/local/*
 When working outside `credfeto/cs-template` and a gap in the global template rules is found:
 
 1. Do not apply the change locally.
-2. Create an issue in `credfeto/cs-template` using the command template below. The title is `prefix: text` or `prefix(name): text` with a lower-case prefix, using a Conventional Commits type that matches the work (a local title rule takes precedence where one exists).
+2. Create an issue in `credfeto/cs-template` using the command template below. The title is `prefix: text` or `prefix(name): text` with a lower-case prefix: the prefix a specific rule gives, or failing that a Conventional Commits type that matches the work (a local title rule takes precedence where one exists).
 3. The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
 4. Note the issue URL in any relevant commit or PR description.
 5. Continue work without waiting for the template issue to be resolved.

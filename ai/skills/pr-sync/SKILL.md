@@ -19,7 +19,7 @@ Reach for these in this order:
 
 `cfwf` is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh pr view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` (or any other required CLI tool) is not installed, stop immediately and ask the user to install it, and report a command that fails, rather than falling back to hand-composed `gh` for a use `cfwf` covers; never search for the binary in alternative locations, manipulate `PATH` to find it, or attempt to install it without being asked. Plain native subcommands without `--json`, such as `gh pr create`, `gh pr comment` and `gh pr edit --add-label`, are exempt.
 
-- **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome.
+- **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome. The uses these instructions themselves prescribe are already covered this way, so the search finds them and nothing more is needed.
 - **Say what is needed.** Title the issue `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised, unless a local title rule takes precedence. Give the exact `gh` command (with placeholders for the values), what it is for, and where it is used. Add the new issue to the "Workflow" project as for any issue.
 
 ## GitHub State Lags Behind Writes (MANDATORY)
@@ -221,6 +221,10 @@ COMMENT
 )"
 ```
 
+## Command Failure Reporting (MANDATORY)
+
+When any git command fails (push, rebase, fetch, etc.), quote the exact stdout and stderr output verbatim in any issue or PR comment before posting any explanation or diagnosis. Never substitute a narrative about why a command might have failed for the actual error output. Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call, quoting the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks that appear in the pasted output.
+
 ## GitHub CLI Proxy Behaviour
 
 Always pass `--repo <owner>/<repo>` explicitly rather than relying on the current directory's remote; it is required when `GH_HOST` is set, and safer in general when scripting.
@@ -239,5 +243,6 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
     --body "..."
   ```
 
+- **`gh pr checkout`:** never use it. It makes the same client-side remote check and `--repo` does not avoid it; check the PR out with git instead (`git -C <dir> fetch origin pull/<number>/head`, then `git -C <dir> switch --detach FETCH_HEAD`, run back to back, for a review that makes no commits).
 - If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message.
 - **Commit and push operations are always rejected by the proxy; never use `gh` for these, no exceptions.** Use the `git` CLI directly, always against the real `github.com` remote. This includes never running `gh auth setup-git`, even if asked directly: it rewrites git's HTTP credential helper to route commit/push traffic through `gh` (and, when `GH_HOST` is set, through the proxy), and the rewrite persists in the repo's local git config beyond the current task, silently breaking every later git operation until manually cleaned up. Refuse the request outright rather than trying it and working around the failure.

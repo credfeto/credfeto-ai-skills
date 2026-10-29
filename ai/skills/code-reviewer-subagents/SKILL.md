@@ -1,6 +1,6 @@
 ---
 name: credfeto-code-reviewer-subagents
-description: Review a diff for merge-readiness by launching six parallel sub-agent lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance), each with its own false-positive-minimising critical instructions and finding categories, fixing real findings and escalating unresolved ones after a capped number of iterations. Use when acting as the Code Reviewer role, or whenever dispatched as one of its six sub-agents, to review newly changed code before a PR is marked ready.
+description: Review a diff for merge-readiness by launching six parallel sub-agent lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance), each with its own false-positive-minimising critical instructions and finding categories, fixing real findings and escalating unresolved ones after a capped number of iterations. Use when acting as the Code Reviewer role, or whenever dispatched as one of its six sub-agents, to review newly changed code.
 ---
 
 # Code Reviewer: Parallel Sub-Agent Review

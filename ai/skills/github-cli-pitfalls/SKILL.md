@@ -90,7 +90,8 @@ it with its own flags (for example `--repo <owner>/<repo>`) rather than wrapping
 a variable, and avoid `xargs` and loops.
 
 Raw GraphQL query strings are also more likely than an equivalent flat `gh` invocation to be
-refused before they run, and `gh api graphql` mutations are refused outright. Use
+refused before they run, and `gh api graphql` mutations are refused outright; tell whether a hook or
+the permission system refused from the denial message. Use
 `gh api`/`gh api graphql` only as a last resort, when neither `cfwf` nor a native
 `gh <noun> <verb>` subcommand covers the operation.
 

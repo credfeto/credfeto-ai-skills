@@ -216,7 +216,7 @@ COMMENT
 
 1. Create a top-level GitHub issue (if none specified); assign it; include the full original prompt as the body.
 2. Comment findings on the issue before starting (components found, current state, etc.).
-3. For each component, create a sub-issue referencing the top-level issue; use the sub-issue number in branch names and commit messages.
+3. For each component, create a sub-issue referencing the top-level issue (`gh issue edit <number> --repo <owner/repo> --add-sub-issue <child-number>`); use the sub-issue number in branch names and commit messages.
 4. Work on one component at a time; commit and push before starting the next.
 5. Close the sub-issue as soon as the relevant commits are pushed.
 

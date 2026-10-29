@@ -150,13 +150,10 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 - The same package is bumped to two different, unrelated versions on both sides and there is no clear "latest" (e.g. divergent major versions).
 - A security trade-off with no candidate that is both latest and unaffected.
 
-## CHANGELOG Conflicts
-
-When a merge or rebase produces a conflict in `CHANGELOG.md`, keep the entries from both sides; do not drop either side's changes.
-
 ## Rebase Agent Scope (MANDATORY when acting in that role)
 
 - Rebase the named branch onto `origin/main`.
+- `CHANGELOG.md` conflicts: keep the entries from both sides.
 - If the branch has an open PR, turn auto-merge off and convert the PR to draft before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 - Any other conflict, i.e. one outside the deterministic algorithm above: report verbatim to Orchestrator; do not resolve it yourself.

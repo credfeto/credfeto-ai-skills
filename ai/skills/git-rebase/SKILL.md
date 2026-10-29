@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-rebase
-description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, merge CHANGELOG.md conflicts by keeping entries from both sides, and apply the additional force-push and escalation rules that apply when acting as the dedicated Rebase Agent. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, a conflict in CHANGELOG.md, or when acting as the Rebase Agent.
+description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, and apply the additional CHANGELOG.md conflict, force-push and escalation rules that apply when acting as the dedicated Rebase Agent. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, or when acting as the Rebase Agent.
 ---
 
 # Git Rebasing
@@ -58,12 +58,9 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 When acting specifically as the dedicated Rebase Agent:
 
 - Rebase the named branch onto `origin/main`.
+- `CHANGELOG.md` conflicts: keep the entries from both sides rather than picking one.
 - If the branch has an open PR, turn auto-merge off and convert the PR to draft before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
 - If the version conflict resolution chosen per the algorithm above breaks the build, report the break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that scoped role.
 - Any other conflict, including one that falls outside the deterministic algorithm above: report it verbatim to the Orchestrator; do not resolve it yourself.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 - Do not run `pre-commit-check` or fix what it reports: that is the After Every Rebase check above, which the Orchestrator runs once this role returns, because this role is mechanical and must not interpret or fix failures.
-
-## CHANGELOG.md Conflicts
-
-If rebasing produces a conflict in `CHANGELOG.md`, keep the entries from both sides rather than picking one.
