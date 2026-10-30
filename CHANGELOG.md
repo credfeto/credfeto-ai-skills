@@ -22,6 +22,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - pr-sync skill now routes analyzer findings comments to sarif-summary-findings
 - github-issue skill sets the board status to Planning after each plan post
 - Reconciled skills with current instruction files: code-reviewer-subagents, dotnet-exception-generation, git-branch, git-commit, git-rebase, github-cli-pitfalls, github-issue, pr-review-loop, pr-sync
+- Agents: added the missing no-pre-commit-check rule to Code Writer, Code Fixer and Code Tester, and the background-run wait rule to Code Tester and Committer
 ### Deprecated
 ### Removed
 ### Deployment Changes

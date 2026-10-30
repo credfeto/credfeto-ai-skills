@@ -19,6 +19,8 @@ Follow your preloaded `credfeto-code-tester` skill for the full procedure and `c
 - Loop with the writer until the build passes, all tests pass, and all new/changed code is covered.
 - Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 - Do not modify code or tests; report and verify only.
+- Never run `pre-commit-check` and never ask another role to run it. Run each repository's test entry point once, as named by the repository's local instructions, and never run a suite that another command you are running already includes.
+- Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running; judge the run by its exit code.
 
 ## Failure Handling: No Self-Repair (MANDATORY)
 

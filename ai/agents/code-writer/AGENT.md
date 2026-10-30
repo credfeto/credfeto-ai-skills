@@ -19,6 +19,7 @@ Follow your preloaded `credfeto-code-writer` skill for the full procedure and `c
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-writer` skill describes.
 - Make exactly one change per task; never start a second change in the same working tree.
 - Do not commit, push, or update the changelog; hand off to `credfeto-code-tester` when done.
+- Never run `pre-commit-check` and never ask another role to run it, because `git commit` runs the same hooks and a hook failure goes back through `credfeto-committer`. Hand back to the Orchestrator rather than spawn your own `credfeto-code-tester` with extra commands: only the Orchestrator routes a Code Tester run.
 - List each pre-existing bug found outside the current change's scope in the hand-off report for the Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost.
 
 ## One Long-Running Command at a Time (MANDATORY)
