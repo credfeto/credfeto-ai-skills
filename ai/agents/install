@@ -1,6 +1,7 @@
 #!/bin/sh
 # Installs each agent in this folder into ~/.claude/agents as credfeto-<agent>.md
-# so Claude Code can discover them as personal agents.
+# so Claude Code can discover them as personal agents, or with --system into
+# /etc/claude-code/.claude/agents using sudo so they are managed agents for every user.
 
 die() {
     if [ -t 2 ]; then
@@ -27,19 +28,68 @@ info() {
     fi
 }
 
+SYSTEM=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --system)
+            SYSTEM="yes"
+            ;;
+        *)
+            die "unknown argument: $1 (usage: install [--system])"
+            ;;
+    esac
+    shift
+done
+
+SUDO=""
+
+if [ -n "${SYSTEM}" ] && [ "$(id -u)" -ne 0 ]; then
+    command -v sudo > /dev/null 2>&1 || die "--system needs root or sudo on PATH"
+    SUDO="sudo"
+fi
+
+run() {
+    if [ -n "${SUDO}" ]; then
+        "${SUDO}" "$@"
+    else
+        "$@"
+    fi
+}
+
+# Root's umask may leave system copies unreadable to the users who load them.
+make_world_readable() {
+    [ -n "${SYSTEM}" ] || return 0
+    run chmod "$@"
+}
+
 AGENTS_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 [ -n "${AGENTS_SOURCE_DIR}" ] || die "could not determine the agents source directory"
 
-TARGET_ROOT="${HOME}/.claude/agents"
+if [ -n "${SYSTEM}" ]; then
+    TARGET_ROOT="/etc/claude-code/.claude/agents"
+else
+    TARGET_ROOT="${HOME}/.claude/agents"
+fi
+
 MANIFEST="${TARGET_ROOT}/.credfeto-ai-skills-agents"
 
-mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+run mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+make_world_readable a+rX "$(dirname -- "${TARGET_ROOT}")" "${TARGET_ROOT}" || die "could not make ${TARGET_ROOT} world-readable"
 
 NEW_MANIFEST="${MANIFEST}.new"
 
+# sudo does not raise the privilege of a shell redirection, so the system manifest is built where this user can write.
+if [ -n "${SYSTEM}" ]; then
+    MANIFEST_DRAFT=$(mktemp) || die "could not create a temporary manifest"
+    trap 'rm -f "${MANIFEST_DRAFT}"' EXIT
+else
+    MANIFEST_DRAFT="${NEW_MANIFEST}"
+fi
+
 PREVIOUS_MANIFEST=""
-[ -f "${MANIFEST}" ] && PREVIOUS_MANIFEST=$(cat "${MANIFEST}")
-: > "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
+[ -f "${MANIFEST}" ] && PREVIOUS_MANIFEST=$(run cat "${MANIFEST}")
+: > "${MANIFEST_DRAFT}" || die "could not write ${MANIFEST_DRAFT}"
 
 INSTALLED=0
 
@@ -57,8 +107,9 @@ for agent_dir in "${AGENTS_SOURCE_DIR}"/*/; do
 
     info "Installing ${agent_name} as credfeto-${agent_name}..."
 
-    cp "${agent_dir}AGENT.md" "${target_file}" || die "could not copy ${agent_name} to ${target_file}"
-    printf '%s\n' "${agent_name}" >> "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
+    run cp "${agent_dir}AGENT.md" "${target_file}" || die "could not copy ${agent_name} to ${target_file}"
+    make_world_readable a+r "${target_file}" || die "could not make ${target_file} world-readable"
+    printf '%s\n' "${agent_name}" >> "${MANIFEST_DRAFT}" || die "could not write ${MANIFEST_DRAFT}"
 
     INSTALLED=$((INSTALLED + 1))
 done
@@ -70,10 +121,15 @@ for previous_name in ${PREVIOUS_MANIFEST}; do
     [ -f "${AGENTS_SOURCE_DIR}/${previous_name}/AGENT.md" ] && continue
 
     info "Removing stale credfeto-${previous_name}: no longer in ${AGENTS_SOURCE_DIR}"
-    rm -f "${TARGET_ROOT}/credfeto-${previous_name}.md" || die "could not remove credfeto-${previous_name}.md"
+    run rm -f "${TARGET_ROOT}/credfeto-${previous_name}.md" || die "could not remove credfeto-${previous_name}.md"
 done
 
+if [ "${MANIFEST_DRAFT}" != "${NEW_MANIFEST}" ]; then
+    run cp "${MANIFEST_DRAFT}" "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
+    make_world_readable a+r "${NEW_MANIFEST}" || die "could not make ${NEW_MANIFEST} world-readable"
+fi
+
 # Replaced only after a complete run, so a failed run keeps the previous record.
-mv "${NEW_MANIFEST}" "${MANIFEST}" || die "could not update ${MANIFEST}"
+run mv "${NEW_MANIFEST}" "${MANIFEST}" || die "could not update ${MANIFEST}"
 
 success "Installed ${INSTALLED} agent(s) to ${TARGET_ROOT}"
