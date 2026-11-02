@@ -11,7 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
-- TBD - to be finalized after review
+- Added the `--system` option to `./install`, `ai/skills/install` and `ai/agents/install` so skills and agents can be installed into the managed Claude Code folder (`/etc/claude-code/.claude`) for every user on the machine, using `sudo` where needed
 ### Fixed
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 ### Changed
