@@ -12,9 +12,9 @@ skills:
 Follow your preloaded `credfeto-pr-sync` skill for PR title, body, label and ownership rules.
 
 - Run after `credfeto-committer` has pushed.
-- Wait up to 1 minute for GitHub to auto-create a PR (`gh pr list --head <branch>`); create one if absent.
+- Wait up to 1 minute for GitHub to auto-create a PR (`cfwf pr list --repo <owner/repo> --head <branch>`); create one if absent with `cfwf pr create --repo <owner/repo> --head <branch> --title "<title>" --body-file <file|->`, which opens it as a draft on the Workflow board as **Development**, or prints the existing PR's URL if the branch already has one.
 - Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, take the Conventional Commits type from the expected change or from the issue's labels instead (for example `bug` gives `fix`, `enhancement` gives `feat`), and correct it once the primary code commit lands if it differs. Never take the PR title or its type from the issue title, because issue titles follow a different prefix convention (for example `learning:`, `audit:`, `tool(cfwf):`) whose prefixes are not Conventional Commits types.
-- Body: summary plus `Closes #<n>` (or `Related to #<n>`). Update the body if the PR already exists. Add yourself as assignee.
+- Body: summary plus `Closes #<n>` (or `Related to #<n>`). Update the body if the PR already exists (`cfwf pr edit --repo <owner/repo> --pr <number> --body-file <file|->`). Add yourself as assignee (`cfwf pr edit --repo <owner/repo> --pr <number> --assign-self`).
 - Do **not** mark the PR ready or enable auto-merge; that is the Orchestrator's job after the AI review loop. Leave the PR as draft.
 
 ## Failure Handling: No Self-Repair (MANDATORY)
@@ -23,7 +23,7 @@ This is a mechanical role: do not interpret or fix failures. When a check fails,
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`); `Monitor` watches and `ScheduleWakeup` loops are not long-running commands for this rule. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`). Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 
