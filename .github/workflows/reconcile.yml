@@ -6,7 +6,7 @@
 # rules in ai/local/agents.instructions.md) and ai/agents/config.yaml, pushing
 # each stage's changes directly to main.
 #
-# Five jobs run in order:
+# Six jobs run in order:
 #
 #   - sync mirrors .ai-instructions and ai/global/ from credfeto/cs-template (a
 #     second, sparse actions/checkout of that public repo, no token needed;
@@ -21,6 +21,8 @@
 #   - agents-agent and agents-apply do the same for agents, starting from the
 #     commit skills-apply pushed, so agents are always reconciled against that
 #     run's skills.
+#   - stale-check, read only and with no secrets, fails the run if any skill or
+#     agent on the branch still holds stale-capability wording (see below).
 #
 # sync and skills-apply record the commit they finish on as their head output,
 # even when they pushed nothing. The next agent job checks out exactly that
@@ -47,16 +49,32 @@
 #
 # Each agent job also fails unless the agent examined every skill or agent.
 # The prompt requires its final response to end with the exact folder name of
-# every skill or agent between the lines RECONCILED-BEGIN and RECONCILED-END,
-# and claude's output is copied with tee to a file under RUNNER_TEMP. In the
+# every skill or agent between the lines RECONCILED-BEGIN and RECONCILED-END.
+# claude runs with --output-format json and its final response is extracted
+# with jq to a file under RUNNER_TEMP; every tool call the permission rules
+# denied is also printed as a warning, so a run that stalls on a denial shows
+# what was refused. Those are the agent's own commands, which its response
+# could already put in the log, so printing them adds no exposure. In the
 # same step, before the agent runs, .github/scripts/check-reconciled-names.sh
-# is copied to RUNNER_TEMP and the expected names are listed from the folders
-# under ai/skills or ai/agents at HEAD, so neither comes from a tree the agent
-# has edited. After the agent finishes, that copy fails the job, reporting each
-# missing and unknown name, if the block is missing or its names differ from
-# the expected names. The block shows the agent claims to have examined each
-# one; it cannot prove the agent read it. The -x and -v hole described below
-# could still write to RUNNER_TEMP.
+# and .github/scripts/check-stale-markers.sh are copied to RUNNER_TEMP and the
+# expected names are listed from the folders under ai/skills or ai/agents at
+# HEAD, so none of them comes from a tree the agent has edited. After the agent
+# finishes, the first copy checks the block, reporting each missing and
+# unknown name, and the second greps the stage's folder for stale-capability
+# wording (such as "not available yet" or "no cfwf command yet") that the
+# instruction files no longer use. The block shows the agent claims to have
+# examined each one; it cannot prove the agent read it, which is why the
+# stale-wording grep exists as a deterministic backstop. The -x and -v hole
+# described below could still write to RUNNER_TEMP.
+#
+# If either check fails, or claude itself fails (for example on an API error,
+# which leaves no final response), the agent runs once more on the same tree,
+# with the same prompt plus the check failures, the stale lines and the
+# expected names, so it finishes the job rather than starting again. Its
+# permissions do not change on the retry. After the retry a failed block check
+# fails the job; stale wording alone does not, so the files the run did fix are
+# still pushed, and the stale-check job then fails the run so the leftover is
+# seen.
 #
 # Each apply job treats that artifact as untrusted data. It checks out the
 # branch afresh and uses two local actions loaded from that clean checkout
@@ -117,6 +135,14 @@
 # the tool's operations exclusive, an -x and -v pair in that text can still
 # write the release notes to any path, such as .git/config, which the later
 # git add would act on.
+#
+# Because those rules match whole command strings, a call with anything added
+# (a cd, a pipe, 2>&1, another option) is denied, and so may a read-only
+# command such as ls or cat when it is compounded. The prompt therefore quotes
+# each allowed command verbatim, tells the agent to run it alone and to use the
+# file tools for all reading, and tells it a denial is never a reason to stop.
+# The agent's own markdownlint run is optional: the apply job's lint step runs
+# the same command and is the authority. The rules themselves are unchanged.
 #
 # Neither agent may change .github: besides its Edit(.github/**) denial, the
 # validator rejects any .github path, and each apply job's inline "Check
@@ -196,6 +222,7 @@ on:
       - ".github/actions/check-changed-scope/**"
       - ".github/actions/check-agents/**"
       - ".github/scripts/check-reconciled-names.sh"
+      - ".github/scripts/check-stale-markers.sh"
       - "ai/agents/config.yaml"
   workflow_dispatch: # allow manual runs for testing
 
@@ -266,7 +293,7 @@ jobs:
   skills-agent:
     needs: sync
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     permissions:
       contents: read
     steps:
@@ -292,16 +319,25 @@ jobs:
 
           Task: reconcile every skill in ai/skills/ against the current instruction files.
 
+          Tools: use Read, Glob and Grep for all reading, listing and searching, and Edit or Write to change files.
+          Bash runs only the commands quoted in rules 5 and 6, and only when the whole command is exactly one of
+          them on its own: no cd, no &&, ; or |, no redirection such as 2>&1, no environment variables and no
+          extra options. Any other Bash call, including ls, cat, wc and find, may be denied. A denied tool call is
+          never a reason to stop: carry on with the file tools, finish reconciling every skill, and name each
+          denied call in your final response.
+
           1. Read .ai-instructions, ai/global/index.md, and ai/local/index.md, and load the files they direct you to,
              in particular ai/local/skills.instructions.md, which defines the skill format, the generation rules,
              and the skill registry.
           2. For every skill in the registry: re-read its source instruction files (.ai-instructions,
-             ai/global and, where the registry lists them, ai/local) and the skill itself.
-             A skill must contain only what its sources state. Regenerate it following the generation rules
-             if it is stale, contradicts its sources, is missing rules its sources now contain, contains any
-             rule, instruction or wording that has no source, or still requires something its sources no
-             longer require. In the last case remove the requirement and reword the surrounding text so it
-             reads as if the requirement had never existed; do not leave notes about the removal.
+             ai/global and, where the registry lists them, ai/local) in full, not selected sections, and the
+             skill itself. A skill must contain only what its sources state. Regenerate it following the
+             generation rules if it is stale, contradicts its sources, is missing rules its sources now contain,
+             contains any rule, instruction or wording that has no source, or still requires something its
+             sources no longer require. In the last case remove the requirement and reword the surrounding text
+             so it reads as if the requirement had never existed; do not leave notes about the removal.
+             Wording that says an operation is not available yet, has no command yet or must wait for one is
+             stale unless its sources say the same; this run fails if any remains.
              The instruction files are the source of truth.
           3. Look for instruction content that now qualifies as a new skill (a repeatable workflow with a
              clear trigger and procedure). Create any such skill and add it to the registry. The installer
@@ -311,32 +347,49 @@ jobs:
              never delete any file outside ai/skills/<skill>/, or any other path. Never modify or delete
              ai/skills/install; this run fails if you do. Never delete or rename a skill that
              ai/agents/config.yaml preloads; this run fails if you do.
-          5. Every SKILL.md must pass markdownlint. Check it with exactly this command, which is the only
-             markdownlint command you may run: markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md
+          5. Every SKILL.md must pass markdownlint. The only markdownlint command you may run is exactly:
+             markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md
+             Running it is optional: this workflow runs the same command after you finish and that result is
+             the one that counts, so if your call is denied, carry on.
              Never modify ai/agents/ or ai/local/agents.instructions.md; agents are reconciled by a later job,
              and this run fails if they change.
-          6. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
-             for every change you make, where <Type> is one of Added, Changed, Deprecated, Removed, Fixed
-             or Security, which are the only types you may use; this repository's local rules require a
-             changelog entry for every change.
+          6. Add a changelog entry for every change you make by running exactly this command on its own:
+             dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+             where <Type> is one of Added, Changed, Deprecated, Removed, Fixed or Security, which are the only
+             types you may use; this repository's local rules require a changelog entry for every change. If the
+             call is denied, check that it matches that form exactly and run it again; if it is still denied,
+             carry on and list each entry you could not add in your final response.
           7. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
           8. Examine every skill folder in ai/skills/ against its sources; spot checks and sampling are not
-             acceptable. You may split the work across sub-agents with the Agent tool, but each sub-agent must
-             follow every rule of this prompt. Do not rely on git history to decide what changed: the clone is
-             shallow and holds only the current commit.
+             acceptable. Split the skills into batches of at most 8 and give each batch to a sub-agent with the
+             Agent tool. Each sub-agent must follow every rule of this prompt, read every source file of each of
+             its skills in full, and report a verdict for each of its skills. Wait for every sub-agent to finish,
+             and examine yourself any skill that no sub-agent reported on. Do not rely on git history to decide
+             what changed: the clone is shallow and holds only the current commit.
           9. Only your final response is captured. End it with a line containing exactly RECONCILED-BEGIN, then
              the exact folder name under ai/skills/ of every skill that existed when this run started, including
              any you deleted and excluding any you created, one per line with nothing else on the line, then a
              line containing exactly RECONCILED-END. This run fails if that block is missing or if any name in
-             it is missing or is not one of those skill folders.
+             it is missing or is not one of those skill folders. ai/skills/install is a file, not a skill: never
+             list it. Write the block exactly once, as the last thing in your response, and never write either
+             marker line anywhere else. If you could not compare every skill against its sources, leave the
+             block out.
           10. If every skill already matches its sources, change nothing and finish, still ending with that block.
           RECONCILE_PROMPT
           )
-          # Completeness check: see the header. The check script and the
-          # expected names are taken from the checkout before the agent runs.
-          mkdir -p "${RUNNER_TEMP}/reconcile"
-          cp .github/scripts/check-reconciled-names.sh "${RUNNER_TEMP}/reconcile/"
-          git ls-tree -d --name-only HEAD -- ai/skills/ | sed 's|^ai/skills/||' > "${RUNNER_TEMP}/reconcile/expected-skills.txt"
+          RETRY_NOTE=$(cat <<'RETRY_NOTE'
+          This is the second and last attempt. The first attempt did not pass this run's checks. Its file
+          changes are still in the working tree, and any changelog entries it added are already in CHANGELOG.md:
+          do not add those again. Finish the reconciliation, fixing every problem listed here:
+          RETRY_NOTE
+          )
+          # Completeness and stale-wording checks and the retry: see the
+          # header. Both check scripts and the expected names are taken from
+          # the checkout before the agent runs.
+          dir="${RUNNER_TEMP}/reconcile"
+          mkdir -p "${dir}"
+          cp .github/scripts/check-reconciled-names.sh .github/scripts/check-stale-markers.sh "${dir}/"
+          git ls-tree -d --name-only HEAD -- ai/skills/ | sed 's|^ai/skills/||' > "${dir}/expected-skills.txt"
           # Permission model: see the header. dontAsk denies anything not
           # allowed here; reads stay in the checkout, edits match
           # SKILLS_ALLOWED_PATHS, and repository settings, hooks and MCP
@@ -345,34 +398,95 @@ jobs:
           # targets, and skills-apply rejects the patch if it deletes any
           # tracked file outside a skill folder.
           # The workflow, not the agent, commits and pushes.
-          claude -p "${PROMPT}" \
-            --permission-mode dontAsk \
-            --setting-sources user \
-            --settings '{"disableAllHooks": true, "permissions": {"blockReadsOutsideWorkingDirectories": true}}' \
-            --allowedTools "Read(/**)" "Glob" "Grep" \
-              "Edit(/ai/skills/**)" \
-              "Edit(/ai/local/skills.instructions.md)" \
-              "Edit(/CHANGELOG.md)" \
-              "Bash(rm -r ai/skills/*)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Added -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Changed -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Deprecated -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Removed -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Fixed -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Security -m *)" \
-              "Bash(shellcheck:*)" \
-              "Bash(checkbashisms:*)" \
-              "Bash(markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md)" \
-            --disallowedTools \
-              "Read(//proc/**)" \
-              "Edit(.github/**)" \
-              "Edit(/ai/skills/install)" \
-              "Bash(rm *..*)" \
-              "Bash(rm -r ai/skills/* *)" \
-            | tee "${RUNNER_TEMP}/reconcile/skills-output.txt"
-          sh "${RUNNER_TEMP}/reconcile/check-reconciled-names.sh" skills \
-            "${RUNNER_TEMP}/reconcile/expected-skills.txt" \
-            "${RUNNER_TEMP}/reconcile/skills-output.txt"
+          allowed=(
+            "Read(/**)" "Glob" "Grep"
+            "Edit(/ai/skills/**)"
+            "Edit(/ai/local/skills.instructions.md)"
+            "Edit(/CHANGELOG.md)"
+            "Bash(rm -r ai/skills/*)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Added -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Changed -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Deprecated -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Removed -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Fixed -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Security -m *)"
+            "Bash(shellcheck:*)"
+            "Bash(checkbashisms:*)"
+            "Bash(markdownlint --config .markdownlint.json ai/skills ai/local/skills.instructions.md)"
+          )
+          disallowed=(
+            "Read(//proc/**)"
+            "Edit(.github/**)"
+            "Edit(/ai/skills/install)"
+            "Bash(rm *..*)"
+            "Bash(rm -r ai/skills/* *)"
+          )
+          # One agent attempt. A failed claude call (an API error, say) is
+          # not fatal here: it leaves no final response, so the checks fail
+          # and the attempt is retried.
+          run_agent() {
+            local rc=0
+            claude -p "$1" \
+              --output-format json \
+              --permission-mode dontAsk \
+              --setting-sources user \
+              --settings '{"disableAllHooks": true, "permissions": {"blockReadsOutsideWorkingDirectories": true}}' \
+              --allowedTools "${allowed[@]}" \
+              --disallowedTools "${disallowed[@]}" \
+              > "${dir}/skills-result.json" || rc=$?
+            jq -r '.result // empty' "${dir}/skills-result.json" > "${dir}/skills-output.txt" 2>/dev/null \
+              || : > "${dir}/skills-output.txt"
+            cat "${dir}/skills-output.txt"
+            jq -r '.permission_denials[]?
+              | ((.tool_input.command // .tool_input.file_path // "") | gsub("[\r\n]+"; " ") | .[0:300]) as $what
+              | "::warning::Denied \(.tool_name): \($what)"' \
+              "${dir}/skills-result.json" 2>/dev/null || true
+            if [ "${rc}" -ne 0 ]; then
+              echo "::warning::claude exited with status ${rc}"
+            fi
+          }
+          # Runs both checks on the current tree, printing their errors as
+          # warnings, and collects what failed in skills-failures.txt.
+          check_agent() {
+            names_ok=true
+            stale_ok=true
+            : > "${dir}/skills-failures.txt"
+            sh "${dir}/check-reconciled-names.sh" skills "${dir}/expected-skills.txt" "${dir}/skills-output.txt" \
+              > "${dir}/names-check.txt" 2>&1 || names_ok=false
+            sh "${dir}/check-stale-markers.sh" skills "${dir}/skills-stale.txt" ai/skills \
+              > "${dir}/stale-check.txt" 2>&1 || stale_ok=false
+            cat "${dir}/names-check.txt" "${dir}/stale-check.txt" | sed 's/^::error::/::warning::/'
+            if [ "${names_ok}" = false ]; then
+              sed -n 's/^::error::❌ //p; s/^✗ //p' "${dir}/names-check.txt" >> "${dir}/skills-failures.txt"
+            fi
+            if [ "${stale_ok}" = false ]; then
+              echo "These lines still hold stale wording with no source in the instruction files:" >> "${dir}/skills-failures.txt"
+              cat "${dir}/skills-stale.txt" >> "${dir}/skills-failures.txt"
+            fi
+            [ "${names_ok}" = true ] && [ "${stale_ok}" = true ]
+          }
+          run_agent "${PROMPT}"
+          if ! check_agent; then
+            echo "::warning::The skills agent's first attempt failed its checks; retrying once"
+            run_agent "${PROMPT}
+
+          ${RETRY_NOTE}
+          $(cat "${dir}/skills-failures.txt")
+
+          The skills that existed when this run started, which the final block must list exactly, are:
+          $(cat "${dir}/expected-skills.txt")"
+            check_agent || true
+          fi
+          # Unexamined skills fail the job; stale wording alone does not, so
+          # the skills this run did fix are still pushed, and the stale-check
+          # job fails the run afterwards.
+          if [ "${names_ok}" = false ]; then
+            echo "::error::The skills agent did not report examining exactly the skills in the checkout, even after a retry"
+            exit 1
+          fi
+          if [ "${stale_ok}" = false ]; then
+            echo "::warning::Stale wording remains in ai/skills after the retry; the stale-check job will fail this run"
+          fi
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
@@ -537,7 +651,7 @@ jobs:
   agents-agent:
     needs: skills-apply
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     permissions:
       contents: read
     steps:
@@ -563,6 +677,13 @@ jobs:
 
           Task: reconcile every agent definition in ai/agents/ against its sources and ai/agents/config.yaml.
 
+          Tools: use Read, Glob and Grep for all reading, listing and searching, and Edit or Write to change files.
+          Bash runs only the commands quoted in rules 6 and 7, and only when the whole command is exactly one of
+          them on its own: no cd, no &&, ; or |, no redirection such as 2>&1, no environment variables and no
+          extra options. Any other Bash call, including ls, cat, wc and find, may be denied. A denied tool call is
+          never a reason to stop: carry on with the file tools, finish reconciling every agent, and name each
+          denied call in your final response.
+
           1. Read .ai-instructions, ai/global/index.md, and ai/local/index.md, and load the files they direct you to,
              in particular ai/local/agents.instructions.md, which defines the agent format, the generation rules,
              the agent contracts, and the agent registry.
@@ -574,6 +695,8 @@ jobs:
              contain, contains any rule, instruction or wording that has no source, or still requires something
              its sources no longer require. In the last case remove the requirement and reword the surrounding
              text so it reads as if the requirement had never existed; do not leave notes about the removal.
+             Wording that says an operation is not available yet, has no command yet or must wait for one is
+             stale unless its sources say the same; this run fails if any remains.
           3. If agent-roles.instructions.md now defines a role with no agent, create its agent (using the
              default: values in config.yaml when the role has no entry) and add it to the registry. The installer
              auto-discovers agent folders, so it does not need editing.
@@ -581,31 +704,47 @@ jobs:
              agent-roles.instructions.md; removing an agent is a human change to config.yaml and ai/agents.
           5. Never modify ai/agents/config.yaml, ai/agents/install, ai/skills/ or ai/local/skills.instructions.md.
              The workflow fails the run if you do.
-          6. Every AGENT.md must pass markdownlint. Check it with exactly this command, which is the only
-             markdownlint command you may run: markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md
-          7. Add a changelog entry with exactly: dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
-             for every change you make, where <Type> is one of Added, Changed, Deprecated, Removed, Fixed
-             or Security, which are the only types you may use; this repository's local rules require a
-             changelog entry for every change.
+          6. Every AGENT.md must pass markdownlint. The only markdownlint command you may run is exactly:
+             markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md
+             Running it is optional: this workflow runs the same command after you finish and that result is
+             the one that counts, so if your call is denied, carry on.
+          7. Add a changelog entry for every change you make by running exactly this command on its own:
+             dotnet changelog -f CHANGELOG.md -a <Type> -m "<message>"
+             where <Type> is one of Added, Changed, Deprecated, Removed, Fixed or Security, which are the only
+             types you may use; this repository's local rules require a changelog entry for every change. If the
+             call is denied, check that it matches that form exactly and run it again; if it is still denied,
+             carry on and list each entry you could not add in your final response.
           8. Do NOT run any git commit, push, or branch commands, and do not create issues or PRs; this workflow commits and pushes your file changes itself.
           9. Examine every agent folder in ai/agents/ against its sources and config.yaml; spot checks and
              sampling are not acceptable. You may split the work across sub-agents with the Agent tool, but
-             each sub-agent must follow every rule of this prompt. Do not rely on git history to decide what
-             changed: the clone is shallow and holds only the current commit.
+             each sub-agent must follow every rule of this prompt and read every source section of each of its
+             agents in full; examine yourself any agent that no sub-agent reported on. Do not rely on git
+             history to decide what changed: the clone is shallow and holds only the current commit.
           10. Only your final response is captured. End it with a line containing exactly RECONCILED-BEGIN, then
               the exact folder name under ai/agents/ of every agent that existed when this run started,
               excluding any you created, one per line with nothing else on the line, then a line containing
               exactly RECONCILED-END. This run fails if that block is missing or if any name in it is missing
-              or is not one of those agent folders.
+              or is not one of those agent folders. ai/agents/install and ai/agents/config.yaml are files, not
+              agents: never list them. Write the block exactly once, as the last thing in your response, and
+              never write either marker line anywhere else. If you could not compare every agent against its
+              sources, leave the block out.
           11. If every agent already matches its sources and config.yaml, change nothing and finish, still
               ending with that block.
           RECONCILE_PROMPT
           )
-          # Completeness check: see the header. The check script and the
-          # expected names are taken from the checkout before the agent runs.
-          mkdir -p "${RUNNER_TEMP}/reconcile"
-          cp .github/scripts/check-reconciled-names.sh "${RUNNER_TEMP}/reconcile/"
-          git ls-tree -d --name-only HEAD -- ai/agents/ | sed 's|^ai/agents/||' > "${RUNNER_TEMP}/reconcile/expected-agents.txt"
+          RETRY_NOTE=$(cat <<'RETRY_NOTE'
+          This is the second and last attempt. The first attempt did not pass this run's checks. Its file
+          changes are still in the working tree, and any changelog entries it added are already in CHANGELOG.md:
+          do not add those again. Finish the reconciliation, fixing every problem listed here:
+          RETRY_NOTE
+          )
+          # Completeness and stale-wording checks and the retry: see the
+          # header. Both check scripts and the expected names are taken from
+          # the checkout before the agent runs.
+          dir="${RUNNER_TEMP}/reconcile"
+          mkdir -p "${dir}"
+          cp .github/scripts/check-reconciled-names.sh .github/scripts/check-stale-markers.sh "${dir}/"
+          git ls-tree -d --name-only HEAD -- ai/agents/ | sed 's|^ai/agents/||' > "${dir}/expected-agents.txt"
           # Permission model: see the header. dontAsk denies anything not
           # allowed here; reads stay in the checkout, edits match
           # AGENTS_ALLOWED_PATHS, and repository settings, hooks and MCP
@@ -613,31 +752,92 @@ jobs:
           # patch if it changes config.yaml or install or deletes any tracked
           # file.
           # The workflow, not the agent, commits and pushes.
-          claude -p "${PROMPT}" \
-            --permission-mode dontAsk \
-            --setting-sources user \
-            --settings '{"disableAllHooks": true, "permissions": {"blockReadsOutsideWorkingDirectories": true}}' \
-            --allowedTools "Read(/**)" "Glob" "Grep" \
-              "Edit(/ai/agents/**)" \
-              "Edit(/ai/local/agents.instructions.md)" \
-              "Edit(/CHANGELOG.md)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Added -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Changed -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Deprecated -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Removed -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Fixed -m *)" \
-              "Bash(dotnet changelog -f CHANGELOG.md -a Security -m *)" \
-              "Bash(markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md)" \
-              "Bash(yamllint:*)" \
-            --disallowedTools \
-              "Read(//proc/**)" \
-              "Edit(.github/**)" \
-              "Edit(/ai/agents/config.yaml)" \
-              "Edit(/ai/agents/install)" \
-            | tee "${RUNNER_TEMP}/reconcile/agents-output.txt"
-          sh "${RUNNER_TEMP}/reconcile/check-reconciled-names.sh" agents \
-            "${RUNNER_TEMP}/reconcile/expected-agents.txt" \
-            "${RUNNER_TEMP}/reconcile/agents-output.txt"
+          allowed=(
+            "Read(/**)" "Glob" "Grep"
+            "Edit(/ai/agents/**)"
+            "Edit(/ai/local/agents.instructions.md)"
+            "Edit(/CHANGELOG.md)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Added -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Changed -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Deprecated -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Removed -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Fixed -m *)"
+            "Bash(dotnet changelog -f CHANGELOG.md -a Security -m *)"
+            "Bash(markdownlint --config .markdownlint.json ai/agents ai/local/agents.instructions.md)"
+            "Bash(yamllint:*)"
+          )
+          disallowed=(
+            "Read(//proc/**)"
+            "Edit(.github/**)"
+            "Edit(/ai/agents/config.yaml)"
+            "Edit(/ai/agents/install)"
+          )
+          # One agent attempt. A failed claude call (an API error, say) is
+          # not fatal here: it leaves no final response, so the checks fail
+          # and the attempt is retried.
+          run_agent() {
+            local rc=0
+            claude -p "$1" \
+              --output-format json \
+              --permission-mode dontAsk \
+              --setting-sources user \
+              --settings '{"disableAllHooks": true, "permissions": {"blockReadsOutsideWorkingDirectories": true}}' \
+              --allowedTools "${allowed[@]}" \
+              --disallowedTools "${disallowed[@]}" \
+              > "${dir}/agents-result.json" || rc=$?
+            jq -r '.result // empty' "${dir}/agents-result.json" > "${dir}/agents-output.txt" 2>/dev/null \
+              || : > "${dir}/agents-output.txt"
+            cat "${dir}/agents-output.txt"
+            jq -r '.permission_denials[]?
+              | ((.tool_input.command // .tool_input.file_path // "") | gsub("[\r\n]+"; " ") | .[0:300]) as $what
+              | "::warning::Denied \(.tool_name): \($what)"' \
+              "${dir}/agents-result.json" 2>/dev/null || true
+            if [ "${rc}" -ne 0 ]; then
+              echo "::warning::claude exited with status ${rc}"
+            fi
+          }
+          # Runs both checks on the current tree, printing their errors as
+          # warnings, and collects what failed in agents-failures.txt.
+          check_agent() {
+            names_ok=true
+            stale_ok=true
+            : > "${dir}/agents-failures.txt"
+            sh "${dir}/check-reconciled-names.sh" agents "${dir}/expected-agents.txt" "${dir}/agents-output.txt" \
+              > "${dir}/names-check.txt" 2>&1 || names_ok=false
+            sh "${dir}/check-stale-markers.sh" agents "${dir}/agents-stale.txt" ai/agents \
+              > "${dir}/stale-check.txt" 2>&1 || stale_ok=false
+            cat "${dir}/names-check.txt" "${dir}/stale-check.txt" | sed 's/^::error::/::warning::/'
+            if [ "${names_ok}" = false ]; then
+              sed -n 's/^::error::❌ //p; s/^✗ //p' "${dir}/names-check.txt" >> "${dir}/agents-failures.txt"
+            fi
+            if [ "${stale_ok}" = false ]; then
+              echo "These lines still hold stale wording with no source in the instruction files:" >> "${dir}/agents-failures.txt"
+              cat "${dir}/agents-stale.txt" >> "${dir}/agents-failures.txt"
+            fi
+            [ "${names_ok}" = true ] && [ "${stale_ok}" = true ]
+          }
+          run_agent "${PROMPT}"
+          if ! check_agent; then
+            echo "::warning::The agents agent's first attempt failed its checks; retrying once"
+            run_agent "${PROMPT}
+
+          ${RETRY_NOTE}
+          $(cat "${dir}/agents-failures.txt")
+
+          The agents that existed when this run started, which the final block must list exactly, are:
+          $(cat "${dir}/expected-agents.txt")"
+            check_agent || true
+          fi
+          # Unexamined agents fail the job; stale wording alone does not, so
+          # the agents this run did fix are still pushed, and the stale-check
+          # job fails the run afterwards.
+          if [ "${names_ok}" = false ]; then
+            echo "::error::The agents agent did not report examining exactly the agents in the checkout, even after a retry"
+            exit 1
+          fi
+          if [ "${stale_ok}" = false ]; then
+            echo "::warning::Stale wording remains in ai/agents after the retry; the stale-check job will fail this run"
+          fi
         env:
           CLAUDE_CODE_OAUTH_TOKEN: "${{secrets.CLAUDE_CODE_OAUTH_TOKEN}}"
 
@@ -788,3 +988,26 @@ jobs:
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "agents-reconciler[bot] <credfeto@users.noreply.github.com>"
           skip_dirty_check: false
+
+  # Read only, no secrets: the deterministic convergence backstop. An agent can report every file as examined yet leave
+  # a stale passage in place, so this job checks the branch after both stages have pushed and fails the run if any
+  # skill or agent still holds stale-capability wording that the instruction files no longer use. The agent jobs
+  # already retried once on it, so a failure here means a human, or the next scheduled run, has to finish the job.
+  # The script is read from .github, which neither stage may change.
+  stale-check:
+    needs: agents-apply
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: "${{github.ref_name}}"
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: "Check for stale-capability wording"
+        shell: bash
+        run: sh .github/scripts/check-stale-markers.sh "skills and agents" "${RUNNER_TEMP}/stale-hits.txt" ai/skills ai/agents
