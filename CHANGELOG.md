@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- TBD - to be finalized after review
 ### Fixed
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 ### Changed
