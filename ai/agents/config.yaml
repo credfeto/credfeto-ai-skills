@@ -5,11 +5,11 @@
 # and never appears in generated frontmatter. `skills` lists installed skill
 # names to preload at agent startup.
 
-# mcp__cfwf__* (the workflow MCP), mcp__build-dotnet__* (the .NET build MCP) and
-# mcp__git__* (the git MCP, a placeholder until it ships) and mcp__kb__* (the
-# knowledge-base MCP, a placeholder until it is registered) are granted to the
-# agents that do GitHub work, build and test code, or use git, so a
-# sub-agent can use them as well as the top-level session. Revisit these grants
+# mcp__cfwf__* (the workflow MCP), mcp__build-dotnet__* (the .NET build MCP),
+# mcp__git__* (the git MCP) and mcp__kb__* (the knowledge-base MCP) are granted
+# to the agents that do GitHub work, build and test code, use git or research,
+# so a sub-agent can use them as well as the top-level session. git and kb are
+# placeholders until those servers are registered. Revisit these grants
 # when the full workflow and build MCP servers ship: narrow them per agent, and
 # drop the matching Bash use where the MCP replaces it.
 
