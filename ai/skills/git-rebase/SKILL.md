@@ -65,4 +65,6 @@ When acting specifically as the dedicated Rebase Agent:
 - If the version conflict resolution chosen per the algorithm above breaks the build, report the break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that scoped role.
 - Any other conflict, including one that falls outside the deterministic algorithm above: report it verbatim to the Orchestrator; do not resolve it yourself.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
+- When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in your hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- Never start a long-running command (such as a build or test run) while another one you started is still running; wait for the first command's completion notification before starting the next.
 - Do not run `pre-commit-check` or fix what it reports: that is the After Every Rebase check above, which the Orchestrator runs once this role returns, because this role is mechanical and must not interpret or fix failures.

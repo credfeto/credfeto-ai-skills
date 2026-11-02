@@ -19,10 +19,10 @@ Before requesting approval, carry out a full security review of the candidate pa
 
 Then present the human with, and wait for their explicit sign-off before touching any manifest, lockfile, or import:
 
-1. Package name, proposed version, and links to its source repository and registry listing.
-2. The findings of the security review above.
-3. Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
-4. Alternatives considered and why they were rejected.
+- **P1.** Package name, proposed version, and links to its source repository and registry listing.
+- **P2.** The findings of the security review above.
+- **P3.** Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
+- **P4.** Alternatives considered and why they were rejected.
 
 If working from a GitHub issue or PR: post the review as a comment, add the `Blocked` label, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `lgtm`).
 
@@ -59,16 +59,16 @@ This applies to every version-bearing file, including:
 
 Rules:
 
-1. Take the **latest** of the candidate versions.
-2. **Stable-over-pre-release exception**: if one candidate is a stable (release) version and the other is a pre-release (alpha/beta/rc/preview/dev build, etc.), take the stable candidate even if the pre-release has a nominally higher version number. Only take a pre-release if every candidate is a pre-release, in which case take the latest of them.
-3. **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
-4. Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
-5. Lock files (`package-lock.json` and similar): do not hand-merge; resolve the manifest first, then regenerate the lock file with the package manager.
-6. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix.
+- **P1.** Take the **latest** of the candidate versions.
+- **P2.** **Stable-over-pre-release exception**: if one candidate is a stable (release) version and the other is a pre-release (alpha/beta/rc/preview/dev build, etc.), take the stable candidate even if the pre-release has a nominally higher version number. Only take a pre-release if every candidate is a pre-release, in which case take the latest of them.
+- **P3.** **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
+- **P4.** Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
+- **P5.** Lock files (`package-lock.json` and similar): do not hand-merge; resolve the manifest first, then regenerate the lock file with the package manager.
+- **P6.** After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix.
 
 ### No Confirmation Needed When the Algorithm Resolves the Conflict
 
-Rules 1-5 above are a complete, deterministic algorithm: for every conflicting entry there is exactly one correct resolution (the latest candidate, the stable candidate, or the security-exception candidate). Apply it and continue; do not stop a merge or rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice.
+Rules P1-P5 above are a complete, deterministic algorithm: for every conflicting entry there is exactly one correct resolution (the latest candidate, the stable candidate, or the security-exception candidate). Apply it and continue; do not stop a merge or rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice.
 
 Only stop and ask when a conflict genuinely falls outside the algorithm, for example:
 

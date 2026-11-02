@@ -39,6 +39,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill git-commit: added the rule for acting on a recorded uncommitted-work comment in a later run
 - Skills git-rebase and git-branch: added the rule to take the branch's changes while merging in main's when rebasing
 - Skill github-issue: post implementation plans with cfwf issue post-plan instead of hand-assembled steps
+- Reconcile dependency-selection skill: list items use P-labelled bullets as in the sources
+- Reconcile issue-plan-approval skill: other Blocked cases that still wait for a human match the source (round-cap block)
+- Reconcile pr-review-loop skill: add per-construct Pattern Sweep rules and drop unsourced Phase E wording
+- Reconcile git-commit skill: state the rule for a hook-blocked command in a Committer hand-off
+- Reconcile git-branch and git-rebase skills: add hook-block hand-off and one-long-running-command rules for the Rebase Agent
+- Reconcile pr-sync skill: state how to block a PR whose CI keeps failing with cfwf pr block
+- Reconcile github-issue skill: state at the top of a message where the human must act
 ### Deprecated
 ### Removed
 ### Deployment Changes

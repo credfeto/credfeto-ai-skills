@@ -161,7 +161,7 @@ Then act immediately; do **not** wait for the checks to settle yourself, in any 
   - Unattended run → stop silently; do not post a status comment. CI checks are bound by GitHub's own timeouts and will eventually pass, fail, or time out without agent intervention, and `oneshot` re-invokes the agent once they do.
   - Interactive session → hand the PR to CI Monitor instead of stopping, stating in the hand-off that the session is interactive.
 - API or network error (exit 1) → report the error rather than routing a CI failure, because no check has failed and CI Debugger would look for a failure that does not exist.
-- CI consistently failing and cannot be fixed → mark the PR blocked by adding `Blocked` (see Blocked Label below). A required check still failing after 3 CI Debugger rounds for that check on the PR also counts, whether CI Monitor reports it or the failed-check branch above finds it, because further rounds would only repeat the cycle.
+- CI consistently failing and cannot be fixed → mark the PR blocked: post the diagnosis and add `Blocked` with `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->`. A required check still failing after 3 CI Debugger rounds for that check on the PR also counts, whether CI Monitor reports it or the failed-check branch above finds it, because further rounds would only repeat the cycle.
 
 An analyzer findings comment (`<!-- sarif-summary: ... -->`) on the PR is handled by the sarif-summary-findings skill.
 

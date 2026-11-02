@@ -93,6 +93,7 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 - Push after the commit, or after a run of consecutive commits when pushes are batched; the branch is always pushed before handing back. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
 - Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running; judge the run by its exit code.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
+- When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in your hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 
 ## General Git Command Rules
 

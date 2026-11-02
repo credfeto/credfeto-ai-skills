@@ -125,7 +125,7 @@ Applies only to an interactive session: one where a human has actually typed a m
   - If the repo has a Workflow board, set the workflow status to **Approved** with `cfwf workflow-status --set --repo <owner/repo> --issue <number> --status Approved`.
   - Stop the loop and continue to implementation.
 
-  This and the live-chat answer to a PR's question `Blocked` are the documented exceptions to the rules that only a human clears `Blocked` and that labels are never removed: the human's chat instruction is the explicit action and the agent carries out the label and board changes on their behalf. It covers only the plan-approval `Blocked` of an issue in an interactive session, plus the PR question `Blocked`; any other `Blocked` (a question, a failed baseline, an environment block) still waits for the human to clear it.
+  This and the live-chat answer to a PR's question `Blocked` are the documented exceptions to the rules that only a human clears `Blocked` and that labels are never removed: the human's chat instruction is the explicit action and the agent carries out the label and board changes on their behalf. It covers only the plan-approval `Blocked` of an issue in an interactive session, plus the PR question `Blocked`; any other `Blocked` (a failed baseline, an environment block, a round-cap block) still waits for the human to clear it.
 
 ## Scope: Issues Only, Never Re-Checked at PR Time
 

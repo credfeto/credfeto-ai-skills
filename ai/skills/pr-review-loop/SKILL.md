@@ -18,6 +18,8 @@ Each Code Writer or Code Fixer task carries exactly one change (one finding, one
 - Never accumulate several changes in the working tree and split them into commits afterwards, whether by file or by hunk.
 - A change's Pattern Sweep is its own commit, made immediately after that change's fix commit and before the next change starts. The one exception is Phase A's post-convergence sweeps, which have no fix commit of their own; each is still its own change, committed before the next.
 - Pushes may be batched: Committer may push once after a run of consecutive commits instead of after each one, but the branch is always pushed before PR Submitter or CI Monitor runs.
+- Run one Pattern Sweep, and make one sweep commit, per construct, not per finding or per occurrence: when several findings report the same construct at different sites, one sweep covers them all. Skip the sweep if a commit already in this PR carries a `Construct:` line for the same construct and no later commit reintroduced it.
+- If a sweep finds nothing, the fix commit body carries the `Construct:` line and `Swept: none`; no sweep commit or extra comment is needed.
 - Apply a Pattern Sweep in full whatever its size; never stop, add `Blocked` or defer it to a follow-up issue because of its size.
 - A Pattern Sweep hit that the build-time static analyzer stack already enforces differently is left as-is.
 - A Phase A sweep that finds no hits has no fix commit of its own, so it is recorded in Phase A's status comment on the PR instead.
@@ -104,7 +106,7 @@ Bootstrap: `COVERAGE.md` reaches `main` for the first time via whichever branch'
 
 Only once all four phases have completed without a `Blocked` outcome (each phase passed outright, or exited via its own non-blocking convergence path noted in a PR comment, or there were no reviewable changes):
 
-- **P1.** Safety net (belt-and-suspenders on top of the Code Reviewer role's own Compliance sub-agent check, which already runs earlier in development, before this loop starts): confirm a `.deleteme.now` placeholder file is not present in `git -C <dir> diff origin/main...HEAD --name-only`; if it is still present, have Code Writer remove it and send it through the fix route without Changelog (correction), with Committer giving it its own commit, because a template-skip item has no changelog entry to correct, then continue.
+- **P1.** Safety net (belt-and-suspenders on top of the Code Reviewer role's own Compliance sub-agent check): confirm a `.deleteme.now` placeholder file is not present in `git -C <dir> diff origin/main...HEAD --name-only`; if it is still present, have Code Writer remove it and send it through the fix route without Changelog (correction), with Committer giving it its own commit, because a template-skip item has no changelog entry to correct, then continue.
 - **P2.** Hand the PR off to human review in one command. Give the PR's final title (Conventional Commits) and its final description (what the change does and why, replacing whatever the description says now, such as the placeholder it was opened with) in one command, with the description on stdin. Write no file first and chain nothing around it:
 
   ```bash
