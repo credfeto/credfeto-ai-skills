@@ -16,6 +16,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile agents keep going when a tool call is denied and the run retries once when an agent stops early, lists the wrong folders or Claude Code fails, so a denied lint call no longer leaves the run without reconciling
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 - Reconciled code-writer and dependency-updater skills to say a long-running command's completion notification, and removed an unsourced parenthetical from the ci-debugger skill
+- Align lens report examples with source and drop unsourced 1-indexed line wording from the six Code Reviewer lens agents
+- Align ci-monitor all-pass hand-back with agent-roles sources
 ### Changed
 - Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill

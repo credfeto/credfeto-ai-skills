@@ -38,7 +38,5 @@ Return only one of these JSON objects, with no other text:
 ```
 
 ```json
-{"clean": false, "findings": [{"file": "...", "line": 0, "issue": "...", "suggestion": "..."}]}
+{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}
 ```
-
-`line` is the 1-indexed line number of the finding.
