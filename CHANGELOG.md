@@ -11,7 +11,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- Reconcile run fails if any skill or agent still says an operation is not available yet when the instruction files no longer do, so a partial reconciliation is visible
 ### Fixed
+- Reconcile agents keep going when a tool call is denied and the run retries once when an agent stops early, lists the wrong folders or Claude Code fails, so a denied lint call no longer leaves the run without reconciling
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 ### Changed
 - Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
