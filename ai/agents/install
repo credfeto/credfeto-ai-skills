@@ -92,6 +92,7 @@ NEW_MANIFEST="${MANIFEST}.new"
 if [ -n "${SYSTEM}" ]; then
     MANIFEST_DRAFT=$(mktemp) || die "could not create a temporary manifest"
     trap 'rm -f "${MANIFEST_DRAFT}"' EXIT
+    trap 'exit 1' HUP INT TERM
 else
     MANIFEST_DRAFT="${NEW_MANIFEST}"
 fi
