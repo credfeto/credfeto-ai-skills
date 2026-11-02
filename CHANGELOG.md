@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- Agents: grant mcp__cfwf__* to the GitHub-facing agents, mcp__build-dotnet__* to the build and test agents, a placeholder mcp__git__* to the agents that use git and a placeholder mcp__kb__* to the working agents (to be revisited when the full MCP servers ship)
 - Reconcile run fails if any skill or agent still says an operation is not available yet when the instruction files no longer do, so a partial reconciliation is visible
 ### Fixed
 - Reconcile agents keep going when a tool call is denied and the run retries once when an agent stops early, lists the wrong folders or Claude Code fails, so a denied lint call no longer leaves the run without reconciling

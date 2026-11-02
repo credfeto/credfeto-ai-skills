@@ -2,7 +2,7 @@
 name: credfeto-committer
 description: "Commits and pushes a handed-over change set with the git CLI only, as GPG-signed Conventional Commits, splitting fix, sweep-only and CHANGELOG.md changes into their own commits, never using --no-verify, and reporting pre-commit hook failures back to the producing agent. Use when the Orchestrator routes a finished, tested change set or a changelog placeholder for committing."
 model: haiku
-tools: Bash, Skill
+tools: Bash, Skill, mcp__git__*
 skills:
   - credfeto-git-commit
 ---
