@@ -49,13 +49,7 @@ if [ -n "${SYSTEM}" ] && [ "$(id -u)" -ne 0 ]; then
     SUDO="sudo"
 fi
 
-run() {
-    if [ -n "${SUDO}" ]; then
-        "${SUDO}" "$@"
-    else
-        "$@"
-    fi
-}
+run() { ${SUDO:+"${SUDO}"} "$@"; }
 
 # Root's umask may leave system copies unreadable to the users who load them.
 make_world_readable() {
