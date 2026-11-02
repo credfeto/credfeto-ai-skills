@@ -81,7 +81,12 @@ Critical rules:
 
 ### Running the Command (MANDATORY)
 
-Always run this `dotnet test` coverage command in the background and poll it to completion before continuing; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`. Poll for `Passed!` in the output, subject to a 30-minute deadline; see the long-running-commands skill for the poll-loop shape and the deadline.
+Always run this `dotnet test` coverage command with `run_in_background: true`; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`.
+
+- Wait for the harness's background-task completion notification and judge the command only by the exit code it reports: 0 is a pass and anything else is a failure. Never match text the command prints, never poll its output file, and never use the `Monitor` tool or a poll loop to wait for it. Reading the output once the notification has arrived, to find the cause of a failure, is fine.
+- Run only one long-running command (such as `dotnet build` or `dotnet test`) at a time; wait for the first one's completion notification before starting the next.
+- Time-box the command to 30 minutes. The main session enforces this deadline, by scheduling a wake-up for 30 minutes after starting the command and stopping it with `TaskStop` if it has not finished; a sub-agent never enforces it and never stops the command itself.
+- A long stretch with no new output is normal and is not a hang.
 
 ### Coverage Extension Package
 

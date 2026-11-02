@@ -5,26 +5,22 @@ description: Diagnose a failing CI check by reading its full logs and finding th
 
 # CI Failure Debugging
 
-1. Read the full failure logs (`gh run view --log-failed`) and identify the root cause.
+1. Read the failed steps' logs (`cfwf run log --repo <owner/repo> --run <run-id>`, taking the run id from the `cfwf pr checks` row; `cfwf run view` lists its jobs) and identify the root cause.
 2. **Code-related cause**: fix it directly.
    - If the fix requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, escalate to the Orchestrator with the explanation.
    - Run a Pattern Sweep for the fixed construct and commit it after the fix (as a Pattern Sweep commit), since no Committer follows this role.
    - Apply IDE MCP code analysis to the fixed files (see the ide-mcp-code-analysis skill).
-   - Before pushing a code fix, turn auto-merge off and convert the PR to draft, because GitHub could otherwise merge the fix as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`. A re-run needs neither, because it adds no commit.
-3. **Cancelled required check**: it counts as failed. If nothing in the code caused the cancellation (a manual cancel or a runner shutdown), re-run it with `gh run rerun <run-id> --repo <owner/repo>` rather than pushing, because GitHub keeps the cancelled result on the head commit until the check runs again and the PR cannot merge until then. Report the re-run to the calling role as you would a pushed fix.
+   - Before pushing a code fix, take the PR back with `cfwf pr take-back --repo <owner/repo> --pr <number> --body-file <file|->`, with a body saying why (the change about to be made). It turns auto-merge off first, then converts the PR to draft, moves the board to **Development** and posts the body as a comment. GitHub could otherwise merge the fix as soon as its checks pass, before the AI Review Loop reviews it, and converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Never do these steps separately. A re-run needs neither, because it adds no commit.
+3. **Cancelled required check**: it counts as failed. If nothing in the code caused the cancellation (a manual cancel or a runner shutdown), re-run it with `cfwf run rerun --repo <owner/repo> --run <run-id>` rather than pushing, because GitHub keeps the cancelled result on the head commit until the check runs again and the PR cannot merge until then. Report the re-run to the calling role as you would a pushed fix.
 4. **Environmental or infrastructure cause**: escalate to the Orchestrator with a clear description, using the Environment/Infrastructure Block Marker below so the block can auto-clear once the fix ships.
-5. After each pushed fix or re-run, post a one-line status comment on the PR naming each required check it addressed, using the check name exactly as `gh pr checks` reports it, in the form `### CI Debugger: <fix pushed|re-run started> for <check name>`. These comments are counted to cap rounds for one check, and a fixed form is what lets them be counted reliably. The Orchestrator's own status comment about routing a failed check does not count towards the cap, because it records a routing decision rather than a round.
+5. After each pushed fix or re-run, post a one-line status comment on the PR naming each required check it addressed, using the check name exactly as `cfwf pr checks` reports it, in the form `### CI Debugger: <fix pushed|re-run started> for <check name>`. These comments are counted to cap rounds for one check, and a fixed form is what lets them be counted reliably. The Orchestrator's own status comment about routing a failed check does not count towards the cap, because it records a routing decision rather than a round.
 6. A `### CI Debugger:` comment for a check counts towards that cap only when both of these hold:
    - Its author is the bot login or a trusted commenter (as for the `### AI Review Loop: reviewed` comment), because anyone else could post one and get the PR marked `Blocked` before a single fix attempt.
-   - It was posted after the PR's latest `auto_merge_enabled` timeline event, or since the PR opened if there is none. Do not count from the latest `### AI Review Loop: reviewed` comment or `ready_for_review` event instead, because those are posted on every draft, fix, ready cycle, so the count would never reach the cap. Read the time with:
-
-     ```bash
-     gh api repos/<owner>/<repo>/issues/<number>/timeline --paginate --jq '.[] | select(.event == "auto_merge_enabled") | .created_at' | tail -n 1
-     ```
+   - It was posted after the PR's latest `auto_merge_enabled` timeline event, or since the PR opened if there is none. Do not count from the latest `### AI Review Loop: reviewed` comment or `ready_for_review` event instead, because those are posted on every draft, fix, ready cycle, so the count would never reach the cap. Reading that time is not available yet; until it is, count every qualifying `### CI Debugger:` comment since the PR opened, and say so in the status comment.
 
 7. Fix a pre-existing bug that causes the CI failure as part of the current work, including one the change merely exposes, because leaving it would keep the PR's required checks failing with nothing permitted to clear them. Report any other pre-existing bug found outside the current change's scope to the calling role (Orchestrator, or CI Monitor, which passes it on to the Orchestrator) rather than fixing it.
-8. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
-9. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+8. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next.
+9. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in an incoming hand-off on unchanged.
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
@@ -38,7 +34,7 @@ When a Blocked-ing failure is diagnosed as an environment/infrastructure problem
    ```
 
    Read `IMAGE_SHA_DEVELOPMENT_AGENT` from your own container environment (the same value printed at session start as part of "Image layer provenance"); this records which image build was current when you made the diagnosis.
-3. Apply the `Blocked` label: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`. The accompanying comment must name the specific instruction that requires the stop (here, this environment/infrastructure block convention).
+3. Apply the `Blocked` label. Labels have no `cfwf` command yet, so this is not available to agents: say in the comment that `Blocked` must be added. The accompanying comment must name the specific instruction that requires the stop (here, this environment/infrastructure block convention).
 4. Use this marker **only** for a genuine environment/infrastructure diagnosis. `oneshot` auto-clears `Blocked` the moment it observes a differently-built agent image, with no further human involvement; marking a real code question or design decision this way would resume work before a human actually answered it.
 
 This convention only applies to PRs (there is no container session, and therefore no image to diagnose against, before a PR/branch exists).

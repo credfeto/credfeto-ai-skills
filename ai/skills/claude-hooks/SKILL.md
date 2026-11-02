@@ -1,6 +1,6 @@
 ---
 name: credfeto-claude-hooks
-description: Interpret a Claude Code PreToolUse hook denial correctly when a Bash tool call is blocked before it runs, and tell it apart from a denial coming from Claude Code's separate permission system. Use whenever a tool call is rejected/blocked/denied by a pre-execution policy hook or by the permission system, whenever a git, dotnet, or other shell command fails with a denial-shaped message instead of normal command output, or when deciding whether to poll for a command's completion versus fix-and-retry it immediately.
+description: Interpret a Claude Code PreToolUse hook denial correctly when a Bash tool call is blocked before it runs, and tell it apart from a denial coming from Claude Code's separate permission system. Use whenever a tool call is rejected/blocked/denied by a pre-execution policy hook or by the permission system, whenever a git, dotnet, or other shell command fails with a denial-shaped message instead of normal command output, or when deciding whether to wait for a command's completion versus fix-and-retry it immediately, or when choosing between Glob and find for listing files or between cfwf and fetching a GitHub URL.
 ---
 
 # Claude Code Hook Interaction
@@ -9,7 +9,7 @@ A fixed set of Claude Code `PreToolUse` hooks runs in development containers (an
 session with the hooks installed via `install-claude-hooks`). Most match every Bash tool call; a
 couple also match a specific non-Bash tool call (see the reference table below). This skill covers
 how to interpret a hook **denial** correctly, how to tell one apart from a denial coming from
-Claude Code's separate permission system, and what a permission denial does and does not stop. For how to background and poll a long-running command once
+Claude Code's separate permission system, and what a permission denial does and does not stop. For how to background and wait for a long-running command once
 a call has actually been **accepted**, see the long-running-commands skill instead; this skill is
 about the different, earlier case where the call was rejected before it ever started.
 
@@ -155,12 +155,14 @@ A rule-compliant command that the permission system still denies needs a new all
 the owner can add. Record it where the owner collects these requests, so the need is not lost when
 the session ends:
 
-1. Read the comments on credfeto/credfeto-orchestrator#1167
-   (`gh issue view 1167 --repo credfeto/credfeto-orchestrator --comments`) and check whether the
-   same command, or an allow rule that would cover it, is already listed. If it is, add nothing.
-2. Otherwise, comment on credfeto/credfeto-orchestrator#1167 with the exact denied command,
-   why the task needs it, and the repository the session is working in. Build the body with a
-   HEREDOC so real newline characters are embedded, never escaped `\n` sequences.
+1. Check whether credfeto/credfeto-orchestrator#1167 already lists the same command, or an allow
+   rule that would cover it. Reading comment bodies is not available yet, so until it is, go
+   straight to step 2; a duplicate request is harmless.
+2. Otherwise, comment on credfeto/credfeto-orchestrator#1167
+   (`cfwf comment add --repo credfeto/credfeto-orchestrator --issue 1167 --body-file <file|->`)
+   with the exact denied command, why the task needs it, and the repository the session is
+   working in. Build the body with a HEREDOC on stdin so real newline characters are embedded,
+   never escaped `\n` sequences.
 3. Continue with the rest of the task. The request is for the owner to act on later; it
    does not block the current work.
 
@@ -184,10 +186,31 @@ refuses both before the command runs:
 
 Instead, write one flat command per call: name the paths directly, or pass the whole list in one
 call (for example `shellcheck a.sh b.sh`, or
-`gh issue edit <n> --repo <owner/repo> --add-label "a,b"`).
+`cfwf pr view --repo <owner/repo> --pr <n> --field state --field labels`).
 
 Committed scripts and workflow steps do not pass through these hooks, so a fixed per-file command
 there may still use `xargs -0r`.
+
+## Prefer Glob Over find for Simple File Listing (MANDATORY)
+
+Use the `Glob` tool, not `find`, to list files matching a name/path pattern inside the workspace - it
+is read-only by construction, always available, and does not go through the Bash-command hook chain
+at all. Reach for `find` only when the need is something `Glob` cannot express: ownership/permission
+predicates (`-user`, `-group`, `-perm`), time predicates (`-mtime`, `-newer`), or `-exec`.
+
+## Prefer `cfwf` or a Local Clone Over Fetching GitHub URLs (MANDATORY)
+
+When looking up content that lives on GitHub - a file, PR, issue, diff, commit, release, or repo
+metadata - do not fetch a `github.com`, `raw.githubusercontent.com`, or other `*.githubusercontent.com`
+URL (e.g. via `WebFetch`). Instead:
+
+- If the repo is already cloned locally, read the file directly (e.g. the `Read`/`Glob`/`Grep` tools)
+  rather than going over the network at all.
+- Otherwise, use the `cfwf` MCP tool or `cfwf` command that covers it (`cfwf pr view`, `cfwf pr diff`,
+  `cfwf issue view`, `cfwf repo view`, `cfwf release view`, etc.).
+
+This keeps lookups authenticated, respects the configured API proxy, and avoids relying on
+public URL access the account may not actually have.
 
 ## Reference: Installed Hook Set
 
@@ -209,7 +232,6 @@ their own position, since they have none):
 | `block-dotnet-tool-install` | `dotnet tool install` (local or global) and `dotnet new tool-manifest` | The container's .NET global tools are pinned and baked into the image at build time; installing an unpinned tool at runtime would bypass the dependency-selection review the pinned set went through. |
 | `enforce-ssh-host-and-key` | Any `ssh` call other than exactly `ssh user@host command...` with no flags, and one when no usable key is loaded in the forwarded ssh-agent | `ssh` has a blanket allow entry; the danger is in the destination, not the verb, which a permission-rule prefix pattern cannot scope. Restricts the host to a private-network suffix and requires the agent to hold a working key first, since the container never mounts raw private key files. |
 | `enforce-background-for-long-running-commands` | `git commit`, `pre-commit` (direct invocation), `pre-commit-check` (a wrapper around it), `dotnet build`, `dotnet test`, `npm test`, and `bun test` unless the call sets `run_in_background: true` | See the long-running-commands skill for why none of these have a safe foreground timeout. |
-| `cache-gh-lookups` | Nothing; it never blocks | Rewrites a bare `gh api user --jq '.login'` call to read a cached copy instead of hitting the API every time, falling through unchanged on any parse failure. |
 
 If a command is blocked by a hook not listed here, or this table no longer matches
 `$HOME/.claude/hooks` on a given container, treat the table as stale rather than the denial as

@@ -12,7 +12,7 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced; if so, rebase first.
 - Only one active branch or open PR per user per repository at a time; do not create another until the current one is merged and closed.
-- **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
+- **Before blocking new work** because of an existing PR: always verify its current state with `cfwf pr view --repo <owner/repo> --pr <number> --field state --field merged-at`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
 
 ## Pre-Commit Branch Check
@@ -32,7 +32,7 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 ## Reviewing a PR Locally
 
-Check a PR out with git, never with `gh pr checkout`, because that command checks the local git remotes against `GH_HOST` and refuses when `gh` runs through the proxy, even with `--repo`. Run each step as its own command:
+Check a PR out with git, because commit, push and fetch always go through the `git` CLI against the real `github.com` remote; there is no checkout command in `cfwf`. Run each step as its own command:
 
 - For a review that makes no commits: `git -C <dir> fetch origin pull/<number>/head`, then `git -C <dir> switch --detach FETCH_HEAD`, run back to back so that no other fetch rewrites `FETCH_HEAD` in between. This checks out the PR head with no local branch, so nothing is left to delete, and it works for a fork PR too. When the review is done, switch back to the branch being worked on (`git -C <dir> switch <branch>`), so that later commits are not made on a detached HEAD.
 - To add commits to a same-repository PR: `git -C <dir> fetch origin <headRefName>`, then `git -C <dir> switch <headRefName>`, using the head branch name shown on the PR, then `git -C <dir> merge --ff-only origin/<headRefName>`. The merge is needed because a local branch that already exists can be behind the PR's current head; if it cannot fast-forward, stop and report it. Never create a separate review branch, because the head branch already exists and a copy only leaves a branch that later needs cleaning up.
@@ -66,9 +66,9 @@ For branches fixing multiple issues, reference each issue number in the individu
 
 Check for existing work (MANDATORY):
 
-1. Run `gh pr list --state open --repo <owner/repo> --json number,title,author,headRefName,url`, no `--author @me` filter.
-2. If any open PR's `headRefName` contains the issue number, that is prior work; resume it instead of creating a new branch.
-3. For any PR authored by `app/github-actions` (github is configured to auto-create PRs from pushed branches; these appear bot-authored but the commits are yours), verify the commit authors before taking ownership: `gh pr view <n> --repo <owner/repo> --json commits --jq '.commits[].authors[].login'`. If **all commits** are from your account, take ownership rather than duplicating work: update the title/body to match the proper format, add yourself as assignee, and treat it as your active PR. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is.
+1. Run `cfwf pr list --repo <owner/repo>`, which lists every open PR, whoever authored it.
+2. Check branch names in all open PRs, not just PR authors. If any open PR's head branch name contains the issue number, that is prior work; resume it instead of creating a new branch.
+3. For any PR authored by `app/github-actions` (github is configured to auto-create PRs from pushed branches; these appear bot-authored but the commits are yours), verify the commit authors before taking ownership: `cfwf pr view --repo <owner/repo> --pr <n> --field commit-authors`. If **all commits** are from your account, take ownership rather than duplicating work: update the title/body to match the proper format, add yourself as assignee, and treat it as your active PR. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is.
 4. Do **not** create a new branch or PR for the same issue; that would be duplicate work. If a duplicate pair already exists (a bot-created PR and one you authored yourself, for the same issue or branch): keep whichever has the more complete body and later review activity, and close the other with a comment explaining which PR supersedes it.
 5. This only catches work that already has an open PR. A branch may have been pushed and then abandoned before a PR was ever opened (e.g. a prior session died mid-task), so also check for a matching branch directly, using the `<type>/<issue-number>-<name>` naming convention above:
 
@@ -116,7 +116,7 @@ A branch just created fresh from an up-to-date `main` doesn't need this; it star
 
 A rebase pulls in unknown content from `origin/main` (other people's commits, plus any conflict resolutions), so every rebase, of any form and for any reason, leaves the branch unverified until this check passes. It applies to every rebase in a session, not only the first one. The dedicated Rebase Agent does not run it itself, so the Orchestrator runs it as the Post-Rebase Check once the rebase is complete, or the role that performed the rebase directly runs it itself. The Orchestrator never implements directly, so it hands every fix, commit and push to the review-fix route (Code Fixer, Code Tester, Committer, PR Submitter, CI Monitor) rather than editing files itself.
 
-1. Run the build and tests, then run `pre-commit-check` against all tracked files, in the background and polled to completion before continuing.
+1. Run the build and tests, then run `pre-commit-check` against all tracked files, in the background, waiting for it to finish and judging it by its exit code before continuing.
 2. Fix every issue it reports, including issues that were already present before the rebase, because it covers the whole repository. Re-run `pre-commit-check` after each round of fixes and repeat until it reports no issues. Do not continue with any other work while issues remain, and do not suppress or weaken a check to make it pass.
 3. Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs. If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch in their own commit.
 4. Only for an issue where pre-commit cannot possibly be made to pass (for example a required external tool is missing from the environment and cannot be installed, the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation): comment on the issue/PR with the verbatim output and label it `Blocked`. Difficulty is not a reason to escalate.
@@ -154,7 +154,7 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 - Rebase the named branch onto `origin/main`.
 - `CHANGELOG.md` conflicts: keep the entries from both sides.
-- If the branch has an open PR, turn auto-merge off and convert the PR to draft before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. Converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Convert with `gh pr ready <number> --repo <owner/repo> --undo`, and turn auto-merge off with `gh pr merge <number> --repo <owner/repo> --disable-auto` only when `gh pr view <number> --repo <owner/repo> --json autoMergeRequest --jq '.autoMergeRequest'` prints something other than `null`, because GitHub does not document what `--disable-auto` does on a PR with no auto-merge request.
+- If the branch has an open PR, take it back before force-pushing with `cfwf pr take-back --repo <owner/repo> --pr <number> --body-file <file|->`, with a body saying why (the rebase about to be pushed), because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. It turns auto-merge off first, then converts the PR to draft, moves the board to **Development** and posts the body as a comment. The order matters: converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Never do these steps separately.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 - Any other conflict, i.e. one outside the deterministic algorithm above: report verbatim to Orchestrator; do not resolve it yourself.
 - Do not run `pre-commit-check` or fix what it reports: that is the After Every Rebase check above, which the Orchestrator runs once this role returns, because this role is mechanical and must not interpret or fix failures.
@@ -166,12 +166,11 @@ When any git command fails (push, rebase, fetch, etc.), quote the exact stdout a
 Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call. Quote the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks that appear in the pasted output:
 
 ```bash
-gh pr comment NUMBER --repo OWNER/REPO --body "$(cat <<'COMMENT'
+cfwf comment add --repo OWNER/REPO --pr NUMBER --body-file - <<'COMMENT'
 git push failed with:
 
 <exact stdout and stderr of the failed command>
 COMMENT
-)"
 ```
 
 AI-generated diagnoses of command failures are frequently wrong; the verbatim output is always correct.

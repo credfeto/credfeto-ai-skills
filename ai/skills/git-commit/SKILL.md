@@ -86,11 +86,12 @@ A commit produced by the Pattern Sweep rule (searching the whole repository for 
 
 When acting specifically as the dedicated Committer agent in a multi-agent workflow (split from Code Writer, PR Submitter, and other roles):
 
-- Use the `git` CLI only for commit and push; never `gh` or the GitHub API.
+- Use the `git` CLI only for commit and push; never `cfwf` or the GitHub API.
 - For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` (a short delete-before-merge comment as its content) for template-skip repos.
 - Otherwise: a hand-off holds exactly one change. Commit it as one **GPG-signed** commit (Conventional Commits). When the hand-off carries its sweep record, stage by whole file: everything except the sweep-only files is the fix commit, then build once, then commit the sweep-only files as the sweep commit per the Pattern Sweep Commits format above. When the hand-off is a sweep alone (a Phase A post-convergence sweep), there is only the sweep commit. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever a changelog correction accompanies it.
 - If the working tree or the hand-off holds more than one change (for example more than one sweep record or `Construct:` line, or changes the hand-off does not describe), commit nothing: hand it back to the Orchestrator to route each change again on its own. Never split a mixed tree into commits by file or by hunk.
 - Push after the commit, or after a run of consecutive commits when pushes are batched; the branch is always pushed before handing back. Do not open the pull request yourself; PR creation/update is a separate, later step owned by another role.
+- Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running; judge the run by its exit code.
 - **Do not use `--no-verify`.** If a pre-commit hook fails: capture the output, report it to the agent that produced the change, re-stage, and retry. **Escalate to the Orchestrator after 3 failed cycles.**
 
 ## General Git Command Rules
@@ -112,13 +113,10 @@ When acting specifically as the dedicated Committer agent in a multi-agent workf
 - **Always run `git commit` (including its pre-commit hook run) via `run_in_background`; never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
 - **Run only one long-running command at a time.** Never start a commit, build, test or lint run (`git commit`/`pre-commit`/`pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, or any other build, test or lint run started in the background) while another one you started is still running: wait for the first command's completion marker before starting the next, and run several checks one after another, never in parallel. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 - **Never wrap it in a shell `timeout` command** as a substitute or a belt-and-braces addition, whether or not `run_in_background` is also set; plain `run_in_background` on the unwrapped command is already unbounded and needs no additional wrapper.
-- Poll with the Monitor tool for a specific string the command itself writes, subject to a 30-minute deadline:
-  - Pre-commit hooks passed: poll for `→ All checks passed.`
-  - Pre-commit hooks failed: poll for `→` followed by `Failed` (check for both to distinguish pass/fail).
-  - `git push` completed: poll for `branch` (the branch tracking line in push output).
-- Never poll for `"exit code"`; that string is not reliably written to background task output files.
-- A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion marker: when the 30-minute poll-loop deadline fires, report the overrun (to the human in an interactive session, or as a comment on the work item without the `Blocked` label in an unattended run) and start a new watch on the same completion marker; when a `Monitor` watch's own timeout expires first, start a new watch.
-- Never stop a commit or push that is still running with `TaskStop`, and never hand back while it is still running; wait for its completion marker. Once it has finished, stop any `Monitor` watch you started.
+- Wait for the harness's background-task completion notification and judge pass or fail only by the exit code it reports: 0 is a pass and anything else is a failure. Never use the `Monitor` tool or a poll loop to wait for a command, never match text the command prints, and never poll its output file for any text, including an `[exited with code N]` line.
+- Every background command is time-boxed to 30 minutes, enforced by the main session rather than by the role that started the command. If the deadline passes, the main session reports the overrun (to the human in an interactive session, or as a comment on the work item without the `Blocked` label in an unattended run) and stops the command; the role then wakes with a non-zero exit code and reports that the command was stopped at the deadline.
+- A long stretch with no new output is normal and is not a hang. Do not interpret silence as a failure and manually cancel or kill the command on that basis. Never stop waiting for the completion notification.
+- Never stop a commit or push that you started with `TaskStop`, and never hand back while it is still running; wait for its completion notification.
 - A killed run does not just fail; it skips the target process's own cleanup, leaving orphaned temp directories, lock files, or half-applied state behind.
 
 ## Work That Cannot Be Committed (MANDATORY)
@@ -132,7 +130,7 @@ When a session cannot save its work through a commit (a file-edit, commit or pus
 
 If the remote reports vulnerabilities:
 
-- Check for open Dependabot PRs covering them (`gh pr list --label dependencies`).
+- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo>`, looking for Dependabot's branches; filtering by the `dependencies` label is not available yet), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
 ## Instruction File Source Routing
@@ -154,14 +152,16 @@ When working outside `credfeto/cs-template` and a gap in the global template rul
 5. Continue work without waiting for the template issue to be resolved.
 
 ```bash
-gh issue create --repo credfeto/cs-template \
+cfwf issue create --repo credfeto/cs-template --priority Medium \
   --title "<prefix>: <short description of the rule change>" \
   --label "AI-Work" \
-  --body "**Source repository**: <repo where need was discovered>
+  --body-file - <<'BODY'
+**Source repository**: <repo where need was discovered>
 
 **Current behaviour / gap**: <what is missing or inconsistent>
 
 **Proposed rule text**: <concrete rule update or new instruction text>
 
-**Reason for template propagation**: <why this should apply across all repos>"
+**Reason for template propagation**: <why this should apply across all repos>
+BODY
 ```

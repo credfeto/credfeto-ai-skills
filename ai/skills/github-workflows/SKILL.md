@@ -108,7 +108,7 @@ Wrong (either form): `@latest`, `@v6`, branch refs
 
 This preference is opportunistic: switch a `uses:` line to SHA pinning when you are already touching that line for another reason; it is not a mandate to mass-migrate every workflow in one pass.
 
-Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
+Resolve a tag to its commit SHA with `cfwf tag view --repo <owner>/<action> --tag <tag>`.
 
 When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), resolve each conflicting entry individually, never taking a whole file wholesale from one side, and take the latest secure candidate: take the latest of the candidates unless one is a stable release and the other a pre-release (take the stable one, even if the pre-release has a nominally higher version number; only take a pre-release if every candidate is a pre-release, in which case take the latest of them), or unless the latest candidate has a known security advisory the other does not (take the most recent unaffected candidate instead). Never resolve by downgrading below every candidate, and never invent a version that appears on neither side. Do not hand-merge lock files (`package-lock.json` and similar): resolve the manifest first, then regenerate the lock file with the package manager. Apply this without stopping to ask for confirmation or posting a PR/issue comment asking someone to confirm the choice; only stop and ask when a conflict genuinely falls outside the rules, for example when the same package is bumped to two different, unrelated versions with no clear latest (such as divergent major versions), or when there is a security trade-off with no candidate that is both latest and unaffected. After the merge or rebase completes, run the build and tests; if the chosen version broke the build, fix the breakage on the same branch rather than downgrading.
 
@@ -116,9 +116,9 @@ When a merge or rebase produces conflicting pins for the same action (or for run
 
 Whenever you add or modify a `uses:` reference, check all actions in that file are on the latest released version:
 
-1. For each `uses:`, run `gh api repos/<owner>/<action>/releases/latest --jq '.tag_name'`.
+1. For each `uses:`, run `cfwf release view --repo <owner>/<action>` and read its tag.
 2. If behind, update in the same commit:
-   - For a **SHA-pinned** action: resolve the new tag to its commit SHA (`gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`) and update both the SHA and the trailing version comment.
+   - For a **SHA-pinned** action: resolve the new tag to its commit SHA (`cfwf tag view --repo <owner>/<action> --tag <tag>`) and update both the SHA and the trailing version comment.
    - For a **tag-pinned** action: update the tag directly.
 3. Never leave a file with a mix of updated and stale versions after touching it.
 
@@ -130,11 +130,11 @@ When reviewing a PR run and you see a message similar to:
 
 1. **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
 2. **Locate the workflow file** that references it; it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
-3. **Find the minimum compliant version**: enumerate candidate releases with `gh api --paginate repos/<owner>/<action>/releases --jq '.[].tag_name'`, then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
+3. **Find the minimum compliant version**: enumerate candidate releases with `cfwf release list --repo <owner>/<action>` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
 4. **Raise an issue in the repo that owns the workflow file**, with:
    - **Title**: `chore: update <action> to a Node.js 24 compatible version`, unless the owning repo's local title rule says otherwise, which takes precedence
    - **Labels**: `AI-Work`, `dependencies`, `github-actions`, `High`
-   - **Body**: current version, minimum compliant version (if one exists), a link to the upstream release, and the deprecation deadline.
+   - **Body**: include the current version, the minimum compliant version (if one exists), a link to the upstream release, and the deprecation deadline.
 5. Do **not** silently ignore the warning or defer it; raise the issue even if no compliant version is available yet (note that in the issue body).
 
 ## Bash Steps vs github-script

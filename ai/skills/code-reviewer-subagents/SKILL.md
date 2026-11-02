@@ -16,33 +16,14 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 7. Report `{"clean": true, "sweeps": [...], "preExistingBugs": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...], "preExistingBugs": [...]}`, where `sweeps` carries every sweep record and `preExistingBugs` lists each pre-existing bug reported but not fixed (file, line, description), incoming (from a Code Writer or Code Fixer hand-off) and own, because without its own field such a bug is either dropped or misread as a fix. Cap at 5 iterations.
 8. After 5 iterations, report any unresolved findings to the Orchestrator; the Orchestrator adds each as a PR comment for human consideration.
 9. Report a pre-existing bug found outside the current change's scope to the Orchestrator in `preExistingBugs` rather than fixing it.
-10. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
+10. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next.
 11. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the Orchestrator. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in an incoming hand-off on unchanged.
 
-### Posting a Finding as an Inline PR Comment
+### Posting a Finding on a PR
 
-To post a finding as an inline review comment on a PR:
+Starting a new inline review comment is not available to agents yet; put the finding in a PR comment instead, naming the file and line, with `cfwf comment add --repo <owner/repo> --pr <number> --body-file -` and the text on stdin as a HEREDOC (never escaped `\n` sequences).
 
-```bash
-gh api repos/<owner>/<repo>/pulls/<number>/comments \
-  --method POST \
-  --field commit_id="<sha>" \
-  --field path="<repo-relative file path>" \
-  --field line=<line-number> \
-  --field side="RIGHT" \
-  --field body="<comment text>"
-```
-
-`commit_id` must be the PR's **current head SHA** (`gh pr view <number> --json headRefOid --jq '.headRefOid'`), and `path`/`line` must fall inside that commit's actual diff; otherwise the request fails.
-
-To reply to an existing review comment thread, use `-F` (typed), not `-f`, for `in_reply_to`: the API requires it as a number, and `-f` sends it as a string, failing with `"in_reply_to" is not a permitted key"` / `is not a number`:
-
-```bash
-gh api repos/<owner>/<repo>/pulls/<number>/comments \
-  -X POST \
-  -f body="<reply text>" \
-  -F in_reply_to=<comment-id>
-```
+To reply to an existing review comment thread, use `cfwf pr reply --repo <owner/repo> --pr <number> --comment-id <inline id> --body-file <file|->`, taking the `inline` id from `cfwf pr comments --repo <owner/repo> --pr <number>`.
 
 Each sub-agent below reviews only the newly changed code in the diff. When dispatched as part of a full-repository audit rather than a PR review, the scope becomes the full file set for whatever group is being audited instead.
 

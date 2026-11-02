@@ -33,21 +33,23 @@ When two diagnostics conflict and the pair, for that kind of code, is not in the
 - **P2.** Raise an issue in `credfeto/cs-template` describing the conflict: both diagnostic IDs, the affected code, and the candidate resolutions. Give it the content that a template rule escalation asks for (source repository, current behaviour or gap, proposed rule text, and the reason for template propagation), titled `<prefix>: <description>` where the prefix is a Conventional Commits type that matches the work (`feat`, `fix`, `docs`, `chore`, etc.) unless the repository's local title rule says otherwise, which takes precedence, using this command:
 
   ```bash
-  gh issue create --repo credfeto/cs-template \
+  cfwf issue create --repo credfeto/cs-template --priority Medium \
     --title "<prefix>: <short description of the rule change>" \
     --label "AI-Work" \
-    --body "**Source repository**: <repo where need was discovered>
+    --body-file - <<'BODY'
+  **Source repository**: <repo where need was discovered>
 
   **Current behaviour / gap**: <what is missing or inconsistent>
 
   **Proposed rule text**: <concrete rule update or new instruction text>
 
-  **Reason for template propagation**: <why this should apply across all repos>"
+  **Reason for template propagation**: <why this should apply across all repos>
+  BODY
   ```
 
   Note the issue URL in any relevant commit or PR description.
 
-- **P3.** Add `Blocked` to the affected issue or PR (`gh issue edit <number> --repo <owner/repo> --add-label "Blocked"`, or `gh pr edit` for a PR) and wait for the repo owner's decision. Use only the `Blocked` label for this purpose. Do not continue working on the item until the label is removed. The accompanying comment must name the specific instruction that requires the stop (here, the unlisted pairs rule above). If a human answers in a live chat session rather than on GitHub, post the answer yourself as a comment, quoting the live instruction, before resuming work. Unlike a normal template rule escalation, work on the affected code does not carry on meanwhile, because the code cannot build while one of the two diagnostics stands.
+- **P3.** Add `Blocked` to the affected issue or PR immediately after posting the comment (labels have no `cfwf` command yet, so this is not available to agents: say in the comment that `Blocked` must be added) and wait for the repo owner's decision. Use only the `Blocked` label for this purpose. Do not continue working on the item until the label is removed. The accompanying comment must name the specific instruction that requires the stop (here, the unlisted pairs rule above). If a human answers in a live chat session rather than on GitHub, post the answer yourself as a comment, quoting the live instruction, before resuming work. Unlike a normal template rule escalation, work on the affected code does not carry on meanwhile, because the code cannot build while one of the two diagnostics stands.
 
 ## Adding an Entry
 

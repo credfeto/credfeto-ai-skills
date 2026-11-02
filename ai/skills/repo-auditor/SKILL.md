@@ -13,14 +13,14 @@ Scans the full repository rather than a diff; no branch or PR is required, and f
    - One group per `.csproj` or logical app unit.
    - All `*.sql` files as a single separate group, regardless of location.
    - All `.ai-instructions` and `ai/**` instruction files as a single separate group.
-   - Remaining files (shell scripts, CI workflow files, config) as a repo-level group.
+   - Remaining files (shell scripts, GitHub workflows, config) as a repo-level group.
 2. Process groups sequentially. For each group, apply IDE MCP code analysis to the group's files (see the ide-mcp-code-analysis skill for the full best-effort and reporting procedure), then launch the six Code Reviewer sub-agent lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel** against that group's full file set, not just recently changed files.
 3. Do **not** fix findings. For each group that has findings, raise one GitHub issue:
    - Title: `audit: <group-name> - <brief summary>`, unless the repository's local title rule says otherwise, which takes precedence. When looking for an existing audit issue by title, match both `audit:` and `Audit:`, because existing audit issues may use the capitalised prefix.
    - Body: all findings from all sub-agents for that group, organised by sub-agent.
    - Label: `audit`
 4. Skip groups where every sub-agent reports `{"clean": true}`; do not raise an issue for a clean group.
-5. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion marker before starting the next.
+5. Never start a long-running command while another long-running command you started is still running.
 6. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 
 ## Sub-Agent Lenses
