@@ -127,7 +127,7 @@ for previous_name in ${PREVIOUS_MANIFEST}; do
     run rm -f "${TARGET_ROOT}/credfeto-${previous_name}.md" || die "could not remove credfeto-${previous_name}.md"
 done
 
-if [ "${MANIFEST_DRAFT}" != "${NEW_MANIFEST}" ]; then
+if [ -n "${SYSTEM}" ]; then
     run cp "${MANIFEST_DRAFT}" "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
     make_world_readable a+r "${NEW_MANIFEST}" || die "could not make ${NEW_MANIFEST} world-readable"
 fi
