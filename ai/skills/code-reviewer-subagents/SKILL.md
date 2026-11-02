@@ -21,7 +21,7 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 
 ### Posting a Finding on a PR
 
-Starting a new inline review comment is not available to agents yet; put the finding in a PR comment instead, naming the file and line, with `cfwf comment add --repo <owner/repo> --pr <number> --body-file -` and the text on stdin as a HEREDOC (never escaped `\n` sequences).
+To start a new inline review comment on a file and line, use `cfwf pr review-comment --repo <owner/repo> --pr <number> --path <file> --line <n> [--start-line <n>] [--side RIGHT|LEFT] --body-file -` with the text on stdin as a HEREDOC (never escaped `\n` sequences). It reads the PR's head commit itself (never pass a commit SHA), prints the same `inline` and `url` lines as `cfwf pr reply`, and exits 1 with a clear message when the line is not part of the diff; post once and check `cfwf pr comments` before posting again.
 
 To reply to an existing review comment thread, use `cfwf pr reply --repo <owner/repo> --pr <number> --comment-id <inline id> --body-file <file|->`, taking the `inline` id from `cfwf pr comments --repo <owner/repo> --pr <number>`.
 

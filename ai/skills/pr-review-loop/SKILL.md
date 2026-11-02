@@ -49,7 +49,7 @@ Each Code Writer or Code Fixer task carries exactly one change (one finding, one
 
 ## Adding `Blocked`
 
-Labels have no `cfwf` command yet, so adding `Blocked` is not available to agents. Wherever this loop says to add `Blocked`, do every other part of the step in its usual order (post the explanatory comment, move the Workflow board as the step says), say in that comment that `Blocked` must be added so a human can do it, and then stop as the step says, exactly as if the label had been added. Never add it by any other route.
+Wherever this loop says to add `Blocked`, post the explanatory comment and add the label with one command, `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->`, which posts the comment, then adds `Blocked`, leaving the board as it is. Then stop as the step says.
 
 ## Conflict Resolution: Simplify/Code Review vs. Static Analyzer
 

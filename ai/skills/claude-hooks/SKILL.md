@@ -156,8 +156,9 @@ the owner can add. Record it where the owner collects these requests, so the nee
 the session ends:
 
 1. Check whether credfeto/credfeto-orchestrator#1167 already lists the same command, or an allow
-   rule that would cover it. Reading comment bodies is not available yet, so until it is, go
-   straight to step 2; a duplicate request is harmless.
+   rule that would cover it, reading its comments with
+   `cfwf issue comments --repo credfeto/credfeto-orchestrator --issue 1167`. If that read fails,
+   go straight to step 2; a duplicate request is harmless.
 2. Otherwise, comment on credfeto/credfeto-orchestrator#1167
    (`cfwf comment add --repo credfeto/credfeto-orchestrator --issue 1167 --body-file <file|->`)
    with the exact denied command, why the task needs it, and the repository the session is

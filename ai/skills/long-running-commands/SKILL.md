@@ -85,7 +85,7 @@ Never stop the session, report that "Bash is disabled", or treat the task as blo
 
 A rule-compliant command that the permission system still denies needs a new allow rule, which only the owner can add. Record it where the owner collects these requests, so the need is not lost when the session ends:
 
-- **P1.** Check whether credfeto/credfeto-orchestrator#1167 already lists the same command, or an allow rule that would cover it. Reading comment bodies is not available yet, so until it is, go straight to P2; a duplicate request is harmless.
+- **P1.** Check whether credfeto/credfeto-orchestrator#1167 already lists the same command, or an allow rule that would cover it, reading its comments with `cfwf issue comments --repo credfeto/credfeto-orchestrator --issue 1167`. If that read fails, go straight to P2; a duplicate request is harmless.
 - **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 (`cfwf comment add --repo credfeto/credfeto-orchestrator --issue 1167 --body-file <file|->`) with the exact denied command, why the task needs it, and the repository the session is working in. Pass the multi-line body on stdin with a HEREDOC (or from a file) so real newlines are embedded, never escaped `\n` sequences.
 - **P3.** Continue with the rest of the task. The request is for the owner to act on later; it does not block the current work.
 
