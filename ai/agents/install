@@ -75,7 +75,10 @@ fi
 MANIFEST="${TARGET_ROOT}/.credfeto-ai-skills-agents"
 
 run mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
-make_world_readable a+rX "$(dirname -- "${TARGET_ROOT}")" "${TARGET_ROOT}" || die "could not make ${TARGET_ROOT} world-readable"
+CLAUDE_DIR=$(dirname -- "${TARGET_ROOT}")
+
+# mkdir -p may also have created the managed root above .claude, which users must be able to traverse.
+make_world_readable a+rX "$(dirname -- "${CLAUDE_DIR}")" "${CLAUDE_DIR}" "${TARGET_ROOT}" || die "could not make ${TARGET_ROOT} world-readable"
 
 NEW_MANIFEST="${MANIFEST}.new"
 
