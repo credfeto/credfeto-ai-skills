@@ -502,7 +502,10 @@ jobs:
         with:
           working-directory: "${{github.workspace}}"
           tool-name: "changelog"
-          tool-arguments: "-f CHANGELOG.md --lint"
+          tool-arguments: |
+            --changelog
+            ${{github.workspace}}/CHANGELOG.md
+            --lint
 
       # The checkout does not persist credentials, so the token reaches git only through this step's environment.
       # The empty helper first clears any helper configured on the runner. Inline rather than a shared local action, so
@@ -760,7 +763,10 @@ jobs:
         with:
           working-directory: "${{github.workspace}}"
           tool-name: "changelog"
-          tool-arguments: "-f CHANGELOG.md --lint"
+          tool-arguments: |
+            --changelog
+            ${{github.workspace}}/CHANGELOG.md
+            --lint
 
       # The checkout does not persist credentials, so the token reaches git only through this step's environment.
       # The empty helper first clears any helper configured on the runner. Inline rather than a shared local action, so
