@@ -26,6 +26,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Agents: added the missing no-pre-commit-check rule to Code Writer, Code Fixer and Code Tester, and the background-run wait rule to Code Tester and Committer
 - Reconcile agents with updated sources: cfwf commands in place of gh, CI Monitor waits with cfwf pr checks-wait, completion notification wording for long-running commands
 - Orchestrator agent: added the live-chat answer to a PR question Blocked exception, the say-once-at-the-top rule for human actions, the run-mode decision rule and the .deleteme.now check before hand-off
+- Orchestrator agent uses cfwf commands for posting plans, blocking and removing Blocked, and matches the bot login by name
+- CI Debugger agent reads the auto-merge enable time with cfwf pr auto-merge-at when counting rounds
 ### Deprecated
 ### Removed
 ### Deployment Changes
