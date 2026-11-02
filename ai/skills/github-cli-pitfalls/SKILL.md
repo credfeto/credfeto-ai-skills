@@ -42,37 +42,30 @@ Second paragraph.
 COMMENT
 ```
 
-## Operations Not Yet Available
+## Labels
 
-These GitHub operations have no `cfwf` command or MCP tool yet, so they are not available to agents. Never perform one by any other route:
+```bash
+# Add or remove standard labels on an issue or PR: one --label per label, never a comma-joined list
+cfwf label add --repo <owner>/<repo> (--issue <n> | --pr <n>) --label "<name>" [--label "<name>" ...]
+cfwf label remove --repo <owner>/<repo> (--issue <n> | --pr <n>) --label "<name>" [--label "<name>" ...]
 
-- Add or remove a label on an issue or PR (including `Blocked`)
-- List a repository's labels
-- Create a label
-- Close an issue
-- Reopen an issue or PR, or close a PR
-- Link a sub-issue to a parent issue
-- Read an issue's or PR's comment bodies
-- Search PRs, code or repositories
-- List an owner's repositories, or a repository's workflows
-- List PRs filtered by label
-- Post a new inline review comment on a PR
-- Read when auto-merge was last enabled on a PR
+# List a repository's labels / create one of the standard labels in it
+cfwf label list --repo <owner>/<repo>
+cfwf label create --repo <owner>/<repo> --name "<name>" [--color <hex>] [--description "<text>"]
+```
 
-When a step needs one of them:
+Set labels at creation time with `cfwf issue create --label`, and read an item's labels with `cfwf issue view` or `cfwf pr view --field labels`. Add `Blocked` with the command that posts its explanation (`cfwf issue post-plan`, `cfwf issue block` or `cfwf pr block`) rather than with `cfwf label add`, so `Blocked` is never set without the comment that explains it. Copy a PR's closing issues' labels with `cfwf pr sync-labels`. Never replace an item's whole label set: only add labels, and never remove automation-applied labels.
 
-- **P1.** Do every other part of the step, in its usual order, then stop at that operation; never build it from other commands.
-- **P2.** State exactly what is needed (the operation, the item and the value, for example "add `Blocked` to PR #12") in the comment the step posts, if it posts one, and in your hand-off or final report, so a human can do it.
-- **P3.** Where the step adds `Blocked` to stop work, still post the comment that explains the stop and still move the Workflow board as the step says, then stop as the step says, exactly as if the label had been added.
-- **P4.** Where the step only reads (comment bodies, search, the auto-merge time), carry on without the information only if the step says how; otherwise stop and report what you could not read.
+- `cfwf label add` and `cfwf label remove` accept only the standard labels, and refuse priority labels (`Security`, `Urgent`, `High`, `Medium`, `Low`); change a priority with `cfwf issue edit --priority` or `cfwf pr edit --priority`.
+- `cfwf label remove` never removes `On Hold`, and removes `Blocked` only when the agent's own login added it last; a `Blocked` a human added is lifted by that human. Exit 8 means refused, with nothing changed.
 
-When `cfwf help` lists a command for one of these, use it instead.
+## Search
 
-Labels: set them at creation time with `cfwf issue create --label`, and read an item's labels with `cfwf issue view` or `cfwf pr view --field labels`. When label commands arrive, never replace an item's whole label set: only add labels, and never remove automation-applied labels.
+`cfwf issue search`, `cfwf pr search`, `cfwf code search` and `cfwf repo search` take `--text` as plain words only: no qualifiers, quoted phrases or `AND`/`OR`/`NOT`, as `cfwf help <command>` describes.
 
 ## Inline PR Review Comments
 
-To reply to an existing review comment thread, use `cfwf pr reply --repo <owner>/<repo> --pr <number> --comment-id <inline id> --body-file <file|->`, taking the `inline` id from `cfwf pr comments`. Starting a new inline review comment is not available yet; put the finding in a PR comment instead, naming the file and line.
+To reply to an existing review comment thread, use `cfwf pr reply --repo <owner>/<repo> --pr <number> --comment-id <inline id> --body-file <file|->`, taking the `inline` id from `cfwf pr comments`. To start a new inline review comment on a file and line, use `cfwf pr review-comment --repo <owner>/<repo> --pr <number> --path <file> --line <n> [--start-line <n>] [--side RIGHT|LEFT] --body-file <file|->`: it reads the PR's head commit itself (never pass a commit SHA), prints the same `inline` and `url` lines as `cfwf pr reply`, and exits 1 with a clear message when the line is not part of the diff; post once and check `cfwf pr comments` before posting again.
 
 ## Commit and Push Never Use the GitHub API or a Credential Helper
 

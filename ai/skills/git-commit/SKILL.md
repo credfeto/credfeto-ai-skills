@@ -130,7 +130,7 @@ When a session cannot save its work through a commit (a file-edit, commit or pus
 
 If the remote reports vulnerabilities:
 
-- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo>`, looking for Dependabot's branches; filtering by the `dependencies` label is not available yet), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
+- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo> --label dependencies`, which lists only the open PRs carrying the `dependencies` label), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
 ## Instruction File Source Routing

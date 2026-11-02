@@ -24,9 +24,7 @@ There is no other route to GitHub for agents. If `cfwf` (or any other required C
 
 Run one `cfwf` command per Bash call, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it.
 
-Some operations have no `cfwf` command or MCP tool yet, so they are not available to agents: adding or removing a label (including `Blocked`), listing or creating labels, closing an issue, reopening an issue or PR or closing a PR, linking a sub-issue to a parent issue, reading an issue's or PR's comment bodies, searching PRs, code or repositories, listing PRs filtered by label, and posting a new inline review comment. Never perform one by any other route. When a step needs one: do every other part of the step in its usual order, then stop at that operation; state exactly what is needed (the operation, the item and the value, for example "add `Blocked` to PR #12") in the comment the step posts, if it posts one, and in your hand-off or final report so a human can do it; where the step adds `Blocked` to stop work, still post the comment that explains the stop and still move the Workflow board as the step says, then stop as the step says, exactly as if the label had been added. When `cfwf help` lists a command for one of these, use it instead.
-
-When no `cfwf` command or MCP tool covers an operation you need, and it is not in that list, raise an issue on `credfeto/credfeto-orchestrator` asking for it:
+When no `cfwf` command or MCP tool covers an operation you need, raise an issue on `credfeto/credfeto-orchestrator` asking for it:
 
 - **One issue per distinct need.** Search `credfeto/credfeto-orchestrator` first: `cfwf issue search --repo credfeto/credfeto-orchestrator --text "cfwf <keywords>" --state all`. If an open or closed issue already covers the need, do not raise another; if a closed one was declined, follow its outcome.
 - **Say what is needed.** Title the issue `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised, unless a local title rule takes precedence. Say what the operation is, what it is for, and where it is needed. Add the new issue to the "Workflow" project as for any issue (see Workflow Project Board below).
@@ -130,7 +128,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
 - **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. In an interactive session, keep watching the issue for approval rather than ending the turn (see the `credfeto-issue-plan-approval` skill), which applies to these tracking issues too. Approval requires an explicit human action. If the repo has a Workflow board, a human with project write access sets the board status to **Approved** and removes `Blocked`; with no board, a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment. If the repo has a Workflow board, update the issue's board status to **Planning** after posting a plan (`cfwf workflow-status --set --repo <owner/repo> --issue <number> --status Planning`); every re-post of the plan resets the card to **Planning**.
 - **P5.** Once approved and `Blocked` is removed:
   - If the request needs a code change, proceed and open a PR referencing the issue when ready.
-  - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue (closing is not available to agents yet; say in the comment that the issue needs closing).
+  - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue. `cfwf issue close --repo <owner/repo> --issue <number> --reason completed --body-file -`, with the answer on stdin, does both, posting the comment first.
 - **P6.** For further prompts once an issue or PR exists for the work, see Prompt Traceability below.
 
 ## AI-Initiated Issues (MANDATORY)
@@ -149,7 +147,7 @@ Exceptions: do not add `Blocked`:
 
 After any push, if the remote reports vulnerabilities:
 
-- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo>`, looking for Dependabot's branches; filtering by the `dependencies` label is not available yet), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
+- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo> --label dependencies`, which lists only the open PRs carrying the `dependencies` label), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
 ## Priority Labels (highest to lowest)
@@ -178,7 +176,7 @@ An issue labelled `On Hold` is not ready to be worked on; do not pick up or assi
 
 When asking a question in an issue or PR comment and waiting for an answer before continuing:
 
-- **P1.** Add the `Blocked` label to the PR or issue immediately after posting the question. Labels have no `cfwf` command yet, so this is not available to agents: say in the question comment that `Blocked` must be added.
+- **P1.** Add the `Blocked` label to the PR or issue immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf issue block --repo <owner/repo> --issue <number> --body-file <file|->` for an issue, `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->` for a PR.
 - **P2.** Do not continue working on the item until the label is removed.
 - **P3.** Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`.
 - **P4.** Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost.
@@ -218,9 +216,9 @@ The same rule applies when picking up an issue: if a comment on it requests a su
 
 ## Label Rules (MANDATORY)
 
-- Only ever add labels; never replace an item's whole label set, which destroys automatically applied classification labels. Label changes are not available to agents yet.
+- Only ever add labels; never replace an item's whole label set, which destroys automatically applied classification labels. Add labels with `cfwf label add --repo <owner/repo> (--issue <n> | --pr <n>) --label <name>`, which only ever adds.
 - Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. The sole exceptions are removing `Blocked` on a human's live-chat plan approval of an issue in an interactive session, and removing `Blocked` on a PR question answered in live chat in an interactive session, each carried out on their behalf after mirroring the approval or answer as a GitHub comment.
-- Sync labels from all linked closing issues to a PR with `cfwf closing-issue-labels --repo <owner/repo> --pr <pr>`, which prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold`. A non-zero exit is a failure to report, not "no labels". Adding labels to the PR is not available yet; list any the PR is missing (compare with `cfwf pr view --field labels`) in your report.
+- Sync labels from all linked closing issues to a PR with `cfwf pr sync-labels --repo <owner/repo> --pr <pr> [--assign-self]`, which adds them one at a time, never removing one and never adding `Blocked` or `On Hold`. It prints each label it added, then `<url> synced`; exit 0 means synced, nothing to add included. A label the PR's repository does not have is skipped with a warning; mention it in your report. A non-zero exit is a failure to report, not "no labels". `cfwf closing-issue-labels --repo <owner/repo> --pr <pr>` only prints the labels it would sync.
 
 ## Comment Bodies (MANDATORY)
 
@@ -238,9 +236,9 @@ COMMENT
 
 - **P1.** Create a top-level GitHub issue (if none specified); assign it; include the full original prompt as the body.
 - **P2.** Comment findings on the issue before starting (components found, current state, etc.).
-- **P3.** For each component, create a sub-issue referencing the top-level issue; use the sub-issue number in branch names and commit messages. Linking a sub-issue to its parent is not available to agents yet.
+- **P3.** For each component, create a sub-issue referencing the top-level issue; use the sub-issue number in branch names and commit messages. Link it to its parent with `cfwf issue add-sub-issue --repo <owner/repo> --issue <parent> --sub-issue <child>`.
 - **P4.** Work on one component at a time; commit and push before starting the next.
-- **P5.** Close the sub-issue as soon as the relevant commits are pushed (closing is not available to agents yet; say in your report that it needs closing).
+- **P5.** Close the sub-issue as soon as the relevant commits are pushed, with `cfwf issue close --repo <owner/repo> --issue <sub-issue> --reason completed`.
 
 ### Issue tracking cadence
 

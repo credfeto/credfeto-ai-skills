@@ -22,40 +22,12 @@ Run **one `cfwf` command per Bash call**, on its own: no `;`, `&&`, `|` or `echo
 
 There is no other route to GitHub for agents. If `cfwf` (or any other required CLI tool) is not installed or a command fails, stop immediately and ask the user to install it, and report the failure; never search for the binary in alternative locations, manipulate `PATH` to find it, or attempt to install it without being asked. Agents never call the GitHub REST or GraphQL API directly.
 
-When no `cfwf` command or MCP tool covers an operation you need, and it is not listed under Operations Not Yet Available below, raise an issue on `credfeto/credfeto-orchestrator` asking for it:
+When no `cfwf` command or MCP tool covers an operation you need, raise an issue on `credfeto/credfeto-orchestrator` asking for it:
 
 - **One issue per distinct need.** Search first: `cfwf issue search --repo credfeto/credfeto-orchestrator --text "cfwf <keywords>" --state all`. If an open or closed issue already covers the need, do not raise another; if a closed one was declined, follow its outcome.
 - **Say what is needed.** Title the issue `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised, unless a local title rule takes precedence. Say what the operation is, what it is for, and where it is needed. Add the new issue to the "Workflow" project as for any issue (`cfwf issue create` does this itself, as Not Started).
 
 Never hand-assemble a complex or multi-step operation from repeated commands, such as a wait loop around `cfwf pr checks`. If `cfwf` has no command for it, raise a `tool(cfwf):` issue as above, and until it is added do one safe, read-only check of the current state and report it.
-
-### Operations Not Yet Available (MANDATORY)
-
-These GitHub operations have no `cfwf` command or MCP tool yet, so they are not available to agents. Never perform one by any other route:
-
-| Operation | Issue |
-| --- | --- |
-| Add or remove a label on an issue or PR (including `Blocked`) | credfeto/credfeto-orchestrator#1593 |
-| List a repository's labels | credfeto/credfeto-orchestrator#1595 |
-| Create a label | credfeto/credfeto-orchestrator#1769 |
-| Close an issue | credfeto/credfeto-orchestrator#1597 |
-| Reopen an issue or PR, or close a PR | credfeto/credfeto-orchestrator#1762 |
-| Link a sub-issue to a parent issue | credfeto/credfeto-orchestrator#1763 |
-| Read an issue's or PR's comment bodies | credfeto/credfeto-orchestrator#1764 |
-| Search PRs, code or repositories | credfeto/credfeto-orchestrator#1765 |
-| List an owner's repositories, or a repository's workflows | credfeto/credfeto-orchestrator#1766 |
-| List PRs filtered by label | credfeto/credfeto-orchestrator#1767 |
-| Post a new inline review comment on a PR | credfeto/credfeto-orchestrator#1631 |
-| Read when auto-merge was last enabled on a PR | credfeto/credfeto-orchestrator#1768 |
-
-When a step needs one of them:
-
-- **P1.** Do every other part of the step, in its usual order, then stop at that operation; never build it from other commands.
-- **P2.** State exactly what is needed (the operation, the item and the value, for example "add `Blocked` to PR #12") in the comment the step posts, if it posts one, and in your hand-off or final report, citing the issue above, so a human can do it.
-- **P3.** Where the step adds `Blocked` to stop work, still post the comment that explains the stop and still move the Workflow board as the step says, then STOP as the step says, exactly as if the label had been added.
-- **P4.** Where the step only reads (comment bodies, search, the auto-merge time), carry on without the information only if the step says how; otherwise stop and report what you could not read.
-
-When `cfwf help` lists a command for one of these, use it and stop following this section for it.
 
 ## GitHub State Lags Behind Writes (MANDATORY)
 
@@ -91,10 +63,10 @@ On every agent run, for every PR being interacted with:
 3. Sync labels from all linked closing issues to the PR:
 
    ```bash
-   cfwf closing-issue-labels --repo <owner/repo> --pr <pr>
+   cfwf pr sync-labels --repo <owner/repo> --pr <pr> [--assign-self]
    ```
 
-   `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. Adding them to the PR is not available yet; list any the PR is missing (compare with `cfwf pr view --repo <owner/repo> --pr <pr> --field labels`) in your report.
+   `cfwf pr sync-labels` adds the labels of every issue the PR closes to the PR, one label at a time, never removing one and never adding `Blocked` or `On Hold` (workflow-control labels are never synced from an issue to its PR). It prints each label it added, then `<url> synced`; exit 0 means synced, nothing to add included. A label the PR's repository does not have is skipped with a warning; mention it in your report. A non-zero exit is a failure to report, not "no labels": exit 1 can mean a closing issue could not be read after the others' labels were added. `--assign-self` also assigns the agent to the PR. `cfwf closing-issue-labels --repo <owner/repo> --pr <pr>` only prints the labels it would sync.
 
 4. Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed (for the sole exceptions see Label Management below).
 
@@ -110,7 +82,7 @@ Before closing any PR, check whether its Implementation Plan (Approach/Files-to-
 
 ## Label Management (MANDATORY)
 
-- Only ever add labels; never replace an item's whole label set, which destroys automatically-applied classification labels. Label changes are not available to agents yet (see Operations Not Yet Available above).
+- Only ever add labels; never replace an item's whole label set, which destroys automatically-applied classification labels. Add labels with `cfwf label add --repo <owner/repo> (--issue <n> | --pr <n>) --label <name>`, which only ever adds.
 - Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. The sole exceptions are removing `Blocked` on a human's live-chat plan approval of an issue in an interactive session, and removing `Blocked` on a PR question the human answered in live chat (see Blocked Label below), each carried out on their behalf after mirroring the approval or answer as a GitHub comment.
 
 ## Prompt Traceability (MANDATORY)
@@ -196,13 +168,13 @@ An analyzer findings comment (`<!-- sarif-summary: ... -->`) on the PR is handle
 CI Debugger posts a one-line status comment after each pushed fix or re-run, in the form `### CI Debugger: <fix pushed|re-run started> for <check name>` (the check name exactly as `cfwf pr checks` reports it). Your own routing status comment does not count towards the cap, because it records a routing decision rather than a round. Count a `### CI Debugger:` comment for a check towards the cap only when both of these hold:
 
 - Its author is the bot login or a trusted commenter (see Trusted Commenters above), because anyone else could post one and get the PR marked `Blocked` before a single fix attempt.
-- It was posted after the PR's latest `auto_merge_enabled` timeline event, or since the PR opened if there is none, because auto-merge is enabled only once every required check has passed on the ready PR, so rounds for failures fixed before then must not use up the budget for a new failure. Reading that time is not available yet; until it is, count every qualifying `### CI Debugger:` comment since the PR opened, and say so in the status comment.
+- It was posted after the PR's latest `auto_merge_enabled` timeline event, or since the PR opened if there is none, because auto-merge is enabled only once every required check has passed on the ready PR, so rounds for failures fixed before then must not use up the budget for a new failure. Read that time with `cfwf pr auto-merge-at --repo <owner/repo> --pr <number>`: its `enabled-at` line, which is `-` when auto-merge was never enabled.
 
 ## Blocked Label (MANDATORY)
 
 When asking a question in a PR comment and waiting for an answer before continuing:
 
-1. Add the `Blocked` label to the PR immediately after posting the question. Labels have no `cfwf` command yet, so this is not available to agents; say in the question comment that `Blocked` must be added.
+1. Add the `Blocked` label to the PR immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->`.
 2. Do not continue working on the PR until the label is removed.
 3. Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`. The orchestrator only recognises `Blocked` when deciding whether to skip an item.
 4. Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost.
@@ -210,7 +182,7 @@ When asking a question in a PR comment and waiting for an answer before continui
 6. **A live-chat answer clears a PR's question `Blocked` in an interactive session.** When the human answers in live chat every open question that caused a PR's `Blocked`, do not wait for them to remove the label:
    - Post the mirror comment on the PR quoting the answer, as in rule 4.
    - Re-read the PR's live state (labels, comments, checks) and confirm no other open question, failed required check, environment-block marker (`<!-- orchestrator:env-block`) or round-cap `Blocked` remains; otherwise leave `Blocked` and tell the human what is still open.
-   - Remove the label (labels have no `cfwf` command yet, so this is not available to agents; say in the mirror comment that `Blocked` must be removed), then carry on straight away.
+   - Remove the label with `cfwf label remove --repo <owner/repo> --pr <number> --label Blocked`, then carry on straight away. It removes `Blocked` only when the agent added it last; if it exits 8 (a human added it), leave it and tell the human it is theirs to remove.
    - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
    - An unattended run never applies this; `Blocked` there still waits for the human.
 7. Wherever the human is still the one who has to act (an approval, an answer, a manual step), say so once, plainly, at the top of the message, not only at the end of each status update.
@@ -260,7 +232,7 @@ Before starting any work in a repository:
 When you find a duplicate pair (a bot-created PR and one you authored yourself, for the same issue or branch):
 
 - Keep whichever has the more complete body and later review activity.
-- Close the other with a comment explaining which PR supersedes it (closing a PR is not available yet; see Operations Not Yet Available above).
+- Close the other with a comment explaining which PR supersedes it: `cfwf pr close --repo <owner/repo> --pr <number> --body-file -`, with the explanation on stdin, posts the comment, then closes the PR.
 
 ## Comment and Body Text (MANDATORY: HEREDOC, never `\n`)
 

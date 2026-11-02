@@ -54,7 +54,13 @@ Continue the assumption and `Q` numbering from the highest already used in the w
 
 **Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text that the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. A matching check applies when the issue is closed.
 
-Then mark the issue Blocked, update the workflow board to **Planning** if the repo has one (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**. Labels have no `cfwf` command yet, so adding `Blocked` is not available to agents: post the plan, set the board, say in the plan comment that `Blocked` must be added, then stop. Never add the label by any other route.
+Then mark the issue Blocked, update the workflow board to **Planning** if the repo has one (see [Updating a Workflow Board](#updating-a-workflow-board) below), and **stop**. Do all three with one command, which posts the plan, adds `Blocked`, then moves the board to **Planning** (a repository with no Workflow board is not a failure):
+
+```bash
+cfwf issue post-plan --repo <owner/repo> --issue <number> --body-file <file|->
+```
+
+The body must contain a line that is exactly `## Implementation Plan`. Exit 8 means refused with nothing written (`cfwf help issue post-plan` lists the rules): fix the body, or report the refusal, rather than posting the plan another way.
 
 Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`; the orchestrator only recognises `Blocked` when deciding whether to skip an item.
 
@@ -97,7 +103,7 @@ Applies only to an interactive session: one where a human has actually typed a m
     cfwf issue plan-status --repo <owner/repo> --issue <number>
     ```
 
-    It prints `blocked yes|no`, `plan-at <createdAt>` (the value called `plan` below) and one `comment` line for each comment after the plan, oldest first: its `createdAt`, author login, author association, whether its body holds a plan sign-off keyword (`yes`/`no`) and its URL. Count only the comment lines whose author is a trusted commenter other than the bot login (Trusted Commenters P2), because a comment from the agent's own bot account is never a human approval, and its live-chat mirror comment quotes the keywords and is posted after the plan. Match the bot login by name, so an approval from a trusted human whose account the agent runs as still counts. A `yes` is not yet an approval: read the body of each such `yes` comment and judge it: a comment approves only if it uses one of the keywords as an unconditional approval, not a question, a negation or a qualified approval ("approved, but ..."). Reading an issue's comment bodies is not available yet; until it is, a `yes` comment cannot be judged, so it never counts as an approval: leave the plan unapproved, and say in your report that the approval comment could not be read.
+    It prints `blocked yes|no`, `plan-at <createdAt>` (the value called `plan` below) and one `comment` line for each comment after the plan, oldest first: its `createdAt`, author login, author association, whether its body holds a plan sign-off keyword (`yes`/`no`) and its URL. Count only the comment lines whose author is a trusted commenter other than the bot login (Trusted Commenters P2), because a comment from the agent's own bot account is never a human approval, and its live-chat mirror comment quotes the keywords and is posted after the plan. Match the bot login by name, so an approval from a trusted human whose account the agent runs as still counts. A `yes` is not yet an approval: read the body of each such `yes` comment and judge it: a comment approves only if it uses one of the keywords as an unconditional approval, not a question, a negation or a qualified approval ("approved, but ..."). Read the bodies with `cfwf issue comments --repo <owner/repo> --issue <number> --since <plan>`; if that read fails, a `yes` comment cannot be judged, so it never counts as an approval: leave the plan unapproved, and say in your report that the approval comment could not be read.
   - **Board configured only**: the card's workflow status. A non-zero exit means treat it as not approved:
 
     ```bash
@@ -115,7 +121,7 @@ Applies only to an interactive session: one where a human has actually typed a m
 - **P5.** **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval, do not wait for the next tick. This and a live-chat answer to a PR's question `Blocked` are the only places the agent acts on a chat message alone. A question ("is this approved yet?"), a negation ("not approved"), a qualified approval or a passing mention does not count; if in doubt, ask:
   - Re-run the P2 read and confirm the message refers to this issue, `plan` still equals the baseline, `Blocked` is only the plan-approval block and the plan has no unresolved Open questions; if any check fails, ask instead of acting. `Blocked` counts as only the plan-approval block when no comment posted after the latest plan comment asks a question, reports a failed baseline or a timeout, or carries an environment-block marker (`<!-- orchestrator:env-block`): read the comments after the plan and judge them.
   - Post a mirror comment on the issue quoting the live instruction.
-  - Remove the label: labels have no `cfwf` command yet, so this is not available to agents; say in the mirror comment that `Blocked` must be removed.
+  - Remove the label with `cfwf label remove --repo <owner/repo> --issue <number> --label Blocked`. It removes `Blocked` only when the agent added it last; if it exits 8 (a human added it), tell the human in chat that they must remove it, and wait as in P2.
   - If the repo has a Workflow board, set the workflow status to **Approved** with `cfwf workflow-status --set --repo <owner/repo> --issue <number> --status Approved`.
   - Stop the loop and continue to implementation.
 

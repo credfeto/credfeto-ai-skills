@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 ### Changed
+- Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill
 - CI Debugger skill states that the Orchestrator routing status comment does not count towards the round cap
 - Aligned the coverage-ratchet skill wording with its sources
