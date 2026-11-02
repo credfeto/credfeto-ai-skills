@@ -18,7 +18,7 @@ Agents are Claude Code custom agent definitions, one per named role in `ai/globa
   - `model:`: the entry's `model` from `config.yaml`. Valid values are `sonnet`, `opus`, `haiku`, `fable`, `inherit` or a full model ID; `opusplan` is a main-session setting only and is not valid for an agent.
   - `tools:`: the entry's `tools` from `config.yaml`, as a comma-separated string.
   - `skills:`: the entry's `skills` from `config.yaml` as a block list; omitted when the list is empty. Preloaded skills are injected in full at agent startup, so list only the skills the role cannot work without; every agent also has the `Skill` tool to load others on demand.
-- [install](../agents/install) installs every folder containing an `AGENT.md` as the single file `~/.claude/agents/credfeto-<slug>.md` (agents are flat files, not folders) and removes any agent it installed on an earlier run (recorded in `~/.claude/agents/.credfeto-ai-skills-agents`) that no longer has a source folder, leaving other `credfeto-*.md` agents alone. It discovers agents automatically; adding an agent requires no installer change.
+- [install](../agents/install) installs every folder containing an `AGENT.md` as the single file `~/.claude/agents/credfeto-<slug>.md` (agents are flat files, not folders) and removes any agent it installed on an earlier run (recorded in `~/.claude/agents/.credfeto-ai-skills-agents`) that no longer has a source folder, leaving other `credfeto-*.md` agents alone. With `--system` it does the same in the managed folder `/etc/claude-code/.claude/agents` using `sudo`, keeping a separate manifest there. It discovers agents automatically; adding an agent requires no installer change.
 
 ## Generation Rules
 
@@ -77,6 +77,12 @@ These rules govern how the generated agents work together. They apply in additio
 ```
 
 The root `install` script runs `ai/skills/install` and then `ai/agents/install`: agents preload skills by their installed names, so skills must be installed first. Run `./ai/agents/install` on its own only when the skills are already installed.
+
+```bash
+./install --system
+```
+
+With `--system`, the root script passes the flag to both installers, which install into the managed folders `/etc/claude-code/.claude/skills` and `/etc/claude-code/.claude/agents` so every user on the machine gets them. The agents installer keeps its manifest in that folder, separate from the one in `~/.claude/agents`. Both run every write through `sudo` unless they already run as root, fail if neither is available, make the installed files world-readable and leave any copies in `~/.claude` untouched. Any other argument is an error.
 
 ## Automated Reconciliation
 

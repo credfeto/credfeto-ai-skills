@@ -1,6 +1,7 @@
 #!/bin/sh
 # Installs each skill in this folder into ~/.claude/skills as credfeto-<skill>
-# so Claude Code can discover them as personal skills.
+# so Claude Code can discover them as personal skills, or with --system into
+# /etc/claude-code/.claude/skills using sudo so they are managed skills for every user.
 
 die() {
     if [ -t 2 ]; then
@@ -27,12 +28,52 @@ info() {
     fi
 }
 
+SYSTEM=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --system)
+            SYSTEM="yes"
+            ;;
+        *)
+            die "unknown argument: $1 (usage: install [--system])"
+            ;;
+    esac
+    shift
+done
+
+SUDO=""
+
+if [ -n "${SYSTEM}" ] && [ "$(id -u)" -ne 0 ]; then
+    command -v sudo > /dev/null 2>&1 || die "--system needs root or sudo on PATH"
+    SUDO="sudo"
+fi
+
+run() {
+    if [ -n "${SUDO}" ]; then
+        "${SUDO}" "$@"
+    else
+        "$@"
+    fi
+}
+
+# Root's umask may leave system copies unreadable to the users who load them.
+make_world_readable() {
+    [ -n "${SYSTEM}" ] || return 0
+    run chmod "$@"
+}
+
 SKILLS_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 [ -n "${SKILLS_SOURCE_DIR}" ] || die "could not determine the skills source directory"
 
-TARGET_ROOT="${HOME}/.claude/skills"
+if [ -n "${SYSTEM}" ]; then
+    TARGET_ROOT="/etc/claude-code/.claude/skills"
+else
+    TARGET_ROOT="${HOME}/.claude/skills"
+fi
 
-mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+run mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
+make_world_readable a+rX "$(dirname -- "${TARGET_ROOT}")" "${TARGET_ROOT}" || die "could not make ${TARGET_ROOT} world-readable"
 
 INSTALLED=0
 
@@ -50,9 +91,10 @@ for skill_dir in "${SKILLS_SOURCE_DIR}"/*/; do
 
     info "Installing ${skill_name} as credfeto-${skill_name}..."
 
-    rm -rf "${target_dir}" || die "could not remove existing ${target_dir}"
-    mkdir -p "${target_dir}" || die "could not create ${target_dir}"
-    cp -R "${skill_dir}." "${target_dir}/" || die "could not copy ${skill_name} to ${target_dir}"
+    run rm -rf "${target_dir}" || die "could not remove existing ${target_dir}"
+    run mkdir -p "${target_dir}" || die "could not create ${target_dir}"
+    run cp -R "${skill_dir}." "${target_dir}/" || die "could not copy ${skill_name} to ${target_dir}"
+    make_world_readable -R a+rX "${target_dir}" || die "could not make ${target_dir} world-readable"
 
     INSTALLED=$((INSTALLED + 1))
 done
