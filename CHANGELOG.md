@@ -25,6 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled skills with current instruction files: code-reviewer-subagents, dotnet-exception-generation, git-branch, git-commit, git-rebase, github-cli-pitfalls, github-issue, pr-review-loop, pr-sync
 - Agents: added the missing no-pre-commit-check rule to Code Writer, Code Fixer and Code Tester, and the background-run wait rule to Code Tester and Committer
 - Reconcile agents with updated sources: cfwf commands in place of gh, CI Monitor waits with cfwf pr checks-wait, completion notification wording for long-running commands
+- Orchestrator agent: added the live-chat answer to a PR question Blocked exception, the say-once-at-the-top rule for human actions, the run-mode decision rule and the .deleteme.now check before hand-off
 ### Deprecated
 ### Removed
 ### Deployment Changes
