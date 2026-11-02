@@ -97,7 +97,12 @@ else
 fi
 
 PREVIOUS_MANIFEST=""
-[ -f "${MANIFEST}" ] && PREVIOUS_MANIFEST=$(run cat "${MANIFEST}")
+
+# A failed read must stop the run, or stale agents would be kept and then dropped from the new manifest.
+# The test runs through sudo because this user may not be able to see inside a locked-down managed root.
+if run test -f "${MANIFEST}"; then
+    PREVIOUS_MANIFEST=$(run cat "${MANIFEST}") || die "could not read ${MANIFEST}"
+fi
 : > "${MANIFEST_DRAFT}" || die "could not write ${MANIFEST_DRAFT}"
 
 INSTALLED=0
