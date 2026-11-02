@@ -99,7 +99,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
   - Title: a concise summary of the prompt, in `<prefix>: <summary>` form per Issue Titles above (a local title rule takes precedence where one exists).
   - Body: the prompt, verbatim, as the starting point.
   - Labels: `AI-Work` and `Blocked` (minimum), always, regardless of who initiated the underlying task; add other relevant labels (e.g. priority) as appropriate.
-- **P2.** Use Plan Mode to work out scope, affected files, and approach, and post it as an issue comment before starting, using exactly this format:
+- **P2.** Use Plan Mode to work out scope, affected files, and approach, and post it before starting, using exactly this format:
 
   ```text
   ## Implementation Plan
@@ -120,12 +120,20 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
   <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
   ```
 
+  Post the plan with one command, which posts the plan comment, adds `Blocked`, then moves the board to **Planning** (a repository with no Workflow board is not a failure):
+
+  ```bash
+  cfwf issue post-plan --repo <owner/repo> --issue <number> --body-file -
+  ```
+
+  The body must contain a line that is exactly `## Implementation Plan`. Exit 8 means refused with nothing written: fix the body, or report the refusal, rather than posting the plan another way.
+
   Continue the assumption and `Q` numbering from the highest already used in the work item (issue and PR), never restarting at `a.` or `Q1`, so a number names exactly one item for the life of the work item. A revised plan continues the numbering of the plan it supersedes.
 
   Any conditional or deferred decision point in the Approach or Files-to-change text, a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open), must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate.
 
 - **P3.** As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
-- **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. In an interactive session, keep watching the issue for approval rather than ending the turn (see the `credfeto-issue-plan-approval` skill), which applies to these tracking issues too. Approval requires an explicit human action. If the repo has a Workflow board, a human with project write access sets the board status to **Approved** and removes `Blocked`; with no board, a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment. If the repo has a Workflow board, update the issue's board status to **Planning** after posting a plan (`cfwf workflow-status --set --repo <owner/repo> --issue <number> --status Planning`); every re-post of the plan resets the card to **Planning**.
+- **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. In an interactive session, keep watching the issue for approval rather than ending the turn (see the `credfeto-issue-plan-approval` skill), which applies to these tracking issues too. Approval requires an explicit human action. If the repo has a Workflow board, a human with project write access sets the board status to **Approved** and removes `Blocked`; with no board, a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment. Every re-post of the plan, again with `cfwf issue post-plan`, resets the card to **Planning**.
 - **P5.** Once approved and `Blocked` is removed:
   - If the request needs a code change, proceed and open a PR referencing the issue when ready.
   - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue. `cfwf issue close --repo <owner/repo> --issue <number> --reason completed --body-file -`, with the answer on stdin, does both, posting the comment first.

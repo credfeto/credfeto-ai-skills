@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 - Reconcile agents keep going when a tool call is denied and the run retries once when an agent stops early, lists the wrong folders or Claude Code fails, so a denied lint call no longer leaves the run without reconciling
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
+- Reconciled code-writer and dependency-updater skills to say a long-running command's completion notification, and removed an unsourced parenthetical from the ci-debugger skill
 ### Changed
 - Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill
@@ -31,6 +32,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Orchestrator agent: added the live-chat answer to a PR question Blocked exception, the say-once-at-the-top rule for human actions, the run-mode decision rule and the .deleteme.now check before hand-off
 - Orchestrator agent uses cfwf commands for posting plans, blocking and removing Blocked, and matches the bot login by name
 - CI Debugger agent reads the auto-merge enable time with cfwf pr auto-merge-at when counting rounds
+- Pre-work healthcheck skill now states that the Code Tester, Code Fixer and Code Writer roles never run pre-commit-check and that unbounded commands run one at a time
+- Skill git-commit: added the rule for acting on a recorded uncommitted-work comment in a later run
+- Skills git-rebase and git-branch: added the rule to take the branch's changes while merging in main's when rebasing
+- Skill github-issue: post implementation plans with cfwf issue post-plan instead of hand-assembled steps
 ### Deprecated
 ### Removed
 ### Deployment Changes

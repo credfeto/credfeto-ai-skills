@@ -112,6 +112,8 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
+Whenever rebasing from `main`, take the current branch's changes, but merge the changes in from `main` into the current fileset.
+
 ### After Every Rebase (MANDATORY)
 
 A rebase pulls in unknown content from `origin/main` (other people's commits, plus any conflict resolutions), so every rebase, of any form and for any reason, leaves the branch unverified until this check passes. It applies to every rebase in a session, not only the first one. The dedicated Rebase Agent does not run it itself, so the Orchestrator runs it as the Post-Rebase Check once the rebase is complete, or the role that performed the rebase directly runs it itself. The Orchestrator never implements directly, so it hands every fix, commit and push to the review-fix route (Code Fixer, Code Tester, Committer, PR Submitter, CI Monitor) rather than editing files itself.

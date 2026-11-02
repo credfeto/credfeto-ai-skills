@@ -55,7 +55,9 @@ If you are resuming an existing work branch (rather than branching fresh from an
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
-Run `pre-commit-check` only when starting work on a new branch (the baseline check below), after a rebase, or when explicitly asked to, whether in an interactive session or in an issue. There are no other times to run it: `git commit` runs the same hooks automatically, so running it separately before a commit only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit.
+Run `pre-commit-check` only when starting work on a new branch (the baseline check below), after a rebase, or when explicitly asked to, whether in an interactive session or in an issue. There are no other times to run it: `git commit` runs the same hooks automatically, so running it separately before a commit only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit. The re-runs inside the rebase check are part of that check, not an extra trigger.
+
+The Code Tester, Code Fixer and Code Writer roles are never a trigger: they never run `pre-commit-check` and never ask another role to run it. A hook failure on `git commit` goes back through the Committer. A role never runs two unbounded commands (build, test suite, `pre-commit-check`, commit) at the same time; it runs them one after another.
 
 If you are starting a fresh branch from an up-to-date `main`, run the baseline check now, before starting any work on an issue or PR, to verify the repo is clean. Resuming an existing branch that needed no rebase does not run it, because the commit hook covers it:
 
