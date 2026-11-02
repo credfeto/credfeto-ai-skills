@@ -33,6 +33,12 @@ See [ai/local/agents.instructions.md](ai/local/agents.instructions.md) for the a
 
 Installs every skill into `~/.claude/skills` as `credfeto-<skill>` and then every agent into `~/.claude/agents` as `credfeto-<agent>.md`, replacing any previous copy. Skills go first because agents preload them by name. New Claude Code sessions discover both automatically. To install only one kind, run `./ai/skills/install` or `./ai/agents/install` directly.
 
+```bash
+./install --system
+```
+
+With `--system`, every installer instead writes into the managed Claude Code folder, so every user on the machine gets the skills and agents: skills go to `/etc/claude-code/.claude/skills` and agents to `/etc/claude-code/.claude/agents`. The installers use `sudo` for every write unless they already run as root, fail if neither is available, and make the installed files world-readable. `--system` leaves any copies in `~/.claude` untouched. Each installer also accepts `--system` on its own, and any other argument is an error.
+
 ## Automated Reconciliation
 
 The [reconcile workflow](.github/workflows/reconcile.yml) runs every day and whenever it, `ai/agents/config.yaml` or a local action it depends on changes on `main`, reconciling all skills and then all agents against the current instruction files and pushing any changes to `main`. Setup requirements are documented in comments at the top of the workflow file.
