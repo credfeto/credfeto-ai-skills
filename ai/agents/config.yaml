@@ -5,8 +5,9 @@
 # and never appears in generated frontmatter. `skills` lists installed skill
 # names to preload at agent startup.
 
-# mcp__cfwf__* (the workflow MCP) and mcp__build-dotnet__* (the .NET build MCP)
-# are granted to the agents that do GitHub work or build and test code, so a
+# mcp__cfwf__* (the workflow MCP), mcp__build-dotnet__* (the .NET build MCP) and
+# mcp__git__* (the git MCP, a placeholder until it ships) are granted to the
+# agents that do GitHub work, build and test code, or use git, so a
 # sub-agent can use them as well as the top-level session. Revisit these grants
 # when the full workflow and build MCP servers ship: narrow them per agent, and
 # drop the matching Bash use where the MCP replaces it.
@@ -19,7 +20,7 @@ default:
 orchestrator:
   name: "Orchestrator"
   model: opus
-  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, "mcp__cfwf__*"]
+  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, "mcp__cfwf__*", "mcp__git__*"]
   skills:
     - credfeto-agent-routing
     - credfeto-issue-plan-approval
@@ -35,7 +36,7 @@ coding-researcher:
 code-writer:
   name: "Code Writer"
   model: opus
-  tools: [Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__build-dotnet__*"]
+  tools: [Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-code-writer
     - credfeto-code-style
@@ -51,7 +52,7 @@ code-tester:
 code-reviewer:
   name: "Code Reviewer"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, "mcp__rider__*", "mcp__webstorm__*", "mcp__cfwf__*", "mcp__build-dotnet__*"]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, "mcp__rider__*", "mcp__webstorm__*", "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-code-reviewer-subagents
 
@@ -98,28 +99,28 @@ code-reviewer-compliance:
 repo-auditor:
   name: "Repo Auditor"
   model: opus
-  tools: [Bash, Agent, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*"]
+  tools: [Bash, Agent, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-repo-auditor
 
 code-fixer:
   name: "Code Fixer"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*"]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-code-fixer
 
 rebase-agent:
   name: "Rebase Agent"
   model: sonnet
-  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*"]
+  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-git-rebase
 
 ci-debugger:
   name: "CI Debugger"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*"]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-ci-debugger
 
@@ -133,14 +134,14 @@ changelog:
 committer:
   name: "Committer"
   model: haiku
-  tools: [Bash, Skill]
+  tools: [Bash, Skill, "mcp__git__*"]
   skills:
     - credfeto-git-commit
 
 pr-submitter:
   name: "PR Submitter"
   model: haiku
-  tools: [Bash, Skill, "mcp__cfwf__*"]
+  tools: [Bash, Skill, "mcp__cfwf__*", "mcp__git__*"]
   skills:
     - credfeto-pr-sync
 
@@ -154,6 +155,6 @@ ci-monitor:
 dependency-updater:
   name: "Dependency Updater"
   model: opus
-  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*"]
+  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
   skills:
     - credfeto-dependency-updater

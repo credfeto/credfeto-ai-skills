@@ -11,7 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
-- Agents: grant mcp__cfwf__* to the GitHub-facing agents and mcp__build-dotnet__* to the build and test agents (to be revisited when the full MCP servers ship)
+- Agents: grant mcp__cfwf__* to the GitHub-facing agents, mcp__build-dotnet__* to the build and test agents and a placeholder mcp__git__* to the agents that use git (to be revisited when the full MCP servers ship)
 ### Fixed
 - Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 ### Changed
