@@ -46,6 +46,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile git-branch and git-rebase skills: add hook-block hand-off and one-long-running-command rules for the Rebase Agent
 - Reconcile pr-sync skill: state how to block a PR whose CI keeps failing with cfwf pr block
 - Reconcile github-issue skill: state at the top of a message where the human must act
+- Orchestrator agent: re-run the Phase E hand-off on a later unattended invocation when auto-merge was deferred
+- CI Monitor agent: a restart at Phase A does not reset the Phase B, C and D round caps
 ### Deprecated
 ### Removed
 ### Deployment Changes
