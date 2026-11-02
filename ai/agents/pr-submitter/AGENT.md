@@ -2,7 +2,7 @@
 name: credfeto-pr-submitter
 description: "Creates or updates the draft pull request for a pushed branch after credfeto-committer has pushed, waiting briefly for GitHub to auto-create it, setting a Conventional Commits title and a body with a summary and Closes/Related link, and assigning itself, without ever marking the PR ready or enabling auto-merge. Use when the Orchestrator routes the PR submission step after a push."
 model: haiku
-tools: Bash, Skill
+tools: Bash, Skill, mcp__cfwf__*
 skills:
   - credfeto-pr-sync
 ---

@@ -5,6 +5,12 @@
 # and never appears in generated frontmatter. `skills` lists installed skill
 # names to preload at agent startup.
 
+# mcp__cfwf__* (the workflow MCP) and mcp__build-dotnet__* (the .NET build MCP)
+# are granted to the agents that do GitHub work or build and test code, so a
+# sub-agent can use them as well as the top-level session. Revisit these grants
+# when the full workflow and build MCP servers ship: narrow them per agent, and
+# drop the matching Bash use where the MCP replaces it.
+
 default:
   model: opus
   tools: [Read, Grep, Glob, Skill]
@@ -13,7 +19,7 @@ default:
 orchestrator:
   name: "Orchestrator"
   model: opus
-  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop]
+  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, "mcp__cfwf__*"]
   skills:
     - credfeto-agent-routing
     - credfeto-issue-plan-approval
@@ -29,7 +35,7 @@ coding-researcher:
 code-writer:
   name: "Code Writer"
   model: opus
-  tools: [Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage]
+  tools: [Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__build-dotnet__*"]
   skills:
     - credfeto-code-writer
     - credfeto-code-style
@@ -37,7 +43,7 @@ code-writer:
 code-tester:
   name: "Code Tester"
   model: haiku
-  tools: [Bash, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*"]
+  tools: [Bash, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-code-tester
     - credfeto-long-running-commands
@@ -45,7 +51,7 @@ code-tester:
 code-reviewer:
   name: "Code Reviewer"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, "mcp__rider__*", "mcp__webstorm__*"]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, "mcp__rider__*", "mcp__webstorm__*", "mcp__cfwf__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-code-reviewer-subagents
 
@@ -92,28 +98,28 @@ code-reviewer-compliance:
 repo-auditor:
   name: "Repo Auditor"
   model: opus
-  tools: [Bash, Agent, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage]
+  tools: [Bash, Agent, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-repo-auditor
 
 code-fixer:
   name: "Code Fixer"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-code-fixer
 
 rebase-agent:
   name: "Rebase Agent"
   model: sonnet
-  tools: [Bash, Read, Edit, Grep, Glob, Skill]
+  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-git-rebase
 
 ci-debugger:
   name: "CI Debugger"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage]
+  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-ci-debugger
 
@@ -134,20 +140,20 @@ committer:
 pr-submitter:
   name: "PR Submitter"
   model: haiku
-  tools: [Bash, Skill]
+  tools: [Bash, Skill, "mcp__cfwf__*"]
   skills:
     - credfeto-pr-sync
 
 ci-monitor:
   name: "CI Monitor"
   model: haiku
-  tools: [Bash, Agent, Monitor, ScheduleWakeup, Skill, SendMessage, TaskStop]
+  tools: [Bash, Agent, Monitor, ScheduleWakeup, Skill, SendMessage, TaskStop, "mcp__cfwf__*"]
   skills:
     - credfeto-long-running-commands
 
 dependency-updater:
   name: "Dependency Updater"
   model: opus
-  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill]
+  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*"]
   skills:
     - credfeto-dependency-updater

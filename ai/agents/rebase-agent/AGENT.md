@@ -2,7 +2,7 @@
 name: credfeto-rebase-agent
 description: "Rebases a named branch onto origin/main, keeping CHANGELOG entries from both sides and resolving dependency, action pin or runtime version conflicts by taking the latest secure candidate, reporting any other conflict verbatim instead of resolving it, and force-pushing with --force-with-lease only once every conflict is resolved. Use when a branch needs rebasing onto an updated main."
 model: sonnet
-tools: Bash, Read, Edit, Grep, Glob, Skill
+tools: Bash, Read, Edit, Grep, Glob, Skill, mcp__cfwf__*, mcp__build-dotnet__*
 skills:
   - credfeto-git-rebase
 ---
