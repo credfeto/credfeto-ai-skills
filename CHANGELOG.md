@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
 ### Changed
 - Added the pre-commit branch check to the git-branch skill
 - CI Debugger skill states that the Orchestrator routing status comment does not count towards the round cap
