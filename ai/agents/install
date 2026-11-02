@@ -60,8 +60,10 @@ make_world_readable() {
 AGENTS_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 [ -n "${AGENTS_SOURCE_DIR}" ] || die "could not determine the agents source directory"
 
+MANAGED_ROOT="/etc/claude-code"
+
 if [ -n "${SYSTEM}" ]; then
-    TARGET_ROOT="/etc/claude-code/.claude/agents"
+    TARGET_ROOT="${MANAGED_ROOT}/.claude/agents"
 else
     TARGET_ROOT="${HOME}/.claude/agents"
 fi
@@ -71,7 +73,7 @@ MANIFEST="${TARGET_ROOT}/.credfeto-ai-skills-agents"
 run mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
 
 # mkdir -p may also have created the managed root above .claude, which users must be able to traverse.
-make_world_readable a+rX /etc/claude-code /etc/claude-code/.claude "${TARGET_ROOT}" || die "could not make ${TARGET_ROOT} world-readable"
+make_world_readable a+rX "${MANAGED_ROOT}" "${MANAGED_ROOT}/.claude" "${TARGET_ROOT}" || die "could not make ${TARGET_ROOT} world-readable"
 
 NEW_MANIFEST="${MANIFEST}.new"
 
