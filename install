@@ -28,27 +28,13 @@ info() {
     fi
 }
 
-SYSTEM_FLAG=""
-
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --system)
-            SYSTEM_FLAG="--system"
-            ;;
-        *)
-            die "unknown argument: $1 (usage: install [--system])"
-            ;;
-    esac
-    shift
-done
-
 REPO_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 [ -n "${REPO_ROOT}" ] || die "could not determine the repository root"
 
 info "Installing skills..."
-"${REPO_ROOT}/ai/skills/install" ${SYSTEM_FLAG:+"${SYSTEM_FLAG}"} || die "skill installation failed"
+"${REPO_ROOT}/ai/skills/install" "$@" || die "skill installation failed"
 
 info "Installing agents..."
-"${REPO_ROOT}/ai/agents/install" ${SYSTEM_FLAG:+"${SYSTEM_FLAG}"} || die "agent installation failed"
+"${REPO_ROOT}/ai/agents/install" "$@" || die "agent installation failed"
 
 success "Installed skills and agents"
