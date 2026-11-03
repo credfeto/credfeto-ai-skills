@@ -1,5 +1,6 @@
 #!/bin/sh
-# Installs every skill and then every agent into ~/.claude.
+# Installs every skill and then every agent into ~/.claude, or with --system
+# into the managed Claude Code folder /etc/claude-code/.claude using sudo.
 # Skills go first because agents preload them by name.
 
 die() {
@@ -31,9 +32,9 @@ REPO_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 [ -n "${REPO_ROOT}" ] || die "could not determine the repository root"
 
 info "Installing skills..."
-"${REPO_ROOT}/ai/skills/install" || die "skill installation failed"
+"${REPO_ROOT}/ai/skills/install" "$@" || die "skill installation failed"
 
 info "Installing agents..."
-"${REPO_ROOT}/ai/agents/install" || die "agent installation failed"
+"${REPO_ROOT}/ai/agents/install" "$@" || die "agent installation failed"
 
 success "Installed skills and agents"
