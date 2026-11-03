@@ -56,6 +56,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill registry lists github-cli.instructions.md as a source of the dotnet-analyzer-conflicts skill
 - Reconcile credfeto-shell-scripts skill with its sources by removing an unsourced ad-hoc command rule
 - Reconciled the claude-hooks skill against its sources, removing wording that has no source
+- Orchestrator agent: added human comment requests, comment replies, analyzer findings and analyzer-wins conflict rules
 ### Deprecated
 ### Removed
 ### Deployment Changes
