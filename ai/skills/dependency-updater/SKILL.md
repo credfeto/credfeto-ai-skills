@@ -9,6 +9,7 @@ description: Review a Dependabot or other bot-authored dependency-update PR, aut
 - Auto-merge safe patch/minor bumps with no advisories and passing CI.
 - Flag major version bumps and breaking changes to the user. Never merge on CI failure or a major bump without confirmation.
 - Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next.
+- In a .NET repository, run builds, tests, coverage and checks through the `build-dotnet` MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds. A job started through an MCP tool counts as a long-running command.
 - When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 
 ## Changelog Check After Pushing to a Bot PR

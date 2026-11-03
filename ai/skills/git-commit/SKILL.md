@@ -148,7 +148,7 @@ Before committing a change to an instruction file (`ai/global/**` or `ai/local/*
 When working outside `credfeto/cs-template` and a gap in the global template rules is found:
 
 1. Do not apply the change locally.
-2. Create an issue in `credfeto/cs-template` using the command template below. The title is `prefix: text` or `prefix(name): text` with a lower-case prefix: the prefix a specific rule gives, or failing that a Conventional Commits type that matches the work (a local title rule takes precedence where one exists).
+2. Create an issue in `credfeto/cs-template` using the command template below. A local title rule takes precedence where one exists.
 3. The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
 4. Note the issue URL in any relevant commit or PR description.
 5. Continue work without waiting for the template issue to be resolved.

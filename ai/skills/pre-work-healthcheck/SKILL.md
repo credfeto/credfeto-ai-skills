@@ -92,7 +92,7 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
 - **If it exists**, nothing further is needed: coverage is always compared against `origin/main`'s live copy later in the workflow, so there is no per-branch capture step and nothing to refresh here.
 - **If it does not exist**, collect it now, while still on `main`, before creating the work branch:
   1. Measure the overall line-coverage percentage for each orchestrated language actually present in the repo:
-     - **.NET**: collect each `<AssemblyName>.Tests` project's coverage, generate per-assembly `reportgenerator` reports, then one combined report requesting `-reporttypes:"Html;JsonSummary"`, and read the overall figure with `jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json`. Skip .NET entirely if the repo has no `*.Tests` project.
+     - **.NET**: when the `build-dotnet` MCP server lists its `coverage` tool, run that tool instead and take the figures from its `job_result` (reading a per-assembly figure the table needs from the job's full log, whose path `job_result` gives, rather than re-running coverage), never measuring the same branch both ways. Otherwise collect each `<AssemblyName>.Tests` project's coverage, generate per-assembly `reportgenerator` reports, then one combined report requesting `-reporttypes:"Html;JsonSummary"`, and read the overall figure with `jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json`. Skip .NET entirely if the repo has no `*.Tests` project.
      - **Node**: pinned as Vitest with `@vitest/coverage-v8`; run `npx vitest run --coverage` with the `json-summary` reporter configured (alongside whatever other reporters the repo already uses), then `jq '.total.lines.pct' coverage/coverage-summary.json`. If the repository's `package.json` defines a `test:coverage` script, that script takes precedence: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`. Skip if the repo has no `package.json` with a configured test runner.
      - **Python**: pinned as `coverage.py` via `pytest`; run `coverage run -m pytest` then `coverage report --format=total` (prints only the overall percentage). Skip if the repo has no Python test suite.
      - **Shell**: always excluded; never attempt to measure it.
@@ -138,10 +138,10 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
 ## 5. .NET Repository Health Check (MANDATORY when a `.csproj`, `.sln`, or `.slnx` file is present)
 
 1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
-2. Run: `dotnet buildcheck -solution <solutionfilename>`
+2. Run the `buildcheck` tool of the `build-dotnet` MCP server when the server lists it; otherwise run: `dotnet buildcheck -solution <solutionfilename>`
 3. If it fails:
    - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), this does not automatically require the standard new-package approval-and-wait: follow the pre-commit/component-tool package-change conflict-resolution path instead, which still falls back to approval-and-wait if its own security review finds a genuine blocker.
-   - Verify with `dotnet build` and `dotnet test`, each run in the background and one at a time.
+   - Verify with the `build` and `test` tools of the `build-dotnet` MCP server, or with `dotnet build` and `dotnet test` when the server lists no tool for them; the raw commands are each run in the background and one at a time.
    - Commit the fixes with a conventional commit message and push.
    - Only proceed with the original work once buildcheck passes cleanly.
 4. If buildcheck still fails after all fixing attempts:
@@ -149,6 +149,8 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
    - For a PR: comment on the PR and label it `Blocked`; do not continue work.
 
 Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet buildcheck`). Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/<toolname>`.
+
+Use the `build-dotnet` MCP tools only when the server lists the tool for the task; otherwise use the raw command. Never run the same build or test both ways: a job's `job_result` is the result, so do not repeat it with the raw command to confirm it, and do not run the raw command while an MCP job is running. An MCP job is a long-running command, so run only one at a time. Every tool except `detect`, `job_status` and `job_result` starts a job and returns its id at once: wait for it by calling `job_status` once, then about every 30 to 60 seconds, never in a tight loop or a shell wait loop, and when the state is no longer running read `job_result` and judge the job by its per-step exit codes, test counts and failing tests. Do not wait for a job with `cfwf task wait` or a completion notification. Before handing back, wait for every job you started to finish.
 
 All projects must be added to the solution file (`.slnx` or `.sln`).
 

@@ -7,6 +7,15 @@ description: Collect .NET code coverage with Microsoft.Testing.Platform and gene
 
 Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests. 100% code coverage must be maintained.
 
+## Use the `coverage` MCP Tool First (MANDATORY)
+
+When a `build-dotnet` MCP server is connected and lists the `coverage` tool, collect coverage with it and read the figures from its `job_result`; the commands in the rest of this skill (`dotnet test ... -- --coverage` and `dotnet reportgenerator`) are the raw fallback for when it does not.
+
+- Use the raw commands only when the server shows no `coverage` tool: the server is not connected, or it does not list that tool.
+- Never run the same coverage collection both ways. A job's `job_result` is the result: do not repeat the run with the raw command to confirm it, and do not run the raw command while an MCP job is running. An MCP job is a long-running command, and the server itself runs only one job at a time.
+- Wait for a job by polling `job_status` at a steady pace. The `coverage` tool starts a job and returns its id at once. Call `job_status` once, then wait about 30 to 60 seconds between calls, judging the gap from the step the job reports and how long it has run. Never call `job_status` in a tight loop, and never wrap it in a shell wait loop. When the state is no longer running, read `job_result` and judge the job by its per-step exit codes, test counts and failing tests. A job is not a background shell command: do not wait for it with `cfwf task wait` or a completion notification.
+- Before handing back, wait for every job you started to finish.
+
 ## Identifying Test Projects (MANDATORY)
 
 A project is a test project **only** if its assembly name ends with one of these suffixes:
@@ -81,7 +90,7 @@ Critical rules:
 
 ### Running the Command (MANDATORY)
 
-Always run this `dotnet test` coverage command with `run_in_background: true`; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`.
+When using the raw fallback, always run this `dotnet test` coverage command with `run_in_background: true`; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`.
 
 - Wait for the harness's background-task completion notification and judge the command only by the exit code it reports: 0 is a pass and anything else is a failure. Never match text the command prints, never poll its output file, and never use the `Monitor` tool or a poll loop to wait for it. Reading the output once the notification has arrived, to find the cause of a failure, is fine.
 - Run only one long-running command (such as `dotnet build` or `dotnet test`) at a time; wait for the first one's completion notification before starting the next.
@@ -100,7 +109,7 @@ Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data coll
 
 ## Generating Reports with reportgenerator
 
-After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator` (always via `dotnet`, never the raw binary). Unlike the `dotnet test` coverage command above, `reportgenerator` may run in the foreground, but always with an explicit maximum timeout set on the tool call, never the tool's built-in default.
+After collecting `.cobertura.xml` files with the raw fallback, generate reports using `dotnet reportgenerator` (always via `dotnet`, never the raw binary). When the `coverage` MCP tool is listed, use its figures instead. Unlike the `dotnet test` coverage command above, `reportgenerator` may run in the foreground, but always with an explicit maximum timeout set on the tool call, never the tool's built-in default.
 
 **Always generate one report per assembly**: pass only that assembly's `.cobertura.xml` as input:
 

@@ -57,6 +57,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile credfeto-shell-scripts skill with its sources by removing an unsourced ad-hoc command rule
 - Reconciled the claude-hooks skill against its sources, removing wording that has no source
 - Orchestrator agent: added human comment requests, comment replies, analyzer findings and analyzer-wins conflict rules
+- coverage-ratchet skill: prefer the build-dotnet MCP coverage tool over raw commands when listed
+- code-reviewer-subagents skill: use build-dotnet MCP tools for .NET builds and tests when listed
+- dependency-updater skill: use build-dotnet MCP tools for .NET builds and tests when listed
+- Code Tester, Code Writer, Code Fixer and CI Debugger skills now require build-dotnet MCP tools in .NET repositories
+- credfeto-dotnet-coverage skill: prefer the build-dotnet coverage MCP tool, keeping the raw commands as the fallback
+- Skills: pre-work-healthcheck now prefers the build-dotnet MCP buildcheck, build, test and coverage tools over raw commands
+- credfeto-git-commit skill: drop issue title prefix wording that has no source in its instruction files
+- pr-review-loop skill: use the build-dotnet coverage tool for .NET coverage measurement when listed
+- Skills: pr-sync now requires an all-passed check result to be confirmed on a second read before it is reported as passed
+- Skills: long-running-commands and repo-auditor now cover build-dotnet MCP jobs as long-running commands, with repo-auditor preferring the MCP tools
+- Skill registry lists agent-roles.instructions.md as a source of the long-running-commands skill
 ### Deprecated
 ### Removed
 ### Deployment Changes

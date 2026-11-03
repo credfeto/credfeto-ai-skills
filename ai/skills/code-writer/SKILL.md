@@ -9,6 +9,7 @@ description: Implement a GitHub issue by reading all relevant instruction files 
 - If implementation requires knowledge outside the instruction files (an unfamiliar API, complex library usage, a framework-specific idiom, or similar): invoke Coding Researcher first; do not guess or fabricate the answer. If Coding Researcher returns **Not possible**: stop, do not partially implement, and escalate to the Orchestrator with the explanation and any suggested alternative.
 - After fixing a bug, run a Pattern Sweep for the fixed construct and append its sweep record to the hand-off report.
 - Apply IDE MCP code analysis to the files written or changed.
+- In a .NET repository, run any build, test or coverage check through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - If a `.deleteme.now` placeholder file is present at the repo root, remove it as part of your first real change set, for the Committer to commit as usual.
 - Make exactly one change per task (one finding, one construct, or one approved request); never start a second change in the same working tree.
 - Do not commit, push, or update the changelog. Hand off to Code Tester when the implementation is complete.

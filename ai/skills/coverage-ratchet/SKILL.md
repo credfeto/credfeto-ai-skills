@@ -77,7 +77,9 @@ git -C <repodir> add COVERAGE.md
 
 Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic (a project named `*.TestHarness`, `*.Tests.Mocks` or `*.Tests.Common` is not a test project), and do not rely on `OutputType` or the project SDK as a discriminator, because with Microsoft.Testing.Platform legitimate test projects also use `OutputType=Exe` and some use `Microsoft.NET.Sdk.Web`. Always verify `IsTestingPlatformApplication` in the csproj, because that is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`; the naming convention and `IsTestingPlatformApplication` are the only reliable signals. Only unit test projects (`<AssemblyName>.Tests`) feed coverage; exclude `.Integration.Tests` and `.Benchmark.Tests`.
 
-Collect each unit test project's `.cobertura.xml` one project at a time (`cd` to the solution `src/` directory first and use a relative project path; absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK):
+When the `build-dotnet` MCP server lists its `coverage` tool, run that tool instead and take the coverage figures from its `job_result`. Wait for the job by calling `job_status` once and then about every 30 to 60 seconds, never in a tight loop. When `job_result` does not give a figure the table needs (a per-assembly row), read it from the job's full log, whose path `job_result` gives, rather than re-running coverage. The commands below are only the fallback for when the tool is not listed. Never measure the same branch both ways.
+
+Otherwise, collect each unit test project's `.cobertura.xml` one project at a time (`cd` to the solution `src/` directory first and use a relative project path; absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK):
 
 ```bash
 cd {solution-src-dir}

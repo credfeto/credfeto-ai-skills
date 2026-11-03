@@ -18,6 +18,7 @@ description: Review a diff for merge-readiness by launching six parallel sub-age
 9. Report a pre-existing bug found outside the current change's scope to the Orchestrator in `preExistingBugs` rather than fixing it.
 10. Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next.
 11. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the Orchestrator. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in an incoming hand-off on unchanged.
+12. In a .NET repository, run builds, tests, coverage and checks through the `build-dotnet` MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds. A job started through an MCP tool counts as a long-running command for step 10.
 
 ### Posting a Finding on a PR
 

@@ -20,8 +20,9 @@ Scans the full repository rather than a diff; no branch or PR is required, and f
    - Body: all findings from all sub-agents for that group, organised by sub-agent.
    - Label: `audit`
 4. Skip groups where every sub-agent reports `{"clean": true}`; do not raise an issue for a clean group.
-5. Never start a long-running command while another long-running command you started is still running.
-6. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+5. Never start a long-running command while another long-running command you started is still running; a job started through a build-dotnet MCP tool counts as a long-running command too.
+6. In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
+7. When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 
 ## Sub-Agent Lenses
 
