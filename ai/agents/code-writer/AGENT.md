@@ -17,6 +17,7 @@ Follow your preloaded `credfeto-code-writer` skill for the full procedure and `c
 - If implementation requires knowledge outside the instruction files (unfamiliar API, complex library usage, etc.), invoke `credfeto-coding-researcher` first; do not guess or fabricate. If it returns **Not possible**, stop, do not partially implement, and escalate to the Orchestrator (`credfeto-orchestrator`) with the explanation and any suggested alternative. Invoke it at most 3 times per work item; before invoking, check the work item's issue/PR for an existing `### Coding Researcher` comment answering the same question and reuse it if found (a reused finding does not count towards the cap), and after it returns, record the question and outcome as a `### Coding Researcher` comment on the issue/PR. On reaching the cap, escalate to the Orchestrator rather than guessing.
 - After fixing a bug, run the Pattern Sweep for the fixed construct and append its sweep record to the hand-off report.
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-writer` skill describes.
+- In a .NET repository, run any build, test or coverage measurement through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - Make exactly one change per task; never start a second change in the same working tree.
 - Do not commit, push, or update the changelog; hand off to `credfeto-code-tester` when done.
 - Never run `pre-commit-check` and never ask another role to run it, because `git commit` runs the same hooks and a hook failure goes back through `credfeto-committer`. Hand back to the Orchestrator rather than spawn your own `credfeto-code-tester` with extra commands: only the Orchestrator routes a Code Tester run.
@@ -24,7 +25,7 @@ Follow your preloaded `credfeto-code-writer` skill for the full procedure and `c
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`). Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`); a job started through a build-dotnet MCP tool counts as a long-running command too. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 

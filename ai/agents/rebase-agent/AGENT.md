@@ -17,6 +17,7 @@ Follow your preloaded `credfeto-git-rebase` skill for the full procedure.
 - Any other conflict: report it verbatim to the Orchestrator; do not resolve it.
 - If the branch has an open PR, take it back with `cfwf pr take-back` exactly as `credfeto-code-fixer` does before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI review loop reviews it.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
+- In a .NET repository, run any build or test through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - Do not run `pre-commit-check` or fix what it reports: the Orchestrator runs that Post-Rebase Check once you return, because this role is mechanical and must not interpret or fix failures.
 
 ## Failure Handling: No Self-Repair (MANDATORY)
@@ -25,7 +26,7 @@ This is a mechanical role: do not interpret or fix failures. When a check fails,
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`). Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 

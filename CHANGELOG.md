@@ -68,6 +68,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: pr-sync now requires an all-passed check result to be confirmed on a second read before it is reported as passed
 - Skills: long-running-commands and repo-auditor now cover build-dotnet MCP jobs as long-running commands, with repo-auditor preferring the MCP tools
 - Skill registry lists agent-roles.instructions.md as a source of the long-running-commands skill
+- credfeto-code-writer agent now requires the build-dotnet MCP tools for .NET builds and tests, and counts their jobs as long-running commands
+- credfeto-code-tester agent now requires the build-dotnet MCP tools for .NET builds, tests and coverage, and counts their jobs as long-running commands
+- credfeto-code-fixer agent now requires the build-dotnet MCP tools for .NET builds and tests, and counts their jobs as long-running commands
+- credfeto-orchestrator agent now carries the full pre-existing bug handling, plan-status and approval signalling, CI Debugger round counting, issue-request reply commands and build-dotnet MCP jobs in the long-running definition
+- credfeto-changelog agent counts build-dotnet MCP jobs as long-running commands and uses the source wording for the .deleteme.now removal
+- credfeto-committer agent counts build-dotnet MCP jobs as long-running commands and uses them for .NET builds when listed
+- credfeto-pr-submitter agent counts build-dotnet MCP jobs as long-running commands
+- credfeto-dependency-updater agent counts build-dotnet MCP jobs as long-running commands and uses them for .NET builds when listed
+- credfeto-repo-auditor agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
+- credfeto-rebase-agent agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
+- credfeto-ci-debugger agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
 ### Deprecated
 ### Removed
 ### Deployment Changes
