@@ -48,6 +48,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile github-issue skill: state at the top of a message where the human must act
 - Orchestrator agent: re-run the Phase E hand-off on a later unattended invocation when auto-merge was deferred
 - CI Monitor agent: a restart at Phase A does not reset the Phase B, C and D round caps
+- Reworded code-cleanup-commits skill so pre-existing bugs found during a sweep are not fixed silently but listed in the hand-off report
+- Code Fixer skill now covers running /simplify and the post-convergence Pattern Sweep in the AI review loop simplify phase
+- Skill registry lists task-workflow.instructions.md as a source of the npm-packages skill
+- Skill registry lists github-cli.instructions.md as a source of the dotnet-analyzer-conflicts skill
 ### Deprecated
 ### Removed
 ### Deployment Changes

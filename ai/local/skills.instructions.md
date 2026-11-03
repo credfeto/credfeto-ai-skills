@@ -58,7 +58,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [shell-scripts](../skills/shell-scripts/SKILL.md) | `credfeto-shell-scripts` | `shell-scripts.instructions.md`, `shell-scripts.examples.md` |
 | [firewall-rules](../skills/firewall-rules/SKILL.md) | `credfeto-firewall-rules` | `shell.firewall.instructions.md`, `shell.firewall.examples.md` |
 | [sql-schema-change](../skills/sql-schema-change/SKILL.md) | `credfeto-sql-schema-change` | `sql.instructions.md`, `sql.examples.md` |
-| [npm-packages](../skills/npm-packages/SKILL.md) | `credfeto-npm-packages` | `npm.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md`, `packages.instructions.md` |
+| [npm-packages](../skills/npm-packages/SKILL.md) | `credfeto-npm-packages` | `npm.instructions.md`, `git.instructions.md`, `git-rebasing.instructions.md`, `packages.instructions.md`, `task-workflow.instructions.md` |
 | [performance-benchmarking](../skills/performance-benchmarking/SKILL.md) | `credfeto-performance-benchmarking` | `performance.instructions.md`, `dotnet.instructions.md` |
 | [docker](../skills/docker/SKILL.md) | `credfeto-docker` | `docker.instructions.md` |
 | [docker-rootless-podman-systemd](../skills/docker-rootless-podman-systemd/SKILL.md) | `credfeto-docker-rootless-podman-systemd` | `docker-rootless-podman-systemd.instructions.md` |
@@ -88,7 +88,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [language-conventions](../skills/language-conventions/SKILL.md) | `credfeto-language-conventions` | `language.instructions.md` |
 | [code-style](../skills/code-style/SKILL.md) | `credfeto-code-style` | `code-quality.instructions.md` |
 | [dotnet-coding-conventions](../skills/dotnet-coding-conventions/SKILL.md) | `credfeto-dotnet-coding-conventions` | `dotnet.instructions.md`, `code-quality.instructions.md` |
-| [dotnet-analyzer-conflicts](../skills/dotnet-analyzer-conflicts/SKILL.md) | `credfeto-dotnet-analyzer-conflicts` | `analyzer-conflicts.instructions.md`, `dotnet.instructions.md`, `git.instructions.md`, `git.examples.md`, `agent-roles.instructions.md` |
+| [dotnet-analyzer-conflicts](../skills/dotnet-analyzer-conflicts/SKILL.md) | `credfeto-dotnet-analyzer-conflicts` | `analyzer-conflicts.instructions.md`, `dotnet.instructions.md`, `git.instructions.md`, `git.examples.md`, `agent-roles.instructions.md`, `github-cli.instructions.md` |
 | [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
 | [claude-hooks](../skills/claude-hooks/SKILL.md) | `credfeto-claude-hooks` | `claude-hooks.instructions.md`, `tool-preferences.instructions.md` |
 | [tool-preferences](../skills/tool-preferences/SKILL.md) | `credfeto-tool-preferences` | `tool-preferences.instructions.md` |
