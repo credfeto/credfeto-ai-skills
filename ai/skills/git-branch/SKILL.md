@@ -32,7 +32,7 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 ## Reviewing a PR Locally
 
-Check a PR out with git, because commit, push and fetch always go through the `git` CLI against the real `github.com` remote; there is no checkout command in `cfwf`. Run each step as its own command:
+Check a PR out with git, because commit, push and fetch always go through the `git` CLI against the real `github.com` remote. Run each step as its own command:
 
 - For a review that makes no commits: `git -C <dir> fetch origin pull/<number>/head`, then `git -C <dir> switch --detach FETCH_HEAD`, run back to back so that no other fetch rewrites `FETCH_HEAD` in between. This checks out the PR head with no local branch, so nothing is left to delete, and it works for a fork PR too. When the review is done, switch back to the branch being worked on (`git -C <dir> switch <branch>`), so that later commits are not made on a detached HEAD.
 - To add commits to a same-repository PR: `git -C <dir> fetch origin <headRefName>`, then `git -C <dir> switch <headRefName>`, using the head branch name shown on the PR, then `git -C <dir> merge --ff-only origin/<headRefName>`. The merge is needed because a local branch that already exists can be behind the PR's current head; if it cannot fast-forward, stop and report it. Never create a separate review branch, because the head branch already exists and a copy only leaves a branch that later needs cleaning up.

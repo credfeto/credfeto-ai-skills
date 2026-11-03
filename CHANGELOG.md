@@ -21,6 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Align lens report examples with source and drop unsourced 1-indexed line wording from the six Code Reviewer lens agents
 - Align ci-monitor all-pass hand-back with agent-roles sources
 - credfeto-pr-review-loop skill: state that the fix route also drops the Committer before Code Reviewer
+- git-commit skill separates dead-code removal commits and uses build-dotnet MCP tools for the build and test gate; git-branch skill no longer carries an unsourced cfwf checkout claim; registry lists code-quality.instructions.md for git-branch and git-rebase
 ### Changed
 - Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill
@@ -79,6 +80,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-repo-auditor agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
 - credfeto-rebase-agent agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
 - credfeto-ci-debugger agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
+- changelog skill now covers linting CHANGELOG.md with the changelog_lint MCP tool, falling back to dotnet changelog --lint
+- skill registry lists github-cli.instructions.md as a source of the long-running-commands skill
 ### Deprecated
 ### Removed
 ### Deployment Changes

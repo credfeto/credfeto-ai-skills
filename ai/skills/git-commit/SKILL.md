@@ -9,7 +9,7 @@ Follow every step below, in order, for every commit.
 
 ## 1. Build and Test Verification (MANDATORY)
 
-Write unit tests before every commit; every new behaviour must have corresponding tests. Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
+Write unit tests before every commit; every new behaviour must have corresponding tests. Build must pass and all tests must pass before committing or pushing. In a .NET repository, run them through the `build-dotnet` MCP tools when the server lists them. If they fail and cannot be resolved, stop and ask.
 
 ### Fixing pre-commit failures (MANDATORY)
 
@@ -40,7 +40,8 @@ Known hook incompatibility: for `dotenv-linter`, use `entry: dotenv-linter check
 - Never amend an existing commit; always create a new one.
   - **Exception:** for a commit that has not yet been pushed to `origin`, the commit message may be amended (e.g. to fix wording or apply the Commit Message Format below). The set of files in the commit and their content must never be changed by such an amend, only the message.
 - One logical change per commit; do not batch unrelated changes. Each change is made, tested and committed before the next starts.
-- Refactoring, dead code removal and incidental file cleanup are each committed separately from feature/fix changes; tests must pass after every such commit. Dead code removal is one method or function per commit, and cleanup of several distinct fix types in a file is one commit per fix type, per file.
+- Refactoring and incidental file cleanup are each committed separately from feature/fix changes; tests must pass after every such commit. Cleanup of several distinct fix types in a file is one commit per fix type, per file.
+- Dead code removal is a separate commit from test changes, made after running tests on the entire handler or app, with one method or function per commit. Shared code is removed only after the entire codebase has 100% coverage, and each removal is its own commit.
 - Commit from a working tree that holds exactly one change. Never split a tree holding several changes into commits by file or by hunk; hand it back to the Orchestrator instead.
 - Do not run `pre-commit-check` separately before a commit: `git commit` runs the same hooks automatically, so a separate run only repeats work the commit does anyway. When a commit fails on a hook, fix the cause and retry the commit.
 - **Never bypass hooks or formatters.** If they fail, stop and report the failure.

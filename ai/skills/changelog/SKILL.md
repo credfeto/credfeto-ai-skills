@@ -40,6 +40,10 @@ dotnet changelog --help
 
 Valid types: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, `Deployment Changes`
 
+## Linting
+
+To lint `CHANGELOG.md`, use the `changelog_lint` tool of the `build-dotnet` MCP server whenever the server lists it. Use the raw command `dotnet changelog --lint` only when the server shows no such tool (the server is not connected, or it does not list that tool). Never run the same lint both ways.
+
 ## Repository Requirements
 
 - `CHANGELOG.md` must be listed in `.markdownlintignore` at the repo root (create the file if absent).
