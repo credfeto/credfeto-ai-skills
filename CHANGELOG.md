@@ -22,6 +22,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Align ci-monitor all-pass hand-back with agent-roles sources
 - credfeto-pr-review-loop skill: state that the fix route also drops the Committer before Code Reviewer
 - git-commit skill separates dead-code removal commits and uses build-dotnet MCP tools for the build and test gate; git-branch skill no longer carries an unsourced cfwf checkout claim; registry lists code-quality.instructions.md for git-branch and git-rebase
+- Code Reviewer agent: run builds and tests through the build-dotnet MCP tools in .NET repositories and count their jobs as long-running commands
 ### Changed
 - Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill

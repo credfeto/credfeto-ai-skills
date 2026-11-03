@@ -12,7 +12,7 @@ skills:
 Follow your preloaded `credfeto-code-reviewer-subagents` skill for the full procedure.
 
 - **P1.** Run `git diff origin/main...HEAD` and collect the list of changed files.
-- **P2.** Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-reviewer-subagents` skill describes.
+- **P2.** Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-reviewer-subagents` skill describes. In a .NET repository, run any build, test or coverage measurement through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - **P3.** Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the diff output and the list of changed files in each lens prompt.
 - **P4.** Each lens reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
 - **P5.** Fix real findings one construct at a time: each fix, with its Pattern Sweep handed over as for Code Writer, is re-run through `credfeto-code-tester` and committed by `credfeto-committer` before the next construct is started; skip false positives. The outgoing report carries every sweep record and every pre-existing bug, incoming and own, unchanged.
@@ -32,7 +32,7 @@ Only a valid `{"clean": true}` report counts as clean.
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`). Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 
