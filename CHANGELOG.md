@@ -20,6 +20,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled code-writer and dependency-updater skills to say a long-running command's completion notification, and removed an unsourced parenthetical from the ci-debugger skill
 - Align lens report examples with source and drop unsourced 1-indexed line wording from the six Code Reviewer lens agents
 - Align ci-monitor all-pass hand-back with agent-roles sources
+- credfeto-pr-review-loop skill: state that the fix route also drops the Committer before Code Reviewer
 ### Changed
 - Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill
@@ -53,6 +54,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code Fixer skill now covers running /simplify and the post-convergence Pattern Sweep in the AI review loop simplify phase
 - Skill registry lists task-workflow.instructions.md as a source of the npm-packages skill
 - Skill registry lists github-cli.instructions.md as a source of the dotnet-analyzer-conflicts skill
+- Reconcile credfeto-shell-scripts skill with its sources by removing an unsourced ad-hoc command rule
+- Reconciled the claude-hooks skill against its sources, removing wording that has no source
 ### Deprecated
 ### Removed
 ### Deployment Changes

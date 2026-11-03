@@ -11,7 +11,7 @@ The Orchestrator runs each review and judges convergence and thrash, but never i
 
 ## The Fix Route
 
-Every fix the loop needs runs: Code Fixer (or Code Writer, when the step names it) → Code Tester → Changelog (correction) → Committer → PR Submitter → CI Monitor. It drops the Pre-Work Baseline Check, because that check already ran when work on the PR began, and Code Reviewer, because the loop's next phase or round reviews the change anyway. Changelog (correction) runs against the resulting diff, and Committer commits `CHANGELOG.md` as a separate commit whenever Changelog produced a correction.
+Every fix the loop needs runs: Code Fixer (or Code Writer, when the step names it) → Code Tester → Changelog (correction) → Committer → PR Submitter → CI Monitor. It drops the Pre-Work Baseline Check, because that check already ran when work on the PR began, the Committer before Code Reviewer, because the single Committer after Changelog (correction) commits the change, and Code Reviewer, because the loop's next phase or round reviews the change anyway. Changelog (correction) runs against the resulting diff, and Committer commits `CHANGELOG.md` as a separate commit whenever Changelog produced a correction.
 
 Each Code Writer or Code Fixer task carries exactly one change (one finding, one construct, or one approved request), and that change goes through Code Tester and Committer before the next change is started, because a commit made from a tree holding several changes cannot be reviewed, reverted or traced back to its finding on its own.
 

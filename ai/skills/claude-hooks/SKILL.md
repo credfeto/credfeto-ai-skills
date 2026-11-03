@@ -76,7 +76,7 @@ that can be got round no longer enforces anything. Decide which of two cases app
 
   Instead, stop that operation and report the blocked command and the hook's message, both
   verbatim, to the calling role, or to the Orchestrator if there is no calling role, so the human
-  can decide whether the hook should change. The report is passed up the chain unchanged.
+  can decide whether the hook should change. The report is passed up the chain.
 
 In both cases, retrying the same operation in a form the hook accepts is fine: literal paths instead
 of variables, `git -C <dir>` instead of `cd && git`, `run_in_background: true` on the same call. An
