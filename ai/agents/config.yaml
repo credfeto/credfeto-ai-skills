@@ -37,7 +37,21 @@ coding-researcher:
 code-writer:
   name: "Code Writer"
   model: opus
-  tools: [Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*"]
+  tools:
+    - Read
+    - Write
+    - Edit
+    - Grep
+    - Glob
+    - Bash
+    - Agent
+    - Skill
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
+    - SendMessage
+    - "mcp__build-dotnet__*"
+    - "mcp__git__*"
+    - "mcp__kb__*"
   skills:
     - credfeto-code-writer
     - credfeto-code-style
@@ -53,7 +67,22 @@ code-tester:
 code-reviewer:
   name: "Code Reviewer"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, "mcp__rider__*", "mcp__webstorm__*", "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*"]
+  tools:
+    - Bash
+    - Agent
+    - Read
+    - Write
+    - Edit
+    - Grep
+    - Glob
+    - Skill
+    - SendMessage
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
+    - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__git__*"
+    - "mcp__kb__*"
   skills:
     - credfeto-code-reviewer-subagents
 
@@ -100,14 +129,42 @@ code-reviewer-compliance:
 repo-auditor:
   name: "Repo Auditor"
   model: opus
-  tools: [Bash, Agent, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*"]
+  tools:
+    - Bash
+    - Agent
+    - Read
+    - Grep
+    - Glob
+    - Skill
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
+    - SendMessage
+    - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__git__*"
+    - "mcp__kb__*"
   skills:
     - credfeto-repo-auditor
 
 code-fixer:
   name: "Code Fixer"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*"]
+  tools:
+    - Bash
+    - Agent
+    - Read
+    - Write
+    - Edit
+    - Grep
+    - Glob
+    - Skill
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
+    - SendMessage
+    - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__git__*"
+    - "mcp__kb__*"
   skills:
     - credfeto-code-fixer
 
@@ -121,7 +178,22 @@ rebase-agent:
 ci-debugger:
   name: "CI Debugger"
   model: opus
-  tools: [Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", SendMessage, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*"]
+  tools:
+    - Bash
+    - Agent
+    - Read
+    - Write
+    - Edit
+    - Grep
+    - Glob
+    - Skill
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
+    - SendMessage
+    - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__git__*"
+    - "mcp__kb__*"
   skills:
     - credfeto-ci-debugger
 
