@@ -86,6 +86,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile credfeto-code-writer skill long-running command wording with agent-roles instructions
 - Agent routing skill now states that the Orchestrator re-runs the hand-off command to enable auto-merge once the waited-for checks pass
 - Agents: CI Monitor now lists build-dotnet MCP jobs as long-running commands
+- SDK - Updated DotNet SDK to 11.0.100-rc.3.26522.148
 ### Deprecated
 ### Removed
 ### Deployment Changes
