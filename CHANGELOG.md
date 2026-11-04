@@ -83,6 +83,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-ci-debugger agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
 - changelog skill now covers linting CHANGELOG.md with the changelog_lint MCP tool, falling back to dotnet changelog --lint
 - skill registry lists github-cli.instructions.md as a source of the long-running-commands skill
+- Reconcile credfeto-code-writer skill long-running command wording with agent-roles instructions
+- Agent routing skill now states that the Orchestrator re-runs the hand-off command to enable auto-merge once the waited-for checks pass
 ### Deprecated
 ### Removed
 ### Deployment Changes
