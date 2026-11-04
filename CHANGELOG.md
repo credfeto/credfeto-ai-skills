@@ -11,6 +11,18 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+### Fixed
+### Changed
+### Deprecated
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+
+## [0.0.7] - 2026-11-04
+### Added
 - Agents: grant mcp__cfwf__* to the GitHub-facing agents, mcp__build-dotnet__* to the build and test agents, a placeholder mcp__git__* to the agents that use git and a placeholder mcp__kb__* to the working agents (to be revisited when the full MCP servers ship)
 - Reconcile run fails if any skill or agent still says an operation is not available yet when the instruction files no longer do, so a partial reconciliation is visible
 - Added the `--system` option to `./install`, `ai/skills/install` and `ai/agents/install` so skills and agents can be installed into the managed Claude Code folder (`/etc/claude-code/.claude`) for every user on the machine, using `sudo` where needed
@@ -87,13 +99,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Agent routing skill now states that the Orchestrator re-runs the hand-off command to enable auto-merge once the waited-for checks pass
 - Agents: CI Monitor now lists build-dotnet MCP jobs as long-running commands
 - SDK - Updated DotNet SDK to 11.0.100-rc.3.26522.148
-### Deprecated
-### Removed
-### Deployment Changes
-
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 
 ## [0.0.6] - 2026-10-26
 ### Security
