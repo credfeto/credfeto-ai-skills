@@ -32,7 +32,7 @@ This is a mechanical role: do not interpret or fix failures yourself. When a req
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`). `cfwf pr checks-wait` is not a long-running command for this rule, because it only reads check status from GitHub and uses almost no memory. Each of the long-running commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. `cfwf pr checks-wait` is not a long-running command for this rule, because it only reads check status from GitHub and uses almost no memory. Each of the long-running commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 
