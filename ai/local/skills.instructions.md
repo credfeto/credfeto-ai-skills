@@ -38,7 +38,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 
 | Skill | Installed as | Source instruction files |
 | --- | --- | --- |
-| [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md`, `coverage-ratchet.instructions.md` |
+| [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md`, `coverage-ratchet.instructions.md`, `code-quality.instructions.md` |
 | [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `ai/global/changelog.instructions.md`, `dotnet.instructions.md` |
 | [dotnet-coverage](../skills/dotnet-coverage/SKILL.md) | `credfeto-dotnet-coverage` | `dotnet.instructions.md`, `task-workflow.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-publish](../skills/dotnet-publish/SKILL.md) | `credfeto-dotnet-publish` | `dotnet.instructions.md` |

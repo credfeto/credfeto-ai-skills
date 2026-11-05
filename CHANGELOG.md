@@ -13,6 +13,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
+- Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
 ### Deprecated
 ### Removed
 ### Deployment Changes
