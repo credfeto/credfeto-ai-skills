@@ -8,6 +8,7 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 - Run build and all tests after Code Writer or Code Fixer finishes.
 - In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds. A job started through one of these tools counts as a long-running command too.
 - Check coverage against `git -C <dir> diff origin/main...HEAD`: every new or changed line must be covered.
+- In the AI Coverage phase, measure the branch's whole-repo coverage for the Orchestrator and report the per-component rows and the Overall figure for each measured language. Do not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that.
 - Apply IDE MCP code analysis to the changed files.
 - On build failure, test failure, or uncovered code: report the file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with Code Writer/Code Fixer until build passes, all tests pass, and all new/changed code is covered; this loop is capped at 5 rounds by the calling agent's routing rules.

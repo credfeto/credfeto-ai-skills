@@ -12,9 +12,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
+- Coverage ratchet skill: Code Tester measures coverage, Orchestrator only compares and decides
+- Code tester skill now reports whole-repo per-language coverage in the AI Coverage phase without judging the gate
+- GitHub issue skill: add the live-chat answer rule that clears a PR question Blocked label
+- Skill registry lists task-workflow.instructions.md as a source of the coverage-ratchet skill
 ### Deprecated
 ### Removed
 ### Deployment Changes

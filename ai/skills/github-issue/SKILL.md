@@ -187,9 +187,15 @@ When asking a question in an issue or PR comment and waiting for an answer befor
 - **P1.** Add the `Blocked` label to the PR or issue immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf issue block --repo <owner/repo> --issue <number> --body-file <file|->` for an issue, `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->` for a PR.
 - **P2.** Do not continue working on the item until the label is removed.
 - **P3.** Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`.
-- **P4.** Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost.
+- **P4.** Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost. Exceptions (each waives only the human-clears-`Blocked` requirement, never the mirror comment): plan-approval `Blocked` on an issue in an interactive session, and a PR's question `Blocked` answered in live chat in an interactive session, see P6.
 - **P5.** Whenever `Blocked` is added, the accompanying comment (or, for a new issue, its body) must name the specific instruction that requires the stop, as a link to its section; for an issue held under AI-Initiated Issues that instruction is AI-Initiated Issues itself. A judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction; if no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
-- **P6.** Wherever the human is still the one who has to act (an approval, an answer, a manual step), say so once, plainly, at the top of the message, not only at the end of each status update.
+- **P6.** **A live-chat answer clears a PR's question `Blocked` in an interactive session.** When the human answers in live chat every open question that caused a PR's `Blocked`, do not wait for them to remove the label:
+  - Post the mirror comment on the PR quoting the answer, as in P4.
+  - Re-read the PR's live state (labels, comments, checks) and confirm no other open question, failed required check, environment-block marker (`<!-- orchestrator:env-block`) or round-cap `Blocked` remains; otherwise leave `Blocked` and tell the human what is still open.
+  - Remove the label with `cfwf label remove --repo <owner/repo> --pr <number> --label Blocked`, then carry on straight away. It removes `Blocked` only when the agent added it last; if it exits 8 (a human added it), leave it and tell the human it is theirs to remove.
+  - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
+  - An unattended run never applies this; `Blocked` there still waits for the human.
+- **P7.** Wherever the human is still the one who has to act (an approval, an answer, a manual step), say so once, plainly, at the top of the message, not only at the end of each status update.
 
 ## Trusted Commenters
 

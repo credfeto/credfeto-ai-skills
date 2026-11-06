@@ -47,7 +47,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [dotnet-dead-framework-guards](../skills/dotnet-dead-framework-guards/SKILL.md) | `credfeto-dotnet-dead-framework-guards` | `dotnet.instructions.md` |
 | [dotnet-nuget-vulnerability-suppression](../skills/dotnet-nuget-vulnerability-suppression/SKILL.md) | `credfeto-dotnet-nuget-vulnerability-suppression` | `dotnet.instructions.md` |
 | [dotnet-exception-generation](../skills/dotnet-exception-generation/SKILL.md) | `credfeto-dotnet-exception-generation` | `dotnet.instructions.md`, `dotnet-owned-packages.instructions.md` |
-| [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md`, `dotnet.instructions.md`, `agent-roles.instructions.md` |
+| [coverage-ratchet](../skills/coverage-ratchet/SKILL.md) | `credfeto-coverage-ratchet` | `coverage-ratchet.instructions.md`, `dotnet.instructions.md`, `agent-roles.instructions.md`, `task-workflow.instructions.md` |
 | [git-commit](../skills/git-commit/SKILL.md) | `credfeto-git-commit` | `git.instructions.md`, `git-commits.instructions.md`, `git.examples.md`, `language.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md`, `code-quality.instructions.md` |
 | [git-branch](../skills/git-branch/SKILL.md) | `credfeto-git-branch` | `git.instructions.md`, `git-rebasing.instructions.md`, `task-workflow.instructions.md`, `agent-roles.instructions.md`, `code-quality.instructions.md` |
 | [git-rebase](../skills/git-rebase/SKILL.md) | `credfeto-git-rebase` | `git-rebasing.instructions.md`, `agent-roles.instructions.md`, `code-quality.instructions.md` |
