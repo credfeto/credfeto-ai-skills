@@ -20,6 +20,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code tester skill now reports whole-repo per-language coverage in the AI Coverage phase without judging the gate
 - GitHub issue skill: add the live-chat answer rule that clears a PR question Blocked label
 - Skill registry lists task-workflow.instructions.md as a source of the coverage-ratchet skill
+- Code Tester agent now reports whole-repository per-language coverage in the AI Coverage phase, matching its role definition
+- Code Reviewer Compliance agent no longer cites a repo-relative path for the documentation instructions
 ### Deprecated
 ### Removed
 ### Deployment Changes
