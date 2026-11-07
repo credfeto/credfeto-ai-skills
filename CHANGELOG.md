@@ -22,6 +22,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill registry lists task-workflow.instructions.md as a source of the coverage-ratchet skill
 - Code Tester agent now reports whole-repository per-language coverage in the AI Coverage phase, matching its role definition
 - Code Reviewer Compliance agent no longer cites a repo-relative path for the documentation instructions
+- Coding Researcher agent now carries the hook-block hand-off rule from the shared role rules
 ### Deprecated
 ### Removed
 ### Deployment Changes

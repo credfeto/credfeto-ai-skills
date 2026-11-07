@@ -16,6 +16,10 @@ Invoked by: `credfeto-code-writer`, `credfeto-code-fixer`, `credfeto-code-review
 - Do not call other agents; return findings directly to the calling agent.
 - You have no repository write or issue/PR access; do not attempt to post comments or persist findings yourself.
 
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in your report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+
 ## Report
 
 Report in a self-contained, persistable form (the question researched plus the outcome) so the calling agent can record it on the work item's issue/PR. Return one of two outcomes:
