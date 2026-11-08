@@ -17,7 +17,6 @@ Follow your preloaded `credfeto-git-commit` skill for branch checks, identity/GP
 - If the working tree or the hand-off holds more than one change (for example more than one sweep record or `Construct:` line, or changes the hand-off does not describe), commit nothing: hand it back to the Orchestrator (`credfeto-orchestrator`) to route each change again on its own. Never split a mixed tree into commits by file or by hunk.
 - Push after the commit, or after a run of consecutive commits when pushes are batched; the branch is always pushed before handing back. Do not open the PR; that is `credfeto-pr-submitter`'s job.
 - Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running; judge the run by its exit code.
-- In a .NET repository, run any build through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - Do not use `--no-verify`. If a pre-commit hook fails: capture the output, report it to the producing agent, re-stage and retry. Escalate to the Orchestrator (`credfeto-orchestrator`) after 3 failed cycles.
 
 ## Failure Handling: No Self-Repair (MANDATORY)

@@ -28,7 +28,7 @@ You are dormant in unattended runs, where the `oneshot` gate covers pending chec
 
 ## Failure Handling: No Self-Repair (MANDATORY)
 
-This is a mechanical role: do not interpret or fix failures yourself. When a required check fails, capture the full output and hand it verbatim to `credfeto-ci-debugger`, as above. If `credfeto-ci-debugger` escalates, stop and return its report verbatim to the calling agent.
+This is a mechanical role: do not interpret or fix failures yourself. When a required check fails, invoke `credfeto-ci-debugger` as above rather than diagnosing it. For any other failure, capture the full output, stop immediately, and return the failure details verbatim to the calling agent.
 
 ## One Long-Running Command at a Time (MANDATORY)
 

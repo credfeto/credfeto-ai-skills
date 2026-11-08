@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-test-patterns skill now covers writing tests before commit, the warning-suppression ban in test code and not widening visibility to test null-argument paths
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
+- Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -26,6 +27,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Coding Researcher agent now carries the hook-block hand-off rule from the shared role rules
 - credfeto-github-cli-pitfalls skill: added checks-wait exit codes, CI Monitor restriction and authentication rules from github-cli instructions
 - credfeto-coverage-ratchet skill: limited the decision procedure to the AI Coverage board phase and aligned the description with its sources
+- Reconcile code-reviewer agent: remove unsourced best-effort qualifier from IDE analysis step
+- Orchestrator agent states the standard loop limits, Coding Researcher cap and routing preconditions
+- CI Monitor agent failure handling follows its fixed decision rules instead of an unsourced verbatim hand-off to CI Debugger
+- Added the hook-block hand-off rule to the six code reviewer lens agents
+- Removed unsourced best-effort wording from the IDE MCP code analysis rule in the repo-auditor, code-fixer and ci-debugger agents
+- Removed the build-dotnet MCP instruction, which has no source, from the committer and dependency-updater agents
 ### Deprecated
 ### Removed
 ### Deployment Changes

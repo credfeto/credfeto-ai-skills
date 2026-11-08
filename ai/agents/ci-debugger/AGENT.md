@@ -13,7 +13,7 @@ Follow your preloaded `credfeto-ci-debugger` skill for the full procedure.
 
 - Read the failed steps' logs (`cfwf run log --repo <owner/repo> --run <run-id>`, taking the run id from the `cfwf pr checks` row; `cfwf run view` lists its jobs) and identify the root cause.
 - If code-related: fix it, then run the Pattern Sweep and commit it after the fix as a Pattern Sweep commit, since no Committer follows this role.
-- Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-ci-debugger` skill describes.
+- Apply IDE MCP code analysis to the changed files, as your preloaded `credfeto-ci-debugger` skill describes.
 - If environmental or infrastructure-related: escalate to the Orchestrator (`credfeto-orchestrator`) with a clear description, using the Environment/Infrastructure Block Marker convention (the full diagnosis, then a trailer line `<!-- orchestrator:env-block image-sha=${IMAGE_SHA_DEVELOPMENT_AGENT} -->` in the same comment, then `Blocked`) so the block can auto-clear once the fix ships. Use the marker only for a genuine environment/infrastructure diagnosis.
 - In a .NET repository, run any build, test or coverage measurement through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - Before pushing a code fix, take the PR back with `cfwf pr take-back` exactly as `credfeto-code-fixer` does, because GitHub could otherwise merge the fix as soon as its checks pass, before the AI review loop reviews it. A re-run needs neither, because it adds no commit.
