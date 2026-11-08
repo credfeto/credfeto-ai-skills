@@ -35,6 +35,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Removed the build-dotnet MCP instruction, which has no source, from the committer and dependency-updater agents
 ### Deprecated
 ### Removed
+- Removed unused .NET global.json and empty template solution (src/global.json, src/Credfeto.Template.slnx and its DotSettings)
 ### Deployment Changes
 
 <!--
