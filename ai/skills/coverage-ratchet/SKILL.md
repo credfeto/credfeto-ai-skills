@@ -1,6 +1,6 @@
 ---
 name: credfeto-coverage-ratchet
-description: Run the whole-repo, per-language coverage ratchet that gates a branch's overall line coverage against the committed COVERAGE.md baseline on origin/main. Use when acting as Orchestrator running the AI Coverage board phase, as Code Tester measuring coverage for it, or whenever asked to check, update, or bootstrap COVERAGE.md, verify coverage has not regressed against main, or run the coverage gate before merging.
+description: Run the whole-repo, per-language coverage ratchet that gates a branch's overall line coverage against the committed COVERAGE.md baseline on origin/main. Use when acting as Orchestrator running the AI Coverage board phase, as Code Tester measuring coverage for it, or when creating, bootstrapping or updating COVERAGE.md.
 ---
 
 # Whole-Repo Coverage Ratchet
@@ -184,6 +184,8 @@ Only .NET, Node, and Python source/test code can move the ratchet's numbers. If 
 This is an optimisation, not the only safety net: even without this skip, a branch confined to these categories that reaches the decision procedure below cannot fail it, since nothing it changed can move any language's coverage, and if `origin/main` has no `COVERAGE.md` yet the bootstrap rule above already prevents a block. A repo-specific orchestrator (e.g. a `dependencies`-labelled PR short-circuit) may also exempt these branches even earlier, before the workflow board phases run at all; that is complementary, not a replacement for this rule.
 
 ## Decision Procedure (MANDATORY)
+
+Run this only when the Workflow board is at **AI Coverage**.
 
 1. If the branch is non-code-only (above), skip without measuring anything and without reading or writing `COVERAGE.md`: post the one-line status comment `Non-code change: coverage ratchet skipped`, move the board to **Human Review**, and stop. Do not go to step 5.
 2. `git -C <repodir> fetch origin main` (always fresh; do not rely on a fetch from earlier in the session). Read `origin/main`'s `COVERAGE.md` without checking it out: `git -C <repodir> show origin/main:COVERAGE.md`. If it does not exist, this is the bootstrap case: treat the gate as passed and go to step 5.

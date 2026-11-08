@@ -15,7 +15,17 @@ Always pass `--repo <owner>/<repo>` explicitly rather than relying on the curren
 - **P2.** Use the `cfwf` command line for anything it supports, for reads and writes. Run `cfwf help` once per session to see what it covers.
 - There is no other route to GitHub for agents. Agents never call the GitHub REST or GraphQL API directly.
 - Never hand-assemble a complex or multi-step operation from repeated commands, such as a wait loop around `cfwf pr checks`. If `cfwf` has no command for it, raise an issue on `credfeto/credfeto-orchestrator` titled `tool(cfwf): <What is needed>` (after searching for an existing one with `cfwf issue search --repo credfeto/credfeto-orchestrator --text "cfwf <keywords>" --state all`), and until it is added do one safe, read-only check of the current state and report it instead.
-- To wait for a PR's checks, use `cfwf pr checks-wait --repo <owner/repo> --pr <n> [--timeout-minutes <m>]` with `run_in_background: true`, and judge it by its exit code, never its printed text.
+- To wait for a PR's checks, which only the CI Monitor role does, use `cfwf pr checks-wait --repo <owner/repo> --pr <n> [--timeout-minutes <m>]` with `run_in_background: true` and wait for its completion notification. It judges the PR's required checks (every check when the base branch requires none), re-reading them every 30 seconds until they settle or its time limit (default 30 minutes, at most 120) is reached. It only reads, so it never needs stopping. Judge it by its exit code, never its printed text:
+  - **0** every required check passed, confirmed on two reads of the same head.
+  - **3** a required check failed (a cancelled one counts as failed).
+  - **4** the time limit was reached with required checks still pending.
+  - **5** the time limit was reached with no checks reported at all.
+  - **6** an API or network error, or the PR was not found: retry later; never treat it as a failed check.
+  - **1** a required client tool is missing; **2** a usage error: fix the command or report it.
+
+## Authentication
+
+`cfwf auth status` prints the authenticated login, the host and the client version, never a token. Only use `cfwf` to manage issues and PRs if it succeeds. Never attempt to log in or manipulate credentials yourself; if auth is broken, stop and report it.
 
 ## One `cfwf` Command per Bash Call
 

@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- dotnet-test-patterns skill now covers writing tests before commit, the warning-suppression ban in test code and not widening visibility to test null-argument paths
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 ### Changed
@@ -23,6 +24,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code Tester agent now reports whole-repository per-language coverage in the AI Coverage phase, matching its role definition
 - Code Reviewer Compliance agent no longer cites a repo-relative path for the documentation instructions
 - Coding Researcher agent now carries the hook-block hand-off rule from the shared role rules
+- credfeto-github-cli-pitfalls skill: added checks-wait exit codes, CI Monitor restriction and authentication rules from github-cli instructions
+- credfeto-coverage-ratchet skill: limited the decision procedure to the AI Coverage board phase and aligned the description with its sources
 ### Deprecated
 ### Removed
 ### Deployment Changes

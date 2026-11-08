@@ -228,6 +228,12 @@ When a mock setup expression (NSubstitute, Moq, or equivalent) is used in more t
 
 Prefer parameterised tests over duplicated test methods: each behavioural variant is a data point, not a separate method. Use xUnit `[Theory]`/`[InlineData]`.
 
+## Test Scope and Warnings
+
+- Write unit tests before every commit; every new behaviour must have corresponding tests.
+- Test projects are not exempt from the warning-suppression rules: never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>` or `[SuppressMessage]` in test code without explicit written permission from the repo owner.
+- Do not widen a type or member's visibility (`private` to `internal`, `internal` to `public`) solely to make a null-argument path testable. If the only reason to reach a member from a test is to pass `null` (typically via the null-forgiving operator `!`) against a non-nullable parameter, that call is not a real scenario any compiler-checked caller can produce, so there is nothing to test.
+
 ## Test Quality
 
 - Tests must meet the same code quality standards as production code.
