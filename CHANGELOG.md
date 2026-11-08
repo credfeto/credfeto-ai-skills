@@ -54,6 +54,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
 - Removed unsourced rebase-from-main file preference sentence from the git-branch skill
+- Removed unused .NET global.json and empty template solution (src/global.json, src/Credfeto.Template.slnx and its DotSettings)
 ### Deployment Changes
 
 <!--
