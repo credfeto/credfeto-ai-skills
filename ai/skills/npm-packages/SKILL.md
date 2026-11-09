@@ -1,6 +1,6 @@
 ---
 name: credfeto-npm-packages
-description: Pin npm/JavaScript/TypeScript package versions exactly and resolve version conflicts safely. Use whenever adding, updating, or reviewing entries in package.json, or resolving package-lock.json conflicts during a merge or rebase.
+description: Manage npm/JavaScript/TypeScript packages safely: require human approval after a security review for new third-party packages, pin package versions exactly, install with npm ci --ignore-scripts, run npm commands in the permitted plain form, and resolve version conflicts during a merge or rebase. Use whenever adding, updating, installing, or reviewing npm packages or entries in package.json, running npm commands, or resolving package-lock.json conflicts during a merge or rebase.
 ---
 
 # NPM Package Version Management

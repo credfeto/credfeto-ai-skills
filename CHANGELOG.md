@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
+- Restored the rebase-from-main merge rule (sourced from .ai-instructions) in the git-rebase and git-branch skills
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -33,8 +34,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added the hook-block hand-off rule to the six code reviewer lens agents
 - Removed unsourced best-effort wording from the IDE MCP code analysis rule in the repo-auditor, code-fixer and ci-debugger agents
 - Removed the build-dotnet MCP instruction, which has no source, from the committer and dependency-updater agents
+- Reconciled dotnet-owned-packages skill heading with its source instruction file
+- npm-packages skill description now covers package approval, installing and running npm commands
 ### Deprecated
 ### Removed
+- Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
+- Removed unsourced rebase-from-main file preference sentence from the git-branch skill
 ### Deployment Changes
 
 <!--

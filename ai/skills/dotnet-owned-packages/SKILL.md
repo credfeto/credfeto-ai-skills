@@ -5,7 +5,7 @@ description: Identify org-owned Credfeto.* and FunFair.* NuGet packages and read
 
 # Owned .NET Packages
 
-## Rule (MANDATORY)
+## Rule
 
 **Never decompile or reverse-engineer source code for packages listed here.** These packages are owned by the same organisation. Read the source directly from the linked GitHub repository instead.
 
