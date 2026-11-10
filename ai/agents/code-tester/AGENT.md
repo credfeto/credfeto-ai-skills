@@ -2,7 +2,7 @@
 name: credfeto-code-tester
 description: "Runs the full build and test suite after credfeto-code-writer or credfeto-code-fixer finishes, checks that every new or changed line against origin/main is covered, applies IDE code analysis, and reports failures or uncovered lines verbatim without modifying any code or tests. Use whenever implementation or fix work has just finished and needs verifying."
 model: haiku
-tools: "Bash, Read, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, mcp__build-dotnet__*, mcp__kb__*"
+tools: "Bash, Read, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, mcp__build-dotnet__*, mcp__kb__*, mcp__codegraph__*"
 skills:
   - credfeto-code-tester
   - credfeto-long-running-commands
