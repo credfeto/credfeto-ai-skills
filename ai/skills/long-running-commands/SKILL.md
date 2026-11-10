@@ -72,7 +72,7 @@ Both share one thing: the command **never ran**, so do not wait for it to finish
 
 A `dontAsk` permission denial refuses only the one command it names. The message says "Permission to use Bash", but its scope is that single call: the command text did not match an allow rule, so it escalated, and under `dontAsk` the escalation came back as a denial. Bash stays available, and the next call is judged on its own text.
 
-Never stop the session, report that "Bash is disabled", or treat the task as blocked because of a permission denial. It does not meet the bar for stopping because the environment is too broken to work in, because nothing in the environment changed; only that command's shape was refused. Instead:
+Never stop the session, report that "Bash is disabled", or treat the task as blocked because of a permission denial. It does not meet the environment-health stop bar, because nothing in the environment changed; only that command's shape was refused. Instead:
 
 - **P1.** Rewrite the command in its rule-compliant form and retry it at once, in the same turn. Each of these shapes escalates for the same reason as a search without its exclusions: the permission system cannot prove what the call will touch from its text alone.
   - `git -C <dir> <command>`, not `cd <dir>; git <command>` or `cd <dir> && git <command>`.

@@ -16,6 +16,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
 - Restored the rebase-from-main merge rule (sourced from .ai-instructions) in the git-rebase and git-branch skills
+- ci-debugger skill counts CI Debugger rounds per check since the PR opened, matching the agent roles instructions
+- Skills: pr-sync CI Debugger round count now counts comments since the PR opened and accepts the authenticated login fallback
+- Skills: github-issue ad-hoc prompt intake no longer applies to questions and drops the read-only close branch
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -36,6 +39,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Removed the build-dotnet MCP instruction, which has no source, from the committer and dependency-updater agents
 - Reconciled dotnet-owned-packages skill heading with its source instruction file
 - npm-packages skill description now covers package approval, installing and running npm commands
+- Pre-work health check skill now covers force-pushing a rebased branch and the rule to fix unexpected pre-commit failures rather than escalating
+- credfeto-pr-review-loop skill: accept the authenticated login as the bot login for the reviewed-record check when none is passed in
+- credfeto-long-running-commands skill: reworded the dontAsk denial stop-bar wording to match its source
+- Skill registry lists task-workflow.instructions.md as a source of the pr-review-loop skill
+- Skills: git-rebase now includes the force-pushing rules for a rebased branch (shared branch refusal, local equals remote check, --force-with-lease only)
+- Skills: git-branch now includes the force-pushing rules for a rebased branch (shared branch refusal, local equals remote check, --force-with-lease only)
+- Skill registry lists .ai-instructions as a source of the git-branch and git-rebase skills
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

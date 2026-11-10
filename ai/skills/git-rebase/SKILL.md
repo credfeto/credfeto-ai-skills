@@ -11,7 +11,7 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 1. **Fetch**: `git -C <repodir> fetch origin main`. Always fetch first, regardless of whether a rebase turns out to be needed.
 2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`. A non-zero count means `origin/main` has advanced and a rebase is needed.
-3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following the version-conflict-resolution algorithm below, then run the After Every Rebase check below.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following the version-conflict-resolution algorithm below and, when the branch has already been pushed, the Force-Pushing a Rebased Branch rules below, then run the After Every Rebase check below.
 
 A branch just created fresh from an up-to-date `main` does not need this; it starts current by construction.
 
@@ -26,6 +26,15 @@ A rebase pulls in unknown content from `origin/main` (other people's commits, pl
 3. Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs. If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch in their own commit.
 4. Only for an issue where pre-commit cannot possibly be made to pass (for example a required external tool is missing from the environment and cannot be installed, the cause is infrastructure outside the repo's control, or the only fix is a suppression, skip or exclusion that needs authorisation): comment on the issue/PR with the verbatim output and label it `Blocked`. Difficulty is not a reason to escalate.
 5. No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers.
+
+## Force-Pushing a Rebased Branch (MANDATORY)
+
+Rebasing a pushed branch rewrites its history, so pushing it needs a force-push. That is allowed only for a pure rebase that passes every check below, because a force-push to a shared branch, or over commits someone else pushed, destroys their work. This applies to every role that rebases a pushed branch, including the Rebase Agent.
+
+1. Before rebasing, refuse `main`, `master`, `develop`, `release/*` and any other shared branch: only a personal feature or topic branch may be rebased and force-pushed.
+2. Before rebasing, fetch the branch (`git -C <repodir> fetch origin <branch>`) and confirm that local HEAD equals remote HEAD: `git -C <repodir> rev-parse refs/heads/<branch>` must print the same SHA as `git -C <repodir> rev-parse refs/remotes/origin/<branch>`, because a difference means the local branch is not what was pushed, so the force-push would not be a pure rebase of the remote branch and could drop commits pushed from elsewhere.
+3. Push with `git -C <repodir> push --force-with-lease origin <branch>` only. Never use plain `--force` (or `-f`), because only the lease refuses to overwrite commits pushed since the fetch.
+4. If any check above fails, or the push is rejected, stop and ask the human, quoting the output verbatim. Do not retry the push and do not fall back to plain `--force`.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 
@@ -59,12 +68,12 @@ Only stop and ask when a conflict genuinely falls outside the algorithm, for exa
 
 When acting specifically as the dedicated Rebase Agent:
 
-- Rebase the named branch onto `origin/main`.
+- Rebase the named branch onto `origin/main`, only after the pre-rebase checks in Force-Pushing a Rebased Branch above pass: refuse `main`, `master`, `develop`, `release/*` and any other shared branch, and confirm `refs/heads/<branch>` equals `refs/remotes/origin/<branch>` after fetching. If either check fails, stop and ask; do not rebase.
 - `CHANGELOG.md` conflicts: keep the entries from both sides rather than picking one.
 - If the branch has an open PR, take it back before force-pushing with `cfwf pr take-back --repo <owner/repo> --pr <number> --body-file <file|->`, with a body saying why (the rebase about to be pushed), because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it. It turns auto-merge off first, then converts the PR to draft, moves the board to **Development** and posts the body as a comment. The order matters: converting to draft alone is not enough, because GitHub does not turn auto-merge off when a PR becomes a draft. Never do these steps separately.
 - If the version conflict resolution chosen per the algorithm above breaks the build, report the break to the Orchestrator instead of fixing it directly; fixing build breakage is not the Rebase Agent's job in that scoped role.
 - Any other conflict, including one that falls outside the deterministic algorithm above: report it verbatim to the Orchestrator; do not resolve it yourself.
-- Force-push with `--force-with-lease` only after all conflicts are resolved.
+- Force-push with `--force-with-lease` only, never plain `--force`, and only after all conflicts are resolved. If the push is rejected, stop and ask, with no retry and no fallback to plain `--force`.
 - When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in your hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
 - Never start a long-running command (such as a build or test run) while another one you started is still running; wait for the first command's completion notification before starting the next.
 - Do not run `pre-commit-check` or fix what it reports: that is the After Every Rebase check above, which the Orchestrator runs once this role returns, because this role is mechanical and must not interpret or fix failures.
