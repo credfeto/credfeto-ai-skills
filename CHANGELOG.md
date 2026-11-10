@@ -19,6 +19,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - ci-debugger skill counts CI Debugger rounds per check since the PR opened, matching the agent roles instructions
 - Skills: pr-sync CI Debugger round count now counts comments since the PR opened and accepts the authenticated login fallback
 - Skills: github-issue ad-hoc prompt intake no longer applies to questions and drops the read-only close branch
+- Orchestrator agent counts CI Debugger rounds per check since the PR opened rather than since auto-merge was last enabled
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -46,6 +47,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: git-rebase now includes the force-pushing rules for a rebased branch (shared branch refusal, local equals remote check, --force-with-lease only)
 - Skills: git-branch now includes the force-pushing rules for a rebased branch (shared branch refusal, local equals remote check, --force-with-lease only)
 - Skill registry lists .ai-instructions as a source of the git-branch and git-rebase skills
+- Rebase agent definition now includes the pre-rebase branch checks and the force-push rejection rule
+- CI debugger and CI monitor definitions now count CI Debugger rounds from when the PR opened
+- Committer and Dependency Updater agents now state the build-dotnet MCP rule for .NET repositories
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

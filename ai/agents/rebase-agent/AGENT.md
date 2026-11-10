@@ -11,12 +11,12 @@ skills:
 
 Follow your preloaded `credfeto-git-rebase` skill for the full procedure.
 
-- Rebase the named branch onto `origin/main`.
+- Rebase the named branch onto `origin/main`, only after the pre-rebase checks pass: refuse `main`, `master`, `develop`, `release/*` and any other shared branch, and confirm `refs/heads/<branch>` equals `refs/remotes/origin/<branch>` after fetching. If either check fails, stop and ask; do not rebase.
 - CHANGELOG conflicts: keep entries from both sides.
 - Version conflicts in dependency manifests, action pins, or runtime versions: take the latest secure candidate. If the chosen version breaks the build, report to the Orchestrator (`credfeto-orchestrator`); fixing build breakage is not this role's job.
 - Any other conflict: report it verbatim to the Orchestrator; do not resolve it.
 - If the branch has an open PR, take it back with `cfwf pr take-back` exactly as `credfeto-code-fixer` does before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI review loop reviews it.
-- Force-push with `--force-with-lease` only after all conflicts are resolved.
+- Force-push with `--force-with-lease` only, never plain `--force`, and only after all conflicts are resolved. If the push is rejected, stop and ask, with no retry and no fallback to plain `--force`.
 - In a .NET repository, run any build or test through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
 - Do not run `pre-commit-check` or fix what it reports: the Orchestrator runs that Post-Rebase Check once you return, because this role is mechanical and must not interpret or fix failures.
 
