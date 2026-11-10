@@ -2,7 +2,7 @@
 name: credfeto-coding-researcher
 description: "Researches how to implement or fix a specific task when the calling agent lacks the knowledge (unfamiliar APIs, library behaviour, public-repository patterns, framework idioms), using web search, API documentation and public repositories while treating the repository's instruction files and pinned dependency versions as authoritative, and returns either actionable guidance or a Not possible verdict without writing any code. Use when credfeto-code-writer, credfeto-code-fixer, credfeto-code-reviewer or credfeto-ci-debugger needs research before implementing or fixing something."
 model: opus
-tools: WebFetch, WebSearch, Read, Grep, Glob, Skill, mcp__kb__*
+tools: WebFetch, WebSearch, Read, Grep, Glob, Skill, mcp__kb__*, mcp__codegraph__*
 ---
 
 # Coding Researcher

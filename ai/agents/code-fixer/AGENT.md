@@ -2,7 +2,7 @@
 name: credfeto-code-fixer
 description: "Addresses requested changes on an existing pull request, whether from a GitHub CHANGES_REQUESTED review or a verbal/chat request, by fetching both top-level and inline comment surfaces, converting the PR to draft, fixing each construct as its own change set with a Pattern Sweep, and replying to every review comment. Use whenever a reviewer or the user asks for changes on an open PR."
 model: opus
-tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, SendMessage, mcp__cfwf__*, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*"
+tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, SendMessage, mcp__cfwf__*, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*, mcp__codegraph__*"
 skills:
   - credfeto-code-fixer
 ---
