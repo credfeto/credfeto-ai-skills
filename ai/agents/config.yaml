@@ -21,7 +21,7 @@ default:
 orchestrator:
   name: "Orchestrator"
   model: opus
-  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, "mcp__cfwf__*", "mcp__git__*", "mcp__kb__*"]
+  tools: [Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, "mcp__cfwf__*", "mcp__git__*", "mcp__kb__*", "mcp__codegraph__*"]
   skills:
     - credfeto-agent-routing
     - credfeto-issue-plan-approval
@@ -31,7 +31,7 @@ orchestrator:
 coding-researcher:
   name: "Coding Researcher"
   model: opus
-  tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill, "mcp__kb__*"]
+  tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill, "mcp__kb__*", "mcp__codegraph__*"]
   skills: []
 
 code-writer:
@@ -52,6 +52,7 @@ code-writer:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
+    - "mcp__codegraph__*"
   skills:
     - credfeto-code-writer
     - credfeto-code-style
@@ -59,7 +60,7 @@ code-writer:
 code-tester:
   name: "Code Tester"
   model: haiku
-  tools: [Bash, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", "mcp__build-dotnet__*", "mcp__kb__*"]
+  tools: [Bash, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", "mcp__build-dotnet__*", "mcp__kb__*", "mcp__codegraph__*"]
   skills:
     - credfeto-code-tester
     - credfeto-long-running-commands
@@ -83,46 +84,47 @@ code-reviewer:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
+    - "mcp__codegraph__*"
   skills:
     - credfeto-code-reviewer-subagents
 
 code-reviewer-reuse:
   name: "Code Reviewer: Reuse"
   model: opus
-  tools: [Read, Grep, Glob, Skill]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills: []
 
 code-reviewer-quality:
   name: "Code Reviewer: Quality"
   model: opus
-  tools: [Read, Grep, Glob, Skill]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-code-style
 
 code-reviewer-efficiency:
   name: "Code Reviewer: Efficiency"
   model: opus
-  tools: [Read, Grep, Glob, Skill]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills: []
 
 code-reviewer-correctness:
   name: "Code Reviewer: Correctness"
   model: fable
-  tools: [Read, Grep, Glob, Skill]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-error-handling
 
 code-reviewer-security:
   name: "Code Reviewer: Security"
   model: opus
-  tools: [Read, Grep, Glob, Skill]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-secure-coding
 
 code-reviewer-compliance:
   name: "Code Reviewer: Compliance"
   model: opus
-  tools: [Read, Grep, Glob, Skill]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-language-conventions
 
@@ -143,6 +145,7 @@ repo-auditor:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
+    - "mcp__codegraph__*"
   skills:
     - credfeto-repo-auditor
 
@@ -165,13 +168,14 @@ code-fixer:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
+    - "mcp__codegraph__*"
   skills:
     - credfeto-code-fixer
 
 rebase-agent:
   name: "Rebase Agent"
   model: sonnet
-  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*"]
+  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__codegraph__*"]
   skills:
     - credfeto-git-rebase
 
@@ -194,6 +198,7 @@ ci-debugger:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
+    - "mcp__codegraph__*"
   skills:
     - credfeto-ci-debugger
 
@@ -228,6 +233,6 @@ ci-monitor:
 dependency-updater:
   name: "Dependency Updater"
   model: opus
-  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*"]
+  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*", "mcp__codegraph__*"]
   skills:
     - credfeto-dependency-updater

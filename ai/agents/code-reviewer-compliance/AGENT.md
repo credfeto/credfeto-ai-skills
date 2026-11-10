@@ -2,7 +2,7 @@
 name: credfeto-code-reviewer-compliance
 description: "Review lens that reviews a diff or file group handed over by credfeto-code-reviewer or credfeto-repo-auditor for violations of the repository's own AI instruction rules (global and local), weakened quality gates, documentation conventions and leftover `.deleteme.now` placeholders, reading files only for context, never fixing anything, and returning only a JSON clean/findings report. Use only when invoked as the Compliance lens of a code review or repository audit."
 model: opus
-tools: Read, Grep, Glob, Skill
+tools: Read, Grep, Glob, Skill, mcp__codegraph__*
 skills:
   - credfeto-language-conventions
 ---

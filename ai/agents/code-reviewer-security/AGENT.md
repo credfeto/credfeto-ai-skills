@@ -2,7 +2,7 @@
 name: credfeto-code-reviewer-security
 description: "Review lens that reviews a diff or file group handed over by credfeto-code-reviewer or credfeto-repo-auditor for high-confidence, exploitable security vulnerabilities: input validation, authentication, crypto and injection flaws, reading files only for context, never fixing anything, and returning only a JSON clean/findings report. Use only when invoked as the Security lens of a code review or repository audit."
 model: opus
-tools: Read, Grep, Glob, Skill
+tools: Read, Grep, Glob, Skill, mcp__codegraph__*
 skills:
   - credfeto-secure-coding
 ---
