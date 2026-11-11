@@ -70,6 +70,8 @@ else
     TARGET_ROOT="${HOME}/.claude/skills"
 fi
 
+MANIFEST="${TARGET_ROOT}/.credfeto-ai-skills-skills"
+
 # .claude and the target folder only hold managed copies every user loads, so they are always widened.
 # Widening them on every run also repairs folders an interrupted earlier run left at root's umask.
 # An admin may have locked an existing /etc/claude-code down on purpose, so it is widened only if this run creates it.
@@ -85,6 +87,26 @@ run mkdir -p "${TARGET_ROOT}" || die "could not create ${TARGET_ROOT}"
 if [ -n "${SYSTEM}" ]; then
     make_world_readable a+rX "$@" || die "could not make $* world-readable"
 fi
+
+NEW_MANIFEST="${MANIFEST}.new"
+
+# sudo does not raise the privilege of a shell redirection, so the system manifest is built where this user can write.
+if [ -n "${SYSTEM}" ]; then
+    MANIFEST_DRAFT=$(mktemp) || die "could not create a temporary manifest"
+    trap 'rm -f "${MANIFEST_DRAFT}"' EXIT
+    trap 'exit 1' HUP INT TERM
+else
+    MANIFEST_DRAFT="${NEW_MANIFEST}"
+fi
+
+PREVIOUS_MANIFEST=""
+
+# A failed read must stop the run, or stale skills would be kept and then dropped from the new manifest.
+# The test runs through sudo because this user may not be able to see inside a locked-down managed root.
+if run test -f "${MANIFEST}"; then
+    PREVIOUS_MANIFEST=$(run cat "${MANIFEST}") || die "could not read ${MANIFEST}"
+fi
+: > "${MANIFEST_DRAFT}" || die "could not write ${MANIFEST_DRAFT}"
 
 INSTALLED=0
 
@@ -106,10 +128,27 @@ for skill_dir in "${SKILLS_SOURCE_DIR}"/*/; do
     run mkdir -p "${target_dir}" || die "could not create ${target_dir}"
     run cp -R "${skill_dir}." "${target_dir}/" || die "could not copy ${skill_name} to ${target_dir}"
     make_world_readable -R a+rX "${target_dir}" || die "could not make ${target_dir} world-readable"
+    printf '%s\n' "${skill_name}" >> "${MANIFEST_DRAFT}" || die "could not write ${MANIFEST_DRAFT}"
 
     INSTALLED=$((INSTALLED + 1))
 done
 
 [ "${INSTALLED}" -gt 0 ] || die "no skills found to install in ${SKILLS_SOURCE_DIR}"
+
+# Only skills this installer put there before are removed, so other credfeto-* skills are left alone.
+for previous_name in ${PREVIOUS_MANIFEST}; do
+    [ -f "${SKILLS_SOURCE_DIR}/${previous_name}/SKILL.md" ] && continue
+
+    info "Removing stale credfeto-${previous_name}: no longer in ${SKILLS_SOURCE_DIR}"
+    run rm -rf "${TARGET_ROOT}/credfeto-${previous_name}" || die "could not remove credfeto-${previous_name}"
+done
+
+if [ -n "${SYSTEM}" ]; then
+    run cp "${MANIFEST_DRAFT}" "${NEW_MANIFEST}" || die "could not write ${NEW_MANIFEST}"
+    make_world_readable a+r "${NEW_MANIFEST}" || die "could not make ${NEW_MANIFEST} world-readable"
+fi
+
+# Replaced only after a complete run, so a failed run keeps the previous record.
+run mv "${NEW_MANIFEST}" "${MANIFEST}" || die "could not update ${MANIFEST}"
 
 success "Installed ${INSTALLED} skill(s) to ${TARGET_ROOT}"

@@ -15,7 +15,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
   - `name: credfeto-<skill>` — must match the installed folder name (lowercase letters, numbers, and hyphens only).
   - `description:` — third person, one paragraph, stating **what the skill does** and **when to use it** (the trigger conditions). This is the only text the model sees when deciding whether to load the skill, so triggers matter more than detail.
 - Supporting files (scripts, templates) may sit alongside `SKILL.md` in the same folder and are installed with it.
-- [install](../skills/install) installs every folder containing a `SKILL.md` into `~/.claude/skills/credfeto-<skill>`, or with `--system` into the managed folder `/etc/claude-code/.claude/skills/credfeto-<skill>` using `sudo`. It discovers skills automatically: adding a new skill requires no installer change.
+- [install](../skills/install) installs every folder containing a `SKILL.md` into `~/.claude/skills/credfeto-<skill>` and removes any skill it installed on an earlier run (recorded in `~/.claude/skills/.credfeto-ai-skills-skills`) that no longer has a source folder, leaving other `credfeto-*` skills alone. With `--system` it does the same in the managed folder `/etc/claude-code/.claude/skills` using `sudo`, keeping a separate manifest there. It discovers skills automatically: adding a new skill requires no installer change.
 
 ## Generation Rules
 
@@ -101,9 +101,9 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 ./ai/skills/install
 ```
 
-Installs (or reinstalls, replacing any previous copy) every skill into `~/.claude/skills/credfeto-<skill>`. The root `./install` script runs this and then the agents installer.
+Installs (or reinstalls, replacing any previous copy) every skill into `~/.claude/skills/credfeto-<skill>`, records the installed names in the manifest `~/.claude/skills/.credfeto-ai-skills-skills`, and removes every skill listed in the previous manifest whose source folder no longer exists. Only skills it installed itself are removed, so other `credfeto-*` skills are left alone; on the first run there is no manifest, so nothing is removed. The manifest is replaced only after a complete run, so a failed run keeps the previous record. The root `./install` script runs this and then the agents installer.
 
-With `--system` (`./ai/skills/install --system`, or `./install --system` for skills and agents together), it installs into the managed folder `/etc/claude-code/.claude/skills/credfeto-<skill>` so every user on the machine gets the skills. It runs every write through `sudo` unless it already runs as root, fails if neither is available, makes the installed files world-readable and leaves any copies in `~/.claude/skills` untouched. Any other argument is an error.
+With `--system` (`./ai/skills/install --system`, or `./install --system` for skills and agents together), it installs into the managed folder `/etc/claude-code/.claude/skills/credfeto-<skill>` so every user on the machine gets the skills, keeping its manifest in that folder, separate from the one in `~/.claude/skills`. It runs every write through `sudo` unless it already runs as root, fails if neither is available, makes the installed files world-readable and leaves any copies in `~/.claude/skills` untouched. Any other argument is an error.
 
 ## Automated Reconciliation
 
