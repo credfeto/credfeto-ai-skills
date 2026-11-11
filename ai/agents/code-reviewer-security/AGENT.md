@@ -5,6 +5,7 @@ model: opus
 tools: Read, Grep, Glob, Skill, mcp__codegraph__*
 skills:
   - credfeto-secure-coding
+  - credfeto-codegraph
 ---
 
 # Code Reviewer Lens: Security

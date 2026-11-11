@@ -5,6 +5,7 @@ model: fable
 tools: Read, Grep, Glob, Skill, mcp__codegraph__*
 skills:
   - credfeto-error-handling
+  - credfeto-codegraph
 ---
 
 # Code Reviewer Lens: Correctness
