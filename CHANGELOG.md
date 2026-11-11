@@ -52,6 +52,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - CI debugger and CI monitor definitions now count CI Debugger rounds from when the PR opened
 - Committer and Dependency Updater agents now state the build-dotnet MCP rule for .NET repositories
 - skills-install removes stale skills it installed earlier, tracked via a manifest like the agents installer - #53
+- skills-install: replace installed skills atomically via stage-then-rename instead of rm -rf then cp -R
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
