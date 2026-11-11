@@ -6,6 +6,7 @@ tools: "Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, mcp__rider__*, mcp__w
 skills:
   - credfeto-code-writer
   - credfeto-code-style
+  - credfeto-codegraph
 ---
 
 # Code Writer
