@@ -6,6 +6,7 @@ tools: "Bash, Read, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, mcp__bui
 skills:
   - credfeto-code-tester
   - credfeto-long-running-commands
+  - credfeto-codegraph
 ---
 
 # Code Tester

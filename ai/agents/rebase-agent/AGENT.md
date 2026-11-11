@@ -5,6 +5,7 @@ model: sonnet
 tools: Bash, Read, Edit, Grep, Glob, Skill, mcp__cfwf__*, mcp__build-dotnet__*, mcp__git__*, mcp__codegraph__*
 skills:
   - credfeto-git-rebase
+  - credfeto-codegraph
 ---
 
 # Rebase Agent

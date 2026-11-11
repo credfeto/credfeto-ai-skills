@@ -13,6 +13,13 @@
 # when the full workflow and build MCP servers ship: narrow them per agent, and
 # drop the matching Bash use where the MCP replaces it.
 
+# mcp__codegraph__* (the CodeGraph MCP) and the credfeto-codegraph skill are
+# granted to the agents that explore code (Orchestrator, Coding Researcher,
+# Code Writer, Code Tester, Code Reviewer and its six lenses, Repo Auditor,
+# Code Fixer, Rebase Agent, CI Debugger and Dependency Updater), so they use
+# codegraph_explore to locate and understand code when a repository is
+# indexed. The grant is harmless where no CodeGraph server is configured.
+
 default:
   model: opus
   tools: [Read, Grep, Glob, Skill]
@@ -27,12 +34,14 @@ orchestrator:
     - credfeto-issue-plan-approval
     - credfeto-pr-review-loop
     - credfeto-pr-sync
+    - credfeto-codegraph
 
 coding-researcher:
   name: "Coding Researcher"
   model: opus
   tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill, "mcp__kb__*", "mcp__codegraph__*"]
-  skills: []
+  skills:
+    - credfeto-codegraph
 
 code-writer:
   name: "Code Writer"
@@ -56,6 +65,7 @@ code-writer:
   skills:
     - credfeto-code-writer
     - credfeto-code-style
+    - credfeto-codegraph
 
 code-tester:
   name: "Code Tester"
@@ -64,6 +74,7 @@ code-tester:
   skills:
     - credfeto-code-tester
     - credfeto-long-running-commands
+    - credfeto-codegraph
 
 code-reviewer:
   name: "Code Reviewer"
@@ -87,12 +98,14 @@ code-reviewer:
     - "mcp__codegraph__*"
   skills:
     - credfeto-code-reviewer-subagents
+    - credfeto-codegraph
 
 code-reviewer-reuse:
   name: "Code Reviewer: Reuse"
   model: opus
   tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
-  skills: []
+  skills:
+    - credfeto-codegraph
 
 code-reviewer-quality:
   name: "Code Reviewer: Quality"
@@ -100,12 +113,14 @@ code-reviewer-quality:
   tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-code-style
+    - credfeto-codegraph
 
 code-reviewer-efficiency:
   name: "Code Reviewer: Efficiency"
   model: opus
   tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
-  skills: []
+  skills:
+    - credfeto-codegraph
 
 code-reviewer-correctness:
   name: "Code Reviewer: Correctness"
@@ -113,6 +128,7 @@ code-reviewer-correctness:
   tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-error-handling
+    - credfeto-codegraph
 
 code-reviewer-security:
   name: "Code Reviewer: Security"
@@ -120,6 +136,7 @@ code-reviewer-security:
   tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-secure-coding
+    - credfeto-codegraph
 
 code-reviewer-compliance:
   name: "Code Reviewer: Compliance"
@@ -127,6 +144,7 @@ code-reviewer-compliance:
   tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*"]
   skills:
     - credfeto-language-conventions
+    - credfeto-codegraph
 
 repo-auditor:
   name: "Repo Auditor"
@@ -148,6 +166,7 @@ repo-auditor:
     - "mcp__codegraph__*"
   skills:
     - credfeto-repo-auditor
+    - credfeto-codegraph
 
 code-fixer:
   name: "Code Fixer"
@@ -171,6 +190,7 @@ code-fixer:
     - "mcp__codegraph__*"
   skills:
     - credfeto-code-fixer
+    - credfeto-codegraph
 
 rebase-agent:
   name: "Rebase Agent"
@@ -178,6 +198,7 @@ rebase-agent:
   tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__codegraph__*"]
   skills:
     - credfeto-git-rebase
+    - credfeto-codegraph
 
 ci-debugger:
   name: "CI Debugger"
@@ -201,6 +222,7 @@ ci-debugger:
     - "mcp__codegraph__*"
   skills:
     - credfeto-ci-debugger
+    - credfeto-codegraph
 
 changelog:
   name: "Changelog"
@@ -236,3 +258,4 @@ dependency-updater:
   tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*", "mcp__codegraph__*"]
   skills:
     - credfeto-dependency-updater
+    - credfeto-codegraph

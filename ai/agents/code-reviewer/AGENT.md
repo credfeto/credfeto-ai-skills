@@ -5,6 +5,7 @@ model: opus
 tools: "Bash, Agent, Read, Write, Edit, Grep, Glob, Skill, SendMessage, mcp__rider__*, mcp__webstorm__*, mcp__cfwf__*, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*, mcp__codegraph__*"
 skills:
   - credfeto-code-reviewer-subagents
+  - credfeto-codegraph
 ---
 
 # Code Reviewer

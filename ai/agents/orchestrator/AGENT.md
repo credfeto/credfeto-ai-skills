@@ -8,6 +8,7 @@ skills:
   - credfeto-issue-plan-approval
   - credfeto-pr-review-loop
   - credfeto-pr-sync
+  - credfeto-codegraph
 ---
 
 # Orchestrator
