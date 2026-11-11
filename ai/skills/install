@@ -89,12 +89,30 @@ if [ -n "${SYSTEM}" ]; then
 fi
 
 NEW_MANIFEST="${MANIFEST}.new"
+MANIFEST_DRAFT=""
+WORK_DIR=""
+target_dir=""
+
+# The previous copy is only deleted once it is known to be put back, so a failed restore never loses it.
+restore_interrupted_install() {
+    [ -n "${WORK_DIR}" ] || return 0
+    if run test -e "${WORK_DIR}/old" && ! run test -e "${target_dir}"; then
+        run mv "${WORK_DIR}/old" "${target_dir}" || return 1
+    fi
+    run rm -rf "${WORK_DIR}"
+}
+
+cleanup() {
+    restore_interrupted_install
+    [ -z "${MANIFEST_DRAFT}" ] || rm -f "${MANIFEST_DRAFT}"
+}
+
+trap cleanup EXIT
+trap 'exit 1' HUP INT TERM
 
 # sudo does not raise the privilege of a shell redirection, so the system manifest is built where this user can write.
 if [ -n "${SYSTEM}" ]; then
     MANIFEST_DRAFT=$(mktemp) || die "could not create a temporary manifest"
-    trap 'rm -f "${MANIFEST_DRAFT}"' EXIT
-    trap 'exit 1' HUP INT TERM
 else
     MANIFEST_DRAFT="${NEW_MANIFEST}"
 fi
@@ -124,10 +142,19 @@ for skill_dir in "${SKILLS_SOURCE_DIR}"/*/; do
 
     info "Installing ${skill_name} as credfeto-${skill_name}..."
 
-    run rm -rf "${target_dir}" || die "could not remove existing ${target_dir}"
-    run mkdir -p "${target_dir}" || die "could not create ${target_dir}"
-    run cp -R "${skill_dir}." "${target_dir}/" || die "could not copy ${skill_name} to ${target_dir}"
-    make_world_readable -R a+rX "${target_dir}" || die "could not make ${target_dir} world-readable"
+    # Staged beside the target so both moves are same-filesystem renames; the EXIT trap puts the old copy back on failure.
+    WORK_DIR=$(run mktemp -d "${TARGET_ROOT}/.credfeto-${skill_name}.XXXXXX") || die "could not create a staging folder in ${TARGET_ROOT}"
+    run mkdir "${WORK_DIR}/new" || die "could not create ${WORK_DIR}/new"
+    run cp -R "${skill_dir}." "${WORK_DIR}/new/" || die "could not copy ${skill_name} to ${WORK_DIR}/new"
+    make_world_readable -R a+rX "${WORK_DIR}/new" || die "could not make ${WORK_DIR}/new world-readable"
+
+    if run test -e "${target_dir}"; then
+        run mv "${target_dir}" "${WORK_DIR}/old" || die "could not move aside existing ${target_dir}"
+    fi
+    run mv "${WORK_DIR}/new" "${target_dir}" || die "could not move ${skill_name} into ${target_dir}"
+    run rm -rf "${WORK_DIR}" || die "could not remove ${WORK_DIR}"
+    WORK_DIR=""
+
     printf '%s\n' "${skill_name}" >> "${MANIFEST_DRAFT}" || die "could not write ${MANIFEST_DRAFT}"
 
     INSTALLED=$((INSTALLED + 1))
