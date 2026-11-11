@@ -20,6 +20,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: pr-sync CI Debugger round count now counts comments since the PR opened and accepts the authenticated login fallback
 - Skills: github-issue ad-hoc prompt intake no longer applies to questions and drops the read-only close branch
 - Orchestrator agent counts CI Debugger rounds per check since the PR opened rather than since auto-merge was last enabled
+- Code reviewer agent and skill commit each review fix before starting the next, stop if the committer is unavailable, and make no fixes after the iteration cap - #38
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
