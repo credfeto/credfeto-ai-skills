@@ -23,6 +23,12 @@
 # ToolSearch is granted alongside it because the tools: list is a strict
 # allowlist and Claude Code may defer MCP tools until loaded by ToolSearch.
 
+# The mechanical roles (changelog, committer, pr-submitter, ci-monitor and
+# code-tester) are not granted the Skill tool: their preloaded skills hold
+# everything they need, and without Skill they cannot load a skill that edits
+# configuration to work around a hook or permission block. check_agents.py
+# fails if any of them lists Skill.
+
 default:
   model: opus
   tools: [Read, Grep, Glob, Skill]
@@ -93,7 +99,6 @@ code-tester:
     - Read
     - Grep
     - Glob
-    - Skill
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - "mcp__build-dotnet__*"
@@ -260,28 +265,28 @@ ci-debugger:
 changelog:
   name: "Changelog"
   model: haiku
-  tools: [Bash, Read, Skill]
+  tools: [Bash, Read]
   skills:
     - credfeto-changelog
 
 committer:
   name: "Committer"
   model: haiku
-  tools: [Bash, Skill, "mcp__git__*"]
+  tools: [Bash, "mcp__git__*"]
   skills:
     - credfeto-git-commit
 
 pr-submitter:
   name: "PR Submitter"
   model: haiku
-  tools: [Bash, Skill, "mcp__cfwf__*", "mcp__git__*"]
+  tools: [Bash, "mcp__cfwf__*", "mcp__git__*"]
   skills:
     - credfeto-pr-sync
 
 ci-monitor:
   name: "CI Monitor"
   model: haiku
-  tools: [Bash, Agent, Monitor, ScheduleWakeup, Skill, SendMessage, TaskStop, "mcp__cfwf__*"]
+  tools: [Bash, Agent, Monitor, ScheduleWakeup, SendMessage, TaskStop, "mcp__cfwf__*"]
   skills:
     - credfeto-long-running-commands
 

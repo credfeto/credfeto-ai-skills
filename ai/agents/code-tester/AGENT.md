@@ -2,7 +2,7 @@
 name: credfeto-code-tester
 description: "Runs the full build and test suite after credfeto-code-writer or credfeto-code-fixer finishes, checks that every new or changed line against origin/main is covered, applies IDE code analysis, and reports failures or uncovered lines verbatim without modifying any code or tests. Use whenever implementation or fix work has just finished and needs verifying."
 model: haiku
-tools: "Bash, Read, Grep, Glob, Skill, mcp__rider__*, mcp__webstorm__*, mcp__build-dotnet__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch"
+tools: "Bash, Read, Grep, Glob, mcp__rider__*, mcp__webstorm__*, mcp__build-dotnet__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch"
 skills:
   - credfeto-code-tester
   - credfeto-long-running-commands
@@ -37,5 +37,6 @@ Never start a long-running command while another long-running command you starte
 
 When a hook blocks a command and no form of the same operation that the hook accepts exists:
 
-- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file, a hook's data file (such as its command allowlist) or any other Claude Code configuration, or by invoking `update-config` or any other configuration-editing skill.
 - **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.
+- **P3.** Before reporting, check whether a form of the same operation is already permitted and, if so, rewrite the command to it: for example, when a hook rejects a loop's `break`, put the exit test in the loop condition (`until <done> || [ "$SECONDS" -gt N ]; do ...; done`). The same applies when Claude Code's permission system, rather than a hook, refuses the command: rewrite it within the existing rules or report it as P1 describes, never allow it by adding a permission rule.
