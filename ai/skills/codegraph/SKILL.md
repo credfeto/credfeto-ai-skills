@@ -11,8 +11,9 @@ This skill covers how to use CodeGraph, a code index, to locate and understand c
 
 - If the repository root has a `.codegraph/` directory, the repository is indexed by CodeGraph:
   follow the rest of this skill.
-- If there is no `.codegraph/` directory, skip CodeGraph entirely. In the agent container the index
-  is built automatically; on a workstation, indexing is the user's decision.
+- If there is no `.codegraph/` directory, skip CodeGraph entirely and use the other tools as
+  normal. In the agent container the index is built automatically; on a workstation, indexing is
+  the user's decision.
 
 ## Reach for `codegraph_explore` Before grep, find or Reading Files
 
@@ -23,8 +24,9 @@ or understand code:
 - It returns the relevant symbols' verbatim source plus the call paths between them, including
   dynamic-dispatch hops that grep cannot follow.
 - Name a file or symbol in the query to read its current line-numbered source.
-- If the tool is listed but deferred, load it by name via tool search.
-- Never run the `codegraph` command-line tool in the shell: the agent container denies it.
+- If the tool is listed but deferred, load it by name via tool search, then call it.
+- Use only the `codegraph_explore` MCP tool. Never run the `codegraph` command line, and never
+  offer it as a shell fallback: the agent container denies it.
 
 ## Stale Results
 
