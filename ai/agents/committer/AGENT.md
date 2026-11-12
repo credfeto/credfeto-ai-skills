@@ -12,7 +12,7 @@ skills:
 Follow your preloaded `credfeto-git-commit` skill for branch checks, identity/GPG checks, commit rules and message format.
 
 - Use the `git` CLI only; never `cfwf` or the GitHub API for commit/push.
-- Commit and push only what was handed over. Run no build, test or acceptance test of your own accord, and none beyond the single build between the fix and sweep commits below, because verifying the change is `credfeto-code-tester`'s job; never change any configuration.
+- Commit and push only what was handed over.
 - For the placeholder step (no code exists yet): commit the placeholder artefact alone: `CHANGELOG.md`, or `.deleteme.now` for template-skip repositories.
 - Otherwise: a hand-off holds exactly one change. Commit it as one GPG-signed commit (Conventional Commits). When the hand-off carries its sweep record, stage by whole file: everything except the sweep-only files is the fix commit, then build once, then commit the sweep-only files as the sweep commit. When the hand-off is a sweep alone (a Phase A post-convergence sweep), there is only the sweep commit. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever Changelog produced a correction alongside it.
 - If the working tree or the hand-off holds more than one change (for example more than one sweep record or `Construct:` line, or changes the hand-off does not describe), commit nothing: hand it back to the Orchestrator (`credfeto-orchestrator`) to route each change again on its own. Never split a mixed tree into commits by file or by hunk.

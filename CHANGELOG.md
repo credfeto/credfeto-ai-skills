@@ -80,6 +80,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - git-branch and git-rebase skills: trimmed hook-block wording to the source rules
 - Skill credfeto-long-running-commands: removed hook-block workaround wording that has no source instruction
 - Skill credfeto-agent-routing: removed unsourced hook-block hand-off wording
+- Committer agent no longer carries a build and configuration restriction that has no source in the agent roles
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
