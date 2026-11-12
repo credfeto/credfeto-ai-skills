@@ -102,6 +102,8 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
      - **Node**: pinned as Vitest with `@vitest/coverage-v8`; run `npx vitest run --coverage` with the `json-summary` reporter configured (alongside whatever other reporters the repo already uses), then `jq '.total.lines.pct' coverage/coverage-summary.json`. If the repository's `package.json` defines a `test:coverage` script, that script takes precedence: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`. Skip if the repo has no `package.json` with a configured test runner.
      - **Python**: pinned as `coverage.py` via `pytest`; run `coverage run -m pytest` then `coverage report --format=total` (prints only the overall percentage). Skip if the repo has no Python test suite.
      - **Shell**: always excluded; never attempt to measure it.
+
+     Before reading any figure, confirm the test run exited 0 with every test passing: a measurement from a run with any failing test is void, so never read its coverage output, never write `COVERAGE.md` from it, and fix the failing test before measuring again.
   2. Write `COVERAGE.md` at the repo root, including every one of the four languages as a section even when skipped (`n/a (no code)` for a language with no code/tests present; `excluded` for Shell, always, or for another language where every production assembly/package in it is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure; record a one-line rationale beneath `excluded` in that case):
 
      ```text

@@ -11,6 +11,18 @@ This is not a repeat of a diff-only coverage check that only verifies new/change
 
 There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment this runs, read fresh every time. Every invocation is a fresh, memoryless session: nothing needs to be captured when branching and nothing needs refreshing after a rebase, because the baseline is always read live from `origin/main`.
 
+## Failing Tests Void the Measurement (MANDATORY)
+
+A coverage measurement is valid only when the test run that produced it exited 0 with every test passing. If any test fails, the measurement is void:
+
+- Do not read the coverage output, even when the runner still wrote a report.
+- Do not write or update `COVERAGE.md` from it.
+- Do not pass the ratchet on it.
+
+The failing test must be fixed in the same PR before coverage is measured again, whether or not it also fails on `main`.
+
+No instruction file, global or repo-local, may record a "known failure" or "pre-existing failure" exception that lets the ratchet pass with failing tests. A role that finds such an exception must report it to the instruction file's owner, not follow it.
+
 ## Committed Coverage File (MANDATORY)
 
 `COVERAGE.md`, at the repo root, is the sole persisted record of coverage. It is generated, never hand-edited, and is updated only by this decision procedure as part of a PR that later merges to `main`; there is no separate post-merge job.
@@ -60,7 +72,7 @@ Captured at commit `<sha>` on <ISO-8601 date>.
 - `<sha>` is the commit the numbers were measured against.
 - `COVERAGE.md` records **only** the coverage figures (the component rows, the Overall rows and the `<sha>` line). It must never record the command, tools, flags or runner used to measure them, because later rounds would copy that recorded command instead of following the repository's own coverage instructions. When updating the file, remove any such line.
 
-**Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's pre-work baseline check first finds it missing: that branch commits an initial version in its own commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison (step 2 below) finds nothing to compare against on that same branch too, which is not a regression, so it must not block. Overwrite `COVERAGE.md` again with the branch's live measurements (its second commit on that branch, expected, not a conflict), treat the gate as passed, and proceed as in step 5. For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the pre-work baseline check step was skipped or the branch predates it.
+**Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's pre-work baseline check first finds it missing: that branch commits an initial version in its own commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison (step 2 below) finds nothing to compare against on that same branch too, which is not a regression, so it must not block. Overwrite `COVERAGE.md` again with the branch's live measurements (its second commit on that branch, expected, not a conflict), treat the gate as passed, and proceed as in step 5; as everywhere else, a measurement with any failing test is void and is never written. For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the pre-work baseline check step was skipped or the branch predates it.
 
 **Conflict on rebase**: `COVERAGE.md` is generated content, not hand-authored; never text-merge conflicting percentages. If a rebase produces a conflict in `COVERAGE.md`, take `main`'s copy:
 
@@ -69,7 +81,7 @@ git -C <repodir> checkout --ours -- COVERAGE.md
 git -C <repodir> add COVERAGE.md
 ```
 
-(During a rebase, `--ours` is the branch being rebased *onto*, i.e. `origin/main`.) Continue the rebase; once it completes and the build/tests pass, re-run the extraction below against the rebased tree and commit a fresh `COVERAGE.md`. Do not leave `main`'s stale copy in place, and do not measure before the build/tests are confirmed green.
+(During a rebase, `--ours` is the branch being rebased *onto*, i.e. `origin/main`.) Continue the rebase; once it completes and the build/tests pass, re-run the extraction below against the rebased tree and commit a fresh `COVERAGE.md`. Do not leave `main`'s stale copy in place, and do not measure before the build/tests are confirmed green; a failing test makes the measurement void.
 
 ## Per-Language Overall Coverage Extraction
 
@@ -116,6 +128,8 @@ dotnet reportgenerator \
 jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json
 ```
 
+Before reading any figure, confirm the test run exited 0 with every test passing; otherwise the measurement is void.
+
 Skip .NET entirely if the repo has no `*.Tests` project. Never target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`; test support libraries (for example `*.Tests.Mocks`, `*.Tests.Common`) are not test projects.
 
 ### Node
@@ -145,7 +159,9 @@ jq '.total.lines.pct' coverage/coverage-summary.json
 
 `coverage/coverage-summary.json` is written by the `json-summary` reporter; `.total.lines.pct` is the overall line-coverage percentage.
 
-Components are packages: one row per `package.json` with a configured test runner in a monorepo layout, otherwise a single Overall (Node) row. Skip Node entirely if there is no `package.json` with a configured test runner.
+Before reading `coverage-summary.json`, confirm the test run exited 0 with every test passing; Jest and Vitest still write the file when tests fail, and a file written by a run that exited non-zero is void, not valid.
+
+Components are packages: one row per `package.json` with a configured test runner in a monorepo layout, each run and extracted the same way against its own package, otherwise a single Overall (Node) row. Skip Node entirely if there is no `package.json` with a configured test runner.
 
 ### Python
 
@@ -156,7 +172,7 @@ coverage run -m pytest
 coverage report --format=total
 ```
 
-This prints only the overall percentage as a single number, so no further extraction is needed. Components are packages, analogous to Node: one row per Python package/app with its own test suite in a monorepo layout, otherwise a single Overall (Python) row. Skip Python entirely if there is no Python test suite.
+This prints only the overall percentage as a single number, so no further extraction is needed. Before reading it, confirm `coverage run -m pytest` exited 0 with every test passing; otherwise the measurement is void. Components are packages, analogous to Node: one row per Python package/app with its own test suite in a monorepo layout, otherwise a single Overall (Python) row. Skip Python entirely if there is no Python test suite.
 
 ### Shell (Excluded)
 
@@ -189,11 +205,11 @@ Run this only when the Workflow board is at **AI Coverage**.
 
 1. If the branch is non-code-only (above), skip without measuring anything and without reading or writing `COVERAGE.md`: post the one-line status comment `Non-code change: coverage ratchet skipped`, move the board to **Human Review**, and stop. Do not go to step 5.
 2. `git -C <repodir> fetch origin main` (always fresh; do not rely on a fetch from earlier in the session). Read `origin/main`'s `COVERAGE.md` without checking it out: `git -C <repodir> show origin/main:COVERAGE.md`. If it does not exist, this is the bootstrap case: treat the gate as passed and go to step 5.
-3. Have Code Tester measure: for each language with a real Overall row in that file (not `n/a` or `excluded`), it runs the extraction above against the branch's current (already checked out) working tree, with the `build-dotnet` `coverage` tool when the server lists it and the documented fallback commands otherwise, and reports both the per-component rows and the Overall figure for each language back. Code Tester does not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that. The measurement has to run in Code Tester, not in the Orchestrator, because the Orchestrator's session is not granted the build MCP tools and a raw fallback run from there would not be measured the way the baseline was. The Orchestrator never runs a build, test or coverage command itself; it only compares the reported figures and decides.
+3. Have Code Tester measure: for each language with a real Overall row in that file (not `n/a` or `excluded`), it runs the extraction above against the branch's current (already checked out) working tree, with the `build-dotnet` `coverage` tool when the server lists it and the documented fallback commands otherwise, and reports both the per-component rows and the Overall figure for each language back. Code Tester does not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that. The measurement has to run in Code Tester, not in the Orchestrator, because the Orchestrator's session is not granted the build MCP tools and a raw fallback run from there would not be measured the way the baseline was. The Orchestrator never runs a build, test or coverage command itself; it only compares the reported figures and decides. If any test failed, Code Tester reports the measurement as void, with the failing tests, instead of figures; the Orchestrator then treats it as a Development-phase fix, moves the board back to **Development** and stops, without going to step 4. A void measurement is not a coverage-gap round and does not count towards the step 6 round cap.
 4. Compare branch vs. baseline **Overall** per language (component rows never gate):
    - Any language where branch Overall **<** baseline Overall: the ratchet fails; go to step 6.
    - All present languages branch Overall **>=** baseline Overall: the ratchet passes; continue to step 5.
-5. **On success** (reached only from a measured pass in step 4 or the bootstrap case in step 2, never from the non-code-only skip in step 1): have Code Writer (docs only) write or overwrite `COVERAGE.md` on the branch with the numbers just measured (or, in the bootstrap case, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), and send it through the review-fix route (Code Writer, then Committer, PR Submitter and CI Monitor) without Code Tester or Changelog (correction), resuming at Phase E, because the Orchestrator never measures, edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Move the board to Human Review, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
+5. **On success** (reached only from a measured pass in step 4 or the bootstrap case in step 2, never from the non-code-only skip in step 1): have Code Writer (docs only) write or overwrite `COVERAGE.md` on the branch with the numbers just measured (or, in the bootstrap case, the branch's current measurement per [Committed Coverage File](#committed-coverage-file-mandatory) above), and send it through the review-fix route (Code Writer, then Committer, PR Submitter and CI Monitor) without Code Tester or Changelog (correction), resuming at Phase E, because the Orchestrator never measures, edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Never write `COVERAGE.md` from a void measurement. Move the board to Human Review, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
 6. **On failure**, check the round cap first, then judge the round-over-round trend:
    - **Round cap**: if the configured maximum number of coverage rounds (`MAX_COVERAGE_ITERATIONS`) has already run, counted from prior `... - returning to Development` coverage comments, without the branch catching up, whether or not this round's trend is itself closing: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case.
    - Otherwise, compare each still-failing language's Overall this round against its Overall in the most recent prior coverage comment that mentions that language by name: not necessarily the immediately preceding round, since a language that passed in a round leaves no comment mentioning it for that round, so a later failure must be compared against its last-mentioned figure, not a stale or absent one. Treat a language as trending, with nothing yet to compare, only when no prior comment mentions it at all, regardless of which round this is, or when this is the whole PR's first coverage round.

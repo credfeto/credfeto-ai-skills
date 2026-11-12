@@ -185,7 +185,7 @@ When asking a question in a PR comment and waiting for an answer before continui
    - Remove the label with `cfwf label remove --repo <owner/repo> --pr <number> --label Blocked`, then carry on straight away. It removes `Blocked` only when the agent added it last; if it exits 8 (a human added it), leave it and tell the human it is theirs to remove.
    - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
    - An unattended run never applies this; `Blocked` there still waits for the human.
-7. Wherever the human is still the one who has to act (an approval, an answer, a manual step), say so once, plainly, at the top of the message, not only at the end of each status update.
+7. Wherever the human is still the one who has to act (an approval, an answer, a manual step), raise it in the NEEDS YOU block at the top of the reply, not only at the end of each status update.
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 

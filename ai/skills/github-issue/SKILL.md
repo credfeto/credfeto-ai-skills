@@ -134,7 +134,7 @@ A question is not a request to do something, so this flow never applies to it: a
 
   Any conditional or deferred decision point in the Approach or Files-to-change text, a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open), must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate.
 
-- **P3.** As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
+- **P3.** As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end. In an interactive session, also raise each in chat, in the NEEDS YOU block at the top of the reply.
 - **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first. In an interactive session, keep watching the issue for approval rather than ending the turn (see the `credfeto-issue-plan-approval` skill), which applies to these tracking issues too. Approval requires an explicit human action. If the repo has a Workflow board, a human with project write access sets the board status to **Approved** and removes `Blocked`; with no board, a trusted commenter posts the approval comment and removes `Blocked`. Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment. Every re-post of the plan, again with `cfwf issue post-plan`, resets the card to **Planning**.
 - **P5.** Once approved and `Blocked` is removed, proceed and open a PR referencing the issue when ready.
 - **P6.** For further prompts once an issue or PR exists for the work, see Prompt Traceability below.
@@ -184,7 +184,7 @@ An issue labelled `On Hold` is not ready to be worked on; do not pick up or assi
 
 When asking a question in an issue or PR comment and waiting for an answer before continuing:
 
-- **P1.** Add the `Blocked` label to the PR or issue immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf issue block --repo <owner/repo> --issue <number> --body-file <file|->` for an issue, `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->` for a PR.
+- **P1.** Add the `Blocked` label to the PR or issue immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf issue block --repo <owner/repo> --issue <number> --body-file <file|->` for an issue, `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->` for a PR. In an interactive session, ask in chat first and post the question this way only if it is still unanswered when the session would otherwise stop; an unattended run posts it and adds `Blocked` straight away.
 - **P2.** Do not continue working on the item until the label is removed.
 - **P3.** Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`.
 - **P4.** Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost. Exceptions (each waives only the human-clears-`Blocked` requirement, never the mirror comment): plan-approval `Blocked` on an issue in an interactive session, and a PR's question `Blocked` answered in live chat in an interactive session, see P6.
@@ -195,7 +195,7 @@ When asking a question in an issue or PR comment and waiting for an answer befor
   - Remove the label with `cfwf label remove --repo <owner/repo> --pr <number> --label Blocked`, then carry on straight away. It removes `Blocked` only when the agent added it last; if it exits 8 (a human added it), leave it and tell the human it is theirs to remove.
   - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
   - An unattended run never applies this; `Blocked` there still waits for the human.
-- **P7.** Wherever the human is still the one who has to act (an approval, an answer, a manual step), say so once, plainly, at the top of the message, not only at the end of each status update.
+- **P7.** Wherever the human is still the one who has to act (an approval, an answer, a manual step), raise it in the NEEDS YOU block at the top of the reply, not only at the end of each status update.
 
 ## Trusted Commenters
 

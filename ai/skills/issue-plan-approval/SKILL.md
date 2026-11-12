@@ -50,7 +50,7 @@ Produce a concrete implementation plan (using `/plan`), then post it as an issue
 <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
 ```
 
-Continue the assumption and `Q` numbering from the highest already used in the work item (issue and PR), never restarting at `a.` or `Q1`, because a number must name exactly one item for the life of the work item.
+Continue the assumption and `Q` numbering from the highest already used in the work item (issue and PR), never restarting at `a.` or `Q1`.
 
 **Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text that the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. A matching check applies when the issue is closed.
 
@@ -61,6 +61,8 @@ cfwf issue post-plan --repo <owner/repo> --issue <number> --body-file <file|->
 ```
 
 The body must contain a line that is exactly `## Implementation Plan`. Exit 8 means refused with nothing written (`cfwf help issue post-plan` lists the rules): fix the body, or report the refusal, rather than posting the plan another way.
+
+In an interactive session, also raise the pending approval and any open `Q` questions in chat, in the NEEDS YOU block at the top of the reply; the plan is still posted and `Blocked` still added as above, because the plan comment is the record approval is judged against.
 
 Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`; the orchestrator only recognises `Blocked` when deciding whether to skip an item.
 

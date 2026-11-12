@@ -22,6 +22,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: github-issue ad-hoc prompt intake no longer applies to questions and drops the read-only close branch
 - Orchestrator agent counts CI Debugger rounds per check since the PR opened rather than since auto-merge was last enabled
 - Code reviewer agent and skill commit each review fix before starting the next, stop if the committer is unavailable, and make no fixes after the iteration cap - #38
+- Reconcile github-issue skill with sources: NEEDS YOU block for open questions and approvals, and ask-in-chat-first rule for Blocked questions
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -64,6 +65,11 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-dotnet-exception-generation skill: reword the latest stable release rule to match its source
 - Agents: PR Submitter keeps a Closes line for every completed sub-issue in the PR body
 - Code Reviewer agent: removed uncommitted-tree and hard iteration cap rules that have no source in the instruction files
+- coverage-ratchet skill: add failing-tests-void-the-measurement rule
+- Aligned the codegraph skill wording with its source instructions
+- Clarified in the code-tester skill how build-dotnet MCP jobs are run and waited for
+- credfeto-pr-sync skill: raise a pending human action in the NEEDS YOU block, matching its source
+- Reconciled issue-plan-approval, pr-review-loop and pre-work-healthcheck skills with their sources
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
