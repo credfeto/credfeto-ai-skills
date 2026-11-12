@@ -23,7 +23,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Orchestrator agent counts CI Debugger rounds per check since the PR opened rather than since auto-merge was last enabled
 - Code reviewer agent and skill commit each review fix before starting the next, stop if the committer is unavailable, and make no fixes after the iteration cap - #38
 - Reconcile github-issue skill with sources: NEEDS YOU block for open questions and approvals, and ask-in-chat-first rule for Blocked questions
-- Mechanical agent roles must stop and report on a hook block and never change Claude configuration or load config-editing skills
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -72,6 +71,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-pr-sync skill: raise a pending human action in the NEEDS YOU block, matching its source
 - Reconciled issue-plan-approval, pr-review-loop and pre-work-healthcheck skills with their sources
 - Orchestrator agent now asks questions in chat first, raises approvals and questions in the NEEDS YOU block, and does not poll when ScheduleWakeup is unavailable
+- Mechanical agent roles (committer, code-tester, changelog, pr-submitter and ci-monitor) no longer have the Skill tool, enforced by check_agents.py tests, and on a hook or permission block they stop and report or rewrite within the rules instead of editing Claude configuration or invoking config-editing skills; the Committer now commits and pushes only what it is handed
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
