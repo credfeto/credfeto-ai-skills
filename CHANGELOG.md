@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 - dotnet-test-patterns skill now covers writing tests before commit, the warning-suppression ban in test code and not widening visibility to test null-argument paths
+- Code-exploring agents can now use the CodeGraph code index to locate and understand code in indexed repositories, with a new credfeto-codegraph skill preloaded into the agents that read code
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent

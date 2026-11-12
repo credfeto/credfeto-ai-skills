@@ -2,7 +2,9 @@
 name: credfeto-code-reviewer-reuse
 description: "Review lens that reviews a diff or file group handed over by credfeto-code-reviewer or credfeto-repo-auditor for reusing existing utilities, library functions, shared components and extension points instead of new code, reading files only for context, never fixing anything, and returning only a JSON clean/findings report. Use only when invoked as the Reuse lens of a code review or repository audit."
 model: opus
-tools: Read, Grep, Glob, Skill
+tools: Read, Grep, Glob, Skill, mcp__codegraph__codegraph_explore, ToolSearch
+skills:
+  - credfeto-codegraph
 ---
 
 # Code Reviewer Lens: Reuse

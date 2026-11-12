@@ -2,9 +2,10 @@
 name: credfeto-dependency-updater
 description: "Reviews Dependabot and other bot-authored dependency-update pull requests, auto-merging safe patch/minor bumps with no advisories and passing CI, flagging major version bumps and breaking changes to the user, and adding a missing changelog entry itself when taking over a bot PR breaks its changelog check. Use when the Orchestrator routes a dependency-update PR."
 model: opus
-tools: Bash, Read, Edit, Grep, Glob, WebFetch, Skill, mcp__cfwf__*, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*
+tools: Bash, Read, Edit, Grep, Glob, WebFetch, Skill, mcp__cfwf__*, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
   - credfeto-dependency-updater
+  - credfeto-codegraph
 ---
 
 # Dependency Updater
