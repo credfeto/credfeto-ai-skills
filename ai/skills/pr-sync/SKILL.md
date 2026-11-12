@@ -49,7 +49,7 @@ After pushing a commit that should be associated with a PR:
 
 1. Wait up to 1 minute for GitHub to auto-create a PR: `cfwf pr list --repo <owner/repo> --head <branch>`. If it is still absent, create one with `cfwf pr create --repo <owner/repo> --head <branch> --title "<title>" --body-file -` (body on stdin), which opens it as a draft on the Workflow board as **Development**, or prints the existing PR's URL if the branch already has one.
 2. Title: Conventional Commits format matching the primary commit. For a placeholder-only commit that opens the PR before any code exists, take the Conventional Commits type from the expected change or from the issue's labels instead (e.g. `bug` gives `fix`, `enhancement` gives `feat`), and correct it once the primary code commit lands if it differs. Never take the PR title or its type from the issue title, because issue titles use prefixes (e.g. `learning:`, `audit:`, `tool(cfwf):`) that are not Conventional Commits types.
-3. Body: a summary of the change plus `Closes #<n>` for each linked issue (or `Related to #<n>` if it does not fully close the issue).
+3. Body: a summary of the change plus `Closes #<n>` for each linked issue (or `Related to #<n>` if it does not fully close the issue), plus a `Closes #<sub-issue>` line for every sub-issue the PR completes, kept on every update.
 4. If the PR already exists, update the body rather than creating a duplicate: `cfwf pr edit --repo <owner/repo> --pr <number> --body-file <file|->`.
 5. Add yourself as assignee: `cfwf pr edit --repo <owner/repo> --pr <number> --assign-self`.
 6. Leave the PR as draft; do not mark it ready or enable auto-merge as part of creation. That happens only after the full review process for the work item is satisfied.
@@ -59,7 +59,7 @@ After pushing a commit that should be associated with a PR:
 On every agent run, for every PR being interacted with:
 
 1. Ensure the **title** accurately reflects all changes in the PR; update it if the scope has changed.
-2. Ensure the **body** summarises all changes and includes `Closes #<n>` for each linked issue, if any.
+2. Ensure the **body** summarises all changes and includes `Closes #<n>` for each linked issue and each sub-issue the PR completes, if any; sub-issues are closed by merging, never by hand.
 3. Sync labels from all linked closing issues to the PR:
 
    ```bash

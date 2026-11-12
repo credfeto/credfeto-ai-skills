@@ -253,12 +253,12 @@ COMMENT
 - **P2.** Comment findings on the issue before starting (components found, current state, etc.).
 - **P3.** For each component, create a sub-issue referencing the top-level issue; use the sub-issue number in branch names and commit messages. Link it to its parent with `cfwf issue add-sub-issue --repo <owner/repo> --issue <parent> --sub-issue <child>`.
 - **P4.** Work on one component at a time; commit and push before starting the next.
-- **P5.** Close the sub-issue as soon as the relevant commits are pushed, with `cfwf issue close --repo <owner/repo> --issue <sub-issue> --reason completed`.
+- **P5.** Never close a sub-issue by hand. The PR description carries a `Closes #<sub-issue>` line for every sub-issue the PR completes, so merging the PR closes them.
 
 ### Issue tracking cadence
 
 - Each sub-issue must list files with status: `❌ Not started` / `🔄 In progress` / `✅ Done`, update after each commit + push.
-- The top-level issue tracks only component-level status (sub-issues open/closed, branches merged).
+- The top-level issue tracks only component-level status (which sub-issues are open or closed by merged PRs, branches merged).
 - Update the sub-issue after each significant commit+push; update the top-level issue when overall status changes.
 - When resuming, update the issue with current state before continuing.
 

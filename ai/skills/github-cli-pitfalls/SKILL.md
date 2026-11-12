@@ -13,8 +13,10 @@ Always pass `--repo <owner>/<repo>` explicitly rather than relying on the curren
 
 - **P1.** Use the `cfwf` MCP server's tools (the managed `cfwf` MCP server, whose tools appear as `mcp__cfwf__*`) when one of them covers the operation. Check the server's tool list once per session; use the CLI only for an operation that has no MCP tool yet, or when the server is not connected.
 - **P2.** Use the `cfwf` command line for anything it supports, for reads and writes. Run `cfwf help` once per session to see what it covers.
-- There is no other route to GitHub for agents. Agents never call the GitHub REST or GraphQL API directly.
-- Never hand-assemble a complex or multi-step operation from repeated commands, such as a wait loop around `cfwf pr checks`. If `cfwf` has no command for it, raise an issue on `credfeto/credfeto-orchestrator` titled `tool(cfwf): <What is needed>` (after searching for an existing one with `cfwf issue search --repo credfeto/credfeto-orchestrator --text "cfwf <keywords>" --state all`), and until it is added do one safe, read-only check of the current state and report it instead.
+- There is no other route to GitHub for agents. Agents never call the GitHub REST or GraphQL API directly. If `cfwf` is not installed or a command fails, report it.
+- Never hand-assemble a complex or multi-step operation from repeated commands, such as a wait loop around `cfwf pr checks`. If `cfwf` has no command for it, raise an issue on `credfeto/credfeto-orchestrator` asking for it, and until it is added do one safe, read-only check of the current state and report it instead.
+  - One issue per distinct need. Search first with `cfwf issue search --repo credfeto/credfeto-orchestrator --text "cfwf <keywords>" --state all`. If an open or closed issue already covers the need, do not raise another; if a closed one was declined, follow its outcome.
+  - Title it `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised, unless a local title rule takes precedence. Say what the operation is, what it is for, and where it is needed. `cfwf issue create` adds the new issue to the "Workflow" project itself, as Not Started.
 - To wait for a PR's checks, which only the CI Monitor role does, use `cfwf pr checks-wait --repo <owner/repo> --pr <n> [--timeout-minutes <m>]` with `run_in_background: true` and wait for its completion notification. It judges the PR's required checks (every check when the base branch requires none), re-reading them every 30 seconds until they settle or its time limit (default 30 minutes, at most 120) is reached. It only reads, so it never needs stopping. Judge it by its exit code, never its printed text:
   - **0** every required check passed, confirmed on two reads of the same head.
   - **3** a required check failed (a cancelled one counts as failed).
@@ -33,6 +35,7 @@ Run one `cfwf` command per Bash call, on its own: no `;`, `&&`, `|` or `echo exi
 
 ## Common Mistakes
 
+- **Judge each `cfwf` command by its exit code**, as `cfwf help <command>` documents it.
 - **Assigning yourself is `cfwf issue edit`/`cfwf pr edit --assign-self`.** There is no separate assign command.
 - **`cfwf` has no `--json`/`--jq`.** Its output has one fixed format per command, so name what you need with its own options (for example `cfwf pr view --field`), as `cfwf help <command>` lists them.
 - **Text goes in a file or on stdin.** Every body, description and comment is `--body-file`/`--description-file`, never an inline argument. There is no inline `--body`.

@@ -112,7 +112,7 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
   ```bash
   cfwf pr hand-off --repo <owner/repo> --pr <number> --title "<type>(<scope>): <description>" \
     --description-file - <<'DESCRIPTION'
-  <what the change does and why; keep every Closes #N line>
+  <what the change does and why; keep every Closes #N line, including those for completed sub-issues>
   DESCRIPTION
   ```
 

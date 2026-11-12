@@ -15,7 +15,7 @@ Use `Credfeto.Exceptions.SourceGenerator` to define exception types; it generate
    <PackageReference Include="Credfeto.Exceptions.SourceGenerator" Version="0.0.1.30" PrivateAssets="All" ExcludeAssets="runtime" />
    ```
 
-   Always use the **latest stable release**, not the version shown above.
+   Always use the **latest stable release** of `Credfeto.Exceptions.SourceGenerator`.
 
 2. Declare the exception as a `sealed partial class` with a `[Description]` attribute providing the default message:
 

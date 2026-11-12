@@ -53,6 +53,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Committer and Dependency Updater agents now state the build-dotnet MCP rule for .NET repositories
 - skills-install removes stale skills it installed earlier, tracked via a manifest like the agents installer - #53
 - skills-install: each skill is now staged in a temporary sibling folder and swapped into place, restoring the previous copy if the swap fails, in both user and --system mode - #54
+- dotnet-coverage skill: when a role is not granted the build-dotnet tools, delegate coverage to the role that has them instead of running the raw command
+- Code reviewer sub-agents skill no longer carries rules without a source instruction (commit-state check, forced stop when Committer is unavailable, split-tree warning, tests-only wording)
+- Code fixer, repo auditor and CI debugger skills no longer point at another skill for IDE MCP code analysis, keeping each skill to what its sources state
+- credfeto-pr-review-loop skill: hand-off description keeps Closes lines for completed sub-issues
+- credfeto-github-issue skill: sub-issues are closed by merging the PR, never by hand
+- credfeto-pr-sync skill: PR bodies carry a Closes line for every sub-issue the PR completes
+- credfeto-github-cli-pitfalls skill: add missing tool(cfwf) issue, failure reporting and exit code rules
+- credfeto-dotnet-exception-generation skill: reword the latest stable release rule to match its source
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
