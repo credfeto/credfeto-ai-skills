@@ -70,6 +70,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Clarified in the code-tester skill how build-dotnet MCP jobs are run and waited for
 - credfeto-pr-sync skill: raise a pending human action in the NEEDS YOU block, matching its source
 - Reconciled issue-plan-approval, pr-review-loop and pre-work-healthcheck skills with their sources
+- Orchestrator agent now asks questions in chat first, raises approvals and questions in the NEEDS YOU block, and does not poll when ScheduleWakeup is unavailable
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
