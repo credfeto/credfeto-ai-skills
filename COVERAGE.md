@@ -12,9 +12,11 @@ n/a (no code)
 
 ## Python
 
-n/a (no tests)
-
-The only Python code is CI helper scripts under `.github/actions`, which have no test suite.
+| Component | Stmts | Miss | Cover |
+| --- | --- | --- | --- |
+| `.github/actions/check-agents/check_agents.py` | 67 | 9 | 87% |
+| `.github/actions/check-agents/test_check_agents.py` | 51 | 1 | 98% |
+| **Overall** | 118 | 10 | **92%** |
 
 ## Shell
 
@@ -24,4 +26,4 @@ Shell is always excluded from the coverage ratchet.
 
 ---
 
-Captured at commit `a370713` on 2026-10-05.
+Captured at commit `9cfe70d` on 2026-11-12.
