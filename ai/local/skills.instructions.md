@@ -94,7 +94,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [tool-preferences](../skills/tool-preferences/SKILL.md) | `credfeto-tool-preferences` | `tool-preferences.instructions.md` |
 | [ide-mcp-code-analysis](../skills/ide-mcp-code-analysis/SKILL.md) | `credfeto-ide-mcp-code-analysis` | `code-quality.instructions.md` |
 | [sarif-summary-findings](../skills/sarif-summary-findings/SKILL.md) | `credfeto-sarif-summary-findings` | `code-quality.instructions.md`, `analyzer-conflicts.instructions.md` |
-| [codegraph](../skills/codegraph/SKILL.md) | `credfeto-codegraph` | `codegraph.instructions.md` (credfeto/cs-template#1220) |
+| [codegraph](../skills/codegraph/SKILL.md) | `credfeto-codegraph` | `codegraph.instructions.md` |
 
 ## Installation
 
