@@ -1,6 +1,6 @@
 ---
 name: credfeto-codegraph
-description: Locate and understand code through the CodeGraph `codegraph_explore` MCP tool before falling back to grep, find or reading files, in any repository whose root has a `.codegraph/` directory, and never through the `codegraph` CLI. Use whenever about to search for, locate or read code to understand it, including the call paths between symbols.
+description: Locates and understands code through the CodeGraph `codegraph_explore` MCP tool before falling back to grep, find or reading files, in any repository whose root has a `.codegraph/` directory, and never through the `codegraph` CLI. Use whenever about to search for, locate or read code to understand it, including the call paths between symbols.
 ---
 
 # CodeGraph
