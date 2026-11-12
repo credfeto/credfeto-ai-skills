@@ -61,6 +61,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-pr-sync skill: PR bodies carry a Closes line for every sub-issue the PR completes
 - credfeto-github-cli-pitfalls skill: add missing tool(cfwf) issue, failure reporting and exit code rules
 - credfeto-dotnet-exception-generation skill: reword the latest stable release rule to match its source
+- Agents: PR Submitter keeps a Closes line for every completed sub-issue in the PR body
+- Code Reviewer agent: removed uncommitted-tree and hard iteration cap rules that have no source in the instruction files
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
