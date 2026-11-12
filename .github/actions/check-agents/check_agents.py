@@ -1,8 +1,9 @@
 """Fail if agent definitions disagree with ai/agents/config.yaml.
 
 Checks that every skill config.yaml preloads exists in ai/skills, that every
-agent config.yaml lists has an AGENT.md, and that every AGENT.md frontmatter
-has exactly the documented keys with the values config.yaml requires.
+agent config.yaml lists has an AGENT.md, that every AGENT.md frontmatter
+has exactly the documented keys with the values config.yaml requires, and
+that no mechanical role is granted the Skill tool.
 """
 
 import os
@@ -16,6 +17,13 @@ AGENTS_DIR = pathlib.Path("ai/agents")
 SKILLS_DIR = pathlib.Path("ai/skills")
 SKILL_PREFIX = "credfeto-"
 ALLOWED_KEYS = {"name", "description", "model", "tools", "skills"}
+MECHANICAL_ROLES = (
+    "changelog",
+    "ci-monitor",
+    "code-tester",
+    "committer",
+    "pr-submitter",
+)
 FRONTMATTER = re.compile(r"\A---[ \t]*\n(.*?)\n---[ \t]*(?:\n|\Z)", re.DOTALL)
 
 
@@ -102,6 +110,15 @@ def check_agents_exist(config):
     ]
 
 
+def check_mechanical_tools(config):
+    """Return a failure for each mechanical role granted the Skill tool."""
+    return [
+        f"config.yaml {slug}: mechanical role must not list the Skill tool"
+        for slug in MECHANICAL_ROLES
+        if "Skill" in (resolve_entry(slug, config).get("tools") or [])
+    ]
+
+
 def main():
     """Report every problem and return a non-zero exit code if any.
 
@@ -113,6 +130,7 @@ def main():
     failures = check_skills_exist(config)
     if os.environ.get("SKILLS_ONLY", "false") != "true":
         failures.extend(check_agents_exist(config))
+        failures.extend(check_mechanical_tools(config))
         for definition in sorted(AGENTS_DIR.glob("*/AGENT.md")):
             failures.extend(check_frontmatter(definition, config))
 

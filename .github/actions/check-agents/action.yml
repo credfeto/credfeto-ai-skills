@@ -1,7 +1,10 @@
 --- # Fail if agent definitions disagree with ai/agents/config.yaml
 # Maintain in repo: credfeto-ai-skills
 name: "Check Agents"
-description: "Fails if a preloaded skill is missing, or (unless skills-only) an agent is missing or its frontmatter differs from ai/agents/config.yaml"
+description: >-
+  Fails if a preloaded skill is missing, or (unless skills-only) an agent is
+  missing, its frontmatter differs from ai/agents/config.yaml or a mechanical
+  role lists the Skill tool
 
 inputs:
   skills-only:

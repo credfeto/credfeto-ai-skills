@@ -20,7 +20,7 @@ Invoked by: `credfeto-code-writer`, `credfeto-code-fixer`, `credfeto-code-review
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 
-When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in your report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in your report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file, a hook's data file (such as its command allowlist) or any other Claude Code configuration, or by invoking `update-config` or any other configuration-editing skill.
 
 ## Report
 

@@ -34,5 +34,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: "Test the agent checker"
+        shell: bash
+        run: python3 -m unittest discover -s .github/actions/check-agents -p "test_*.py"
+
       - name: "Check agents match config.yaml"
         uses: ./.github/actions/check-agents

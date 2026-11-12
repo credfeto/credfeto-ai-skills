@@ -61,6 +61,7 @@ that can be got round no longer enforces anything. Decide which of two cases app
   - `cd <dir> && git <command>` blocked: use `git -C <dir> <command>`.
   - A file edit written through a Bash heredoc blocked by `block-no-verify` (a false positive on the
     heredoc's text): make the edit with the Edit tool instead.
+  - A loop's `break` blocked by a hook: put the exit test in the loop condition instead, e.g. `until <done> || [ "$SECONDS" -gt N ]; do ...; done`.
 - **The hook is too strict.** The operation is legitimate, and no form of it that the hook accepts
   exists. Do **not** get the same effect a different way. In particular, never:
   - write an inline or ad-hoc script (Python, shell or any other language) that does what the
@@ -70,8 +71,11 @@ that can be got round no longer enforces anything. Decide which of two cases app
   - switch to a different command or tool with the same effect, such as `git checkout -- <path>`
     when `git restore` is blocked;
   - create or edit any settings, permission or hook file to make the blocked command run, including
-    `.claude/settings*.json` in any repository, anything under `~/.claude/`, and any `CLAUDE.md`, or
-    load a skill that does so;
+    `.claude/settings*.json` in any repository, anything under `~/.claude/`, and any `CLAUDE.md`;
+  - create or edit a hook's data file, such as its `command-allowlist`, or any other Claude Code
+    configuration, to make the blocked command run;
+  - invoke `update-config` or any other skill that edits settings, permissions, hooks or other
+    Claude Code configuration;
   - ask the calling role, the Orchestrator or the human to run the blocked command for you.
 
   Instead, stop that operation and report the blocked command and the hook's message, both
@@ -101,7 +105,12 @@ Tell the two apart by the message shape, not by guessing at a cause:
 
 The one thing both share: the command **never ran**. Everything in
 [A Denial Means the Command Never Ran](#a-denial-means-the-command-never-ran-mandatory) above
-applies identically to a permission denial; do not wait for it to finish.
+applies identically to a permission denial; do not wait for it to finish. The rules of
+[A Hook Block Is Not a Puzzle to Solve](#a-hook-block-is-not-a-puzzle-to-solve-never-work-around-it-mandatory)
+apply to it too: rewrite the command within the existing rules, and never add a permission rule,
+edit any settings or other Claude Code configuration, or invoke `update-config` or any other
+configuration-editing skill to let it run. When no permitted form exists, log it as
+[Logging an Allowlist Request](#logging-an-allowlist-request-mandatory) describes.
 
 The most common cause of a permission denial is a search command that omits its mandated
 exclusions. A Bash command naming a directory (`find <dir>`, `grep -r ... <dir>`, `cd <dir> && ...`)

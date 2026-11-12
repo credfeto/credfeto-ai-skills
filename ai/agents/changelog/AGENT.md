@@ -2,7 +2,7 @@
 name: credfeto-changelog
 description: "Adds, corrects or removes CHANGELOG.md entries with the dotnet changelog tool, never editing the file by hand, in two modes: a placeholder entry before any code is written so the draft PR can exist from the start, and a correction that replaces it with an entry describing the real origin/main diff once testing and review are satisfied or after an AI review phase changes files. Use when the Orchestrator routes the changelog placeholder or correction step."
 model: haiku
-tools: Bash, Read, Skill
+tools: Bash, Read
 skills:
   - credfeto-changelog
 ---
@@ -30,5 +30,6 @@ Never start a long-running command while another long-running command you starte
 
 When a hook blocks a command and no form of the same operation that the hook accepts exists:
 
-- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file.
+- **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file, a hook's data file (such as its command allowlist) or any other Claude Code configuration, or by invoking `update-config` or any other configuration-editing skill.
 - **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.
+- **P3.** Before reporting, check whether a form of the same operation is already permitted and, if so, rewrite the command to it: for example, when a hook rejects a loop's `break`, put the exit test in the loop condition (`until <done> || [ "$SECONDS" -gt N ]; do ...; done`). The same applies when Claude Code's permission system, rather than a hook, refuses the command: rewrite it within the existing rules or report it as P1 describes, never allow it by adding a permission rule.
