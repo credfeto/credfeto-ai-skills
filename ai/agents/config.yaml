@@ -13,10 +13,13 @@
 # when the full workflow and build MCP servers ship: narrow them per agent, and
 # drop the matching Bash use where the MCP replaces it.
 
-# mcp__codegraph__* (the CodeGraph MCP) and the credfeto-codegraph skill are
-# granted to the agents that locate, read or review code, so they use
-# codegraph_explore to locate and understand code when a repository is
-# indexed. The grant is harmless where no CodeGraph server is configured.
+# mcp__codegraph__codegraph_explore (the CodeGraph MCP's codegraph_explore
+# tool) and the credfeto-codegraph skill are granted to the agents that locate,
+# read or review code, so they use codegraph_explore to locate and understand
+# code when a repository is indexed. Unlike the wildcard grants above, this one
+# is already narrowed to a single tool, because the credfeto-codegraph skill
+# allows only codegraph_explore. The grant is harmless where no CodeGraph
+# server is configured.
 # ToolSearch is granted alongside it because the tools: list is a strict
 # allowlist and Claude Code may defer MCP tools until loaded by ToolSearch.
 
@@ -41,7 +44,7 @@ orchestrator:
     - "mcp__cfwf__*"
     - "mcp__git__*"
     - "mcp__kb__*"
-    - "mcp__codegraph__*"
+    - "mcp__codegraph__codegraph_explore"
     - ToolSearch
   skills:
     - credfeto-agent-routing
@@ -53,7 +56,7 @@ orchestrator:
 coding-researcher:
   name: "Coding Researcher"
   model: opus
-  tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill, "mcp__kb__*", "mcp__codegraph__*", ToolSearch]
+  tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill, "mcp__kb__*", "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-codegraph
 
@@ -75,7 +78,7 @@ code-writer:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
-    - "mcp__codegraph__*"
+    - "mcp__codegraph__codegraph_explore"
     - ToolSearch
   skills:
     - credfeto-code-writer
@@ -85,7 +88,18 @@ code-writer:
 code-tester:
   name: "Code Tester"
   model: haiku
-  tools: [Bash, Read, Grep, Glob, Skill, "mcp__rider__*", "mcp__webstorm__*", "mcp__build-dotnet__*", "mcp__kb__*", "mcp__codegraph__*", ToolSearch]
+  tools:
+    - Bash
+    - Read
+    - Grep
+    - Glob
+    - Skill
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__kb__*"
+    - "mcp__codegraph__codegraph_explore"
+    - ToolSearch
   skills:
     - credfeto-code-tester
     - credfeto-long-running-commands
@@ -110,7 +124,7 @@ code-reviewer:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
-    - "mcp__codegraph__*"
+    - "mcp__codegraph__codegraph_explore"
     - ToolSearch
   skills:
     - credfeto-code-reviewer-subagents
@@ -119,14 +133,14 @@ code-reviewer:
 code-reviewer-reuse:
   name: "Code Reviewer: Reuse"
   model: opus
-  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*", ToolSearch]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-codegraph
 
 code-reviewer-quality:
   name: "Code Reviewer: Quality"
   model: opus
-  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*", ToolSearch]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-code-style
     - credfeto-codegraph
@@ -134,14 +148,14 @@ code-reviewer-quality:
 code-reviewer-efficiency:
   name: "Code Reviewer: Efficiency"
   model: opus
-  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*", ToolSearch]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-codegraph
 
 code-reviewer-correctness:
   name: "Code Reviewer: Correctness"
   model: fable
-  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*", ToolSearch]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-error-handling
     - credfeto-codegraph
@@ -149,7 +163,7 @@ code-reviewer-correctness:
 code-reviewer-security:
   name: "Code Reviewer: Security"
   model: opus
-  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*", ToolSearch]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-secure-coding
     - credfeto-codegraph
@@ -157,7 +171,7 @@ code-reviewer-security:
 code-reviewer-compliance:
   name: "Code Reviewer: Compliance"
   model: opus
-  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__*", ToolSearch]
+  tools: [Read, Grep, Glob, Skill, "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-language-conventions
     - credfeto-codegraph
@@ -179,7 +193,7 @@ repo-auditor:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
-    - "mcp__codegraph__*"
+    - "mcp__codegraph__codegraph_explore"
     - ToolSearch
   skills:
     - credfeto-repo-auditor
@@ -204,7 +218,7 @@ code-fixer:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
-    - "mcp__codegraph__*"
+    - "mcp__codegraph__codegraph_explore"
     - ToolSearch
   skills:
     - credfeto-code-fixer
@@ -213,7 +227,7 @@ code-fixer:
 rebase-agent:
   name: "Rebase Agent"
   model: sonnet
-  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__codegraph__*", ToolSearch]
+  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
     - credfeto-git-rebase
     - credfeto-codegraph
@@ -237,7 +251,7 @@ ci-debugger:
     - "mcp__build-dotnet__*"
     - "mcp__git__*"
     - "mcp__kb__*"
-    - "mcp__codegraph__*"
+    - "mcp__codegraph__codegraph_explore"
     - ToolSearch
   skills:
     - credfeto-ci-debugger
@@ -274,7 +288,20 @@ ci-monitor:
 dependency-updater:
   name: "Dependency Updater"
   model: opus
-  tools: [Bash, Read, Edit, Grep, Glob, WebFetch, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__kb__*", "mcp__codegraph__*", ToolSearch]
+  tools:
+    - Bash
+    - Read
+    - Edit
+    - Grep
+    - Glob
+    - WebFetch
+    - Skill
+    - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__git__*"
+    - "mcp__kb__*"
+    - "mcp__codegraph__codegraph_explore"
+    - ToolSearch
   skills:
     - credfeto-dependency-updater
     - credfeto-codegraph

@@ -2,7 +2,7 @@
 name: credfeto-code-writer
 description: "Implements an approved GitHub issue by reading all relevant instruction files and writing the production code and tests it requires, invoking credfeto-coding-researcher rather than guessing when knowledge is missing, sweeping for further occurrences of any bug fixed, applying IDE code analysis, and handing off to credfeto-code-tester without committing, pushing or touching the changelog. Use when the Orchestrator routes implementation work on a planned and approved issue."
 model: opus
-tools: "Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, mcp__rider__*, mcp__webstorm__*, SendMessage, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*, mcp__codegraph__*, ToolSearch"
+tools: "Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, mcp__rider__*, mcp__webstorm__*, SendMessage, mcp__build-dotnet__*, mcp__git__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch"
 skills:
   - credfeto-code-writer
   - credfeto-code-style
