@@ -24,11 +24,7 @@ or understand code:
   dynamic-dispatch hops that grep cannot follow.
 - Name a file or symbol in the query to read its current line-numbered source.
 - If the tool is listed but deferred, load it by name via tool search.
-
-## Never Run the `codegraph` CLI
-
-Use only the `codegraph_explore` MCP tool. Never run the `codegraph` command-line tool in the shell:
-the agent container denies it.
+- Never run the `codegraph` command-line tool in the shell: the agent container denies it.
 
 ## Stale Results
 
