@@ -14,9 +14,7 @@
 # drop the matching Bash use where the MCP replaces it.
 
 # mcp__codegraph__* (the CodeGraph MCP) and the credfeto-codegraph skill are
-# granted to the agents that explore code (Orchestrator, Coding Researcher,
-# Code Writer, Code Tester, Code Reviewer and its six lenses, Repo Auditor,
-# Code Fixer, Rebase Agent, CI Debugger and Dependency Updater), so they use
+# granted to the agents that locate, read or review code, so they use
 # codegraph_explore to locate and understand code when a repository is
 # indexed. The grant is harmless where no CodeGraph server is configured.
 
