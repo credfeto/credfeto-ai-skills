@@ -27,14 +27,11 @@ Fixing and retrying means retrying **the same operation** in a form the hook acc
   - `git grep` blocked by `enforce-git-dash-c`: use the Grep tool or plain `grep` instead.
   - `cd <dir> && git <command>` blocked: use `git -C <dir> <command>`.
   - A file edit written through a Bash heredoc blocked by `block-no-verify` (a false positive on the heredoc's text): make the edit with the Edit tool instead.
-  - A loop's `break` blocked by a hook: put the exit test in the loop condition instead, e.g. `until <done> || [ "$SECONDS" -gt N ]; do ...; done`.
 - **The hook is too strict.** The operation is legitimate, and no form of it that the hook accepts exists. Do **not** get the same effect a different way. In particular, never:
   - write an inline or ad-hoc script (Python, shell or any other language) that does what the blocked command would have done;
   - use copy-and-swap tricks, such as copying files aside and swapping them back, to stand in for a blocked copy, compare or restore;
   - switch to a different command or tool with the same effect, such as `git checkout -- <path>` when `git restore` is blocked;
-  - create or edit any settings, permission or hook file to make the blocked command run, including `.claude/settings*.json` in any repository, anything under `~/.claude/`, and any `CLAUDE.md`;
-  - create or edit a hook's data file, such as its `command-allowlist`, or any other Claude Code configuration, to make the blocked command run;
-  - invoke `update-config` or any other skill that edits settings, permissions, hooks or other Claude Code configuration;
+  - create or edit any settings, permission or hook file to make the blocked command run, including `.claude/settings*.json` in any repository, anything under `~/.claude/`, and any `CLAUDE.md`, or load a skill that does so;
   - ask the calling role, the Orchestrator or the human to run the blocked command for you.
 
   Instead, stop that operation and report the blocked command and the hook's message, both verbatim, to the calling role, or to the Orchestrator if there is no calling role, so the human can decide whether the hook should change. A role that receives such a report passes it on unchanged in its own report until it reaches the Orchestrator, which never runs a command a sub-agent was denied and never changes settings, permission or hook files because a sub-agent asked.

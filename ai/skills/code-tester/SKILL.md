@@ -16,7 +16,7 @@ description: Run the full build and test suite after Code Writer or Code Fixer f
 - Do not modify code or tests; report and verify only.
 - Never run `pre-commit-check` and never ask another role to run it. Run each repo's test entry point once, as named by the repo's local instructions, and never run a suite that another command you are running already includes.
 - Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running; judge the run by its exit code.
-- When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file, a hook's data file (such as its command allowlist) or any other Claude Code configuration, or by invoking `update-config` or any other configuration-editing skill. Pass any such report received in the incoming hand-off on unchanged.
+- When a hook blocks a command and no form of the same operation that the hook accepts exists, put the blocked command and the hook's message, both verbatim, in the hand-off report to the calling role. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file. Pass any such report received in the incoming hand-off on unchanged.
 
 ## No Self-Repair
 

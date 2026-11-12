@@ -72,6 +72,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled issue-plan-approval, pr-review-loop and pre-work-healthcheck skills with their sources
 - Orchestrator agent now asks questions in chat first, raises approvals and questions in the NEEDS YOU block, and does not poll when ScheduleWakeup is unavailable
 - Mechanical agent roles (committer, code-tester, changelog, pr-submitter and ci-monitor) no longer have the Skill tool, enforced by check_agents.py tests, and on a hook or permission block they stop and report or rewrite within the rules instead of editing Claude configuration or invoking config-editing skills; the Committer now commits and pushes only what it is handed
+- Aligned the codegraph skill's headings and MANDATORY markers with its source instruction file
+- Clarified the rebase cross-reference in the pre-work-healthcheck skill's existing work check
+- Skills: hook-block hand-off wording in the code-reviewer-subagents, code-writer, code-tester, code-fixer, repo-auditor, ci-debugger and dependency-updater skills now matches agent-roles.instructions.md exactly
+- credfeto-claude-hooks skill: removed unsourced loop-break example, update-config and permission-denial wording to match source instructions
+- git-commit skill: removed unsourced Committer bullet and trimmed hook-block wording to the source rules
+- git-branch and git-rebase skills: trimmed hook-block wording to the source rules
+- Skill credfeto-long-running-commands: removed hook-block workaround wording that has no source instruction
+- Skill credfeto-agent-routing: removed unsourced hook-block hand-off wording
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

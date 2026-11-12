@@ -7,15 +7,15 @@ description: Locates and understands code through the CodeGraph `codegraph_explo
 
 This skill covers how to use CodeGraph, a code index, to locate and understand code.
 
-## Check for an Index First
+## No Index, No CodeGraph (MANDATORY)
 
 - If the repository root has a `.codegraph/` directory, the repository is indexed by CodeGraph:
   follow the rest of this skill.
 - If there is no `.codegraph/` directory, skip CodeGraph entirely and use the other tools as
-  normal. In the agent container the index is built automatically; on a workstation, indexing is
-  the user's decision.
+  normal. In the agent container the index is built automatically; on a workstation, whether to
+  index a repository is the user's decision.
 
-## Reach for `codegraph_explore` Before grep, find or Reading Files
+## Use CodeGraph First When Indexed (MANDATORY)
 
 In an indexed repository, call the `codegraph_explore` MCP tool
 before grep/find or reading files whenever you need to locate or understand code:
@@ -24,10 +24,13 @@ before grep/find or reading files whenever you need to locate or understand code
   dynamic-dispatch hops that grep cannot follow.
 - Name a file or symbol in the query to read its current line-numbered source.
 - If the tool is listed but deferred, load it by name via tool search, then call it.
-- Use only the `codegraph_explore` MCP tool. Never run the `codegraph` command line, and never
-  offer it as a shell fallback: the agent container denies it.
 
-## Stale Results
+## MCP Tool Only (MANDATORY)
 
-The index may lag a just-made edit by a couple of seconds. If a result looks stale, re-query, or
-read the file.
+Use only the `codegraph_explore` MCP tool. Never run the `codegraph` command line, and never
+offer it as a shell fallback: the agent container denies it.
+
+## Index Lag
+
+The index may lag an edit made moments earlier by a couple of seconds. If a result looks stale,
+query again or read the file directly.

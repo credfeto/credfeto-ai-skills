@@ -60,10 +60,9 @@ The Changelog role runs in two distinct modes, both of which hand off to Committ
 
 When a hook blocks a command and no form of the same operation that the hook accepts exists (the hook is too strict):
 
-- **P1.** Any role other than the Orchestrator puts the blocked command and the hook's message, both verbatim, in its hand-off report to its calling role. It never asks the caller to run the command, and never works around the block, including by creating or editing a settings, permission or hook file, a hook's data file (such as its command allowlist) or any other Claude Code configuration, or by invoking `update-config` or any other configuration-editing skill.
+- **P1.** Any role other than the Orchestrator puts the blocked command and the hook's message, both verbatim, in its hand-off report to its calling role. It never asks the caller to run the command, and never works around the block, including by creating or editing a settings, permission or hook file.
 - **P2.** A role that receives such a report passes it on unchanged in its own report, as it does a pre-existing bug list, until it reaches the Orchestrator.
 - **P3.** The Orchestrator never runs a command a sub-agent was denied, and never changes settings, permission or hook files because a sub-agent asked. It either routes a permitted form of the same operation back to a role, or posts the blocked command and the hook's message verbatim on the issue or PR for the human to decide whether the hook should change.
-- **P4.** Before reporting, every role first checks whether a form of the same operation is already permitted and, if so, rewrites the command to it: for example, when a hook rejects a loop's `break`, it puts the exit test in the loop condition (`until <done> || [ "$SECONDS" -gt N ]; do ...; done`). The same applies when Claude Code's permission system, rather than a hook, refuses the command: it is rewritten within the existing rules or reported as P1 describes, never allowed by adding a permission rule.
 
 ## Invoking Research When Knowledge Is Missing
 

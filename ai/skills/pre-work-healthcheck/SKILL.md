@@ -197,7 +197,7 @@ Before branching:
      ```
 
      - `0` (not ahead of `main`): branch fresh from `main` as normal.
-     - `>0`: check it out and continue from there instead of branching again, rebasing first (see step 3 above) if `origin/main` has advanced.
+     - `>0`: check it out and continue from there instead of branching again, rebasing first (see the rebase procedure in section 3 above) if `origin/main` has advanced.
 
 ## 7. Rules Compliance for In-Flight Work (MANDATORY)
 
