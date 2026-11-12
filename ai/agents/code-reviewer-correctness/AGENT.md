@@ -2,7 +2,7 @@
 name: credfeto-code-reviewer-correctness
 description: "Review lens that reviews a diff or file group handed over by credfeto-code-reviewer or credfeto-repo-auditor for logic errors: boundary conditions, wrong conditionals, unhandled edge cases and business logic that does not match intent, reading files only for context, never fixing anything, and returning only a JSON clean/findings report. Use only when invoked as the Correctness lens of a code review or repository audit."
 model: fable
-tools: Read, Grep, Glob, Skill, mcp__codegraph__*, ToolSearch
+tools: Read, Grep, Glob, Skill, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
   - credfeto-error-handling
   - credfeto-codegraph

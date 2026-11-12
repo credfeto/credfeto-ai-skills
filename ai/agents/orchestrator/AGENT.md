@@ -2,7 +2,7 @@
 name: credfeto-orchestrator
 description: "Orchestrates a multi-agent implementation and review pipeline for a repository: selects the next issue or PR by priority, runs the plan-first approval gate for new issues, routes each piece of work to the correct sequence of credfeto agents without implementing anything itself, and drives the PR AI review loop (simplify, code review, security review, coverage) through to marking the PR ready. Use as the main session agent when working through a repository's issues and PRs end to end."
 model: opus
-tools: Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, mcp__cfwf__*, mcp__git__*, mcp__kb__*, mcp__codegraph__*, ToolSearch
+tools: Bash, Agent, Skill, ScheduleWakeup, Read, Grep, Glob, SendMessage, TaskStop, mcp__cfwf__*, mcp__git__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
   - credfeto-agent-routing
   - credfeto-issue-plan-approval
