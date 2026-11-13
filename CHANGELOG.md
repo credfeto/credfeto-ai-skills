@@ -26,6 +26,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Issue plan approval skill: a failed workflow board status read no longer counts as not approved (no Blocked, no re-post, no board change) and never counts as approval
 - dotnet-publish skill: align trim and AOT warning suppression rule with the source's explicit written permission wording
 - git-commit skill: remove duplicated sections
+- Changelog agent reads the diff with git -C <dir> as the source requires
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -93,11 +94,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Rebase agent: include the full version-conflict resolution rules (per-entry resolution, stable over pre-release, security exception, no downgrades or invented versions, lock file regeneration).
 - Skill registry: list git.instructions.md and github-cli.instructions.md as sources of the claude-hooks skill
 - credfeto-pr-sync skill: Blocked label guidance now asks in chat first in an interactive session, and posts and adds Blocked straight away in an unattended run
+- Code Fixer agent: align the pre-commit-check prohibition reason with its source role definition
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
 - Removed unsourced rebase-from-main file preference sentence from the git-branch skill
 - Removed unused .NET global.json and empty template solution (src/global.json, src/Credfeto.Template.slnx and its DotSettings)
+- Committer agent drops an unsourced rule about committing only what was handed over
 ### Deployment Changes
 
 <!--
