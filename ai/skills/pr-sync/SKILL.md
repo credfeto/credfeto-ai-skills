@@ -174,7 +174,7 @@ CI Debugger posts a one-line status comment after each pushed fix or re-run, in 
 
 When asking a question in a PR comment and waiting for an answer before continuing:
 
-1. Add the `Blocked` label to the PR immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->`.
+1. Add the `Blocked` label to the PR immediately after posting the question. Do both with one command, which posts the question, then adds `Blocked`, leaving the board as it is: `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->`. In an interactive session, ask in chat first and post the question this way only if it is still unanswered when the session would otherwise stop; an unattended run posts it and adds `Blocked` straight away.
 2. Do not continue working on the PR until the label is removed.
 3. Use only the `Blocked` label for this purpose; never a substitute such as `do not merge` or `needs review`. The orchestrator only recognises `Blocked` when deciding whether to skip an item.
 4. Live-chat approval is not sufficient on its own: if a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work and before asking for `Blocked` to be removed. The record must survive even if the chat session is lost.

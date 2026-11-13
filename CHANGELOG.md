@@ -24,6 +24,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code reviewer agent and skill commit each review fix before starting the next, stop if the committer is unavailable, and make no fixes after the iteration cap - #38
 - Reconcile github-issue skill with sources: NEEDS YOU block for open questions and approvals, and ask-in-chat-first rule for Blocked questions
 - Issue plan approval skill: a failed workflow board status read no longer counts as not approved (no Blocked, no re-post, no board change) and never counts as approval
+- dotnet-publish skill: align trim and AOT warning suppression rule with the source's explicit written permission wording
+- git-commit skill: remove duplicated sections
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -89,6 +91,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Agents: removed an unsourced loop-condition example from the Hook Blocks in Hand-offs rule in every agent that carried it.
 - Code Reviewer agent now includes the best-effort IDE MCP analysis fallback (skip when unavailable, comment on the PR naming the tool, never add Blocked).
 - Rebase agent: include the full version-conflict resolution rules (per-entry resolution, stable over pre-release, security exception, no downgrades or invented versions, lock file regeneration).
+- Skill registry: list git.instructions.md and github-cli.instructions.md as sources of the claude-hooks skill
+- credfeto-pr-sync skill: Blocked label guidance now asks in chat first in an interactive session, and posts and adds Blocked straight away in an unattended run
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
