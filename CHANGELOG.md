@@ -23,6 +23,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Orchestrator agent counts CI Debugger rounds per check since the PR opened rather than since auto-merge was last enabled
 - Code reviewer agent and skill commit each review fix before starting the next, stop if the committer is unavailable, and make no fixes after the iteration cap - #38
 - Reconcile github-issue skill with sources: NEEDS YOU block for open questions and approvals, and ask-in-chat-first rule for Blocked questions
+- Issue plan approval skill: a failed workflow board status read no longer counts as not approved (no Blocked, no re-post, no board change) and never counts as approval
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -81,6 +82,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill credfeto-long-running-commands: removed hook-block workaround wording that has no source instruction
 - Skill credfeto-agent-routing: removed unsourced hook-block hand-off wording
 - Committer agent no longer carries a build and configuration restriction that has no source in the agent roles
+- npm-packages skill now covers installing dependencies when node_modules is missing and moving transitive dependencies with npm update --package-lock-only
+- credfeto-git-commit skill: added long-running command, file list, uncommitted-work, after-push and instruction routing rules from the sources
+- credfeto-git-branch skill: added rule that memory file updates are committed on a branch
+- credfeto-github-issue skill: added the issue view, list, edit, comments, close and reopen commands from the sources
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

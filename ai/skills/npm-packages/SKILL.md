@@ -51,6 +51,7 @@ Before searching for, adding or updating a package, check which registry is actu
 - This covers installing from an existing lockfile; regenerating or updating `package-lock.json` follows [Fixed Package Versions](#fixed-package-versions-mandatory).
 - Install with exactly `npm ci --ignore-scripts`, plus `--prefix` where [Running npm Commands](#running-npm-commands-mandatory) requires it.
 - Never install without `--ignore-scripts`, and never run `npm rebuild`: CI installs without scripts too, so builds must not depend on them.
+- When `node_modules` is missing (it is absent at the start of every session), run `npm ci --ignore-scripts` before committing: the lint and test pre-commit hooks load packages from it and fail without it.
 
 ## General Package Rules
 
@@ -68,6 +69,7 @@ Before searching for, adding or updating a package, check which registry is actu
 - Do not use `*`, `latest`, or any semver range expressions.
 - Updates to existing packages must be **explicit and intentional**: specify the target version directly rather than relying on range resolution.
 - When updating a package, update only that package (and its required peer dependencies); do not allow transitive upgrades to pull in unreviewed version changes.
+- To move a transitive dependency (one not listed in `package.json`, for example for a security fix) to a newer version, run exactly `npm update <package> --package-lock-only --ignore-scripts`, plus `--prefix` after the subcommand where the Running npm Commands rules require it, then check `package-lock.json` resolves the intended version. Never hand-edit `package-lock.json`: the integrity hash can only come from the registry.
 
 ## Resolving Version Conflicts During Merge or Rebase
 

@@ -70,6 +70,34 @@ BODY
 
 Set labels at creation time with `--label`.
 
+Other issue commands (`cfwf help <command>` is authoritative for options and exit codes):
+
+```bash
+# View: title, state, labels, assignees, then the body; --comments adds the comments after a
+# `section<TAB>comments` line (the last such line is the real separator)
+cfwf issue view --repo <owner>/<repo> --issue <number> [--comments]
+
+# Whether it has a plan, whether it is Blocked, and who commented since the plan
+cfwf issue plan-status --repo <owner>/<repo> --issue <number>
+
+# List open issues, highest priority first / search one repository's issues
+cfwf issue list --repo <owner>/<repo>
+cfwf issue search --repo <owner>/<repo> --text "<words>" [--state open|closed|all]
+
+# Edit: title, body (replaces the whole body), assign yourself
+cfwf issue edit --repo <owner>/<repo> --issue <number> --assign-self
+cfwf issue edit --repo <owner>/<repo> --issue <number> [--title "<title>"] [--body-file <file|->]
+
+# Read the top-level comments with their bodies, oldest first
+cfwf issue comments --repo <owner>/<repo> --issue <number> [--since <YYYY-MM-DDTHH:MM:SSZ>] [--author <login>]
+
+# Close with a reason (optional comment first) / reopen
+cfwf issue close --repo <owner>/<repo> --issue <number> --reason <completed|not-planned> [--body-file <file|->]
+cfwf issue reopen --repo <owner>/<repo> --issue <number> [--body-file <file|->]
+```
+
+`cfwf issue plan-status` lists who commented after the plan, without the bodies; read the bodies with `cfwf issue comments --since <plan-at>`.
+
 ## Workflow Project Board (MANDATORY)
 
 Every issue raised, in any repository and via any flow (deliverable issues, ad-hoc intake tracking issues, AI-initiated issues, sub-issues), must be added to the "Workflow" GitHub project linked to that repository, immediately after creation. `cfwf issue create` does this itself, as Not Started, so there is nothing more to run. Only for an issue created some other way, add it immediately after creation, and only then:

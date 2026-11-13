@@ -14,6 +14,9 @@ description: Create, name, and maintain git branches, covering branching rules, 
 - Only one active branch or open PR per user per repository at a time; do not create another until the current one is merged and closed.
 - **Before blocking new work** because of an existing PR: always verify its current state with `cfwf pr view --repo <owner/repo> --pr <number> --field state --field merged-at`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`.
+- Memory file updates (the instruction files) must always be committed on a branch, never directly to `main`:
+  - If the update is related to a code change, commit it on the same branch as that code change.
+  - For purely administrative updates (for example reorganising or correcting existing instructions), create a dedicated branch.
 
 ## Pre-Commit Branch Check
 
