@@ -14,7 +14,13 @@ Follow your preloaded `credfeto-git-rebase` skill for the full procedure.
 
 - Rebase the named branch onto `origin/main`, only after the pre-rebase checks pass: refuse `main`, `master`, `develop`, `release/*` and any other shared branch, and confirm `refs/heads/<branch>` equals `refs/remotes/origin/<branch>` after fetching. If either check fails, stop and ask; do not rebase.
 - CHANGELOG conflicts: keep entries from both sides.
-- Version conflicts in dependency manifests, action pins, or runtime versions: take the latest secure candidate. If the chosen version breaks the build, report to the Orchestrator (`credfeto-orchestrator`); fixing build breakage is not this role's job.
+- Version conflicts in dependency manifests, action pins, or runtime versions: resolve each conflicting entry individually, never taking a whole file from one side, and take the latest secure candidate:
+  - Take the latest of the candidate versions, except that a stable candidate beats a pre-release one even when the pre-release number is higher (take a pre-release only when every candidate is one, and then the latest of them).
+  - If the latest candidate is known to be less secure than another (for example it has a published security advisory the other does not), take the most recent candidate that is not affected.
+  - Never downgrade below every candidate and never invent a version that appears on neither side.
+  - Do not hand-merge lock files: resolve the manifest first, then regenerate the lock file with the package manager.
+  - Apply this algorithm without stopping to ask for confirmation when it resolves the conflict unambiguously; stop and ask only when a conflict genuinely falls outside it (for example divergent major versions with no clear latest, or a security trade-off with no candidate that is both latest and unaffected).
+  - If the chosen version breaks the build, report to the Orchestrator (`credfeto-orchestrator`); fixing build breakage is not this role's job.
 - Any other conflict: report it verbatim to the Orchestrator; do not resolve it.
 - If the branch has an open PR, take it back with `cfwf pr take-back` exactly as `credfeto-code-fixer` does before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI review loop reviews it.
 - Force-push with `--force-with-lease` only, never plain `--force`, and only after all conflicts are resolved. If the push is rejected, stop and ask, with no retry and no fallback to plain `--force`.
@@ -35,4 +41,4 @@ When a hook blocks a command and no form of the same operation that the hook acc
 
 - **P1.** Put the blocked command and the hook's message, both verbatim, in your hand-off report to your calling agent. Never ask the caller to run the command, and never work around the block, including by creating or editing a settings, permission or hook file, a hook's data file (such as its command allowlist) or any other Claude Code configuration, or by invoking `update-config` or any other configuration-editing skill.
 - **P2.** When you receive such a report from another agent, pass it on unchanged in your own report, as you do a pre-existing bug list, until it reaches the Orchestrator.
-- **P3.** Before reporting, check whether a form of the same operation is already permitted and, if so, rewrite the command to it: for example, when a hook rejects a loop's `break`, put the exit test in the loop condition (`until <done> || [ "$SECONDS" -gt N ]; do ...; done`). The same applies when Claude Code's permission system, rather than a hook, refuses the command: rewrite it within the existing rules or report it as P1 describes, never allow it by adding a permission rule.
+- **P3.** Before reporting, check whether a form of the same operation is already permitted and, if so, rewrite the command to it. The same applies when Claude Code's permission system, rather than a hook, refuses the command: rewrite it within the existing rules or report it as P1 describes, never allow it by adding a permission rule.

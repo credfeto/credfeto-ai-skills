@@ -86,6 +86,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-git-commit skill: added long-running command, file list, uncommitted-work, after-push and instruction routing rules from the sources
 - credfeto-git-branch skill: added rule that memory file updates are committed on a branch
 - credfeto-github-issue skill: added the issue view, list, edit, comments, close and reopen commands from the sources
+- Agents: removed an unsourced loop-condition example from the Hook Blocks in Hand-offs rule in every agent that carried it.
+- Code Reviewer agent now includes the best-effort IDE MCP analysis fallback (skip when unavailable, comment on the PR naming the tool, never add Blocked).
+- Rebase agent: include the full version-conflict resolution rules (per-entry resolution, stable over pre-release, security exception, no downgrades or invented versions, lock file regeneration).
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
