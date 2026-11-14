@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 - dotnet-test-patterns skill now covers writing tests before commit, the warning-suppression ban in test code and not widening visibility to test null-argument paths
 - Code-exploring agents can now use the CodeGraph code index to locate and understand code in indexed repositories, with a new credfeto-codegraph skill preloaded into the agents that read code
+- Added the ill-fitting framework exception category to the compliance lens agent and trimmed its leftover placeholder wording
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
@@ -27,6 +28,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-publish skill: align trim and AOT warning suppression rule with the source's explicit written permission wording
 - git-commit skill: remove duplicated sections
 - Changelog agent reads the diff with git -C <dir> as the source requires
+- Orchestrator agent excludes no login from trusted commenters when no bot login is passed in
+- Removed unsourced hook-block wording from the code reviewer and the six lens agents
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
