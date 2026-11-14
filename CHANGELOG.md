@@ -95,6 +95,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill registry: list git.instructions.md and github-cli.instructions.md as sources of the claude-hooks skill
 - credfeto-pr-sync skill: Blocked label guidance now asks in chat first in an interactive session, and posts and adds Blocked straight away in an unattended run
 - Code Fixer agent: align the pre-commit-check prohibition reason with its source role definition
+- Skills: dotnet-exception-generation now covers choosing project-defined exceptions over ill-fitting framework exceptions
+- Repo auditor skill now flags .NET code throwing ill-fitting framework exceptions in its Compliance lens
+- Code reviewer sub-agents skill: added ill-fitting framework exception compliance category
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

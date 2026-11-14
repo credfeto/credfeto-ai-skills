@@ -1,6 +1,6 @@
 ---
 name: credfeto-dotnet-exception-generation
-description: Define .NET exception classes via the Credfeto.Exceptions.SourceGenerator analyzer instead of hand-writing constructors. Use whenever defining a new exception type in a .NET project, or when encountering an existing hand-written exception class (with manually written constructors) in a project this generator could apply to.
+description: Define .NET exception classes via the Credfeto.Exceptions.SourceGenerator analyzer instead of hand-writing constructors, and choose a project-defined exception over an ill-fitting framework one. Use whenever defining a new exception type or raising an exception in a .NET project, or when encountering an existing hand-written exception class (with manually written constructors) in a project this generator could apply to.
 ---
 
 # .NET Exception Class Generation
@@ -30,6 +30,14 @@ Apply the same rule to any project that already defines exceptions with hand-wri
 
 1. Add the `Credfeto.Exceptions.SourceGenerator` package reference (as above) if not already present.
 2. Convert each existing hand-written exception class to `partial`; do not hand-write exception constructors, because the generator supplies them.
+
+## Choosing the Exception to Throw
+
+- When code raises an exception, throw a project-defined exception type generated with `Credfeto.Exceptions.SourceGenerator`, named for the specific failure (for example `DatabaseConfigurationIncompleteException`).
+- Do not force a failure into a framework exception whose meaning does not match it (for example `InvalidOperationException`, `ArgumentException` or `Exception`).
+- Throw a framework exception only where it genuinely matches the contract, for example `ArgumentNullException` or `ArgumentOutOfRangeException` for argument validation at a public API boundary, or `NotSupportedException` for an unsupported operation.
+- Adding `Credfeto.Exceptions.SourceGenerator` to a project to follow this rule needs no separate package approval.
+- Existing code that throws an ill-fitting framework exception need not be changed opportunistically, but code review flags any new code that does.
 
 ## Source
 
