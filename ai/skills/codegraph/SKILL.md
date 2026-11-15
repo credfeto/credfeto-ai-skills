@@ -20,7 +20,7 @@ This skill covers how to use CodeGraph, a code index, to locate and understand c
 In an indexed repository, call the `codegraph_explore` MCP tool
 before grep/find or reading files whenever you need to locate or understand code:
 
-- It returns the relevant symbols' verbatim source plus the call paths between them, including
+- It answers most code questions in one call. It returns the relevant symbols' verbatim source plus the call paths between them, including
   dynamic-dispatch hops that grep cannot follow.
 - Name a file or symbol in the query to read its current line-numbered source.
 - If the tool is listed but deferred, load it by name via tool search, then call it.

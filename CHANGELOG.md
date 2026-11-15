@@ -109,6 +109,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: dependency-updater changelog entry wording rule; dotnet-analyzer-conflicts IDE0028 vs MA0002 resolution updated
 - Rebase Agent definition now reports whether the PR's own diff changed and whether conflicts were resolved, so the Orchestrator can decide between carrying a review forward and re-running the loop.
 - Orchestrator agent: added full-URL reporting, the knowledge-base search before Blocked for tooling problems, and the NuGet restore carve-out.
+- Codegraph skill: state that codegraph_explore answers most code questions in one call
+- pr-review-loop skill: added tooling-problem knowledge-base search before Blocked, NuGet restore errors fixed in the PR, and pattern sweep reintroduction clause
+- issue-plan-approval skill: added tooling-problem knowledge-base search before adding Blocked
+- Added the tooling-problem knowledge base search rule to the github-issue skill's Blocked Label section
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

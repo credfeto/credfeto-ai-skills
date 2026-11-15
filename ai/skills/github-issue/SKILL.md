@@ -224,6 +224,7 @@ When asking a question in an issue or PR comment and waiting for an answer befor
   - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
   - An unattended run never applies this; `Blocked` there still waits for the human.
 - **P7.** Wherever the human is still the one who has to act (an approval, an answer, a manual step), raise it in the NEEDS YOU block at the top of the reply, not only at the end of each status update.
+- **P8.** Before adding `Blocked` for a build, SDK, analyzer, hook or other tooling problem, search the knowledge base, and list every search made (the error text, project type or setting searched for) in the block comment, because a fix recorded elsewhere may already apply and the human needs to see it was looked for. Use `Blocked` only when no recorded fix applies; a genuine design question still blocks as before.
 
 ## Trusted Commenters
 

@@ -18,7 +18,7 @@ Each Code Writer or Code Fixer task carries exactly one change (one finding, one
 - Never accumulate several changes in the working tree and split them into commits afterwards, whether by file or by hunk.
 - A change's Pattern Sweep is its own commit, made immediately after that change's fix commit and before the next change starts. The one exception is Phase A's post-convergence sweeps, which have no fix commit of their own; each is still its own change, committed before the next.
 - Pushes may be batched: Committer may push once after a run of consecutive commits instead of after each one, but the branch is always pushed before PR Submitter or CI Monitor runs.
-- Run one Pattern Sweep, and make one sweep commit, per construct, not per finding or per occurrence: when several findings report the same construct at different sites, one sweep covers them all. Skip the sweep if a commit already in this PR carries a `Construct:` line for the same construct and no later commit reintroduced it.
+- Run one Pattern Sweep, and make one sweep commit, per construct, not per finding or per occurrence: when several findings report the same construct at different sites, one sweep covers them all. Skip the sweep if a commit already in this PR carries a `Construct:` line for the same construct and no later commit reintroduced it; a site a later review round deliberately reverted is not reintroduced.
 - If a sweep finds nothing, the fix commit body carries the `Construct:` line and `Swept: none`; no sweep commit or extra comment is needed.
 - Apply a Pattern Sweep in full whatever its size; never stop, add `Blocked` or defer it to a follow-up issue because of its size.
 - A Pattern Sweep hit that the build-time static analyzer stack already enforces differently is left as-is.
@@ -52,6 +52,8 @@ Each Code Writer or Code Fixer task carries exactly one change (one finding, one
 ## Adding `Blocked`
 
 Wherever this loop says to add `Blocked`, post the explanatory comment and add the label with one command, `cfwf pr block --repo <owner/repo> --pr <number> --body-file <file|->`, which posts the comment, then adds `Blocked`, leaving the board as it is. Then stop as the step says.
+
+Before adding `Blocked` for a build, SDK, analyzer, hook or other tooling problem, search the knowledge base for a recorded fix and list every search made (the error text, project type or setting searched for) in the block comment, because a fix recorded elsewhere may already apply and the human needs to see it was looked for. Use `Blocked` only when no recorded fix applies; a genuine design question still blocks as before.
 
 ## Conflict Resolution: Simplify/Code Review vs. Static Analyzer
 
@@ -145,7 +147,7 @@ Whenever `Blocked` is added, the accompanying comment must name the specific ins
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
-When a `Blocked`-ing failure encountered during this loop is diagnosed as an environment or infrastructure problem (a bug in the container image, a missing tool, a transient infra issue) rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
+A NuGet restore error such as `NU1603` or `NU1605` is a dependency problem in the repository, not an environment or infrastructure problem, so fix it in the PR instead of blocking. When a `Blocked`-ing failure encountered during this loop is diagnosed as an environment or infrastructure problem (a bug in the container image, a missing tool, a transient infra issue) rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
 
 1. Post the full human-readable diagnosis as normal: root cause, evidence, and (if known) the fix needed.
 2. Append a single trailer line to that same comment:

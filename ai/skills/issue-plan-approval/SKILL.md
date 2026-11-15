@@ -68,6 +68,8 @@ Use only the `Blocked` label for this purpose; never a substitute such as `do no
 
 Whenever `Blocked` is added, the accompanying comment must name the specific instruction that requires the stop, as a link to its section. A judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction; if no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
 
+Before adding `Blocked` for a build, SDK, analyzer, hook or other tooling problem, search the knowledge base for a recorded fix and list every search made (the error text, project type or setting searched for) in the block comment, because a fix recorded elsewhere may already apply and the human needs to see it was looked for. Use `Blocked` only when no recorded fix applies; a genuine design question still blocks as before.
+
 Revise a plan only by posting a new `## Implementation Plan` comment, never by editing an existing one in place, so approval is always judged against the latest plan comment. A revised plan continues the `P`, `Q` and assumption numbering of the plan it supersedes.
 
 Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically (the sole exceptions in an interactive session are live-chat approval, see below, and live-chat answers to a PR's question):
