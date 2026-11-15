@@ -20,8 +20,9 @@
 # is already narrowed to a single tool, because the credfeto-codegraph skill
 # allows only codegraph_explore. The grant is harmless where no CodeGraph
 # server is configured.
-# ToolSearch is granted alongside it because the tools: list is a strict
-# allowlist and Claude Code may defer MCP tools until loaded by ToolSearch.
+# ToolSearch is granted alongside it, and to every agent with an MCP grant,
+# because the tools: list is a strict allowlist and Claude Code may defer MCP
+# tools until loaded by ToolSearch.
 
 # The mechanical roles (changelog, committer, pr-submitter, ci-monitor and
 # code-tester) are not granted the Skill tool: their preloaded skills hold
@@ -272,21 +273,21 @@ changelog:
 committer:
   name: "Committer"
   model: haiku
-  tools: [Bash, "mcp__git__*"]
+  tools: [Bash, "mcp__git__*", ToolSearch]
   skills:
     - credfeto-git-commit
 
 pr-submitter:
   name: "PR Submitter"
   model: haiku
-  tools: [Bash, "mcp__cfwf__*", "mcp__git__*"]
+  tools: [Bash, "mcp__cfwf__*", "mcp__git__*", ToolSearch]
   skills:
     - credfeto-pr-sync
 
 ci-monitor:
   name: "CI Monitor"
   model: haiku
-  tools: [Bash, Agent, Monitor, ScheduleWakeup, SendMessage, TaskStop, "mcp__cfwf__*"]
+  tools: [Bash, Agent, Monitor, ScheduleWakeup, SendMessage, TaskStop, "mcp__cfwf__*", ToolSearch]
   skills:
     - credfeto-long-running-commands
 
