@@ -1,6 +1,6 @@
 ---
 name: credfeto-learnings-capture
-description: Record a human-readable note in the knowledge-base MCP (the `kb_orchestrator` server) whenever a memory file (an AI instruction/rule file) is created or updated to record something learned during work. Use immediately alongside such a memory-file update, never as a replacement for it.
+description: Record a human-readable note in the knowledge-base MCP (the `kb_orchestrator` server) whenever a memory file (an AI instruction/rule file) is created or updated to record something learned during work, and search and record tooling fixes there. Use immediately alongside such a memory-file update, never as a replacement for it, and before blocking for a human on, or after working around, a build, SDK, analyzer or hook problem.
 ---
 
 # Learnings Capture
@@ -27,4 +27,28 @@ Title: learning: <short, human-readable description of what was learned>
 **What we learned**: <plain-language explanation, no rule-file syntax>
 
 **Why it matters**: <impact; what it prevents or improves going forward>
+```
+
+## Tooling Problems: Read Before Blocking, Write After Solving (MANDATORY)
+
+Tooling and build fixes are recorded in the knowledge-base MCP (the `kb_orchestrator` server) so that every agent finds them without searching other repositories' code. A tooling problem is a build, SDK, analyzer, hook or similar problem that is not specific to one repository, not a genuine design question.
+
+- **P1.** Before blocking for a human on a tooling problem, search the knowledge base for the error text, the project type and the setting involved. If a recorded fix applies, use it and cite the note in the PR, because a fix that already exists makes a human block needless.
+- **P2.** When you work around a tooling problem that is not specific to one repository (an SDK incompatibility, an analyzer conflict, a hook quirk), add a short knowledge-base note with the symptom, the exact fix and why it works, using the tooling note template below, after searching for an existing note on the same thing and updating that one instead if there is one, so the next agent finds the fix without looking at other repositories. If the server is not connected, put the note text in your hand-off or final report instead.
+- **P3.** Block only when no recorded fix applies, and list the searches made in the block comment, because the human can then see what was already tried.
+
+## Tooling Note Template
+
+Add it with the knowledge-base MCP server's (`kb_orchestrator`) note tool, using this title and body:
+
+```text
+Title: tooling: <short description of the symptom>
+
+**Symptom**: <exact error text, project type, SDK or tool version>
+
+**Fix**: <the exact change, command or setting>
+
+**Why it works**: <the cause and why the fix addresses it>
+
+**Found in**: <repo and PR where it was first applied>
 ```

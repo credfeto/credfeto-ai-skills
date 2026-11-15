@@ -5,8 +5,6 @@ description: Commit and push changes safely, covering branch checks, build/test 
 
 # Git Commit Workflow
 
-Follow every step below, in order, for every commit.
-
 ## 1. Build and Test Verification (MANDATORY)
 
 Write unit tests before every commit; every new behaviour must have corresponding tests. Build must pass and all tests must pass before committing or pushing. In a .NET repository, run them through the `build-dotnet` MCP tools when the server lists them. If they fail and cannot be resolved, stop and ask.

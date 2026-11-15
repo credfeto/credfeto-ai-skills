@@ -101,6 +101,11 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: dotnet-exception-generation now covers choosing project-defined exceptions over ill-fitting framework exceptions
 - Repo auditor skill now flags .NET code throwing ill-fitting framework exceptions in its Compliance lens
 - Code reviewer sub-agents skill: added ill-fitting framework exception compliance category
+- Skills: performance-benchmarking heading no longer marked MANDATORY; git-commit drops unsourced framing sentence
+- Skills: learnings-capture gains tooling-problem read-before-blocking rules and note template
+- Skills: ci-debugger, pr-sync gain NuGet restore error and knowledge-base search before Blocked rules
+- Skills: git-branch, git-rebase and pr-review-loop gain rebase carry-forward reporting rules
+- Skills: dependency-updater changelog entry wording rule; dotnet-analyzer-conflicts IDE0028 vs MA0002 resolution updated
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

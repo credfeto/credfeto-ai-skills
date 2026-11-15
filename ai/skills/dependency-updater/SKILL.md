@@ -22,6 +22,7 @@ description: Review a Dependabot or other bot-authored dependency-update PR, aut
   ```
 
   Valid types: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, `Deployment Changes`.
+- Entries must describe what changed and why it matters, not how it was implemented.
 - Do not rely on the pre-existing `Changelog Not Required` label once you have pushed to the PR; verify the CI check actually passes.
 - Do not add a `CHANGELOG.md` entry if the repository name contains `-template`.
 - This is a workaround for the actor-detection gap, not a substitute for fixing it. If you have write access to the workflow, also consider fixing the underlying check to key off `github.event.pull_request.user.login` instead of `github.actor`.

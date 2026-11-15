@@ -186,10 +186,11 @@ When asking a question in a PR comment and waiting for an answer before continui
    - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
    - An unattended run never applies this; `Blocked` there still waits for the human.
 7. Wherever the human is still the one who has to act (an approval, an answer, a manual step), raise it in the NEEDS YOU block at the top of the reply, not only at the end of each status update.
+8. Before adding `Blocked` for a build, SDK, analyzer, hook or other tooling problem, search the knowledge base, and list every search made (the error text, project type or setting searched for) in the block comment, because a fix recorded elsewhere may already apply and the human needs to see it was looked for. Use `Blocked` only when no recorded fix applies; a genuine design question still blocks as before.
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
-When a Blocked-ing failure is diagnosed as an environment/infrastructure problem (a bug in the container image, a missing tool, a transient infra issue) rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
+A NuGet restore error such as `NU1603` or `NU1605` is a dependency problem in the repository, not an environment/infrastructure problem, so fix it in the PR instead of blocking. When a Blocked-ing failure is diagnosed as an environment/infrastructure problem (a bug in the container image, a missing tool, a transient infra issue) rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
 
 1. Post the full human-readable diagnosis as normal: root cause, evidence, and (if known) the fix needed.
 2. Append a single trailer line to that same comment:

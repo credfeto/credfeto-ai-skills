@@ -25,6 +25,10 @@ description: Diagnose a failing CI check by reading its full logs and finding th
 
 ## Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
+A NuGet restore error such as `NU1603` or `NU1605` is a dependency problem in the repository, not an environment/infrastructure problem, so fix it in the PR instead of blocking.
+
+Before adding `Blocked` for a build, SDK, analyzer, hook or other tooling problem, search the knowledge base for a recorded fix and list every search made (the error text, project type or setting searched for) in the block comment, because a fix recorded elsewhere may already apply and the human needs to see it was looked for. Use `Blocked` only when no recorded fix applies.
+
 When a Blocked-ing failure is diagnosed as an environment/infrastructure problem, such as a bug in the container image, a missing tool, or a transient infra issue, rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
 
 1. Post the full human-readable diagnosis as normal: root cause, evidence, and (if known) the fix needed.

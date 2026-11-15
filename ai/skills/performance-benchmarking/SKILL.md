@@ -17,7 +17,7 @@ description: Design and optimise performance-critical code, and back optimisatio
 - Cache expensive computed values that do not change within a given scope.
 - Be mindful of implicit conversions, boxing, or type coercions on hot paths.
 
-## Benchmark Workflow (MANDATORY for performance-critical code)
+## Benchmark Workflow
 
 1. **Write benchmarks alongside the code they measure**: commit them alongside that code.
    - In .NET repositories, write benchmarks as xUnit tests in the benchmark test project (`<AssemblyName>.Benchmark.Tests`), using `FunFair.Test.Common` helpers: `Benchmark<BenchmarkClass>()` to run the benchmark and `SummaryExtensions.AssertAllocationsAtMost(...)` to assert measured thresholds (zero or explicit byte threshold). Do not roll custom helpers.
