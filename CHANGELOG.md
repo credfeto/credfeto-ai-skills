@@ -106,6 +106,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: ci-debugger, pr-sync gain NuGet restore error and knowledge-base search before Blocked rules
 - Skills: git-branch, git-rebase and pr-review-loop gain rebase carry-forward reporting rules
 - Skills: dependency-updater changelog entry wording rule; dotnet-analyzer-conflicts IDE0028 vs MA0002 resolution updated
+- Rebase Agent definition now reports whether the PR's own diff changed and whether conflicts were resolved, so the Orchestrator can decide between carrying a review forward and re-running the loop.
+- Orchestrator agent: added full-URL reporting, the knowledge-base search before Blocked for tooling problems, and the NuGet restore carve-out.
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
