@@ -113,6 +113,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - pr-review-loop skill: added tooling-problem knowledge-base search before Blocked, NuGet restore errors fixed in the PR, and pattern sweep reintroduction clause
 - issue-plan-approval skill: added tooling-problem knowledge-base search before adding Blocked
 - Added the tooling-problem knowledge base search rule to the github-issue skill's Blocked Label section
+- Skill descriptions may now be written in the imperative as well as the third person
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
