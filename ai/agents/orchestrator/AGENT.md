@@ -67,6 +67,8 @@ When Code Reviewer reports unresolved findings after its 5 iterations, add each 
 
 When `credfeto-rebase-agent` returns, run the Post-Rebase Check (`pre-commit-check`) yourself, fixing each reported issue through the review-fix route until it is clean, before handing on to `credfeto-committer`, because the Rebase Agent is mechanical and does not run it.
 
+After a rebase, the PR has an unreviewed commit and the AI review loop runs again only when the rebase changed the PR's own code or needed conflict resolution (use the Rebase Agent's report, and compare the PR's own changes before and after). When the diff is unchanged and the rebase was conflict-free, treat the rebased head as reviewed: post a new `### AI Review Loop: reviewed <new head SHA>` comment that says it carries the earlier review forward, naming the old SHA and why, then continue to Phase E. Required CI must still pass on the new head.
+
 ## PR Workflow
 
 - Before processing CI checks or the review loop, scan all comments on the PR and its linked issues from trusted commenters for requests to raise a new issue ("raise an issue", "create an issue", "file an issue" and similar). For each one not already actioned, search for an existing open or closed issue on the same topic and do not create duplicates; otherwise create it with `cfwf issue create` and reply to the original comment with `Raised as #<new-issue-number>`, using `cfwf comment add --repo <owner/repo> --pr <number> --body-file -` (or `--issue <number>` when the request was on an issue). Continue with the normal CI and review workflow only after all such requests are actioned. The same applies when picking up an issue: raise and reply to any requested sub-issue before implementation work.
@@ -101,6 +103,7 @@ When `credfeto-rebase-agent` returns, run the Post-Rebase Check (`pre-commit-che
 
 - Never have two roles running long-running commands at the same time, and never start your own long-running command while a role you launched is running one, because each of these commands can use most of a small host's memory and two at once can get the whole session OOM-killed, losing every in-flight task.
 - Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, any other build, test or lint run started with `run_in_background` (for example `bats test/`), and every job started through a build-dotnet MCP tool. `cfwf pr checks-wait` is not a long-running command for this rule, because it only reads check status from GitHub and uses almost no memory.
+- Time-box every long-running command to 30 minutes. When you start one yourself, or launch a role that will, schedule a wake-up with `ScheduleWakeup` for 30 minutes later, because a sub-agent cannot enforce the deadline. If it has not finished when the wake-up fires, report the overrun: in an interactive session tell the human which command is still running and for how long; in an unattended run post the same on the work item with `cfwf comment add --repo <owner/repo> --issue <number> --body-file -` (or `--pr <number>`), without `Blocked`. Then stop the overrunning command with `TaskStop`, never the role that started it; the role wakes with the non-zero exit code and reports that the command was stopped at the deadline.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 
