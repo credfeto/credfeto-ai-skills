@@ -126,7 +126,7 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
 
   - **0**: handed off, with auto-merge on, or unavailable on the repository (then the PR is left ready for a human to merge, which it says).
   - **7**: ready and recorded, but auto-merge deferred, because the checks that start once the PR is marked ready have not all finished, or one failed. GitHub counts a check skipped on a draft as passed, so enabling auto-merge straight after marking ready could merge before lint, secret scanning and dependency review have run; `cfwf` enables it only once every judged check has a result completed at or after the PR was last marked ready. See P3.
-  - **8**: refused, nothing written. Read the rule from `cfwf: hand-off refused: <rule>` (or `cfwf: body refused: <rule>`) on stderr: a title that is not Conventional Commits, a leak or a plan-approval keyword in the text, a PR that is not open or carries `Blocked` or `On Hold`, or required checks that failed, are pending or have not reported at all. Fix what is yours to fix (the title or text) and run it again; for failing checks follow the CI checks rules; otherwise stop and report.
+  - **8**: refused, nothing written. Read the rule from `cfwf: hand-off refused: <rule>` (or `cfwf: body refused: <rule>`) on stderr: a title that is not Conventional Commits, a leak or a plan-approval keyword in the text, a PR that is not open or carries `Blocked` or `On Hold`, or required checks that failed, are pending or have not reported at all. Fix what is yours to fix (the title or text) and run it again; for failing checks follow [Reading CI Check State](#reading-ci-check-state) below; otherwise stop and report.
   - **9**: the PR does not exist. **1**: a runtime failure (API or network) naming the steps already done; retry later. **2**: a usage error.
 
   The review record is the comment `### AI Review Loop: reviewed <full head SHA>`, followed by the text from `--body-file`. `cfwf` writes that first line itself, from the head it read at the start, so the SHA can never be mistyped or stale, and it posts the record on every run, even when the PR was already ready, because this comment is the record of which head the loop last reviewed, and neither the PR's draft state nor its `ready_for_review` events move forward when the loop re-runs on a PR that is already ready.
@@ -138,8 +138,28 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
   Phase E is the only step that takes a PR out of draft, because every other role leaves it as draft until the loop has reviewed every commit.
 - **P3.** When the hand-off exits **7** (deferred):
   - In an interactive session, hand CI to CI Monitor, stating the run mode and that the required checks skipped while the PR was a draft are now running for the first time, because those checks have never run and nothing else would wait for them. CI Monitor handles any failure as a CI failure. When CI Monitor returns control after confirming all required checks pass, run the same `cfwf pr hand-off` again.
-  - In an unattended run, stop here, because `oneshot` re-invokes the agent when the checks change. On a later invocation, when the PR is open and not a draft, `cfwf pr view --repo <owner/repo> --pr <number> --field auto-merge` prints `off`, the PR has no unreviewed commit and the CI checks rules confirm all required checks passed, run the same `cfwf pr hand-off` again, because that combination is what a PR waiting at this step looks like. It exits 7 again while a required check has no post-ready result; leave the PR as it is then.
+  - In an unattended run, stop here, because `oneshot` re-invokes the agent when the checks change. On a later invocation, when the PR is open and not a draft, `cfwf pr view --repo <owner/repo> --pr <number> --field auto-merge` prints `off`, the PR has no unreviewed commit and [Reading CI Check State](#reading-ci-check-state) confirms all required checks passed, run the same `cfwf pr hand-off` again, because that combination is what a PR waiting at this step looks like. It exits 7 again while a required check has no post-ready result; leave the PR as it is then.
   - If the PR has an unreviewed commit, for example from a Rebase Agent or human push, first take it back with `cfwf pr take-back --repo <owner/repo> --pr <number> --body-file <file|->` (a body saying why), which turns auto-merge off first, then converts the PR to draft, moves the board to **Development** and posts the body as a comment; never do those steps separately, because converting to draft alone does not turn auto-merge off. Then run this loop for it instead of handing it off again, because unreviewed change must not merge, and a draft PR is what lets the loop's own Phase E mark it ready again and start the post-ready checks.
+
+Before closing any issue or PR, including at this phase's closing points, check whether its Implementation Plan (Approach or Files-to-change text, or an Open Question) or a later comment on it flagged a specific decision as required or pending (for example "needs policy sign-off", "pending a decision on X", an unresolved `Qn.`). If so, do not close until that specific item has a visible resolution of its own (a comment recording the decision, a link to the resolving issue or PR, or an explicit retraction), not just implicitly overtaken by whichever branch of the plan got implemented. Removal of `Blocked` is not itself sufficient evidence that this check is satisfied.
+
+## Reading CI Check State
+
+Check the state of the required checks once, because the PR is mergeable without the optional ones:
+
+```bash
+cfwf pr checks --repo <owner/repo> --pr <number>
+```
+
+It reads the required checks of the PR's base branch from its protection and rulesets (every check when the branch requires none), judges the newest run of each on the PR's current head, and never waits. Judge the result by its exit code, never its printed text:
+
+- **0**: every required check passed (skipped and neutral count as passed).
+- **3**: at least one required check failed; a cancelled, timed-out or stale one counts as failed, because GitHub treats it as unsatisfied and the PR cannot merge until it runs again.
+- **4**: none failed and at least one is pending, including a required check with no result yet.
+- **5**: the head has no check runs or statuses at all. That is not a pass; treat it as pending.
+- **1**: an API or network error, never a failed check. **2**: a usage error.
+
+Accept an all-passed result only if it is still true on the next check after it was first seen, because a fast required workflow can pass before a slower one has even been queued. Route a failed required check to CI Debugger rather than fixing it in the Orchestrator, because the Orchestrator never implements directly.
 
 ## Justifying `Blocked`
 

@@ -160,6 +160,8 @@ Overloads accept `string`, typed object (serialised to JSON), or `HttpStatusCode
 
 **Limitation**: `MockCreateClientWithResponse` sets up one fixed response per named client. For tests that need sequential different responses from the same client, use `NSubstitute`'s `.Returns()` with a delegate or a custom `HttpMessageHandler`.
 
+Production code obtains `HttpClient` only through `IHttpClientFactory`. Tests may construct an `HttpClient` around a fake `HttpMessageHandler` and return it from a mocked `IHttpClientFactory`; `MockCreateClientWithResponse` above covers the simple case.
+
 ### Patterns not to reinvent
 
 - Custom `ILogger<T>` mocks → `this.GetTypedLogger<T>()`

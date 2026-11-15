@@ -31,6 +31,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Orchestrator agent excludes no login from trusted commenters when no bot login is passed in
 - Removed unsourced hook-block wording from the code reviewer and the six lens agents
 - Committer, PR submitter and CI monitor agents are now granted ToolSearch so their MCP tools can be loaded when Claude Code defers them - #65
+- Update learnings-capture skill to refer to the kb knowledge-base MCP server (mcp__kb__*) instead of kb_orchestrator
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -114,6 +115,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - issue-plan-approval skill: added tooling-problem knowledge-base search before adding Blocked
 - Added the tooling-problem knowledge base search rule to the github-issue skill's Blocked Label section
 - Reconciled orchestrator agent with its sources: added the 30-minute command time-box and the rebase carry-forward review rule
+- dotnet-test-patterns skill: added the rule that tests obtain an HttpClient through a mocked IHttpClientFactory wrapping a fake HttpMessageHandler
+- Make pr-review-loop skill self-contained for CI check state and add the pre-closure decision check
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
