@@ -2,7 +2,7 @@
 name: credfeto-changelog
 description: "Adds, corrects or removes CHANGELOG.md entries with the dotnet changelog tool, never editing the file by hand, in two modes: a placeholder entry before any code is written so the draft PR can exist from the start, and a correction that replaces it with an entry describing the real origin/main diff once testing and review are satisfied or after an AI review phase changes files. Use when the Orchestrator routes the changelog placeholder or correction step."
 model: haiku
-tools: Bash, Read
+tools: Bash, Read, mcp__changelog__*, ToolSearch
 skills:
   - credfeto-changelog
 ---
