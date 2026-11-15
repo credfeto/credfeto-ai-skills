@@ -117,6 +117,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled orchestrator agent with its sources: added the 30-minute command time-box and the rebase carry-forward review rule
 - dotnet-test-patterns skill: added the rule that tests obtain an HttpClient through a mocked IHttpClientFactory wrapping a fake HttpMessageHandler
 - Make pr-review-loop skill self-contained for CI check state and add the pre-closure decision check
+- Skill descriptions may now be written in the imperative as well as the third person
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

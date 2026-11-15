@@ -13,7 +13,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 - Each skill lives in `ai/skills/<skill>/SKILL.md`.
 - `SKILL.md` must start with YAML frontmatter containing exactly:
   - `name: credfeto-<skill>` — must match the installed folder name (lowercase letters, numbers, and hyphens only).
-  - `description:` — third person, one paragraph, stating **what the skill does** and **when to use it** (the trigger conditions). This is the only text the model sees when deciding whether to load the skill, so triggers matter more than detail.
+  - `description:` — imperative or third person, one paragraph, stating **what the skill does** and **when to use it** (the trigger conditions). This is the only text the model sees when deciding whether to load the skill, so triggers matter more than detail.
 - Supporting files (scripts, templates) may sit alongside `SKILL.md` in the same folder and are installed with it.
 - [install](../skills/install) installs every folder containing a `SKILL.md` into `~/.claude/skills/credfeto-<skill>` and removes any skill it installed on an earlier run (recorded in `~/.claude/skills/.credfeto-ai-skills-skills`) that no longer has a source folder, leaving other `credfeto-*` skills alone. With `--system` it does the same in the managed folder `/etc/claude-code/.claude/skills` using `sudo`, keeping a separate manifest there. It discovers skills automatically: adding a new skill requires no installer change.
 
