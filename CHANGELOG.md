@@ -30,7 +30,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Changelog agent reads the diff with git -C <dir> as the source requires
 - Orchestrator agent excludes no login from trusted commenters when no bot login is passed in
 - Removed unsourced hook-block wording from the code reviewer and the six lens agents
-- Agents with MCP wildcard tool grants (committer, pr-submitter, ci-monitor) are now granted ToolSearch - #65
+- Committer, PR submitter and CI monitor agents are now granted ToolSearch so their MCP tools can be loaded when Claude Code defers them - #65
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
