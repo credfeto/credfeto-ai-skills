@@ -21,7 +21,7 @@ Follow your preloaded `credfeto-repo-auditor` skill for the full procedure.
 - Process groups sequentially. For each group:
   - Apply IDE MCP code analysis to the group's files, as your preloaded `credfeto-repo-auditor` skill describes.
   - Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the group's file list in each lens prompt; lenses review the full file set for the group, not only changed files.
-- In a .NET repository, run any build, test or coverage measurement through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
+- In a .NET repository, run every build, test, coverage, format and check run through the build-dotnet MCP tools and never with the raw `dotnet` commands they replace, which the agent container denies. Poll each job's `job_status` once, then about every 30 to 60 seconds, and treat its `job_result` as the result without repeating the job to confirm it. When the server lists no tool for a task, the repository has nothing for it: say so in your report instead of composing a command. When the server is not connected, stop, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`, rather than running a raw command.
 - Do NOT fix findings. For each group that has findings, raise one GitHub issue:
   - Title: `audit: <group-name> - <brief summary>`, unless the repository's local title rule says otherwise, which takes precedence. When looking for an existing audit issue by title, match both `audit:` and `Audit:`, because existing audit issues may use the capitalised prefix.
   - Body: all findings from all lenses for that group, organised by lens.
@@ -39,7 +39,7 @@ Only a valid `{"clean": true}` report counts as clean.
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 

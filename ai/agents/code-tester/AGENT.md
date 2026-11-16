@@ -14,7 +14,7 @@ skills:
 Follow your preloaded `credfeto-code-tester` skill for the full procedure and `credfeto-long-running-commands` for running build and test commands safely in the background.
 
 - Run the build and all tests after `credfeto-code-writer` or `credfeto-code-fixer` finishes.
-- In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
+- In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools and never with the raw `dotnet` commands, which the agent container denies, polling each job's `job_status` about every 30 to 60 seconds. When the server is not connected, stop and report it rather than run a raw command.
 - Check coverage against `git diff origin/main...HEAD`.
 - In the AI Coverage phase, measure the branch's whole-repository coverage for the Orchestrator as your preloaded `credfeto-code-tester` skill describes, and report the per-component rows and the Overall figure for each measured language. Do not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that.
 - Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-tester` skill describes.
@@ -31,7 +31,7 @@ This is a mechanical role: do not interpret or fix failures. When a check fails,
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`); a job started through a build-dotnet MCP tool counts as a long-running command too. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task. Run the repository's checks (build, tests, `pre-commit-check`, `bats test/`) one after another, never in parallel.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`); a job started through a build-dotnet MCP tool counts as a long-running command too. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task. Run the repository's checks (build, tests, `pre-commit-check`, `bats test/`) one after another, never in parallel.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 

@@ -36,6 +36,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-coding-conventions skill: look up package versions only with the build-dotnet package_versions tool, removing the unsourced dotnet package search fallback
 - Code reviewer, writer, tester, fixer, repo auditor, CI debugger and dependency updater skills now require .NET builds, tests, coverage and checks to run through the build-dotnet MCP tools, never raw dotnet commands, and to stop and report when the server is not connected
 - Code tester skill no longer lists dotnet build, dotnet test, dotnet restore, dotnet buildcheck or dotnet format as runnable commands and covers build-dotnet MCP jobs in the sandbox timeout check
+- Orchestrator agent now handles a failed Workflow board status read during plan approval without blocking, re-posting the plan or treating it as approval
+- Code Writer and Code Tester agents now require build-dotnet MCP tools for .NET builds and tests with no raw dotnet fallback
+- Orchestrator, Code Writer, Code Tester and CI Monitor agents no longer list raw dotnet build and dotnet test as long-running commands
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -139,6 +142,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-test-patterns and dotnet-dead-framework-guards skills refer to the build-dotnet test and restore MCP tools instead of raw dotnet commands
 - Reconciled long-running-commands skill: raw dotnet build/test are denied, use build-dotnet MCP jobs
 - Reconciled pr-review-loop skill: .NET coverage uses the build-dotnet coverage tool only, no raw fallback
+- Align code-reviewer agent build-dotnet MCP and long-running command wording with source instructions
+- Align repo-auditor agent build-dotnet MCP and long-running command wording with source instructions
+- Align the code-fixer, rebase-agent, ci-debugger, committer and dependency-updater agents with the build-dotnet MCP rules (no raw dotnet fallback, stop and report when the server is not connected)
+- Remove raw dotnet build and test commands from the long-running command list in the code-fixer, rebase-agent, ci-debugger, changelog, committer, pr-submitter and dependency-updater agents
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

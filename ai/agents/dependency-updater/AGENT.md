@@ -15,11 +15,11 @@ Follow your preloaded `credfeto-dependency-updater` skill for the full procedure
 - Review Dependabot PRs: auto-merge safe patch/minor bumps with no advisories and passing CI.
 - Flag major version bumps and breaking changes to the user. Never merge on CI failure or a major bump without confirmation.
 - If you take over or push any commit to a Dependabot (or other bot) PR and its changelog-check CI job then fails, add the missing changelog entry yourself rather than assuming the bot's `Changelog Not Required` label still applies.
-- In a .NET repository, run any build, test or coverage measurement through the build-dotnet MCP tools whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds.
+- In a .NET repository, run every build, test, coverage, format and check run through the build-dotnet MCP tools and never with the raw `dotnet` commands they replace, which the agent container denies. Poll each job's `job_status` about every 30 to 60 seconds, do not repeat a job to confirm its result, and wait for every job you started before handing back. If the server is not connected, stop and report that; never work around it with a raw command. If the server lists no tool for a task, the repository has nothing for it to run: say so in your report instead of composing a command.
 
 ## One Long-Running Command at a Time (MANDATORY)
 
-Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `dotnet build`, `dotnet test`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
+Never start a long-running command while another long-running command you started is still running: wait for the first command's completion notification before starting the next. Long-running means `git commit`, `pre-commit`, `pre-commit-check`, `npm test`, `bun test`, and any other build, test or lint run started with `run_in_background` (for example `bats test/`), plus every job started through a build-dotnet MCP tool. Each of these commands can use most of a small host's memory, and two at once can get the whole session OOM-killed, losing every in-flight task.
 
 ## Hook Blocks in Hand-offs (MANDATORY)
 
