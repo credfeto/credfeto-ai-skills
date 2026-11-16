@@ -1,6 +1,6 @@
 ---
 name: credfeto-dotnet-coding-conventions
-description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, use System.TimeProvider instead of obsolete time-source abstractions, never modify nuget.config, and look up configured NuGet sources before searching for or adding a package. Use whenever writing or reviewing .NET production code.
+description: Follow .NET identifier naming conventions, prefer StringComparer over string.Equals with a StringComparison, keep one type per file matching the file name, use positional records or readonly record structs instead of hand-written data classes, prefer struct/record struct for small immutable values, add DebuggerDisplay attributes, prefer ValueTask and propagate CancellationToken through async code, use System.TimeProvider instead of obsolete time-source abstractions, obtain HttpClient only through IHttpClientFactory, never modify nuget.config, and look up packages through the configured NuGet sources before searching for or adding one. Use whenever writing or reviewing .NET production code.
 ---
 
 # .NET Coding Conventions
@@ -9,6 +9,13 @@ description: Follow .NET identifier naming conventions, prefer StringComparer ov
 
 - Never modify `nuget.config`; it is managed by the repo owner, not by AI.
 - Before searching for or adding a package, check which sources are actually configured: `dotnet nuget list source`. Use those sources for lookups rather than assuming nuget.org, since they may include a private feed, proxy, or mirror.
+- Look up a package's available versions with the `package_versions` tool of the `build-dotnet` MCP server when the server lists it; otherwise run `dotnet package search <PackageId> --exact-match --format json` from the solution directory with no `--source` option, so it queries the configured sources. This applies to MSBuild SDK packages in `global.json` too. Ask for pre-release versions (the tool's pre-release option, or `--prerelease`) only when the task explicitly needs a pre-release, because release versions are the default choice.
+- Never fetch nuget.org URLs (`curl`, `WebFetch` or any HTTP call to `api.nuget.org`) and never pass `--source` pointing at nuget.org, because that skips the configured feeds: packages that exist only on the private feed look missing, and the versions shown may not be the ones restore can use.
+
+## HTTP Clients (MANDATORY)
+
+- Production code obtains `HttpClient` only through `IHttpClientFactory`: register a typed or named client with `AddHttpClient` and attach retry and resilience behaviour as policies on that registration. Never write `new HttpClient(...)` or keep a static or shared `HttpClient` instance, because the factory pools and recycles handlers (avoiding socket exhaustion and stale DNS), configures handlers in one place, and adds request logging and policies to every client it creates.
+- Tests may construct an `HttpClient` around a fake `HttpMessageHandler` and return it from a mocked `IHttpClientFactory`.
 
 ## Naming Conventions
 

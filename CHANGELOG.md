@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-test-patterns skill now covers writing tests before commit, the warning-suppression ban in test code and not widening visibility to test null-argument paths
 - Code-exploring agents can now use the CodeGraph code index to locate and understand code in indexed repositories, with a new credfeto-codegraph skill preloaded into the agents that read code
 - Added the ill-fitting framework exception category to the compliance lens agent and trimmed its leftover placeholder wording
+- Added the human-communication skill covering the NEEDS YOU block, asking in chat first and full GitHub URLs
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
@@ -119,6 +120,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Make pr-review-loop skill self-contained for CI check state and add the pre-closure decision check
 - Skill descriptions may now be written in the imperative as well as the third person
 - Agents: grant the Orchestrator the build-dotnet, build-node, build-python and changelog MCP tools, every build agent the build-node, build-python and changelog MCP tools, and the Changelog agent the changelog MCP tools (build-node, build-python and changelog are placeholders until those servers are available)
+- credfeto-dotnet-coding-conventions skill: added the package version lookup, no nuget.org URL and IHttpClientFactory rules from the .NET instructions
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

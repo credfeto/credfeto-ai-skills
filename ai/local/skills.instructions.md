@@ -92,6 +92,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [dotnet-nullable-and-warnings](../skills/dotnet-nullable-and-warnings/SKILL.md) | `credfeto-dotnet-nullable-and-warnings` | `dotnet.instructions.md` |
 | [claude-hooks](../skills/claude-hooks/SKILL.md) | `credfeto-claude-hooks` | `claude-hooks.instructions.md`, `tool-preferences.instructions.md`, `git.instructions.md`, `github-cli.instructions.md` |
 | [tool-preferences](../skills/tool-preferences/SKILL.md) | `credfeto-tool-preferences` | `tool-preferences.instructions.md` |
+| [human-communication](../skills/human-communication/SKILL.md) | `credfeto-human-communication` | `communication.instructions.md` |
 | [ide-mcp-code-analysis](../skills/ide-mcp-code-analysis/SKILL.md) | `credfeto-ide-mcp-code-analysis` | `code-quality.instructions.md` |
 | [sarif-summary-findings](../skills/sarif-summary-findings/SKILL.md) | `credfeto-sarif-summary-findings` | `code-quality.instructions.md`, `analyzer-conflicts.instructions.md` |
 | [codegraph](../skills/codegraph/SKILL.md) | `credfeto-codegraph` | `codegraph.instructions.md` |
