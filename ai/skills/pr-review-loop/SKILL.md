@@ -159,7 +159,7 @@ It reads the required checks of the PR's base branch from its protection and rul
 - **5**: the head has no check runs or statuses at all. That is not a pass; treat it as pending.
 - **1**: an API or network error, never a failed check. **2**: a usage error.
 
-Accept an all-passed result only if it is still true on the next check after it was first seen, because a fast required workflow can pass before a slower one has even been queued. Route a failed required check to CI Debugger rather than fixing it in the Orchestrator, because the Orchestrator never implements directly.
+Accept an all-passed result only if it is still true on the next check after it was first seen, because a fast required workflow can pass before a slower one has even been queued. Route a failed required check to CI Debugger rather than fixing it in the Orchestrator, because the Orchestrator never implements directly, and post a status comment. First count the `### CI Debugger:` status comments for that check on the PR, accepting only those whose author is accepted as for the `### AI Review Loop: reviewed` comment, counted since the PR opened and never from a later reset point; if there are already 3, the check is consistently failing, so mark the PR blocked instead of routing it again: post the diagnosis and add `Blocked` as in [Adding `Blocked`](#adding-blocked), because this loop spans separate invocations and only the PR's comment history persists between them. An API or network error (exit 1) is reported rather than routed as a CI failure, because no check has failed and CI Debugger would look for a failure that does not exist.
 
 ## Justifying `Blocked`
 

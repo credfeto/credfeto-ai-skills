@@ -39,6 +39,12 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Orchestrator agent now handles a failed Workflow board status read during plan approval without blocking, re-posting the plan or treating it as approval
 - Code Writer and Code Tester agents now require build-dotnet MCP tools for .NET builds and tests with no raw dotnet fallback
 - Orchestrator, Code Writer, Code Tester and CI Monitor agents no longer list raw dotnet build and dotnet test as long-running commands
+- Pre-work health check skill now waits for build-dotnet jobs with job_result instead of polling job_status, matching the current instructions
+- dotnet-coverage skill now waits for build-dotnet jobs with job_result instead of polling job_status, matching the current instructions
+- Skills for the code reviewer, code writer, code tester, code fixer, repo auditor, CI debugger and dependency updater roles now wait for build-dotnet MCP jobs with job_result instead of polling job_status
+- Reconcile coverage-ratchet skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
+- Fix long-running-commands skill to wait for build-dotnet MCP jobs with job_result rather than polling job_status
+- Reconcile git-commit skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -146,6 +152,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Align repo-auditor agent build-dotnet MCP and long-running command wording with source instructions
 - Align the code-fixer, rebase-agent, ci-debugger, committer and dependency-updater agents with the build-dotnet MCP rules (no raw dotnet fallback, stop and report when the server is not connected)
 - Remove raw dotnet build and test commands from the long-running command list in the code-fixer, rebase-agent, ci-debugger, changelog, committer, pr-submitter and dependency-updater agents
+- Add CI Debugger round cap and API-error handling to pr-review-loop skill CI check state section
+- Skill registry: list dotnet.instructions.md as a source of the pr-review-loop skill
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

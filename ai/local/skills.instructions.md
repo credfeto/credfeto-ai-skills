@@ -77,7 +77,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [numbering-conventions](../skills/numbering-conventions/SKILL.md) | `credfeto-numbering-conventions` | `task-workflow.instructions.md` |
 | [agent-routing](../skills/agent-routing/SKILL.md) | `credfeto-agent-routing` | `task-workflow.instructions.md`, `agent-roles.instructions.md` |
 | [issue-plan-approval](../skills/issue-plan-approval/SKILL.md) | `credfeto-issue-plan-approval` | `agent-roles.instructions.md` |
-| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md`, `code-quality.instructions.md`, `task-workflow.instructions.md` |
+| [pr-review-loop](../skills/pr-review-loop/SKILL.md) | `credfeto-pr-review-loop` | `agent-roles.instructions.md`, `coverage-ratchet.instructions.md`, `code-quality.instructions.md`, `task-workflow.instructions.md`, `dotnet.instructions.md` |
 | [code-reviewer-subagents](../skills/code-reviewer-subagents/SKILL.md) | `credfeto-code-reviewer-subagents` | `agent-roles.instructions.md`, `github-cli.instructions.md` |
 | [code-writer](../skills/code-writer/SKILL.md) | `credfeto-code-writer` | `agent-roles.instructions.md` |
 | [code-tester](../skills/code-tester/SKILL.md) | `credfeto-code-tester` | `agent-roles.instructions.md`, `task-workflow.instructions.md` |
