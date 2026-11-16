@@ -45,6 +45,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile coverage-ratchet skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
 - Fix long-running-commands skill to wait for build-dotnet MCP jobs with job_result rather than polling job_status
 - Reconcile git-commit skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
+- Agents now wait for build-dotnet MCP jobs with job_result instead of polling job_status, matching the instruction files
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
