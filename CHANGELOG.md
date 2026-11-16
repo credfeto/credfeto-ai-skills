@@ -33,6 +33,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Removed unsourced hook-block wording from the code reviewer and the six lens agents
 - Committer, PR submitter and CI monitor agents are now granted ToolSearch so their MCP tools can be loaded when Claude Code defers them - #65
 - Update learnings-capture skill to refer to the kb knowledge-base MCP server (mcp__kb__*) instead of kb_orchestrator
+- dotnet-coding-conventions skill: look up package versions only with the build-dotnet package_versions tool, removing the unsourced dotnet package search fallback
+- Code reviewer, writer, tester, fixer, repo auditor, CI debugger and dependency updater skills now require .NET builds, tests, coverage and checks to run through the build-dotnet MCP tools, never raw dotnet commands, and to stop and report when the server is not connected
+- Code tester skill no longer lists dotnet build, dotnet test, dotnet restore, dotnet buildcheck or dotnet format as runnable commands and covers build-dotnet MCP jobs in the sandbox timeout check
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -123,6 +126,19 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-dotnet-coding-conventions skill: added the package version lookup, no nuget.org URL and IHttpClientFactory rules from the .NET instructions
 - Reconciled credfeto-human-communication skill with its source: restored the emoji-marker rationale, the multi-repository reason for full URLs, the scrolled-out-of-view reason and the placeholder URL reason
 - Code Fixer agent now states its Phase A simplify and post-convergence pattern sweep duties from the AI review loop
+- credfeto-sql-schema-change skill: validate DACPAC changes with the build-dotnet MCP build tool instead of a raw dotnet build
+- credfeto-performance-benchmarking skill: align the never-run-benchmark-tests rule with the build-dotnet MCP test tool wording
+- credfeto-npm-packages skill: Fixed Package Versions heading no longer marked MANDATORY, matching its source
+- claude-hooks skill: align hook examples and installed hook table with the source (npm test, block-dotnet-tool-install covering build-dotnet MCP commands, enforce-background list)
+- human-communication skill: state that a live-chat plan approval clears the Blocked label
+- Coverage ratchet skill: .NET measurement uses only the build-dotnet coverage tool, with no raw command fallback
+- Git commit skill: .NET builds and tests run through the build-dotnet MCP tools, raw dotnet build and test commands denied
+- Pre-work health check skill requires the build-dotnet MCP tools for coverage, buildcheck, build and test instead of raw dotnet command fallbacks
+- Changelog skill lints CHANGELOG.md with the changelog_lint MCP tool, with dotnet changelog --lint remaining available
+- dotnet-coverage skill collects coverage only through the build-dotnet coverage MCP tool, removing raw dotnet test and reportgenerator commands
+- dotnet-test-patterns and dotnet-dead-framework-guards skills refer to the build-dotnet test and restore MCP tools instead of raw dotnet commands
+- Reconciled long-running-commands skill: raw dotnet build/test are denied, use build-dotnet MCP jobs
+- Reconciled pr-review-loop skill: .NET coverage uses the build-dotnet coverage tool only, no raw fallback
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

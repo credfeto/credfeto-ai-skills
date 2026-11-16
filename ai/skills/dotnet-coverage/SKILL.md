@@ -1,20 +1,24 @@
 ---
 name: credfeto-dotnet-coverage
-description: Collect .NET code coverage with Microsoft.Testing.Platform and generate per-assembly HTML reports with reportgenerator, covering test project identification, correct dotnet test invocation, and report generation rules. Use when measuring test coverage, running coverage tasks, or producing coverage reports in a .NET repository.
+description: Collect .NET code coverage with the build-dotnet MCP server's coverage tool (Microsoft.Testing.Platform), covering test project identification, which projects are measured, the coverage extension package, and specific coverage rules. Use when measuring test coverage, running coverage tasks, or reading coverage figures in a .NET repository.
 ---
 
-# .NET Code Coverage Collection and Reporting
+# .NET Code Coverage Collection
 
-Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests. 100% code coverage must be maintained.
+Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). 100% code coverage must be maintained.
 
-## Use the `coverage` MCP Tool First (MANDATORY)
+## Collect Coverage with the `coverage` MCP Tool (MANDATORY)
 
-When a `build-dotnet` MCP server is connected and lists the `coverage` tool, collect coverage with it and read the figures from its `job_result`; the commands in the rest of this skill (`dotnet test ... -- --coverage` and `dotnet reportgenerator`) are the raw fallback for when it does not.
+Collect coverage with the `coverage` tool of the `build-dotnet` MCP server and read the figures from its `job_result`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only.
 
-- Use the raw commands only when the server shows no `coverage` tool: the server is not connected, or it does not list that tool.
-- A session that has no build-dotnet tools because its role is not granted them (the Orchestrator) is not this case: a missing tool there means delegate coverage to the role that has it (Code Tester), never run the raw coverage command yourself. The raw commands follow every rule in this skill.
-- Never run the same coverage collection both ways. A job's `job_result` is the result: do not repeat the run with the raw command to confirm it, and do not run the raw command while an MCP job is running. An MCP job is a long-running command, and the server itself runs only one job at a time.
-- Wait for a job by polling `job_status` at a steady pace. The `coverage` tool starts a job and returns its id at once. Call `job_status` once, then wait about 30 to 60 seconds between calls, judging the gap from the step the job reports and how long it has run. Never call `job_status` in a tight loop, and never wrap it in a shell wait loop. When the state is no longer running, read `job_result` and judge the job by its per-step exit codes, test counts and failing tests. A job is not a background shell command: do not wait for it with `cfwf task wait` or a completion notification.
+The server runs the repository's .NET builds, tests, coverage and checks as jobs and keeps each job's full log. Its tool list follows the repository: it lists a tool only when the repository has something for it to run (for example `test` and `coverage` only when there is a unit test project).
+
+- The raw commands the MCP tools replace (`dotnet test ... -- --coverage`, `dotnet reportgenerator`, `dotnet build`, `dotnet test`) are denied in the agent container, so a raw run is refused, never a fallback. `dotnet tool run` of `reportgenerator` is denied too. Never run `reportgenerator` as `dotnet reportgenerator`, `dotnet tool run reportgenerator` or a bare binary.
+- A session that has no build-dotnet tools because its role is not granted them (the Orchestrator) hands the coverage task to the role that has them (Code Tester), because the raw commands are denied there too.
+- When the server is not connected, stop and report it. If no build-dotnet tools are available in a role that is granted them, the server failed to start or connect: stop the task, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`. Never work around it with a raw command or a script that runs one, because a workaround hides the broken setup.
+- A tool the server does not list has nothing to run. When the server is connected but does not list the `coverage` tool, the repository has nothing for it (for example no unit test project); say so in your report instead of composing a command.
+- A job's `job_result` is the result. Do not repeat a coverage job to confirm it. An MCP job is a long-running command, and the server itself runs only one job at a time, so run only one long-running command at a time.
+- Wait for a job by polling `job_status` at a steady pace. The `coverage` tool starts a job and returns its id at once. Call `job_status` once, then wait about 30 to 60 seconds between calls, judging the gap from the step the job reports and how long it has run (a restore or a short step needs a shorter gap; a long test step a longer one). Never call `job_status` in a tight loop, and never wrap it in a shell wait loop. When the state is no longer running, read `job_result` and judge the job by its per-step exit codes, test counts and failing tests. A job is not a background shell command: do not wait for it with `cfwf task wait` or a completion notification.
 - Before handing back, wait for every job you started to finish.
 
 ## Identifying Test Projects (MANDATORY)
@@ -30,16 +34,16 @@ A project is a test project **only** if its assembly name ends with one of these
 Rules that must never be broken:
 
 - **Never** use "contains 'Test'" in a project name as a heuristic; a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
-- **Never** run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
-- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
-- **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some use `Microsoft.NET.Sdk.Web`.
+- **Never** run the tests of a `*.Benchmark.Tests` project (never name one as the `test` tool's project) and never `dotnet run` one; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
+- **Never** name a project as a test target if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
+- **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
 - **Always** verify `IsTestingPlatformApplication` in the csproj: this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
 
-Test support libraries (e.g. `*.Tests.Mocks`, `*.Tests.Common`) exist to be referenced by test projects. They are **not** test projects and must never be targeted for test runs.
+Test support libraries (e.g. `*.Tests.Mocks`, `*.Tests.Common`) exist to be referenced by test projects. They are **not** test projects themselves and must never be targeted for test runs.
 
 ### Setting Up a Test Support Library (MANDATORY)
 
-When a project is a test support library (provides mocks, helpers, or base types for test projects) but is **not** itself a test runner, it must have all four of these properties set explicitly:
+When a project is a test support library (provides mocks, helpers, or base types for test projects) but is **not** itself a test runner, it must have all four of the following properties set explicitly:
 
 ```xml
 <IsTestProject>false</IsTestProject>
@@ -61,44 +65,14 @@ It must also import `UnitTests.props` (a temporary workaround required by `FunFa
 
 These projects keep `OutputType=Library`.
 
-## Which Projects to Run for Coverage
+## Which Projects Are Measured
 
-**Only run unit test projects (`<AssemblyName>.Tests`)**; exclude:
+**Only unit test projects (`<AssemblyName>.Tests`) are measured for coverage.** These are never measured:
 
 - `<AssemblyName>.Integration.Tests`: integration tests inflate coverage numbers and test external dependencies, not isolated units.
 - `<AssemblyName>.Benchmark.Tests`: benchmarks are not functionality tests and must never be included in coverage runs.
 
-## Collecting Coverage
-
-Project form: target one test project directly (the `cd` step is required):
-
-```bash
-cd {solution-src-dir}
-dotnet test {AssemblyName}.Tests/{AssemblyName}.Tests.csproj \
-  -c Release \
-  -p:SolutionDir={solution-src-dir}/ \
-  -- --coverage --coverage-output-format cobertura \
-     --coverage-output {repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml
-```
-
-Critical rules:
-
-- **`cd` to the solution `src/` directory first** and use a **relative** project path: absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK.
-- **`--` separator is required**: coverage flags must be passed to the test host, not the `dotnet test` CLI. Passing `--coverage` before `--` conflicts with xunit's argument parsing.
-- **`-c Release`**: always run coverage in Release mode.
-- **`-p:SolutionDir=`**: must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`.
-- **`--coverage-output`**: use an absolute path pointing into the repo's `/coverage/` directory (gitignored). Name the file `{AssemblyName}.coverage.cobertura.xml`.
-
-### Running the Command (MANDATORY)
-
-When using the raw fallback, always run this `dotnet test` coverage command with `run_in_background: true`; never run it in the foreground, regardless of how fast the run is expected to be, and never wrap it in a shell `timeout`.
-
-- Wait for the harness's background-task completion notification and judge the command only by the exit code it reports: 0 is a pass and anything else is a failure. Never match text the command prints, never poll its output file, and never use the `Monitor` tool or a poll loop to wait for it. Reading the output once the notification has arrived, to find the cause of a failure, is fine.
-- Run only one long-running command (such as `dotnet build` or `dotnet test`) at a time; wait for the first one's completion notification before starting the next.
-- Time-box the command to 30 minutes. The main session enforces this deadline, by scheduling a wake-up for 30 minutes after starting the command and stopping it with `TaskStop` if it has not finished; a sub-agent never enforces it and never stops the command itself.
-- A long stretch with no new output is normal and is not a hang.
-
-### Coverage Extension Package
+## Coverage Extension Package
 
 `UnitTests.props` **must** contain the coverage extension package. If it is missing, stop and demand it is added:
 
@@ -108,43 +82,11 @@ When using the raw fallback, always run this `dotnet test` coverage command with
 
 Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data collector; they do not work with Microsoft.Testing.Platform. Do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present.
 
-## Generating Reports with reportgenerator
-
-After collecting `.cobertura.xml` files with the raw fallback, generate reports using `dotnet reportgenerator` (always via `dotnet`, never the raw binary). When the `coverage` MCP tool is listed, use its figures instead. Unlike the `dotnet test` coverage command above, `reportgenerator` may run in the foreground, but always with an explicit maximum timeout set on the tool call, never the tool's built-in default.
-
-**Always generate one report per assembly**: pass only that assembly's `.cobertura.xml` as input:
-
-```bash
-dotnet reportgenerator \
-  -reports:{repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml \
-  -targetdir:{repo-root}/coverage/{AssemblyName} \
-  -reporttypes:Html
-```
-
-**Do not pass multiple assemblies' `.cobertura.xml` files into a single `reportgenerator` run.** If assembly A references types from assembly B, running them together causes B's components to appear in A's coverage report, which falsely lowers A's measured coverage.
-
-When a combined view is needed (e.g. a summary dashboard, or a single whole-repo coverage percentage), run each assembly individually first, then produce one additional combined report as a separate step, requesting both report types together:
-
-```bash
-dotnet reportgenerator \
-  -reports:"{repo-root}/coverage/*.coverage.cobertura.xml" \
-  -targetdir:{repo-root}/coverage/combined \
-  -reporttypes:"Html;JsonSummary"
-```
-
-This writes the `Html` dashboard alongside `{repo-root}/coverage/combined/Summary.json`; the overall whole-repo line-coverage percentage is its `summary.linecoverage` field:
-
-```bash
-jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json
-```
-
-The per-assembly reports remain the authoritative measure of test quality for each project; the combined run is only ever used for the single whole-repo figure, never as a per-assembly quality signal. The same assembly A/B cross-contamination caveat applies equally here.
-
 ## Specific Coverage Rules (MANDATORY)
 
 - 100% code coverage must be maintained.
-- If a source generator is used, it is because the source-generated version is **wanted**. Do not turn it off to reach 100% coverage. Source-generated code (classes decorated with `[GeneratedCode]`) should be excluded from coverage measurements; it is considered tested by the generator's author.
-- For methods whose success path requires live infrastructure (database connections, network sockets, file handles), that path is genuinely unreachable in a unit-test environment. Do not suppress PH2140, add `[ExcludeFromCodeCoverage]`, `[SuppressMessage]`, or any `coverage.settings.xml` `<Functions>` exclusion for the gap. Accept the coverage gap and note it; do not block work on it. Prefer mocking the success path first: if the underlying type or interface can be substituted, write a test that exercises it via a mock or substitute. Only if the path is genuinely unreachable in a unit test **and** is not covered by an integration-test project, escalate by raising a GitHub issue labelled `AI-Work`, `Low`, and `Blocked` to track getting it covered by integration tests.
+- If a source generator is used, it is because the source-generated version is **wanted**. Do not turn it off to reach 100% coverage. Source-generated code (classes decorated with `[GeneratedCode]`) should be excluded from coverage measurements; it is considered tested by the generator's author, not by us.
+- For methods whose success path requires live infrastructure (database connections, network sockets, file handles), that path is only reachable when actual infrastructure is available, so it is unreachable in a unit-test environment. Do not suppress PH2140, add `[ExcludeFromCodeCoverage]`, `[SuppressMessage]`, or any `coverage.settings.xml` `<Functions>` exclusion for the gap. Accept the coverage gap and note it; do not block work on it. Prefer mocking the success path first: if the underlying type or interface can be substituted, write a test that exercises it. Only if the path is genuinely unreachable in a unit test **and** is not covered by an integration-test project, raise a GitHub issue labelled `AI-Work`, `Low`, and `Blocked` to track getting it covered by integration tests.
 
 ## Per-File Cadence for Coverage Tasks
 

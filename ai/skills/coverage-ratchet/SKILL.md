@@ -89,48 +89,15 @@ git -C <repodir> add COVERAGE.md
 
 Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic (a project named `*.TestHarness`, `*.Tests.Mocks` or `*.Tests.Common` is not a test project), and do not rely on `OutputType` or the project SDK as a discriminator, because with Microsoft.Testing.Platform legitimate test projects also use `OutputType=Exe` and some use `Microsoft.NET.Sdk.Web`. Always verify `IsTestingPlatformApplication` in the csproj, because that is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`; the naming convention and `IsTestingPlatformApplication` are the only reliable signals. Only unit test projects (`<AssemblyName>.Tests`) feed coverage; exclude `.Integration.Tests` and `.Benchmark.Tests`.
 
-When the `build-dotnet` MCP server lists its `coverage` tool, run that tool instead and take the coverage figures from its `job_result`. Wait for the job by calling `job_status` once and then about every 30 to 60 seconds, never in a tight loop. When `job_result` does not give a figure the table needs (a per-assembly row), read it from the job's full log, whose path `job_result` gives, rather than re-running coverage. The commands below are only the fallback for when the tool is not listed. Never measure the same branch both ways.
+Run the `build-dotnet` MCP server's `coverage` tool for all unit test projects. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and its `job_result` gives the per-assembly figures for the component rows and the gated Overall (.NET) figure, in `COVERAGE.md` shape, so each assembly's figure comes from its own tests only. Wait for the job by calling `job_status` once and then about every 30 to 60 seconds, never in a tight loop. When `job_result` does not give a figure the table needs (a per-assembly row), read it from the job's full log, whose path `job_result` gives, rather than re-running coverage.
 
-Otherwise, collect each unit test project's `.cobertura.xml` one project at a time (`cd` to the solution `src/` directory first and use a relative project path; absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK):
+The raw coverage commands are denied in the agent container, so never measure another way. If no build-dotnet tools are available in a role that is granted them, the server failed to start or connect: stop the task, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`; never work around it with a raw command or a script that runs one. If the server is connected but does not list the `coverage` tool, the repository has nothing for it to run; say so in your report instead of composing a command.
 
-```bash
-cd {solution-src-dir}
-dotnet test {AssemblyName}.Tests/{AssemblyName}.Tests.csproj \
-  -c Release \
-  -p:SolutionDir={solution-src-dir}/ \
-  -- --coverage --coverage-output-format cobertura \
-     --coverage-output {repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml
-```
-
-The `--` separator is required: coverage flags must be passed to the test host, not the `dotnet test` CLI. Passing `--coverage` before `--` conflicts with xunit's argument parsing. Always run in `-c Release`. `-p:SolutionDir=` must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`. `--coverage-output` must be an absolute path pointing into the repo's `/coverage/` directory (gitignored), with the file named `{AssemblyName}.coverage.cobertura.xml`.
-
-Testing uses Microsoft.Testing.Platform, not VSTest. `UnitTests.props` must contain `<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />`; if it is missing, stop and demand it is added. Do not install `coverlet.collector`, `coverlet.msbuild` or any VSTest data collector, and do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present. Never run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects.
-
-Then generate one `reportgenerator` report **per assembly** for the component rows:
-
-```bash
-dotnet reportgenerator \
-  -reports:{repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml \
-  -targetdir:{repo-root}/coverage/{AssemblyName} \
-  -reporttypes:Html
-```
-
-**Never pass multiple assemblies' `.cobertura.xml` files into a single `reportgenerator` run for the per-assembly rows.** If assembly A references types from assembly B, running them together causes B's components to appear in A's coverage report, which falsely lowers A's measured coverage.
-
-Then generate one additional **combined** report as a separate step and read its `summary.linecoverage` field for the gated Overall (.NET) figure; use this combined run only for that single whole-repo figure, never as a per-assembly quality signal:
-
-```bash
-dotnet reportgenerator \
-  -reports:"{repo-root}/coverage/*.coverage.cobertura.xml" \
-  -targetdir:{repo-root}/coverage/combined \
-  -reporttypes:"Html;JsonSummary"
-
-jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json
-```
+`UnitTests.props` must contain `<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />`; if it is missing, stop and demand it is added. Do not install `coverlet.collector`, `coverlet.msbuild` or any VSTest data collector, because they do not work with Microsoft.Testing.Platform, and do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present. Never run the tests of a `*.Benchmark.Tests` project and never `dotnet run` one.
 
 Before reading any figure, confirm the test run exited 0 with every test passing; otherwise the measurement is void.
 
-Skip .NET entirely if the repo has no `*.Tests` project. Never target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`; test support libraries (for example `*.Tests.Mocks`, `*.Tests.Common`) are not test projects.
+Skip .NET entirely if the repo has no `*.Tests` project. Never name a project as a test target if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`; test support libraries (for example `*.Tests.Mocks`, `*.Tests.Common`) are not test projects.
 
 ### Node
 
@@ -205,7 +172,7 @@ Run this only when the Workflow board is at **AI Coverage**.
 
 1. If the branch is non-code-only (above), skip without measuring anything and without reading or writing `COVERAGE.md`: post the one-line status comment `Non-code change: coverage ratchet skipped`, move the board to **Human Review**, and stop. Do not go to step 5.
 2. `git -C <repodir> fetch origin main` (always fresh; do not rely on a fetch from earlier in the session). Read `origin/main`'s `COVERAGE.md` without checking it out: `git -C <repodir> show origin/main:COVERAGE.md`. If it does not exist, this is the bootstrap case: treat the gate as passed and go to step 5.
-3. Have Code Tester measure: for each language with a real Overall row in that file (not `n/a` or `excluded`), it runs the extraction above against the branch's current (already checked out) working tree, with the `build-dotnet` `coverage` tool when the server lists it and the documented fallback commands otherwise, and reports both the per-component rows and the Overall figure for each language back. Code Tester does not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that. The measurement has to run in Code Tester, not in the Orchestrator, because the Orchestrator's session is not granted the build MCP tools and a raw fallback run from there would not be measured the way the baseline was. The Orchestrator never runs a build, test or coverage command itself; it only compares the reported figures and decides. If any test failed, Code Tester reports the measurement as void, with the failing tests, instead of figures; the Orchestrator then treats it as a Development-phase fix, moves the board back to **Development** and stops, without going to step 4. A void measurement is not a coverage-gap round and does not count towards the step 6 round cap.
+3. Have Code Tester measure: for each language with a real Overall row in that file (not `n/a` or `excluded`), it runs the extraction above against the branch's current (already checked out) working tree, with the `build-dotnet` `coverage` tool for .NET, and reports both the per-component rows and the Overall figure for each language back. The measurement has to run in Code Tester, not in the Orchestrator, because the Orchestrator's session is not granted the build MCP tools and the raw coverage commands are denied. The Orchestrator never runs a build, test or coverage command itself; it only compares the reported figures and decides. If any test failed, Code Tester reports the measurement as void, with the failing tests, instead of figures; the Orchestrator then treats it as a Development-phase fix, moves the board back to **Development** and stops, without going to step 4. A void measurement is not a coverage-gap round and does not count towards the step 6 round cap.
 4. Compare branch vs. baseline **Overall** per language (component rows never gate):
    - Any language where branch Overall **<** baseline Overall: the ratchet fails; go to step 6.
    - All present languages branch Overall **>=** baseline Overall: the ratchet passes; continue to step 5.

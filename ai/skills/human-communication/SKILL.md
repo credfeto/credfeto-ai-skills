@@ -34,7 +34,7 @@ In an interactive session, a question, decision, approval or manual step that ne
 - **P2.** Post the question on the issue or PR and add `Blocked`, with `cfwf issue block` or `cfwf pr block`, only when it is still unanswered when the session would otherwise stop, so the question survives the session.
 - **P3.** An answer given in chat is still recorded on GitHub: mirror it as a comment, and record the prompt and its outcome, so the record survives even if the chat session is lost.
 - **P4.** An unattended run is unchanged: post the question on the issue or PR and add `Blocked` straight away, because no human is watching the chat.
-- **P5.** Plan approval is unchanged: the plan is still posted, `Blocked` is added and the board moves to **Planning**, because the plan is the record approval is judged against. In an interactive session, also raise the pending approval and any open `Q` questions in the NEEDS YOU block.
+- **P5.** Plan approval is unchanged: the plan is still posted, `Blocked` is added and the board moves to **Planning**, because the plan is the record approval is judged against. In an interactive session, also raise the pending approval and any open `Q` questions in the NEEDS YOU block; a live-chat approval clears that `Blocked`.
 
 ## Full URLs for GitHub References (MANDATORY)
 

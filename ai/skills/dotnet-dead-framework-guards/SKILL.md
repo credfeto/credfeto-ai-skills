@@ -62,5 +62,5 @@ Applies to `.csproj`, `Directory.Build.props` and `Directory.Build.targets`.
 
 ## Verification
 
-- After removing a package reference, compare the `dotnet restore` warnings and the `dotnet list package --include-transitive` output before and after, and put the reference back if any new `NU1901` to `NU1904` warning appears or any resolved version changes (including the removed package itself coming back transitively at a lower version).
+- After removing a package reference, compare the warnings from the `restore` tool of the `build-dotnet` MCP server and the `dotnet list package --include-transitive` output before and after, and put the reference back if any new `NU1901` to `NU1904` warning appears or any resolved version changes (including the removed package itself coming back transitively at a lower version).
 - After removing the dead structure, verify the project still builds and all tests still pass, and treat the removal as a separate commit from any feature or fix work.

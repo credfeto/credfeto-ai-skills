@@ -54,7 +54,7 @@ It must also import `UnitTests.props` (a temporary workaround required by the bu
 - `UseMicrosoftTestingPlatformRunner=true`: required by the build-check tooling for any project that references test packages, even when `IsTestProject=false`.
 - `TestingPlatformDotnetTestSupport=true`: required for any project that references test packages (e.g. `xunit.v3.extensibility.core`, `FunFair.Test.Common`), even when `IsTestProject=false`; without it, buildcheck reports `Should specify TestingPlatformDotnetTestSupport as true`.
 
-These projects keep `OutputType=Library`. Never target them with `dotnet test`; see [Identifying Test Projects](#identifying-test-projects-mandatory) below.
+These projects keep `OutputType=Library`. Never target them for test runs; see [Identifying Test Projects](#identifying-test-projects-mandatory) below.
 
 ### Identifying Test Projects (MANDATORY)
 
@@ -67,8 +67,8 @@ A project is a test project **only** if its assembly name ends with one of these
 | `.Benchmark.Tests` | Benchmarks |
 
 - **Never** use "contains 'Test'" in a project name as a heuristic; a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
-- **Never** run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
-- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
+- **Never** run the tests of a `*.Benchmark.Tests` project (never name one as the `test` tool's project) and never `dotnet run` one; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
+- **Never** name a project as a test target if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
 - **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
 - **Always** verify `IsTestingPlatformApplication` in the csproj: this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
 

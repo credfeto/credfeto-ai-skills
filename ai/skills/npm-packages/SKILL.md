@@ -48,7 +48,7 @@ Before searching for, adding or updating a package, check which registry is actu
 
 ## Installing Dependencies (MANDATORY)
 
-- This covers installing from an existing lockfile; regenerating or updating `package-lock.json` follows [Fixed Package Versions](#fixed-package-versions-mandatory).
+- This covers installing from an existing lockfile; regenerating or updating `package-lock.json` follows [Fixed Package Versions](#fixed-package-versions).
 - Install with exactly `npm ci --ignore-scripts`, plus `--prefix` where [Running npm Commands](#running-npm-commands-mandatory) requires it.
 - Never install without `--ignore-scripts`, and never run `npm rebuild`: CI installs without scripts too, so builds must not depend on them.
 - When `node_modules` is missing (it is absent at the start of every session), run `npm ci --ignore-scripts` before committing: the lint and test pre-commit hooks load packages from it and fail without it.
@@ -60,7 +60,7 @@ Before searching for, adding or updating a package, check which registry is actu
 - Prefer the standard library; where insufficient, use well-known actively-maintained third-party libraries.
 - If you find hand-rolled code duplicating standard-library or trusted-third-party functionality, raise a GitHub issue; do not modify it inline.
 
-## Fixed Package Versions (MANDATORY)
+## Fixed Package Versions
 
 - Always use **exact (pinned) version numbers** in `package.json`, no `^` or `~` prefixes.
 - New packages must be added with `npm install --save-exact --ignore-scripts` (or `npm install -E --ignore-scripts`) to avoid range specifiers.
