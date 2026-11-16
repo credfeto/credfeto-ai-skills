@@ -5,13 +5,18 @@
 # and never appears in generated frontmatter. `skills` lists installed skill
 # names to preload at agent startup.
 
-# mcp__cfwf__* (the workflow MCP), mcp__build-dotnet__* (the .NET build MCP),
-# mcp__git__* (the git MCP) and mcp__kb__* (the knowledge-base MCP) are granted
-# to the agents that do GitHub work, build and test code, use git or research,
-# so a sub-agent can use them as well as the top-level session. git and kb are
-# placeholders until those servers are registered. Revisit these grants
-# when the full workflow and build MCP servers ship: narrow them per agent, and
-# drop the matching Bash use where the MCP replaces it.
+# mcp__cfwf__* (the workflow MCP), the build MCPs (mcp__build-dotnet__*,
+# mcp__build-node__* and mcp__build-python__*), mcp__changelog__* (the
+# changelog MCP), mcp__git__* (the git MCP) and mcp__kb__* (the knowledge-base
+# MCP) are granted to the agents that do GitHub work, build and test code, edit
+# the changelog, use git or research, so a sub-agent can use them as well as
+# the top-level session. The Orchestrator and every agent with a build MCP
+# grant hold all three build MCPs and the changelog MCP; the Changelog agent
+# holds the changelog MCP. build-node and build-python are placeholders until
+# those servers ship, and changelog, git and kb are placeholders until those
+# servers are registered. Revisit these grants when the full workflow and
+# build MCP servers ship: narrow them per agent, and drop the matching Bash use
+# where the MCP replaces it.
 
 # mcp__codegraph__codegraph_explore (the CodeGraph MCP's codegraph_explore
 # tool) and the credfeto-codegraph skill are granted to the agents that locate,
@@ -49,6 +54,10 @@ orchestrator:
     - SendMessage
     - TaskStop
     - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
@@ -83,6 +92,9 @@ code-writer:
     - "mcp__webstorm__*"
     - SendMessage
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
@@ -103,6 +115,9 @@ code-tester:
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
     - ToolSearch
@@ -128,6 +143,9 @@ code-reviewer:
     - "mcp__webstorm__*"
     - "mcp__cfwf__*"
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
@@ -197,6 +215,9 @@ repo-auditor:
     - SendMessage
     - "mcp__cfwf__*"
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
@@ -222,6 +243,9 @@ code-fixer:
     - SendMessage
     - "mcp__cfwf__*"
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
@@ -233,7 +257,21 @@ code-fixer:
 rebase-agent:
   name: "Rebase Agent"
   model: sonnet
-  tools: [Bash, Read, Edit, Grep, Glob, Skill, "mcp__cfwf__*", "mcp__build-dotnet__*", "mcp__git__*", "mcp__codegraph__codegraph_explore", ToolSearch]
+  tools:
+    - Bash
+    - Read
+    - Edit
+    - Grep
+    - Glob
+    - Skill
+    - "mcp__cfwf__*"
+    - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
+    - "mcp__git__*"
+    - "mcp__codegraph__codegraph_explore"
+    - ToolSearch
   skills:
     - credfeto-git-rebase
     - credfeto-codegraph
@@ -255,6 +293,9 @@ ci-debugger:
     - SendMessage
     - "mcp__cfwf__*"
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
@@ -266,7 +307,7 @@ ci-debugger:
 changelog:
   name: "Changelog"
   model: haiku
-  tools: [Bash, Read]
+  tools: [Bash, Read, "mcp__changelog__*", ToolSearch]
   skills:
     - credfeto-changelog
 
@@ -304,6 +345,9 @@ dependency-updater:
     - Skill
     - "mcp__cfwf__*"
     - "mcp__build-dotnet__*"
+    - "mcp__build-node__*"
+    - "mcp__build-python__*"
+    - "mcp__changelog__*"
     - "mcp__git__*"
     - "mcp__kb__*"
     - "mcp__codegraph__codegraph_explore"
