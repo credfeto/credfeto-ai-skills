@@ -121,6 +121,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill descriptions may now be written in the imperative as well as the third person
 - Agents: grant the Orchestrator the build-dotnet, build-node, build-python and changelog MCP tools, every build agent the build-node, build-python and changelog MCP tools, and the Changelog agent the changelog MCP tools (build-node, build-python and changelog are placeholders until those servers are available)
 - credfeto-dotnet-coding-conventions skill: added the package version lookup, no nuget.org URL and IHttpClientFactory rules from the .NET instructions
+- Reconciled credfeto-human-communication skill with its source: restored the emoji-marker rationale, the multi-repository reason for full URLs, the scrolled-out-of-view reason and the placeholder URL reason
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
