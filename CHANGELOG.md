@@ -159,6 +159,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconcile credfeto-pr-review-loop skill with CI check handling rules for pending, passed and failed required checks
 - Skill credfeto-dotnet-analyzer-conflicts: added the knowledge-base search before Blocked and the NEEDS YOU block rule
 - Skill credfeto-claude-hooks: added hook blocks in hand-offs, git -C and worktree rules, and one cfwf command per call
+- Committer agent no longer carries the build-dotnet MCP tools rule, which its sources do not give it
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
