@@ -73,7 +73,7 @@ Before searching for, adding or updating a package, check which registry is actu
 
 ## Resolving Version Conflicts During Merge or Rebase
 
-When a merge or rebase produces conflicting versions of the same package in `package.json` (both branches changed the version):
+When a merge or rebase produces conflicting versions of the same package, action, or runtime (both branches changed the version), in `package.json`, in GitHub Actions `uses:` version pins, or in Node.js versions (`.nvmrc`, `engines`, `setup-node` versions):
 
 1. Resolve each conflicting entry individually; never take a whole file wholesale from one side.
 2. Take the **latest** of the candidate versions.

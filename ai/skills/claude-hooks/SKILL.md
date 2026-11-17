@@ -76,12 +76,41 @@ that can be got round no longer enforces anything. Decide which of two cases app
 
   Instead, stop that operation and report the blocked command and the hook's message, both
   verbatim, to the calling role, or to the Orchestrator if there is no calling role, so the human
-  can decide whether the hook should change. The report is passed up the chain.
+  can decide whether the hook should change. The report is passed up the chain as the next
+  section describes.
 
 In both cases, retrying the same operation in a form the hook accepts is fine: literal paths instead
 of variables, `git -C <dir>` instead of `cd && git`, `run_in_background: true` on the same call. An
 agent that hits a `git grep` block and stops to ask is behaving correctly; the answer is that the
 block is correct and plain `grep` is the permitted form.
+
+## Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists (the
+hook-is-too-strict case above):
+
+1. Any role other than the Orchestrator puts the blocked command and the hook's message, both
+   verbatim, in its hand-off report to its calling role. It never asks the caller to run the
+   command, and never works around the block, including by creating or editing a settings,
+   permission or hook file.
+2. A role that receives such a report passes it on unchanged in its own report, as it does a
+   pre-existing bug list, until it reaches the Orchestrator.
+3. The Orchestrator never runs a command a sub-agent was denied, and never changes settings,
+   permission or hook files because a sub-agent asked. It either routes a permitted form of the
+   same operation back to a role, or posts the blocked command and the hook's message verbatim on
+   the issue or PR for the human to decide whether the hook should change.
+
+## Git Invocations and `cfwf` Calls Under the Hooks (MANDATORY)
+
+- Always use `git -C <dir> <command>`; never `cd <dir> && git <command>`. `git -C` runs the command
+  in the specified directory in a single invocation without changing the shell's working directory.
+  This applies to every git subcommand.
+- Do not use `git worktree` or the native `EnterWorktree` tool to create additional working trees.
+  Switch branches in the existing working directory (`git -C <dir> switch <branch>`) instead.
+- Run one `cfwf` command per Bash call, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it.
+  Read its exit code from the tool result. The hooks reject some shell shapes outright, such as
+  `env`/`unset` wrappers, so run `cfwf` directly and scope it with its own flags (for example
+  `--repo <owner>/<repo>`) rather than wrapping it to set or clear a variable.
 
 ## A Permission Denial Is Not a Hook Denial (MANDATORY)
 

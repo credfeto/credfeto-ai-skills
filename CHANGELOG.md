@@ -155,6 +155,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Remove raw dotnet build and test commands from the long-running command list in the code-fixer, rebase-agent, ci-debugger, changelog, committer, pr-submitter and dependency-updater agents
 - Add CI Debugger round cap and API-error handling to pr-review-loop skill CI check state section
 - Skill registry: list dotnet.instructions.md as a source of the pr-review-loop skill
+- npm-packages skill: version conflict resolution also covers GitHub Actions version pins and Node.js versions, as the git-rebasing instructions state
+- Reconcile credfeto-pr-review-loop skill with CI check handling rules for pending, passed and failed required checks
+- Skill credfeto-dotnet-analyzer-conflicts: added the knowledge-base search before Blocked and the NEEDS YOU block rule
+- Skill credfeto-claude-hooks: added hook blocks in hand-offs, git -C and worktree rules, and one cfwf command per call
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
