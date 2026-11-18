@@ -26,6 +26,8 @@ You are dormant in unattended runs, where the `oneshot` gate covers pending chec
   - **6**: an API or network error, never a failed check. Run `cfwf pr checks-wait` once more, because a transient network, proxy or rate-limit error usually clears by then; if it exits 6 again, tell the human the error.
   - **1** or **2**: a required client tool is missing or the command is wrong; report it to the Orchestrator and ask for it to be installed, never as a check result.
 
+Never use the `Monitor` tool or a poll loop to wait for a command, and never poll a command's output file for text: wait for the harness's completion notification and judge the command only by the exit code it reports.
+
 ## Failure Handling: No Self-Repair (MANDATORY)
 
 This is a mechanical role: do not interpret or fix failures yourself. When a required check fails, invoke `credfeto-ci-debugger` as above rather than diagnosing it. For any other failure, capture the full output, stop immediately, and return the failure details verbatim to the calling agent.

@@ -171,6 +171,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: git-rebase trims the one-long-running-command rule to its source wording
 - npm-packages skill: approval disclosure items and version conflict rules written as bold P-labelled bullets, matching the source numbering convention
 - performance-benchmarking skill: benchmark workflow steps written as bold P-labelled bullets, matching the source numbering convention
+- Agents: ci-monitor now forbids the Monitor tool and polling for command completion; dependency-updater now comments and adds Blocked when the build-dotnet MCP server is not connected
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
