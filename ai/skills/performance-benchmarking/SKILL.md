@@ -19,12 +19,12 @@ description: Design and optimise performance-critical code, and back optimisatio
 
 ## Benchmark Workflow
 
-1. **Write benchmarks alongside the code they measure**: commit them alongside that code.
-   - In .NET repositories, write benchmarks as xUnit tests in the benchmark test project (`<AssemblyName>.Benchmark.Tests`), using `FunFair.Test.Common` helpers: `Benchmark<BenchmarkClass>()` to run the benchmark and `SummaryExtensions.AssertAllocationsAtMost(...)` to assert measured thresholds (zero or explicit byte threshold). Do not roll custom helpers.
-2. **Ensure tests and benchmarks pass before optimising**: commit them first as a standalone commit, establishing a baseline.
-3. **Record the baseline**: regressions against it are not acceptable.
-4. **Optimise**, then compare the result against the baseline.
-5. **Only commit the optimisation if it produces a measurable gain against the baseline**; otherwise discard the optimisation but keep the tests and benchmarks that were written to characterise it.
+- **P1.** **Write benchmarks alongside the code they measure**: commit them alongside that code.
+  - In .NET repositories, write benchmarks as xUnit tests in the benchmark test project (`<AssemblyName>.Benchmark.Tests`), using `FunFair.Test.Common` helpers: `Benchmark<BenchmarkClass>()` to run the benchmark and `SummaryExtensions.AssertAllocationsAtMost(...)` to assert measured thresholds (zero or explicit byte threshold). Do not roll custom helpers.
+- **P2.** **Ensure tests and benchmarks pass before optimising**: commit them first as a standalone commit, establishing a baseline.
+- **P3.** **Record the baseline**: regressions against it are not acceptable.
+- **P4.** **Optimise**, then compare the result against the baseline.
+- **P5.** **Only commit the optimisation if it produces a measurable gain against the baseline**; otherwise discard the optimisation but keep the tests and benchmarks that were written to characterise it.
 
 **Never run the tests of a `*.Benchmark.Tests` project (never name one as the `test` build-dotnet MCP tool's project) and never `dotnet run` one**: BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmark execution; never run benchmarks manually. Benchmarks are not functionality tests and must never be included in coverage runs.
 

@@ -5,7 +5,7 @@ description: Collect .NET code coverage with the build-dotnet MCP server's cover
 
 # .NET Code Coverage Collection
 
-Testing uses **Microsoft.Testing.Platform** (MTP, not VSTest). 100% code coverage must be maintained.
+Coverage is collected with **Microsoft.Testing.Platform** (MTP). 100% code coverage must be maintained.
 
 ## Collect Coverage with the `coverage` MCP Tool (MANDATORY)
 

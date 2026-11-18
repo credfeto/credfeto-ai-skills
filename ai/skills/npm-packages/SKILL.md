@@ -17,10 +17,10 @@ Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a
 
 Present the human with, and wait for their explicit sign-off before touching `package.json`, the lock file, or adding any import that depends on the package:
 
-1. Package name, proposed version, and links to its source repository and registry listing.
-2. The findings of the security review above.
-3. Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
-4. Alternatives considered and why they were rejected.
+- **P1.** Package name, proposed version, and links to its source repository and registry listing.
+- **P2.** The findings of the security review above.
+- **P3.** Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
+- **P4.** Alternatives considered and why they were rejected.
 
 If working from a GitHub issue or PR, follow the Blocked Label workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `lgtm`).
 
@@ -75,17 +75,18 @@ Before searching for, adding or updating a package, check which registry is actu
 
 When a merge or rebase produces conflicting versions of the same package, action, or runtime (both branches changed the version), in `package.json`, in GitHub Actions `uses:` version pins, or in Node.js versions (`.nvmrc`, `engines`, `setup-node` versions):
 
-1. Resolve each conflicting entry individually; never take a whole file wholesale from one side.
-2. Take the **latest** of the candidate versions.
-3. **Stable-over-pre-release exception**: if one candidate is a stable (release) version and the other is a pre-release (alpha/beta/rc/preview/dev build, etc.), take the stable candidate even if the pre-release has a nominally higher version number. Only take a pre-release if every candidate is a pre-release, in which case take the latest of them.
-4. **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
-5. Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
-6. Do not hand-merge `package-lock.json`; resolve `package.json` first, then regenerate the lock file with the package manager.
-7. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix.
+Resolve each conflicting entry individually; never take a whole file wholesale from one side.
+
+- **P1.** Take the **latest** of the candidate versions.
+- **P2.** **Stable-over-pre-release exception**: if one candidate is a stable (release) version and the other is a pre-release (alpha/beta/rc/preview/dev build, etc.), take the stable candidate even if the pre-release has a nominally higher version number. Only take a pre-release if every candidate is a pre-release, in which case take the latest of them.
+- **P3.** **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
+- **P4.** Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
+- **P5.** Do not hand-merge `package-lock.json`; resolve `package.json` first, then regenerate the lock file with the package manager.
+- **P6.** After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work; do not downgrade to avoid the fix.
 
 ### No Confirmation Needed When the Algorithm Resolves the Conflict
 
-Rules 2-6 above are a complete, deterministic algorithm: for every conflicting entry there is exactly one correct resolution (the latest candidate, the stable candidate, or the security-exception candidate). Apply it and continue; do not stop a merge or rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice.
+P1 to P5 above are a complete, deterministic algorithm: for every conflicting entry there is exactly one correct resolution (the latest candidate, the stable candidate, or the security-exception candidate). Apply it and continue; do not stop a merge or rebase to ask for confirmation on a conflict this algorithm resolves unambiguously, and do not post a PR/issue comment asking someone to confirm the choice.
 
 Only stop and ask when a conflict genuinely falls outside the algorithm, for example:
 

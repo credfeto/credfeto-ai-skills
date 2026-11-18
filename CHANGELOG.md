@@ -160,6 +160,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill credfeto-dotnet-analyzer-conflicts: added the knowledge-base search before Blocked and the NEEDS YOU block rule
 - Skill credfeto-claude-hooks: added hook blocks in hand-offs, git -C and worktree rules, and one cfwf command per call
 - Committer agent no longer carries the build-dotnet MCP tools rule, which its sources do not give it
+- Reworded the dotnet-coverage skill introduction so it states only what the instruction files say about Microsoft.Testing.Platform
+- Dotnet analyzer conflicts skill now includes the interactive live-chat answer route for clearing a PR's Blocked label
+- Code Writer skill now passes on unchanged any hook-block report received in an incoming hand-off
+- Claude hooks skill now covers only what its source instructions state, dropping the hand-off reporting steps that are not part of them
+- Skills: github-cli-pitfalls now states the MCP-first rule, MCP tool naming, tool lookup and the report required when falling back to the command line
+- Skills: pr-sync now states the MCP-first rule, MCP tool naming, tool lookup and the report required when falling back to the command line
+- Skills: github-issue now states the MCP-first rule, MCP tool naming, tool lookup and the report required when falling back to the command line
+- Skills: coverage-ratchet now states that Code Tester takes the bootstrap measurement written to COVERAGE.md
+- Skills: git-rebase trims the one-long-running-command rule to its source wording
+- npm-packages skill: approval disclosure items and version conflict rules written as bold P-labelled bullets, matching the source numbering convention
+- performance-benchmarking skill: benchmark workflow steps written as bold P-labelled bullets, matching the source numbering convention
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
