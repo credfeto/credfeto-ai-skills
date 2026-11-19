@@ -92,7 +92,7 @@ Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data coll
 
 1. Write tests until the file reaches target coverage.
 2. Commit the test file; push immediately.
-3. Update the tracking sub-issue to mark the file done.
+3. Update the sub-issue to mark the file done.
 4. Move to the next file.
 
 For complex files, commit + push + update after each round; do not wait until fully complete.

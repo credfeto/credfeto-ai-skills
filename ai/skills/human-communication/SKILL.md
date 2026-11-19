@@ -24,7 +24,7 @@ In an interactive session, a question, decision, approval or manual step that ne
   - `⚠️ **NEEDS YOU:**`: a question is open, but the agent can carry on with other work in the meantime.
   - `✅ **NEEDS YOU:** nothing right now.`: nothing is outstanding.
 - **P4.** Keep the block at the top of every reply while anything is still outstanding, so it never scrolls out of view. Once nothing is outstanding, either show `> ✅ **NEEDS YOU:** nothing right now.` or leave the block out.
-- **P5.** Number questions in the block with a `Q` prefix, continuing from the highest number already used in the work item (its issue and PR) and never reusing a number. Phrase each as a yes/no question where possible, so it can be answered in one word.
+- **P5.** Number questions in the block with a `Q` prefix, continuing from the highest number already used in the work item and never reusing a number. Phrase each as a yes/no question where possible, so it can be answered in one word.
 - **P6.** Before asking, gather what a command can show; ask only for what no command can show.
 - **P7.** Only the main session talks to the human. A role working from a hand-off puts anything that needs the human in its hand-off report, and the main session raises it in the block.
 
