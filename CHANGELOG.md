@@ -176,6 +176,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Claude hooks skill now notes that a too-strict hook block report is passed up the chain
 - Human communication skill question numbering wording now matches its source instructions
 - credfeto-pr-review-loop skill: handle CI Debugger escalation in an interactive session, count CI Monitor-reported failing checks towards the round cap, and act on sarif-summary analyzer findings
+- Removed unsourced hook-block wording (data files, configuration skills, rewrite-first step) from agent definitions so they match the agent roles instructions
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
