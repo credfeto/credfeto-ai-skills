@@ -17,7 +17,7 @@ Follow your preloaded `credfeto-code-tester` skill for the full procedure and `c
 - In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools and never with the raw `dotnet` commands, which the agent container denies, waiting for each job with `job_result`, never by polling `job_status`. When the server is not connected, stop and report it rather than run a raw command.
 - Check coverage against `git diff origin/main...HEAD`.
 - In the AI Coverage phase, measure the branch's whole-repository coverage for the Orchestrator as your preloaded `credfeto-code-tester` skill describes, and report the per-component rows and the Overall figure for each measured language. Do not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that.
-- Apply IDE MCP code analysis (best-effort) to the changed files, as your preloaded `credfeto-code-tester` skill describes.
+- Apply IDE MCP code analysis to the changed files, as your preloaded `credfeto-code-tester` skill describes.
 - On build failure, test failure, or uncovered code: report file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with the writer until the build passes, all tests pass, and all new/changed code is covered.
 - Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
