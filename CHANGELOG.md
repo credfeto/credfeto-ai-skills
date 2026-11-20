@@ -46,6 +46,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Fix long-running-commands skill to wait for build-dotnet MCP jobs with job_result rather than polling job_status
 - Reconcile git-commit skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
 - Agents now wait for build-dotnet MCP jobs with job_result instead of polling job_status, matching the instruction files
+- credfeto-pr-sync skill now limits self-assignment to PRs you created or committed to and never to dependency-update PRs
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -177,6 +178,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Human communication skill question numbering wording now matches its source instructions
 - credfeto-pr-review-loop skill: handle CI Debugger escalation in an interactive session, count CI Monitor-reported failing checks towards the round cap, and act on sarif-summary analyzer findings
 - Removed unsourced hook-block wording (data files, configuration skills, rewrite-first step) from agent definitions so they match the agent roles instructions
+- credfeto-github-cli-pitfalls skill now states the --assign-self restriction for PRs
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

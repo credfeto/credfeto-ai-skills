@@ -36,7 +36,7 @@ Run one `cfwf` command per Bash call, on its own: no `;`, `&&`, `|` or `echo exi
 ## Common Mistakes
 
 - **Judge each `cfwf` command by its exit code**, as `cfwf help <command>` documents it.
-- **Assigning yourself is `cfwf issue edit`/`cfwf pr edit --assign-self`.** There is no separate assign command.
+- **Assigning yourself is `cfwf issue edit`/`cfwf pr edit --assign-self`.** There is no separate assign command. On a PR, use it only when you created the PR or have committed to it, and never on a dependency-update PR (`depends/…` or `dependabot/…` branch).
 - **`cfwf` has no `--json`/`--jq`.** Its output has one fixed format per command, so name what you need with its own options (for example `cfwf pr view --field`), as `cfwf help <command>` lists them.
 - **Text goes in a file or on stdin.** Every body, description and comment is `--body-file`/`--description-file`, never an inline argument. There is no inline `--body`.
 - **Only one input of a command can be `-`.** For `cfwf pr hand-off`, pass the description on stdin and leave out `--body-file` unless the review record needs extra text.
