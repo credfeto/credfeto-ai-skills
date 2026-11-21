@@ -20,7 +20,7 @@ Always pass `--repo <owner>/<repo>` explicitly rather than relying on the curren
 
 Run **one `cfwf` command per Bash call**, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it. Read its exit code from the tool result. A compound command that contains `cfwf` is refused in unattended runs and stalls the session. When you need several facts about a PR at once (its metadata, board status, check verdict, when it was marked ready, recent comment activity), run `cfwf pr status --repo <owner/repo> --pr <number>` once instead of several commands. `cfwf` has no `--json` or `--jq`: name what you need with its own options (for example `cfwf pr view --field`).
 
-There is no other route to GitHub for agents. If `cfwf` (or any other required CLI tool) is not installed or a command fails, stop immediately and ask the user to install it, and report the failure; never search for the binary in alternative locations, manipulate `PATH` to find it, or attempt to install it without being asked. Agents never call the GitHub REST or GraphQL API directly.
+There is no other route to GitHub for agents. If `cfwf` (or any other required CLI tool) is not installed, stop immediately and ask the user to install it, and report a command that fails; never search for the binary in alternative locations, manipulate `PATH` to find it, or attempt to install it without being asked. Agents never call the GitHub REST or GraphQL API directly.
 
 When no `cfwf` command or MCP tool covers an operation you need, raise an issue on `credfeto/credfeto-orchestrator` asking for it:
 

@@ -182,6 +182,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-github-cli-pitfalls skill now states the --assign-self restriction for PRs
 - Remove unsourced best-effort wording from code-writer and code-tester agents
 - Remove unsourced build-dotnet rules from the dependency-updater agent
+- Clarified missing CLI tool versus failed command wording in the pr-sync skill
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
