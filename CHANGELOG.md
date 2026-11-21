@@ -183,6 +183,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Remove unsourced best-effort wording from code-writer and code-tester agents
 - Remove unsourced build-dotnet rules from the dependency-updater agent
 - Clarified missing CLI tool versus failed command wording in the pr-sync skill
+- Reconciled repo-auditor agent: removed unsourced Blocked instruction for a disconnected build MCP
+- Reconciled rebase-agent agent: replaced unsourced version-conflict algorithm with direction to its preloaded skill
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
