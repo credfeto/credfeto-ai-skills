@@ -222,7 +222,7 @@ Before starting any work in a repository:
 
 1. Run `cfwf pr list --repo <owner/repo>`, which lists every open PR, whoever authored it.
 2. For any PR authored by `app/github-actions`, check the commit authors: `cfwf pr view --repo <owner/repo> --pr <n> --field commit-authors`.
-3. If **all commits** are from your account (you are the sole committer), **take ownership**: update the PR title and body to match the proper format (summary, `Closes #<n>`, test plan), add yourself as assignee, and treat it as your active PR for that repo.
+3. If **all commits** are from your account (you are the sole committer), **take ownership**: update the PR title and body to match the proper format (summary, `Closes #<n>`, test plan), add yourself as assignee (never on a dependency-update PR, see PR Lifecycle above), and treat it as your active PR for that repo.
 4. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is and do not claim it as yours.
 5. Do **not** create a new branch or PR for the same issue; that would be duplicate work.
 

@@ -85,6 +85,8 @@ Never stop the session, report that "Bash is disabled", or treat the task as blo
 
 A rule-compliant command that the permission system still denies needs a new allow rule, which only the owner can add. Record it where the owner collects these requests, so the need is not lost when the session ends:
 
+Use the `cfwf` MCP server's tools for these operations (`mcp__cfwf__issue_comments`, `mcp__cfwf__comment_add`) whenever they are listed, and the command form shown only when no such tool is available, one `cfwf` command per Bash call with no `;`, `&&` or `|` around it.
+
 - **P1.** Check whether credfeto/credfeto-orchestrator#1167 already lists the same command, or an allow rule that would cover it, reading its comments with `cfwf issue comments --repo credfeto/credfeto-orchestrator --issue 1167`. If that read fails, go straight to P2; a duplicate request is harmless.
 - **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 (`cfwf comment add --repo credfeto/credfeto-orchestrator --issue 1167 --body-file <file|->`) with the exact denied command, why the task needs it, and the repository the session is working in. Pass the multi-line body on stdin with a HEREDOC (or from a file) so real newlines are embedded, never escaped `\n` sequences.
 - **P3.** Continue with the rest of the task. The request is for the owner to act on later; it does not block the current work.
@@ -137,7 +139,7 @@ A long command runs with `run_in_background: true`. The role then waits for the 
     COMMENT
     ```
 
-    Use `--pr <number>` instead of `--issue` if the work item is a PR.
+    Use `--pr <number>` instead of `--issue` if the work item is a PR. Post it through the `mcp__cfwf__comment_add` tool when it is listed, and with this command otherwise.
 
   Then the main session stops the overrunning command with `TaskStop`, never the role that started it. The role wakes with the command's non-zero exit code and reports that the command was stopped at the deadline, so the failure is handled like any other.
 

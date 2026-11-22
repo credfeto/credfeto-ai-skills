@@ -44,6 +44,7 @@ Before searching for, adding or updating a package, check which registry is actu
 
 - Run every npm command as one plain command from the working directory. When `package-lock.json` is not at the repo root, add `--prefix <dir>`, where `<dir>` is the relative path inside the repo holding it (e.g. `src`).
 - Run `npm ci` and `npm install` with the tool's `run_in_background`, then wait for the harness's background-task completion notification and read their output. Judge pass or fail only by the exit code that notification reports (0 is a pass, anything else a failure), never by matching text the command prints, and never use the `Monitor` tool or a poll loop to wait for it, because a poll condition that can never be met loops for ever and blocks the session. Never stop such a command part-way: only the main session stops a command, and only once it has overrun the 30-minute deadline.
+- Run only one long-running command at a time (`npm ci`, `npm install`, `npm test`, `git commit` or `pre-commit-check`): wait for the first command's completion notification before starting the next, because two at once can use most of a small host's memory and get the whole session killed.
 - Never add a `cd`, a `--prefix` outside the allowed directories, a redirect to a file (`> $TMPDIR/npm.log`), a `;`/`&&` chain, or a pipe (such as `| tail`): a `cd`, chain, redirect or pipe makes the permission allow list reject the call, and a `--prefix` outside the allowed directories is blocked by the `enforce-allowed-dirs` hook, while the plain form is allowed.
 
 ## Installing Dependencies (MANDATORY)
@@ -58,7 +59,7 @@ Before searching for, adding or updating a package, check which registry is actu
 - Use only secure package versions.
 - Avoid deprecated or obsolete packages and language features; if unavoidable, add a comment explaining why and when it can be removed.
 - Prefer the standard library; where insufficient, use well-known actively-maintained third-party libraries.
-- If you find hand-rolled code duplicating standard-library or trusted-third-party functionality, raise a GitHub issue; do not modify it inline.
+- If you find hand-rolled code duplicating standard-library or trusted-third-party functionality, raise a GitHub issue; do not modify it inline. Before creating that issue, search existing issues, both open and closed, for the same topic and do not create a duplicate; add the `Blocked` label immediately after creating it, unless a human explicitly asked you to raise it (then ask for the priority label and apply it).
 
 ## Fixed Package Versions
 

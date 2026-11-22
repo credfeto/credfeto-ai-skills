@@ -48,6 +48,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Agents now wait for build-dotnet MCP jobs with job_result instead of polling job_status, matching the instruction files
 - credfeto-pr-sync skill now limits self-assignment to PRs you created or committed to and never to dependency-update PRs
 - Restore PR Submitter assignment restrictions in the pr-submitter agent
+- credfeto-git-branch skill: never assign yourself to a dependency-update PR when taking ownership of a bot-created PR.
+- credfeto-pr-sync skill: bot-created PR ownership no longer adds an assignee on dependency-update PRs.
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -185,6 +187,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Clarified missing CLI tool versus failed command wording in the pr-sync skill
 - Reconciled repo-auditor agent: removed unsourced Blocked instruction for a disconnected build MCP
 - Reconciled rebase-agent agent: replaced unsourced version-conflict algorithm with direction to its preloaded skill
+- Repo auditor skill now passes on unchanged any hook-block report received from a sub-agent, matching the agent role rules.
+- credfeto-pr-review-loop skill now requires waiting on build-dotnet coverage jobs with job_result and measuring only unit test projects.
+- credfeto-npm-packages skill now requires one long-running command at a time and a duplicate search plus Blocked label for AI-raised issues.
+- credfeto-long-running-commands skill now prefers cfwf MCP tools over the command form, with one cfwf command per call.
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
