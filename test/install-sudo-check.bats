@@ -16,7 +16,6 @@ setup() {
     FAKE_SUDO_LOG="${BATS_TEST_TMPDIR}/sudo.log"
     export FAKE_SUDO_LOG
     mkdir -p "${FAKE_BIN}" "${BATS_TEST_TMPDIR}/home"
-    : > "${FAKE_SUDO_LOG}"
 
     cat > "${FAKE_BIN}/sudo" <<'EOF'
 #!/bin/sh
@@ -44,15 +43,9 @@ assert_goes_straight_to_first_privileged_step() {
 
     [ "${status}" -ne 0 ]
     [[ "${output}" == *"could not create ${target}"* ]]
-    [[ "${output}" != *"--system needs sudo rights"* ]]
-    # The first sudo call is the privileged step itself, with no probe before it.
-    [ "$(head -n 1 "${FAKE_SUDO_LOG}")" = "mkdir -p ${target}" ]
-    # A short-option bundle such as -nv or -kv validates just as -v does.
-    if grep -qE -e '^-n true$' -e '(^| )(-[a-zA-Z]*v[a-zA-Z]*|--validate)( |$)' "${FAKE_SUDO_LOG}"; then
-        echo "an up-front sudo probe was called:" >&2
-        cat "${FAKE_SUDO_LOG}" >&2
-        return 1
-    fi
+    # The fake sudo fails, so the install stops at its first sudo call: a log holding only
+    # the privileged step itself rules out every form of probe before it.
+    [ "$(cat "${FAKE_SUDO_LOG}")" = "mkdir -p ${target}" ]
 }
 
 @test "ai/skills/install --system makes no up-front sudo probe and goes straight to creating its target" {

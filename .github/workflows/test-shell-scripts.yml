@@ -44,12 +44,11 @@ jobs:
           bats --version
           shellcheck --version
 
-      # The scripts are #!/bin/sh, so checking only as bash would miss
-      # bashisms that break them under dash; the shebang-dialect pass keeps
-      # those POSIX checks.
-      - name: "Shellcheck (bash)"
+      # The bats tests are bash, but their #!/usr/bin/env bats shebang names no shell dialect, so
+      # they are checked as bash; the #!/bin/sh scripts keep their own POSIX dialect below.
+      - name: "Shellcheck (bats tests)"
         shell: bash
-        run: shellcheck -s bash install ai/skills/install ai/agents/install test/*.bats .github/scripts/*.sh
+        run: shellcheck -s bash test/*.bats
 
       - name: "Shellcheck (shebang dialect)"
         shell: bash
