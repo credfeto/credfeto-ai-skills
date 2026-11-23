@@ -51,7 +51,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-git-branch skill: never assign yourself to a dependency-update PR when taking ownership of a bot-created PR.
 - credfeto-pr-sync skill: bot-created PR ownership no longer adds an assignee on dependency-update PRs.
 - Removed unsourced 'loading a skill' wording from the hook-block rule in the six Code Reviewer lens agents
-- TBD - to be finalized after review
+- Install --system rights check uses sudo -n true instead of sudo -v, so passwordless (NOPASSWD) sudo works with no terminal
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
