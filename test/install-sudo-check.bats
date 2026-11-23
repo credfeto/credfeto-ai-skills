@@ -1,4 +1,5 @@
 #!/usr/bin/env bats
+# shellcheck shell=bash
 # Covers how ai/skills/install and ai/agents/install use sudo for --system as a
 # non-root user. Whatever runs the installer has already used sudo, so they make
 # no up-front rights probe (no sudo -n true, no sudo -v) and go straight to their
