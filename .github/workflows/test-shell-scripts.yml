@@ -1,0 +1,62 @@
+--- # PR: run the bats tests and shellcheck over the installer and helper shell scripts
+# Maintain in repo: credfeto-ai-skills
+name: "PR: Test Shell Scripts"
+
+on:
+  pull_request:
+    paths:
+      - "install"
+      - "ai/skills/install"
+      - "ai/agents/install"
+      - "test/**"
+      - ".github/scripts/**"
+      - ".github/workflows/test-shell-scripts.yml"
+  push:
+    branches: [main]
+    paths:
+      - "install"
+      - "ai/skills/install"
+      - "ai/agents/install"
+      - "test/**"
+      - ".github/scripts/**"
+      - ".github/workflows/test-shell-scripts.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  cancel-in-progress: true
+
+jobs:
+  test-shell-scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: "Install bats and shellcheck"
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bats shellcheck
+          bats --version
+          shellcheck --version
+
+      # The scripts are #!/bin/sh, so checking only as bash would miss
+      # bashisms that break them under dash; the shebang-dialect pass keeps
+      # those POSIX checks.
+      - name: "Shellcheck (bash)"
+        shell: bash
+        run: shellcheck -s bash install ai/skills/install ai/agents/install test/*.bats .github/scripts/*.sh
+
+      - name: "Shellcheck (shebang dialect)"
+        shell: bash
+        run: shellcheck install ai/skills/install ai/agents/install .github/scripts/*.sh
+
+      - name: "Run bats tests"
+        shell: bash
+        run: bats test/
