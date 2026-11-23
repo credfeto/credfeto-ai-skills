@@ -22,9 +22,7 @@ setup() {
     cat > "${FAKE_BIN}/sudo" <<'EOF'
 #!/bin/sh
 printf '%s\n' "$*" >> "$FAKE_SUDO_LOG"
-if [ "$#" -eq 2 ] && [ "$1" = "-n" ] && [ "$2" = "true" ]; then
-    exit "${FAKE_SUDO_N_TRUE_STATUS:-1}"
-fi
+[ "$*" = "-n true" ] && exit "${FAKE_SUDO_N_TRUE_STATUS:-1}"
 exit 1
 EOF
     chmod +x "${FAKE_BIN}/sudo"
@@ -32,8 +30,7 @@ EOF
     # The rights check only runs for a non-root caller, so the test must not depend on who runs it.
     cat > "${FAKE_BIN}/id" <<'EOF'
 #!/bin/sh
-[ "$1" = "-u" ] && { echo 1000; exit 0; }
-exit 1
+echo 1000
 EOF
     chmod +x "${FAKE_BIN}/id"
 
@@ -72,7 +69,6 @@ assert_rights_check_failed() {
     [ "${status}" -ne 0 ]
     [[ "${output}" == *"--system needs sudo rights"* ]]
     [ "$(cat "${FAKE_SUDO_LOG}")" = "-n true" ]
-    assert_sudo_validate_never_called
 }
 
 @test "ai/skills/install --system gets past the rights check when sudo -n true succeeds" {
