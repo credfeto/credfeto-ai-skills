@@ -39,7 +39,8 @@ EOF
 }
 
 assert_sudo_validate_never_called() {
-    if grep -qE '(^| )(-v|--validate)( |$)' "${FAKE_SUDO_LOG}"; then
+    # A short-option bundle such as -nv or -kv validates just as -v does.
+    if grep -qE '(^| )(-[a-zA-Z]*v[a-zA-Z]*|--validate)( |$)' "${FAKE_SUDO_LOG}"; then
         echo "sudo -v was called:" >&2
         cat "${FAKE_SUDO_LOG}" >&2
         return 1
