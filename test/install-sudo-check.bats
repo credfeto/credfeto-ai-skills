@@ -68,7 +68,7 @@ assert_rights_check_failed() {
 
     [ "${status}" -ne 0 ]
     [[ "${output}" == *"--system needs sudo rights"* ]]
-    [ "$(cat "${FAKE_SUDO_LOG}")" = "-n true" ]
+    [ "$(< "${FAKE_SUDO_LOG}")" = "-n true" ]
 }
 
 @test "ai/skills/install --system gets past the rights check when sudo -n true succeeds" {
