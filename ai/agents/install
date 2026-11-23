@@ -48,7 +48,7 @@ if [ -n "${SYSTEM}" ] && [ "$(id -u)" -ne 0 ]; then
     command -v sudo > /dev/null 2>&1 || die "--system needs root or sudo on PATH"
     SUDO="sudo"
     # Checked once up front so a user without sudo rights gets a clear error.
-    # Not -v, which prompts unless every sudoers rule is NOPASSWD; -n fails at once when there is no terminal to type a password in.
+    # Not -v, which prompts unless every sudoers rule is NOPASSWD; -n true runs a real command, so a NOPASSWD rule for it applies, and -n fails rather than prompts when a password is needed.
     sudo -n true || die "--system needs sudo rights"
 fi
 
