@@ -82,7 +82,7 @@ The root `install` script runs `ai/skills/install` and then `ai/agents/install`:
 ./install --system
 ```
 
-With `--system`, the root script passes the flag to both installers, which install into the managed folders `/etc/claude-code/.claude/skills` and `/etc/claude-code/.claude/agents` so every user on the machine gets them. Each installer keeps its manifest in that folder, separate from the one in `~/.claude`. Both run every access to the managed folder, reads as well as writes, through `sudo` unless they already run as root, because the folder may not be readable by the invoking user, and fail if neither is available. They make the installed files world-readable and leave any copies in `~/.claude` untouched. Any other argument is an error.
+With `--system`, the root script passes the flag to both installers, which install into the managed folders `/etc/claude-code/.claude/skills` and `/etc/claude-code/.claude/agents` so every user on the machine gets them. Each installer keeps its manifest in that folder, separate from the one in `~/.claude`. Both run every read and write inside the managed folder through `sudo` unless they already run as root, because the folder may not be readable by the invoking user, and fail if neither is available. They make the installed files world-readable and leave any copies in `~/.claude` untouched. Any other argument is an error.
 
 ## Automated Reconciliation
 
