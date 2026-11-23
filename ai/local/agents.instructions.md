@@ -82,7 +82,7 @@ The root `install` script runs `ai/skills/install` and then `ai/agents/install`:
 ./install --system
 ```
 
-With `--system`, the root script passes the flag to both installers, which install into the managed folders `/etc/claude-code/.claude/skills` and `/etc/claude-code/.claude/agents` so every user on the machine gets them. Each installer keeps its manifest in that folder, separate from the one in `~/.claude`. Both run every write through `sudo` unless they already run as root, fail if neither is available, make the installed files world-readable and leave any copies in `~/.claude` untouched. Any other argument is an error.
+With `--system`, the root script passes the flag to both installers, which install into the managed folders `/etc/claude-code/.claude/skills` and `/etc/claude-code/.claude/agents` so every user on the machine gets them. Each installer keeps its manifest in that folder, separate from the one in `~/.claude`. Both run every write through `sudo` unless they already run as root and fail if neither is available. Run as a non-root user, they first check `sudo -n true` and stop with `--system needs sudo rights` unless sudo works without a prompt (a NOPASSWD rule, or credentials already cached, for example by an earlier `sudo` call), so a user without those rights gets a clear error before anything is written. They make the installed files world-readable and leave any copies in `~/.claude` untouched. Any other argument is an error.
 
 ## Automated Reconciliation
 
