@@ -2,15 +2,11 @@
 # Maintain in repo: credfeto-ai-skills
 name: "PR: Test Shell Scripts"
 
+# test-shell-scripts is a required check, so pull_request has no paths filter: a filtered-out
+# pull request would never report it and would wait on it forever. Push to main reports to no
+# pull request, so it keeps the filter and runs only when the scripts or their tests change.
 on:
   pull_request:
-    paths:
-      - "install"
-      - "ai/skills/install"
-      - "ai/agents/install"
-      - "test/**"
-      - ".github/scripts/**"
-      - ".github/workflows/test-shell-scripts.yml"
   push:
     branches: [main]
     paths:
@@ -29,6 +25,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The job key is the required check's name (no name: override), so keep it unique across workflows.
+  # @@required: merge
   test-shell-scripts:
     runs-on: ubuntu-latest
     timeout-minutes: 10
