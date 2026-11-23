@@ -1,13 +1,12 @@
 #!/usr/bin/env bats
-# Covers the up-front sudo rights check that ai/skills/install and
-# ai/agents/install run for --system as a non-root user. sudo -v asks for a
-# password even where NOPASSWD rules cover the commands the installer runs, so
-# the check must be sudo -n true and must never call sudo -v.
+# Covers how ai/skills/install and ai/agents/install use sudo for --system as a
+# non-root user. Whatever runs the installer has already used sudo, so they make
+# no up-front rights probe (no sudo -n true, no sudo -v) and go straight to their
+# first privileged step, whose own failure reports the problem.
 #
 # Never runs real sudo and never touches /etc or /usr/local: sudo and id are
-# fakes on PATH. The fake sudo answers sudo -n true with FAKE_SUDO_N_TRUE_STATUS
-# and refuses every other call, so an install that gets past the check stops at
-# its first privileged step with "could not create".
+# fakes on PATH. The fake sudo logs and refuses every call, so the install stops
+# at its first privileged step with "could not create".
 
 bats_require_minimum_version 1.5.0
 
@@ -22,12 +21,11 @@ setup() {
     cat > "${FAKE_BIN}/sudo" <<'EOF'
 #!/bin/sh
 printf '%s\n' "$*" >> "$FAKE_SUDO_LOG"
-[ "$*" = "-n true" ] && exit "${FAKE_SUDO_N_TRUE_STATUS:-1}"
 exit 1
 EOF
     chmod +x "${FAKE_BIN}/sudo"
 
-    # The rights check only runs for a non-root caller, so the test must not depend on who runs it.
+    # sudo is only used for a non-root caller, so the test must not depend on who runs it.
     cat > "${FAKE_BIN}/id" <<'EOF'
 #!/bin/sh
 echo 1000
@@ -38,52 +36,29 @@ EOF
     export PATH="${FAKE_BIN}:${PATH}"
 }
 
-assert_sudo_validate_never_called() {
+assert_goes_straight_to_first_privileged_step() {
+    local installer="$1"
+    local target="$2"
+
+    run "${REPO_DIR}/${installer}" --system
+
+    [ "${status}" -ne 0 ]
+    [[ "${output}" == *"could not create ${target}"* ]]
+    [[ "${output}" != *"--system needs sudo rights"* ]]
+    # The first sudo call is the privileged step itself, with no probe before it.
+    [ "$(head -n 1 "${FAKE_SUDO_LOG}")" = "mkdir -p ${target}" ]
     # A short-option bundle such as -nv or -kv validates just as -v does.
-    if grep -qE '(^| )(-[a-zA-Z]*v[a-zA-Z]*|--validate)( |$)' "${FAKE_SUDO_LOG}"; then
-        echo "sudo -v was called:" >&2
+    if grep -qE -e '^-n true$' -e '(^| )(-[a-zA-Z]*v[a-zA-Z]*|--validate)( |$)' "${FAKE_SUDO_LOG}"; then
+        echo "an up-front sudo probe was called:" >&2
         cat "${FAKE_SUDO_LOG}" >&2
         return 1
     fi
 }
 
-assert_rights_check_passed() {
-    local installer="$1"
-    local target="$2"
-
-    export FAKE_SUDO_N_TRUE_STATUS=0
-    run "${REPO_DIR}/${installer}" --system
-
-    [ "${status}" -ne 0 ]
-    [[ "${output}" != *"--system needs sudo rights"* ]]
-    [[ "${output}" == *"could not create ${target}"* ]]
-    grep -qx -- '-n true' "${FAKE_SUDO_LOG}"
-    assert_sudo_validate_never_called
+@test "ai/skills/install --system makes no up-front sudo probe and goes straight to creating its target" {
+    assert_goes_straight_to_first_privileged_step ai/skills/install /etc/claude-code/.claude/skills
 }
 
-assert_rights_check_failed() {
-    local installer="$1"
-
-    export FAKE_SUDO_N_TRUE_STATUS=1
-    run "${REPO_DIR}/${installer}" --system
-
-    [ "${status}" -ne 0 ]
-    [[ "${output}" == *"--system needs sudo rights"* ]]
-    [ "$(< "${FAKE_SUDO_LOG}")" = "-n true" ]
-}
-
-@test "ai/skills/install --system gets past the rights check when sudo -n true succeeds" {
-    assert_rights_check_passed ai/skills/install /etc/claude-code/.claude/skills
-}
-
-@test "ai/skills/install --system stops with a rights error when sudo -n true fails" {
-    assert_rights_check_failed ai/skills/install
-}
-
-@test "ai/agents/install --system gets past the rights check when sudo -n true succeeds" {
-    assert_rights_check_passed ai/agents/install /etc/claude-code/.claude/agents
-}
-
-@test "ai/agents/install --system stops with a rights error when sudo -n true fails" {
-    assert_rights_check_failed ai/agents/install
+@test "ai/agents/install --system makes no up-front sudo probe and goes straight to creating its target" {
+    assert_goes_straight_to_first_privileged_step ai/agents/install /etc/claude-code/.claude/agents
 }
