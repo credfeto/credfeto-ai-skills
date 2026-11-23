@@ -191,6 +191,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-pr-review-loop skill now requires waiting on build-dotnet coverage jobs with job_result and measuring only unit test projects.
 - credfeto-npm-packages skill now requires one long-running command at a time and a duplicate search plus Blocked label for AI-raised issues.
 - credfeto-long-running-commands skill now prefers cfwf MCP tools over the command form, with one cfwf command per call.
+- Agent routing skill now includes the Orchestrator's work selection and priority rules
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

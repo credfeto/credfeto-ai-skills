@@ -7,6 +7,13 @@ description: Route a piece of work to the correct sequence of agent roles in a m
 
 The Orchestrator determines the work type and routes it via the table below. It never implements directly.
 
+## Choosing What to Route
+
+- Prioritise `CHANGES_REQUESTED` PRs over new issues.
+- When selecting the next issue to work on, order by priority label (highest first): `Security`, `Urgent`, `High`, `Medium`, `Low`, untagged.
+- Skip issues labelled `On Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
+- Never run two roles that run long-running commands at the same time, and never start your own long-running command while a role you launched is running one.
+
 ## Model Selection
 
 | Use full model | Use lesser model |
