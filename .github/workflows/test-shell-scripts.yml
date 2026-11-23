@@ -1,4 +1,4 @@
---- # PR: run the bats tests and shellcheck over the installer and helper shell scripts
+--- # PR: run the bats tests, shellcheck and checkbashisms over the installer and helper shell scripts
 # Maintain in repo: credfeto-ai-skills
 name: "PR: Test Shell Scripts"
 
@@ -36,17 +36,24 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Install bats and shellcheck"
+      # checkbashisms ships in the devscripts package on Debian/Ubuntu.
+      - name: "Install bats, shellcheck and checkbashisms"
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends bats shellcheck
+          sudo apt-get install -y --no-install-recommends bats shellcheck devscripts
           bats --version
           shellcheck --version
+          checkbashisms --version
 
       - name: "Shellcheck"
         shell: bash
         run: shellcheck install ai/skills/install ai/agents/install .github/scripts/*.sh test/*.bats
+
+      # The .bats files are bash, so checkbashisms covers only the #!/bin/sh scripts.
+      - name: "Checkbashisms"
+        shell: bash
+        run: checkbashisms install ai/skills/install ai/agents/install .github/scripts/*.sh
 
       - name: "Run bats tests"
         shell: bash
