@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code-exploring agents can now use the CodeGraph code index to locate and understand code in indexed repositories, with a new credfeto-codegraph skill preloaded into the agents that read code
 - Added the ill-fitting framework exception category to the compliance lens agent and trimmed its leftover placeholder wording
 - Added the human-communication skill covering the NEEDS YOU block, asking in chat first and full GitHub URLs
+- CI now runs shellcheck, checkbashisms and the bats tests on every pull request, as a required check
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
@@ -51,6 +52,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-git-branch skill: never assign yourself to a dependency-update PR when taking ownership of a bot-created PR.
 - credfeto-pr-sync skill: bot-created PR ownership no longer adds an assignee on dependency-update PRs.
 - Removed unsourced 'loading a skill' wording from the hook-block rule in the six Code Reviewer lens agents
+- ./install --system no longer fails up front without a terminal when sudo would work for the install itself
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source

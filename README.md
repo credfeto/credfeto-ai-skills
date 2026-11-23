@@ -37,7 +37,7 @@ Installs every skill into `~/.claude/skills` as `credfeto-<skill>` and then ever
 ./install --system
 ```
 
-With `--system`, every installer instead writes into the managed Claude Code folder, so every user on the machine gets the skills and agents: skills go to `/etc/claude-code/.claude/skills` and agents to `/etc/claude-code/.claude/agents`. The installers use `sudo` for every write unless they already run as root, fail if neither is available, and make the installed files world-readable. `--system` leaves any copies in `~/.claude` untouched. Each installer also accepts `--system` on its own, and any other argument is an error.
+With `--system`, every installer instead writes into the managed Claude Code folder, so every user on the machine gets the skills and agents: skills go to `/etc/claude-code/.claude/skills` and agents to `/etc/claude-code/.claude/agents`. The installers run every read and write inside the managed folder through `sudo` unless they already run as root, and fail if neither is available. They make the installed files world-readable. `--system` leaves any copies in `~/.claude` untouched. Each installer also accepts `--system` on its own, and any other argument is an error.
 
 ## Automated Reconciliation
 

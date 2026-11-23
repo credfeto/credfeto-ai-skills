@@ -1,0 +1,60 @@
+--- # PR: run the bats tests, shellcheck and checkbashisms over the installer and helper shell scripts
+# Maintain in repo: credfeto-ai-skills
+name: "PR: Test Shell Scripts"
+
+# test-shell-scripts is a required check, so pull_request has no paths filter: a filtered-out
+# pull request would never report it and would wait on it forever. Push to main reports to no
+# pull request, so it keeps the filter and runs only when the scripts or their tests change.
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "install"
+      - "ai/skills/install"
+      - "ai/agents/install"
+      - "test/**"
+      - ".github/scripts/**"
+      - ".github/workflows/test-shell-scripts.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  cancel-in-progress: true
+
+jobs:
+  # The job key is the required check's name (no name: override), so keep it unique across workflows.
+  # @@required: merge
+  test-shell-scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      # checkbashisms ships in the devscripts package on Debian/Ubuntu.
+      - name: "Install bats, shellcheck and checkbashisms"
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bats shellcheck devscripts
+          bats --version
+          shellcheck --version
+          checkbashisms --version
+
+      - name: "Shellcheck"
+        shell: bash
+        run: shellcheck install ai/skills/install ai/agents/install .github/scripts/*.sh test/*.bats
+
+      # The .bats files are bash, so checkbashisms covers only the #!/bin/sh scripts.
+      - name: "Checkbashisms"
+        shell: bash
+        run: checkbashisms install ai/skills/install ai/agents/install .github/scripts/*.sh
+
+      - name: "Run bats tests"
+        shell: bash
+        run: bats test/
