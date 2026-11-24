@@ -1,6 +1,6 @@
 ---
 name: credfeto-git-rebase
-description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, and apply the additional CHANGELOG.md conflict, force-push and escalation rules that apply when acting as the dedicated Rebase Agent. Use whenever resuming an existing branch before making a new commit, before running the pre-commit health check on a branch that already existed, whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, or when acting as the Rebase Agent.
+description: Determine whether a resumed work branch needs rebasing onto an updated origin/main, resolve version conflicts (package, GitHub Actions, or runtime/tool versions) that arise during a merge or rebase, and apply the additional CHANGELOG.md conflict, force-push and escalation rules that apply when acting as the dedicated Rebase Agent. Use whenever resuming an existing branch before making a new commit, before running the pre-work baseline check on a branch that already existed, whenever a merge or rebase produces conflicting versions of the same package, action, or runtime in a dependency manifest, workflow file, or version file, or when acting as the Rebase Agent.
 ---
 
 # Git Rebasing
