@@ -9,7 +9,7 @@ Coverage is collected with **Microsoft.Testing.Platform** (MTP). 100% code cover
 
 ## Collect Coverage with the `coverage` MCP Tool (MANDATORY)
 
-Collect coverage with the `coverage` tool of the `build-dotnet` MCP server and read the figures from its `job_result`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only.
+Collect coverage with the `coverage` tool of the `build-dotnet` MCP server and read the figures from its `job_result`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only. A successful run also writes `COVERAGE.md`: with `project: all` the whole .NET section, with one project only that assembly's row and the Overall (.NET) row. Only the coverage ratchet commits that file; restore it after any other run.
 
 The server runs the repository's .NET builds, tests, coverage and checks as jobs and keeps each job's full log. Its tool list follows the repository: it lists a tool only when the repository has something for it to run (for example `test` and `coverage` only when there is a unit test project).
 

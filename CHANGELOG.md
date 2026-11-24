@@ -198,6 +198,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code fixer skill now requires the cfwf MCP tools before the cfwf command line, one command per call
 - Code reviewer sub-agents skill now requires the cfwf MCP tools before the cfwf command line, one command per call
 - credfeto-git-rebase skill description now names the pre-work baseline check as the source instructions do
+- Code tester skill now covers leaving COVERAGE.md uncommitted in the AI Coverage phase and restoring it after other coverage runs
+- Pre-work health check skill now bootstraps COVERAGE.md with the coverage tools and the four-column format, and the .NET coverage skill notes that a coverage run writes COVERAGE.md
+- credfeto-pr-review-loop skill: add default round caps, and align Phase D with the tool-written COVERAGE.md (build-dotnet and build-node coverage tools, four-column tables, restore on failure, Python-only hand-written section)
+- Reconciled coverage-ratchet skill with current instructions: tool-written COVERAGE.md with line counts, build-node coverage, commit and restore rules
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

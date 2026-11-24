@@ -98,13 +98,13 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
 - **If it exists**, nothing further is needed: coverage is always compared against `origin/main`'s live copy later in the workflow, so there is no per-branch capture step and nothing to refresh here.
 - **If it does not exist**, collect it now, while still on `main`, before creating the work branch:
   1. Measure the overall line-coverage percentage for each orchestrated language actually present in the repo:
-     - **.NET**: run the `coverage` tool of the `build-dotnet` MCP server for all unit test projects and take the per-assembly figures and the Overall (.NET) figure from its `job_result` (reading a per-assembly figure the table needs from the job's full log, whose path `job_result` gives, rather than re-running coverage). The raw coverage commands are denied in the agent container, so if the `coverage` tool is not available, follow the `build-dotnet` MCP rules in section 5 (stop and report when the server is not connected; say so in your report when the server lists no such tool) instead of measuring another way. Skip .NET entirely if the repo has no `*.Tests` project.
-     - **Node**: pinned as Vitest with `@vitest/coverage-v8`; run `npx vitest run --coverage` with the `json-summary` reporter configured (alongside whatever other reporters the repo already uses), then `jq '.total.lines.pct' coverage/coverage-summary.json`. If the repository's `package.json` defines a `test:coverage` script, that script takes precedence: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`. Skip if the repo has no `package.json` with a configured test runner.
+     - **.NET**: run the `coverage` tool of the `build-dotnet` MCP server with `project: all` and take the per-assembly figures and the Overall (.NET) figure from its `job_result`. A successful run writes the .NET section of `COVERAGE.md` itself. The raw coverage commands are denied in the agent container, so if the `coverage` tool is not available, follow the `build-dotnet` MCP rules in section 5 (stop and report when the server is not connected; say so in your report when the server lists no such tool) instead of measuring another way. Skip .NET entirely if the repo has no `*.Tests` project.
+     - **Node**: run the `coverage` tool of the `build-node` MCP server with `package: all`. It runs each package's `test:coverage` script and reads the Cobertura report the script writes (`coverage/cobertura-coverage.xml` by default), so the Vitest configuration must enable the `cobertura` reporter. A successful run writes the Node section of `COVERAGE.md` itself, and its `job_result` gives the per-package figures and the Overall (Node) figure. When the `build-node` server is not connected or does not list a `coverage` tool, measure as follows and report the figures; the Node section then keeps its committed figures, because only the tool writes it. If the repository's `package.json` defines a `test:coverage` script, that script takes precedence: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`. Otherwise Node coverage is pinned as Vitest with `@vitest/coverage-v8`, with the `json-summary` and `cobertura` reporters configured alongside whatever other reporters the repo already uses: run `npx vitest run --coverage`, then `jq '.total.lines.pct' coverage/coverage-summary.json`. Skip if the repo has no `package.json` with a configured test runner.
      - **Python**: pinned as `coverage.py` via `pytest`; run `coverage run -m pytest` then `coverage report --format=total` (prints only the overall percentage). Skip if the repo has no Python test suite.
      - **Shell**: always excluded; never attempt to measure it.
 
      Before reading any figure, confirm the test run exited 0 with every test passing: a measurement from a run with any failing test is void, so never read its coverage output, never write `COVERAGE.md` from it, and fix the failing test before measuring again.
-  2. Write `COVERAGE.md` at the repo root, including every one of the four languages as a section even when skipped (`n/a (no code)` for a language with no code/tests present; `excluded` for Shell, always, or for another language where every production assembly/package in it is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure; record a one-line rationale beneath `excluded` in that case):
+  2. Make sure `COVERAGE.md` at the repo root includes every one of the four languages as a section even when skipped (`n/a (no code)` for a language with no code/tests present; `excluded` for Shell, always, or for another language where every production assembly/package in it is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure; record a one-line rationale beneath `excluded` in that case). Never write or edit a section that a `coverage` tool writes (.NET, Node) by hand, with a shell command, or with an edit or write tool, because the tool owns the file's format. No `coverage` tool writes the Python section or a `n/a (no code)` or `excluded` section, so Code Writer (docs only) writes those sections, and only those. Format (values illustrative):
 
      ```text
      # Coverage
@@ -113,16 +113,18 @@ Only when picking up a **new issue** by branching fresh from an up-to-date `main
 
      ## .NET
 
-     | Project | Line Coverage |
-     | --- | --- |
-     | Credfeto.Foo | 82.1% |
-     | **Overall (.NET)** | **80.3%** |
+     | Project | Line Coverage | Covered | Coverable |
+     | --- | --- | --- | --- |
+     | Credfeto.Bar | 74.0% | 370 | 500 |
+     | Credfeto.Foo | 82.1% | 1234 | 1503 |
+     | **Overall (.NET)** | **80.1%** | **1604** | **2003** |
 
      ## Node
 
-     | Package | Line Coverage |
-     | --- | --- |
-     | **Overall (Node)** | 91.4% |
+     | Package | Line Coverage | Covered | Coverable |
+     | --- | --- | --- | --- |
+     | web-app | 91.4% | 457 | 500 |
+     | **Overall (Node)** | **91.4%** | **457** | **500** |
 
      ## Python
 

@@ -5,18 +5,18 @@ description: Run the whole-repo, per-language coverage ratchet that gates a bran
 
 # Whole-Repo Coverage Ratchet
 
-Each orchestrated language's overall line-coverage percentage on the current branch must be **>=** that language's percentage on `main`, compared against a baseline committed to `main` itself (no Codecov or similar external service). The gate compares **per language**, never blended into one combined figure. A language with no code or tests present is skipped. Shell is always excluded (see below). Per-component/project numbers are recorded for visibility only; a single project dipping while its language's overall average holds or improves does not fail the gate.
+Each orchestrated language's overall line-coverage percentage on the current branch must be **>=** that language's percentage on `main`, compared against a baseline committed to `main` itself (no Codecov or similar external service). This is not a repeat of the diff-coverage check the Code Tester role performs, which only verifies new/changed lines are covered; the ratchet also catches a deleted test or a refactor that drops coverage of code the diff never touched.
 
-This is not a repeat of a diff-only coverage check that only verifies new/changed lines are covered; the ratchet also catches a deleted test or a refactor that drops coverage of code the diff never touched.
+The gate compares **per language**, never blended into one combined figure (a .NET percentage and a Python percentage are not commensurable). A language with no code or tests present in the repo is skipped. Shell is out of scope (see Shell below). Per-component/project numbers are also recorded, for visibility only; a single project dipping while its language's overall average holds or improves does **not** fail the gate.
 
-There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment this runs, read fresh every time. Every invocation is a fresh, memoryless session: nothing needs to be captured when branching and nothing needs refreshing after a rebase, because the baseline is always read live from `origin/main`.
+There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment the AI Coverage phase runs, read fresh every time. Every AI Coverage phase invocation is a fresh, memoryless session; nothing needs to be captured when branching and nothing needs refreshing after a rebase, because the phase always reads `origin/main` live (no coverage-specific step is needed after a rebase beyond the ordinary rebase).
 
 ## Failing Tests Void the Measurement (MANDATORY)
 
 A coverage measurement is valid only when the test run that produced it exited 0 with every test passing. If any test fails, the measurement is void:
 
 - Do not read the coverage output, even when the runner still wrote a report.
-- Do not write or update `COVERAGE.md` from it.
+- Do not commit `COVERAGE.md` from it.
 - Do not pass the ratchet on it.
 
 The failing test must be fixed in the same PR before coverage is measured again, whether or not it also fails on `main`.
@@ -25,9 +25,11 @@ No instruction file, global or repo-local, may record a "known failure" or "pre-
 
 ## Committed Coverage File (MANDATORY)
 
-`COVERAGE.md`, at the repo root, is the sole persisted record of coverage. It is generated, never hand-edited, and is updated only by this decision procedure as part of a PR that later merges to `main`; there is no separate post-merge job.
+`COVERAGE.md`, at the repo root, is the sole persisted record of coverage. The build MCP `coverage` tool writes it. It is committed only by the AI Coverage phase (see the decision procedure below) and by the **Bootstrap** and **Conflict on rebase** rules below, as part of a PR that later merges to `main`; there is no separate post-merge job.
 
-**Its absence is a signal, not a free pass.** If `COVERAGE.md` does not exist at the repo root, the coverage ratchet has simply never been applied to this repo yet; it does not mean coverage is exempt or that this phase can be silently skipped forever. Anyone making changes, or who has already made changes, to a repo without a `COVERAGE.md` **MUST** create it and thereafter maintain it: bootstrap it per the **Bootstrap** rule below (or, when picking up fresh work, per the pre-work baseline check), and from then on keep it updated on every PR via the decision procedure. Treating a missing file as "nothing to do here" is the single most common way the ratchet silently never gets applied to a repo.
+Never write or edit a section that a `coverage` tool writes (.NET, Node) by hand, with a shell command, or with an edit or write tool, because the tool owns the file's format (section order, row order, `n/a` rows, rounding) and a hand-assembled table drifts from it. Every successful `coverage` run rewrites the file, including a run made outside the AI Coverage phase (for example Code Tester's diff-coverage check): undo that with `git -C <repodir> restore COVERAGE.md` and never commit it, so the branch keeps the committed baseline until one of those rules commits a measured result.
+
+**Its absence is a signal, not a free pass.** If `COVERAGE.md` does not exist at the repo root, the coverage ratchet has simply never been applied to this repo yet; it does **not** mean coverage is exempt or that this phase can be silently skipped forever. Anyone making changes, or who has already made changes, to a repo without a `COVERAGE.md` **MUST** create it and thereafter maintain it: bootstrap it per the **Bootstrap** rule below (or, when picking up fresh work, per the pre-work baseline check), and from then on keep it updated on every PR via the decision procedure. Treating a missing file as "nothing to do here" is the single most common way the ratchet silently never gets applied to a repo.
 
 Format (values illustrative):
 
@@ -38,17 +40,18 @@ Generated by the AI Coverage phase. Do not edit by hand.
 
 ## .NET
 
-| Project | Line Coverage |
-| --- | --- |
-| Credfeto.Foo | 82.1% |
-| Credfeto.Bar | 74.0% |
-| **Overall (.NET)** | **80.3%** |
+| Project | Line Coverage | Covered | Coverable |
+| --- | --- | --- | --- |
+| Credfeto.Bar | 74.0% | 370 | 500 |
+| Credfeto.Foo | 82.1% | 1234 | 1503 |
+| **Overall (.NET)** | **80.1%** | **1604** | **2003** |
 
 ## Node
 
-| Package | Line Coverage |
-| --- | --- |
-| **Overall (Node)** | 91.4% |
+| Package | Line Coverage | Covered | Coverable |
+| --- | --- | --- | --- |
+| web-app | 91.4% | 457 | 500 |
+| **Overall (Node)** | **91.4%** | **457** | **500** |
 
 ## Python
 
@@ -66,46 +69,60 @@ Captured at commit `<sha>` on <ISO-8601 date>.
 ```
 
 - Include every orchestrated language (.NET, Node, Python, Shell) as a section, even when skipped, so the file is unambiguous about what was and was not measured.
-- Under a measured language, list every component/project plus a bold **Overall (\<Language\>)** row, the figure the gate actually compares. A language with only one component still gets an explicit Overall row.
-- Use `n/a (no code)` for a language with no code/tests in the repo.
-- Use `excluded` for Shell, always, or for another language where every production assembly/package in that language is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure (see [Whole-Repo Test-Infrastructure Exclusion](#whole-repo-test-infrastructure-exclusion)). Record a one-line rationale beneath `excluded` in that case.
-- `<sha>` is the commit the numbers were measured against.
-- `COVERAGE.md` records **only** the coverage figures (the component rows, the Overall rows and the `<sha>` line). It must never record the command, tools, flags or runner used to measure them, because later rounds would copy that recorded command instead of following the repository's own coverage instructions. When updating the file, remove any such line.
+- Under a measured language, the table lists every component/project (see the per-language extraction below for what counts as a component in that language) plus a bold **Overall (\<Language\>)** row. A language with only one component still gets an explicit Overall row.
+- A .NET or Node table has four columns: `Line Coverage`, then the `Covered` and `Coverable` line counts. The Overall row's counts are the sums of the component rows' counts, and its percentage is calculated from them. A component row reading `n/a` counts as 0 covered of 0 coverable lines.
+- The gate reads only the `Line Coverage` percentage on the Overall row, which stays the second column. The line counts exist so that one component's row can be updated without measuring every other component.
+- A `coverage` run of every project (`project: all`, .NET) or every package (`package: all`, Node) writes its language's whole section and the commit line, and leaves every other section as it is. A run of a single project or package replaces only that component's row and recalculates the Overall row as the sum of every row's counts. When any row has no counts (a file written before the counts were recorded), the tool leaves the Overall row unchanged and the job result's `coverageReportNote` says why; the next run of every project or package fills the counts in.
+- No `coverage` tool writes the Python section or a `n/a (no code)` or `excluded` section, so Code Writer (docs only) writes those sections, and only those, in the format above, with Python's two columns `Package | Line Coverage`.
+- Use `n/a (no code)` for a language with no code/tests in the repo (no table).
+- Use `excluded` for Shell (always), or for another language where every production assembly/package in that language is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure (see Whole-Repo Test-Infrastructure Exclusion below). Record a one-line rationale beneath `excluded` in that case.
+- `<sha>` is the commit the numbers were measured against (the branch tip at the time of a successful AI Coverage phase run).
+- `COVERAGE.md` records **only** the coverage figures (the component rows, the Overall rows and the `<sha>` line). It must never record the command, tools, flags or runner used to measure them, because later rounds would copy that recorded command instead of following the repository's own coverage instructions. A run of every project or package replaces its language's whole section, which drops any such line there; Code Writer (docs only) removes one found anywhere else.
 
-**Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's pre-work baseline check first finds it missing: that branch commits an initial version in its own commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison (step 2 below) finds nothing to compare against on that same branch too, which is not a regression, so it must not block. Overwrite `COVERAGE.md` again with the branch's live measurements (its second commit on that branch, expected, not a conflict), treat the gate as passed, and proceed as in step 5; as everywhere else, a measurement with any failing test is void and is never written. For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the pre-work baseline check step was skipped or the branch predates it.
+**Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's pre-work baseline check first finds it missing: that branch commits an initial version in its own commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison (P2 below) finds nothing to compare against on that same branch too. That is not a regression, so it must not block. Measure the branch as in P3, which rewrites `COVERAGE.md` with the branch's live figures, and commit it (its second commit on that branch, which is expected and not a conflict), treat the gate as passed, and proceed as in P5; as everywhere else, a measurement with any failing test is void and is never committed. For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the pre-work baseline check step was skipped or the branch predates it.
 
-**Conflict on rebase**: `COVERAGE.md` is generated content, not hand-authored; never text-merge conflicting percentages. If a rebase produces a conflict in `COVERAGE.md`, take `main`'s copy:
+**Conflict on rebase**: `COVERAGE.md` is generated content, not hand-authored; never text-merge conflicting percentages. If `git -C <repodir> rebase origin/main` produces a conflict in `COVERAGE.md`, take `main`'s copy:
 
 ```bash
 git -C <repodir> checkout --ours -- COVERAGE.md
 git -C <repodir> add COVERAGE.md
 ```
 
-(During a rebase, `--ours` is the branch being rebased *onto*, i.e. `origin/main`.) Continue the rebase; once it completes and the build/tests pass, re-run the extraction below against the rebased tree and commit a fresh `COVERAGE.md`. Do not leave `main`'s stale copy in place, and do not measure before the build/tests are confirmed green; a failing test makes the measurement void.
+(Git's rebase convention reverses the usual meaning: during a rebase, `--ours` is the branch being rebased *onto* (`origin/main`), and `--theirs` is your own commit being replayed; this is the opposite of a merge.) Continue the rebase as normal. Once it completes **and** the post-rebase build-and-test step passes, re-run the per-language extraction against the rebased working tree, which rewrites `COVERAGE.md`, and commit it as part of that same rebase work; do not leave `main`'s stale copy in place, and do not measure before the build/tests are confirmed green; a failing test makes the measurement void.
 
 ## Per-Language Overall Coverage Extraction
 
 ### .NET
 
-Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). A project is a test project only if its assembly name ends in `.Tests` (unit), `.Integration.Tests`, or `.Benchmark.Tests`; never use "contains 'Test'" as a heuristic (a project named `*.TestHarness`, `*.Tests.Mocks` or `*.Tests.Common` is not a test project), and do not rely on `OutputType` or the project SDK as a discriminator, because with Microsoft.Testing.Platform legitimate test projects also use `OutputType=Exe` and some use `Microsoft.NET.Sdk.Web`. Always verify `IsTestingPlatformApplication` in the csproj, because that is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`; the naming convention and `IsTestingPlatformApplication` are the only reliable signals. Only unit test projects (`<AssemblyName>.Tests`) feed coverage; exclude `.Integration.Tests` and `.Benchmark.Tests`.
+Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). Run the `build-dotnet` MCP server's `coverage` tool with `project: all`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only. A successful run writes the .NET section of `COVERAGE.md` itself, and its `job_result` gives the per-assembly figures and the gated Overall (.NET) figure. Wait for the job with `job_result`, which waits up to 240 seconds for the job to finish; call it again only while the `state` it returns is `running`, and never poll `job_status` or put a shell wait or `sleep` around either call. Judge the job by `job_result`'s per-step exit codes, test counts and failing tests. Do not repeat a job to confirm it.
 
-Run the `build-dotnet` MCP server's `coverage` tool for all unit test projects. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and its `job_result` gives the per-assembly figures for the component rows and the gated Overall (.NET) figure, in `COVERAGE.md` shape, so each assembly's figure comes from its own tests only. Wait for the job with `job_result`, which waits up to 240 seconds for the job to finish; call it again only while the `state` it returns is `running`, and never poll `job_status` or put a shell wait or `sleep` around either call. Judge the job by `job_result`'s per-step exit codes, test counts and failing tests. When `job_result` does not give a figure the table needs (a per-assembly row), read it from the job's full log, whose path `job_result` gives, rather than re-running coverage.
+A project is a test project **only** if its assembly name ends in `.Tests` (unit), `.Integration.Tests` or `.Benchmark.Tests`:
 
-The raw coverage commands are denied in the agent container, so never measure another way. If no build-dotnet tools are available in a role that is granted them, the server failed to start or connect: stop the task, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`; never work around it with a raw command or a script that runs one. If the server is connected but does not list the `coverage` tool, the repository has nothing for it to run; say so in your report instead of composing a command.
+- Never use "contains 'Test'" as a heuristic; a project named `*.TestHarness`, `*.Tests.Mocks` or `*.Tests.Common` is not a test project.
+- Do not rely on `OutputType` or the project SDK as a discriminator, because with Microsoft.Testing.Platform legitimate test projects also use `OutputType=Exe` and some use `Microsoft.NET.Sdk.Web`.
+- Always verify `IsTestingPlatformApplication` in the csproj, because that is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`; the naming convention and `IsTestingPlatformApplication` are the only reliable signals.
+- Never name a project as a test target if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`; test support libraries (for example `*.Tests.Mocks`, `*.Tests.Common`) are not test projects.
+- Only unit test projects (`<AssemblyName>.Tests`) are measured. Never measure `.Integration.Tests` (integration tests inflate coverage numbers and test external dependencies, not isolated units) or `.Benchmark.Tests`. Never run the tests of a `*.Benchmark.Tests` project and never `dotnet run` one.
 
-`UnitTests.props` must contain `<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />`; if it is missing, stop and demand it is added. Do not install `coverlet.collector`, `coverlet.msbuild` or any VSTest data collector, because they do not work with Microsoft.Testing.Platform, and do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present. Never run the tests of a `*.Benchmark.Tests` project and never `dotnet run` one.
+The raw coverage commands are denied in the agent container, so never measure another way. A role that has no build-dotnet tools because it is not granted them (the Orchestrator) hands the measurement to the role that has them (Code Tester). If no build-dotnet tools are available in a role that is granted them, the server failed to start or connect: stop the task, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`; never work around it with a raw command or a script that runs one. If the server is connected but does not list the `coverage` tool, the repository has nothing for it to run; say so in your report instead of composing a command.
+
+`UnitTests.props` must contain `<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />`; if it is missing, stop and demand it is added. Do not install `coverlet.collector`, `coverlet.msbuild` or any VSTest data collector, because they do not work with Microsoft.Testing.Platform, and do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present.
+
+Source-generated code (classes decorated with `[GeneratedCode]`) is excluded from coverage measurements, and a source generator is never turned off to reach 100% coverage. For methods whose success path needs live infrastructure (database connections, network sockets, file handles), do not suppress PH2140 or add `[ExcludeFromCodeCoverage]`.
 
 Before reading any figure, confirm the test run exited 0 with every test passing; otherwise the measurement is void.
 
-Skip .NET entirely if the repo has no `*.Tests` project. Never name a project as a test target if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`; test support libraries (for example `*.Tests.Mocks`, `*.Tests.Common`) are not test projects.
+Skip .NET entirely if the repo has no `*.Tests` project.
 
 ### Node
 
-Pinned as **Vitest** with the **`@vitest/coverage-v8`** provider. Adding these to `package.json` for the first time still needs the normal third-party-package human-approval review; this only fixes which tool to propose.
+Pinned as **Vitest** with the **`@vitest/coverage-v8`** provider. Adding these packages to a specific repo's `package.json` for the first time still goes through the normal third-party-package human-approval review; this only fixes which tool to propose, not a blanket pre-approval to install it.
 
-If the repository's `package.json` defines a `test:coverage` script, that script takes precedence over the Vitest default below: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`.
+Run the `build-node` MCP server's `coverage` tool with `package: all`. It runs each package's `test:coverage` script and reads the Cobertura report the script writes (`coverage/cobertura-coverage.xml` by default), so the Vitest configuration must enable the `cobertura` reporter. A successful run writes the Node section of `COVERAGE.md` itself, and its `job_result` gives the per-package figures and the gated Overall (Node) figure.
 
-Configure the `json-summary` reporter alongside whatever other reporters the repo already uses, so it is calculated in the ratchet's terms in every language:
+When the `build-node` server is not connected or does not list a `coverage` tool, measure as below and report the figures; the Node section of `COVERAGE.md` then keeps its committed figures, because only the tool writes it. If the repository's `package.json` defines a `test:coverage` script, that script takes precedence over the Vitest default below: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`.
+
+Configure the `json-summary` and `cobertura` reporters alongside whatever other reporters the repo already uses, so it is calculated in the ratchet's terms in every language:
 
 ```typescript
 // vitest.config.ts
@@ -113,22 +130,26 @@ export default defineConfig({
   test: {
     coverage: {
       provider: "v8",
-      reporter: ["text", "json-summary"],
+      reporter: ["text", "json-summary", "cobertura"],
     },
   },
 });
 ```
+
+Run and extract:
 
 ```bash
 npx vitest run --coverage
 jq '.total.lines.pct' coverage/coverage-summary.json
 ```
 
-`coverage/coverage-summary.json` is written by the `json-summary` reporter; `.total.lines.pct` is the overall line-coverage percentage.
+`coverage/coverage-summary.json` is written by the `json-summary` reporter (relative to `coverage.reportsDirectory`, which defaults to `coverage/`); `.total.lines.pct` is the overall line-coverage percentage across the whole run.
 
 Before reading `coverage-summary.json`, confirm the test run exited 0 with every test passing; Jest and Vitest still write the file when tests fail, and a file written by a run that exited non-zero is void, not valid.
 
-Components are packages: one row per `package.json` with a configured test runner in a monorepo layout, each run and extracted the same way against its own package, otherwise a single Overall (Node) row. Skip Node entirely if there is no `package.json` with a configured test runner.
+Components are packages: one row per `package.json` with a configured test runner in a monorepo/workspace layout, each run and extracted the same way against its own package. A single-package repo has just the one Overall (Node) row.
+
+Skip Node entirely if the repo has no `package.json` with a configured test runner.
 
 ### Python
 
@@ -139,49 +160,53 @@ coverage run -m pytest
 coverage report --format=total
 ```
 
-This prints only the overall percentage as a single number, so no further extraction is needed. Before reading it, confirm `coverage run -m pytest` exited 0 with every test passing; otherwise the measurement is void. Components are packages, analogous to Node: one row per Python package/app with its own test suite in a monorepo layout, otherwise a single Overall (Python) row. Skip Python entirely if there is no Python test suite.
+`coverage report --format=total` prints only the overall percentage as a single number (no other text), so no further extraction step is needed. Before reading it, confirm `coverage run -m pytest` exited 0 with every test passing; otherwise the measurement is void.
+
+Components are packages, analogous to Node: one row per Python package/app with its own test suite in a monorepo layout, otherwise a single Overall (Python) row.
+
+Skip Python entirely if the repo has no Python test suite.
 
 ### Shell (Excluded)
 
-Shell is excluded from the coverage ratchet entirely. Never attempt to measure shell/bats coverage; always record it as `excluded` in `COVERAGE.md` and never include it in the decision comparison below.
+Shell is excluded from the coverage ratchet entirely. Do not attempt to measure shell/bats coverage for this phase; always record it as `excluded` in `COVERAGE.md` and never include it in the phase decision comparison.
 
 ## Whole-Repo Test-Infrastructure Exclusion
 
-Some repos exist solely to provide test-support/test-infrastructure libraries consumed by *other* repos' test suites (test base classes, mocking helpers, fixtures) rather than application code. Their own production assemblies/packages are conventionally annotated to exclude them from coverage instrumentation entirely, e.g. a .NET assembly carrying `[assembly: ExcludeFromCodeCoverage]` with a justification such as "this is a unit test assembly - no need for coverage of the test code itself", even though the repo has real code and a real, passing test suite for it.
+Some repos exist solely to provide test-support/test-infrastructure libraries consumed by *other* repos' test suites (test base classes, mocking helpers, fixtures) rather than application code. Their own production assemblies/packages are conventionally annotated to exclude them from coverage instrumentation entirely (e.g. a .NET assembly carrying `[assembly: ExcludeFromCodeCoverage]` with a justification such as "this is a unit test assembly - no need for coverage of the test code itself"), even though the repo has real code and a real, passing test suite for it.
 
 This differs from `n/a (no code)`: code and tests exist and run, they are simply never instrumented, so a normal extraction run against them produces an empty or degenerate coverage report (e.g. an empty `<packages />` cobertura file) rather than a meaningful percentage.
 
-When every production assembly/package for a language in the repo carries this kind of blanket exclusion, treat that language the same way as Shell: record it as `excluded` in `COVERAGE.md` with a one-line rationale (e.g. `excluded: repo is test-support infrastructure only; all assemblies carry [assembly: ExcludeFromCodeCoverage]`), never attempt to measure it, and never include it in the decision comparison below. If only *some* assemblies/packages in the language carry the exclusion and others are real application code, this does not apply; measure normally, the excluded assemblies simply contribute no covered/coverable lines to the Overall figure.
+When every production assembly/package for a language in the repo carries this kind of blanket exclusion, treat that language the same way as Shell: record it as `excluded` in `COVERAGE.md` with a one-line rationale (e.g. `excluded: repo is test-support infrastructure only; all assemblies carry [assembly: ExcludeFromCodeCoverage]`), never attempt to measure it, and never include it in the phase decision comparison. If only *some* assemblies/packages in the language carry the exclusion and others are real application code, this does not apply: measure normally, and the excluded assemblies simply contribute no covered/coverable lines to the Overall figure.
 
 ## Non-Code-Only Branches (Skip, Don't Measure)
 
-Only .NET, Node, and Python source/test code can move the ratchet's numbers. If every changed file (relative to the merge-base with `main`) falls into one of these categories, skip the extraction and comparison entirely: move the board straight to Human Review and post a one-line status comment (`Non-code change: coverage ratchet skipped`), without reading or writing `COVERAGE.md`:
+Only the three orchestrated languages' own source/test code (.NET, Node, Python) can move the ratchet's numbers. If every file changed on the branch (relative to its merge-base with `main`) falls into one of the categories below, no source or test file changed, so coverage cannot have moved. Skip the extraction and comparison entirely: move the board straight to **Human Review** and post a one-line status comment (`Non-code change: coverage ratchet skipped`), without reading or writing `COVERAGE.md`.
 
-- Dependency manifests and version pins (`.csproj`, `Directory.Packages.props`, `packages.config`, `package.json`, `package-lock.json`, `requirements.txt`, `*.lock`, a GitHub Actions `uses:` version bump, a Dockerfile base-image tag/digest, `global.json`/`dotnet-tools.json`/`.nvmrc`/`.python-version`).
-- GitHub Actions workflows and composite actions beyond version pins.
-- SQL/T-SQL (schema, stored procedures, views, migrations).
-- Shell scripts.
-- Dockerfiles and Docker Compose files.
-- Documentation-only changes (README, CHANGELOG, and similar).
+- **Dependency manifests and version pins**: `.csproj`/`Directory.Packages.props`/`packages.config`/`package.json`/`package-lock.json`/`requirements.txt`/`*.lock`, a GitHub Actions `uses:` version bump, a `Dockerfile` base-image tag/digest, `global.json`/`dotnet-tools.json`/`.nvmrc`/`.python-version`.
+- **GitHub Actions workflows and composite actions** (`.github/workflows/*.yml`, `.github/actions/*/action.yml`) beyond version pins: workflow YAML has no coverage concept.
+- **SQL/T-SQL** (schema, stored procedures, views, migrations): measured, if at all, by a database-specific process outside this ratchet, never by the per-language extraction above.
+- **Shell scripts**: always excluded, whether touched alone or as part of a larger branch.
+- **Dockerfiles and Docker Compose files**.
+- **Documentation-only changes** (README, CHANGELOG, and similar).
 
-This is an optimisation, not the only safety net: even without this skip, a branch confined to these categories that reaches the decision procedure below cannot fail it, since nothing it changed can move any language's coverage, and if `origin/main` has no `COVERAGE.md` yet the bootstrap rule above already prevents a block. A repo-specific orchestrator (e.g. a `dependencies`-labelled PR short-circuit) may also exempt these branches even earlier, before the workflow board phases run at all; that is complementary, not a replacement for this rule.
+This is an optimisation, not the only safety net: even without this skip, a branch confined to these categories that reaches the measured comparison in the decision procedure below cannot fail it (nothing it changed can move any language's coverage), and if `origin/main` has no `COVERAGE.md` yet the bootstrap rule already prevents a block. A repo-specific orchestrator (e.g. a `dependencies`-labelled PR short-circuit) may also exempt these branches even earlier, before the Workflow board phases run at all; that is complementary, not a replacement for this rule.
 
-## Decision Procedure (MANDATORY)
+## AI Coverage Phase Decision Procedure (MANDATORY)
 
-Run this only when the Workflow board is at **AI Coverage**.
+Run this only when the Workflow board is at **AI Coverage**:
 
-1. If the branch is non-code-only (above), skip without measuring anything and without reading or writing `COVERAGE.md`: post the one-line status comment `Non-code change: coverage ratchet skipped`, move the board to **Human Review**, and stop. Do not go to step 5.
-2. `git -C <repodir> fetch origin main` (always fresh; do not rely on a fetch from earlier in the session). Read `origin/main`'s `COVERAGE.md` without checking it out: `git -C <repodir> show origin/main:COVERAGE.md`. If it does not exist, this is the bootstrap case: treat the gate as passed and go to step 5.
-3. Have Code Tester measure: for each language with a real Overall row in that file (not `n/a` or `excluded`), it runs the extraction above against the branch's current (already checked out) working tree, with the `build-dotnet` `coverage` tool for .NET, and reports both the per-component rows and the Overall figure for each language back. The measurement has to run in Code Tester, not in the Orchestrator, because the Orchestrator's session is not granted the build MCP tools and the raw coverage commands are denied. The Orchestrator never runs a build, test or coverage command itself; it only compares the reported figures and decides. If any test failed, Code Tester reports the measurement as void, with the failing tests, instead of figures; the Orchestrator then treats it as a Development-phase fix, moves the board back to **Development** and stops, without going to step 4. A void measurement is not a coverage-gap round and does not count towards the step 6 round cap.
-4. Compare branch vs. baseline **Overall** per language (component rows never gate):
-   - Any language where branch Overall **<** baseline Overall: the ratchet fails; go to step 6.
-   - All present languages branch Overall **>=** baseline Overall: the ratchet passes; continue to step 5.
-5. **On success** (reached only from a measured pass in step 4 or the bootstrap case in step 2, never from the non-code-only skip in step 1): have Code Writer (docs only) write or overwrite `COVERAGE.md` on the branch with the numbers just measured (or, in the bootstrap case, the branch's current measurement, which Code Tester takes as in step 3, per [Committed Coverage File](#committed-coverage-file-mandatory) above), and send it through the review-fix route (Code Writer, then Committer, PR Submitter and CI Monitor) without Code Tester or Changelog (correction), resuming at Phase E, because the Orchestrator never measures, edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Never write `COVERAGE.md` from a void measurement. Move the board to Human Review, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
-6. **On failure**, check the round cap first, then judge the round-over-round trend:
-   - **Round cap**: if the configured maximum number of coverage rounds (`MAX_COVERAGE_ITERATIONS`) has already run, counted from prior `... - returning to Development` coverage comments, without the branch catching up, whether or not this round's trend is itself closing: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case.
-   - Otherwise, compare each still-failing language's Overall this round against its Overall in the most recent prior coverage comment that mentions that language by name: not necessarily the immediately preceding round, since a language that passed in a round leaves no comment mentioning it for that round, so a later failure must be compared against its last-mentioned figure, not a stale or absent one. Treat a language as trending, with nothing yet to compare, only when no prior comment mentions it at all, regardless of which round this is, or when this is the whole PR's first coverage round.
-   - **Gap closing** (every still-failing language's Overall either improved versus its own previous coverage round, or is trending per the carve-out above): post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), move the board back to **Development**, and stop. Do not write `COVERAGE.md` in this case; the branch has nothing new worth recording yet.
-   - **Flat or worsening, and judged unlikely to close**: post a PR comment giving the per-language numbers, the round-over-round trend, and the specific reasoning for why coverage cannot realistically be raised further here, add the `Blocked` label, and stop. Do not write `COVERAGE.md` in this case: a coverage round's pass/fail IS the ratchet's own verdict, so giving up here means proposing to waive the gate itself, not merely reporting that no new findings turned up; a human must see and agree with the reasoning before the gate is treated as satisfied.
-   - **Flat or worsening, but more rounds are still judged worth trying**: post the status comment as in the gap-closing case above, move the board back to **Development**, and stop. Do not write `COVERAGE.md` in this case.
+- **P1.** If the branch is non-code-only, skip without measuring anything and without reading or writing `COVERAGE.md`: post the one-line status comment `Non-code change: coverage ratchet skipped`, move the board to **Human Review**, and stop. Do not go to P5.
+- **P2.** `git -C <repodir> fetch origin main` (always fresh; do not rely on a fetch from earlier in the session). Read `origin/main`'s `COVERAGE.md` without checking it out: `git -C <repodir> show origin/main:COVERAGE.md`. If it does not exist, this is the bootstrap case: there is no baseline to compare against, so treat the gate as passed and go to P5.
+- **P3.** Have Code Tester measure: for each language with a real Overall row in that file (not `n/a` or `excluded`), it runs the extraction procedure once against the branch's current (already checked out) working tree, with the build MCP `coverage` tool over every component (`project: all` on `build-dotnet` for .NET, `package: all` on `build-node` for Node), and reports both the per-component rows and the Overall figure for each language back. Each successful `coverage` run writes its language's section of `COVERAGE.md` itself; Code Tester leaves the file uncommitted. The measurement has to run in Code Tester, not in the Orchestrator, because the Orchestrator's session is not granted the build MCP tools and the raw coverage commands are denied. The Orchestrator never runs a build, test or coverage command itself; it only compares the reported figures and decides. If any test failed, Code Tester reports the measurement as void, with the failing tests, instead of figures; the Orchestrator then treats it as a Development-phase fix, moves the board back to **Development** and stops, without going to P4. A void measurement is not a coverage-gap round and does not count towards the P6 round cap.
+- **P4.** Compare branch vs. baseline **Overall** per language (component rows are recorded but never gate):
+  - Any language where branch Overall **<** baseline Overall: the ratchet fails. Have Code Tester run `git -C <repodir> restore COVERAGE.md`, so the branch keeps `main`'s baseline rather than the figures the failed round wrote (Code Tester ran the measurement, and the Orchestrator never edits files), then go to P6.
+  - All present languages branch Overall **>=** baseline Overall: the ratchet passes. Continue to P5.
+- **P5.** **On success** (reached only from a measured pass in P4 or the bootstrap case in P2, never from the P1 non-code-only skip): commit the `COVERAGE.md` the `coverage` tool wrote in P3 (in the bootstrap case, have Code Tester measure as in P3 first, which writes it). Never write or edit the tool-written sections by hand, with a shell command, or with an edit or write tool; only a Python section, which no tool writes, is updated by Code Writer (docs only) with the figures just measured. Send the change through the review-fix route without Code Tester or Changelog (correction), starting at Committer when no Python section changed, resuming at Phase E, because the Orchestrator never measures, edits or commits itself, the coverage was measured moments ago, and a coverage figure is not a change the changelog records. Never commit `COVERAGE.md` from a void measurement. Move the board to **Human Review**, post a one-line status comment (`Coverage ratchet passed - advancing to Human Review`), and stop. This is why the board must not re-enter this phase on the resulting CI run: the phase has already advanced past it.
+- **P6.** **On failure**, check the round cap first, then judge the round-over-round trend:
+  - **Round cap**: if `MAX_COVERAGE_ITERATIONS` rounds (6 unless the run sets its own) have already run (counted from prior `... - returning to Development` coverage comments) without the branch catching up, whether or not this round's trend is itself closing: post a PR comment listing the still-failing languages and their gap, add the `Blocked` label, and stop. Do not commit `COVERAGE.md` in this case.
+  - Otherwise, compare each still-failing language's Overall this round against its Overall in the most recent prior coverage comment that mentions that language by name: not necessarily the immediately preceding round, since a language that passed in a round leaves no comment mentioning it for that round, so a later failure must be compared against its last-mentioned figure, not a stale or absent one. Treat a language as trending, with nothing yet to compare, only when no prior comment mentions it at all, regardless of which round this is, or when this is the whole PR's first coverage round.
+  - **Gap closing** (every still-failing language's Overall either improved versus its own previous coverage round, or is being treated as trending per the carve-out above): post a status comment in the form `<lang> <branch-pct>% < main <baseline-pct>% - returning to Development` (one line per failing language), move the board back to **Development**, and stop. Do not commit `COVERAGE.md` in this case: the branch has nothing new worth recording yet.
+  - **Flat or worsening, and judged unlikely to close**: post a PR comment giving the per-language numbers, the round-over-round trend, and the specific reasoning for why coverage cannot realistically be raised further here, add the `Blocked` label, and stop. Do not commit `COVERAGE.md` in this case. A coverage round's pass/fail IS the ratchet's own verdict, so giving up here means proposing to waive the gate itself, not merely reporting that no new findings turned up; a human must see and agree with the reasoning before the gate is treated as satisfied.
+  - **Flat or worsening, but more rounds are still judged worth trying**: post the status comment as in the gap-closing case above, move the board back to **Development**, and stop. Do not commit `COVERAGE.md` in this case.
 
-Whenever `Blocked` is added in step 6, the accompanying comment must name the specific instruction that requires the stop (here, this decision procedure's round-cap or judged-unlikely-to-close rule). Use only the `Blocked` label for this purpose, never a substitute such as `do not merge` or `needs review`.
+Whenever `Blocked` is added in P6, the accompanying comment must name the specific instruction that requires the stop (here, this decision procedure's round-cap or judged-unlikely-to-close rule). Use only the `Blocked` label for this purpose, never a substitute such as `do not merge` or `needs review`.
