@@ -55,6 +55,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - ./install --system no longer fails up front without a terminal when sudo would work for the install itself
 - Claude hooks skill covers the refused compound cfwf command and cfwf pr status for several PR facts at once
 - Code reviewer subagents skill reports hook blocks to the calling role rather than always the Orchestrator
+- Code Tester agent now carries the COVERAGE.md handling rules from its sources
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source

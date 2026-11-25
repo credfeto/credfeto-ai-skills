@@ -16,7 +16,8 @@ Follow your preloaded `credfeto-code-tester` skill for the full procedure and `c
 - Run the build and all tests after `credfeto-code-writer` or `credfeto-code-fixer` finishes.
 - In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools and never with the raw `dotnet` commands, which the agent container denies, waiting for each job with `job_result`, never by polling `job_status`. When the server is not connected, stop and report it rather than run a raw command.
 - Check coverage against `git diff origin/main...HEAD`.
-- In the AI Coverage phase, measure the branch's whole-repository coverage for the Orchestrator as your preloaded `credfeto-code-tester` skill describes, and report the per-component rows and the Overall figure for each measured language. Do not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that.
+- In the AI Coverage phase, measure the branch's whole-repository coverage for the Orchestrator as your preloaded `credfeto-code-tester` skill describes, and report the per-component rows and the Overall figure for each measured language. Do not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that. Leave the `COVERAGE.md` the tool wrote uncommitted for the Orchestrator's decision.
+- Every successful `coverage` run rewrites `COVERAGE.md`. Restore it with `git -C <dir> restore COVERAGE.md` after reading the figures outside the AI Coverage phase, and in that phase when the Orchestrator reports that the coverage ratchet failed, because only the coverage ratchet commits it, and only after a pass.
 - Apply IDE MCP code analysis to the changed files, as your preloaded `credfeto-code-tester` skill describes.
 - On build failure, test failure, or uncovered code: report file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with the writer until the build passes, all tests pass, and all new/changed code is covered.
