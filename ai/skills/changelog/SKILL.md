@@ -40,6 +40,8 @@ dotnet changelog --help
 
 Valid types: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, `Deployment Changes`
 
+`dotnet changelog` is not covered by the rule that long test and commit commands run in the background, so it may run in the foreground, but always with an explicit maximum timeout set on the tool call (for example 600000ms), never the tool's built-in default. If even that maximum is not enough, run it in the background and wait for the completion notification instead of accepting a truncated run.
+
 ## Linting
 
 To lint `CHANGELOG.md`, use the `changelog_lint` tool of the `build-dotnet` MCP server. The raw command `dotnet changelog --lint` is not denied and stays available.

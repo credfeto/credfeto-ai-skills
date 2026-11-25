@@ -53,6 +53,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - credfeto-pr-sync skill: bot-created PR ownership no longer adds an assignee on dependency-update PRs.
 - Removed unsourced 'loading a skill' wording from the hook-block rule in the six Code Reviewer lens agents
 - ./install --system no longer fails up front without a terminal when sudo would work for the install itself
+- Claude hooks skill covers the refused compound cfwf command and cfwf pr status for several PR facts at once
+- Code reviewer subagents skill reports hook blocks to the calling role rather than always the Orchestrator
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -202,12 +204,15 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Pre-work health check skill now bootstraps COVERAGE.md with the coverage tools and the four-column format, and the .NET coverage skill notes that a coverage run writes COVERAGE.md
 - credfeto-pr-review-loop skill: add default round caps, and align Phase D with the tool-written COVERAGE.md (build-dotnet and build-node coverage tools, four-column tables, restore on failure, Python-only hand-written section)
 - Reconciled coverage-ratchet skill with current instructions: tool-written COVERAGE.md with line counts, build-node coverage, commit and restore rules
+- changelog skill: added foreground timeout guidance for dotnet changelog from task-workflow instructions
+- dotnet-nuget-vulnerability-suppression skill: dropped MANDATORY marker and Reason-comment requirement not stated in dotnet.instructions.md and aligned the opening rule with the source
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
 - Removed unsourced rebase-from-main file preference sentence from the git-branch skill
 - Removed unused .NET global.json and empty template solution (src/global.json, src/Credfeto.Template.slnx and its DotSettings)
 - Committer agent drops an unsourced rule about committing only what was handed over
+- repo-auditor skill: removed build-dotnet MCP tool rule that has no source in its listed instruction file
 ### Deployment Changes
 
 <!--
