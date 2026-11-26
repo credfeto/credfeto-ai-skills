@@ -57,6 +57,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Claude hooks skill covers the refused compound cfwf command and cfwf pr status for several PR facts at once
 - Code reviewer subagents skill reports hook blocks to the calling role rather than always the Orchestrator
 - Code Tester agent now carries the COVERAGE.md handling rules from its sources
+- IDE MCP code analysis skill is now preloaded into the Orchestrator, Code Writer, Code Tester, Code Reviewer, Code Fixer, CI Debugger and Repo Auditor agents, so Code Tester (which has no Skill tool) can load its rules
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
