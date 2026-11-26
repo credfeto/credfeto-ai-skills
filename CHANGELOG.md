@@ -210,6 +210,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill issue-plan-approval: live-chat approval attempts the Workflow board move to Approved before removing Blocked, matching its source.
 - Skill npm-packages: aligned the one-long-running-command rule with its sources.
 - Skill performance-benchmarking: removed unsourced baseline wording from the benchmark workflow.
+- Reconciled the CI Monitor agent with its sources: added the rule to judge required checks only from the state and exit code of the checks command and to list every required check with its exact state.
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
