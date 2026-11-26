@@ -7,6 +7,7 @@ skills:
   - credfeto-code-tester
   - credfeto-long-running-commands
   - credfeto-ide-mcp-code-analysis
+  - credfeto-learnings-capture
   - credfeto-codegraph
 ---
 

@@ -9,6 +9,7 @@ skills:
   - credfeto-pr-review-loop
   - credfeto-pr-sync
   - credfeto-ide-mcp-code-analysis
+  - credfeto-learnings-capture
   - credfeto-codegraph
 ---
 
