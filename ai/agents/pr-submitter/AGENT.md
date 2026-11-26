@@ -5,6 +5,7 @@ model: haiku
 tools: Bash, mcp__cfwf__*, mcp__git__*, ToolSearch
 skills:
   - credfeto-pr-sync
+  - credfeto-github-cli-pitfalls
 ---
 
 # PR Submitter
