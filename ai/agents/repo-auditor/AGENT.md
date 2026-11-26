@@ -22,7 +22,7 @@ Follow your preloaded `credfeto-repo-auditor` skill for the full procedure.
   - All `.ai-instructions` and `ai/**` instruction files as a single separate group.
   - Remaining files (shell scripts, GitHub workflows, config) as a repo-level group.
 - Process groups sequentially. For each group:
-  - Apply IDE MCP code analysis to the group's files, as your preloaded `credfeto-repo-auditor` skill describes.
+  - Apply IDE MCP code analysis to the group's files, as your preloaded `credfeto-ide-mcp-code-analysis` skill describes.
   - Launch all six lens agents **in parallel** through the Agent tool: `credfeto-code-reviewer-reuse`, `credfeto-code-reviewer-quality`, `credfeto-code-reviewer-efficiency`, `credfeto-code-reviewer-correctness`, `credfeto-code-reviewer-security` and `credfeto-code-reviewer-compliance`. Pass the group's file list in each lens prompt; lenses review the full file set for the group, not only changed files.
 - In a .NET repository, run every build, test, coverage, format and check run through the build-dotnet MCP tools and never with the raw `dotnet` commands they replace, which the agent container denies. Wait for each job with `job_result`, never by polling `job_status`, and treat its `job_result` as the result without repeating the job to confirm it. If the server is not connected, stop and report that; never work around it with a raw command. If the server lists no tool for a task, the repository has nothing for it to run: say so in your report instead of composing a command.
 - Do NOT fix findings. For each group that has findings, raise one GitHub issue:
