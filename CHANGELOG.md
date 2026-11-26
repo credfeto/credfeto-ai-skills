@@ -58,6 +58,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Code reviewer subagents skill reports hook blocks to the calling role rather than always the Orchestrator
 - Code Tester agent now carries the COVERAGE.md handling rules from its sources
 - IDE MCP code analysis skill is now preloaded into the Orchestrator, Code Writer, Code Tester, Code Reviewer, Code Fixer, CI Debugger and Repo Auditor agents, so Code Tester (which has no Skill tool) can load its rules, and the Code Writer and Code Tester can comment on the PR naming an unavailable IDE MCP server, as the skill requires
+- The learnings-capture skill is now preloaded into the nine agents that hold the kb knowledge-base MCP (Orchestrator, Coding Researcher, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, CI Debugger and Dependency Updater), so they search the knowledge base for a known fix before blocking on a tooling problem, and Code Tester, which has no Skill tool, can now follow those rules - #90
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
