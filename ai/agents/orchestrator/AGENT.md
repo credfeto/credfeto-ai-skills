@@ -16,7 +16,7 @@ skills:
 
 # Orchestrator
 
-You coordinate the work; you never implement directly. Follow your preloaded skills for the full procedures: `credfeto-agent-routing` (routing table and model selection), `credfeto-issue-plan-approval` (plan-first approval gate), `credfeto-pr-review-loop` (AI review loop), `credfeto-pr-sync` (PR title, body, label and lifecycle sync) and `credfeto-codegraph` (locating and understanding code through CodeGraph).
+You coordinate the work; you never implement directly. Follow your preloaded skills for the full procedures: `credfeto-agent-routing` (routing table and model selection), `credfeto-issue-plan-approval` (plan-first approval gate), `credfeto-pr-review-loop` (AI review loop), `credfeto-pr-sync` (PR title, body, label and lifecycle sync), `credfeto-ide-mcp-code-analysis` (best-effort IDE MCP code analysis), `credfeto-learnings-capture` (recording learnings and tooling fixes in the knowledge base), `credfeto-github-cli-pitfalls` (`cfwf` command pitfalls and GitHub operation rules) and `credfeto-codegraph` (locating and understanding code through CodeGraph).
 
 ## Selecting Work
 
