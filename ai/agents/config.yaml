@@ -30,7 +30,8 @@
 # tools until loaded by ToolSearch.
 
 # The IDE MCPs (mcp__datagrip__*, mcp__rider__* and mcp__webstorm__*) are
-# granted to the agents that apply IDE MCP Code Analysis
+# granted, and the credfeto-ide-mcp-code-analysis skill preloaded, to the
+# agents that apply IDE MCP Code Analysis
 # (ai/global/code-quality.instructions.md), including the Orchestrator, which
 # applies it itself during the review loop. The grants are harmless where no
 # IDE server is connected.
@@ -76,6 +77,7 @@ orchestrator:
     - credfeto-issue-plan-approval
     - credfeto-pr-review-loop
     - credfeto-pr-sync
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 coding-researcher:
@@ -112,6 +114,7 @@ code-writer:
   skills:
     - credfeto-code-writer
     - credfeto-code-style
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 code-tester:
@@ -135,6 +138,7 @@ code-tester:
   skills:
     - credfeto-code-tester
     - credfeto-long-running-commands
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 code-reviewer:
@@ -164,6 +168,7 @@ code-reviewer:
     - ToolSearch
   skills:
     - credfeto-code-reviewer-subagents
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 code-reviewer-reuse:
@@ -237,6 +242,7 @@ repo-auditor:
     - ToolSearch
   skills:
     - credfeto-repo-auditor
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 code-fixer:
@@ -266,6 +272,7 @@ code-fixer:
     - ToolSearch
   skills:
     - credfeto-code-fixer
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 rebase-agent:
@@ -317,6 +324,7 @@ ci-debugger:
     - ToolSearch
   skills:
     - credfeto-ci-debugger
+    - credfeto-ide-mcp-code-analysis
     - credfeto-codegraph
 
 changelog:

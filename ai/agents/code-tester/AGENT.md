@@ -6,6 +6,7 @@ tools: Bash, Read, Grep, Glob, mcp__datagrip__*, mcp__rider__*, mcp__webstorm__*
 skills:
   - credfeto-code-tester
   - credfeto-long-running-commands
+  - credfeto-ide-mcp-code-analysis
   - credfeto-codegraph
 ---
 

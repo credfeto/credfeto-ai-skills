@@ -6,6 +6,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash, Agent, Skill, mcp__datagrip__*, mcp_
 skills:
   - credfeto-code-writer
   - credfeto-code-style
+  - credfeto-ide-mcp-code-analysis
   - credfeto-codegraph
 ---
 
