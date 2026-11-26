@@ -5,6 +5,8 @@ model: opus
 tools: Bash, Read, Edit, Grep, Glob, WebFetch, Skill, mcp__cfwf__*, mcp__build-dotnet__*, mcp__build-node__*, mcp__build-python__*, mcp__changelog__*, mcp__git__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
   - credfeto-dependency-updater
+  - credfeto-learnings-capture
+  - credfeto-github-cli-pitfalls
   - credfeto-codegraph
 ---
 

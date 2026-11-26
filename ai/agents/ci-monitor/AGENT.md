@@ -5,6 +5,7 @@ model: haiku
 tools: Bash, Agent, Monitor, ScheduleWakeup, SendMessage, TaskStop, mcp__cfwf__*, ToolSearch
 skills:
   - credfeto-long-running-commands
+  - credfeto-github-cli-pitfalls
 ---
 
 # CI Monitor

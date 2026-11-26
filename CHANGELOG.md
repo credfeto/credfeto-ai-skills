@@ -16,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added the ill-fitting framework exception category to the compliance lens agent and trimmed its leftover placeholder wording
 - Added the human-communication skill covering the NEEDS YOU block, asking in chat first and full GitHub URLs
 - CI now runs shellcheck, checkbashisms and the bats tests on every pull request, as a required check
+- IDE MCP code analysis can run during the review loop: the DataGrip MCP is granted to the code-writer, code-tester, code-reviewer, code-fixer, ci-debugger and repo-auditor agents, and the DataGrip, Rider and WebStorm MCPs are granted to the Orchestrator so it can apply code analysis in the code review and security review phases. The IDE MCP code analysis skill now names DataGrip for SQL.
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
@@ -56,6 +57,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Claude hooks skill covers the refused compound cfwf command and cfwf pr status for several PR facts at once
 - Code reviewer subagents skill reports hook blocks to the calling role rather than always the Orchestrator
 - Code Tester agent now carries the COVERAGE.md handling rules from its sources
+- IDE MCP code analysis skill is now preloaded into the Orchestrator, Code Writer, Code Tester, Code Reviewer, Code Fixer, CI Debugger and Repo Auditor agents, so Code Tester (which has no Skill tool) can load its rules, and the Code Writer and Code Tester can comment on the PR naming an unavailable IDE MCP server, as the skill requires
+- The learnings-capture skill is now preloaded into the nine agents that hold the kb knowledge-base MCP (Orchestrator, Coding Researcher, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, CI Debugger and Dependency Updater), so they search the knowledge base for a known fix before blocking on a tooling problem, and Code Tester, which has no Skill tool, can now follow those rules - #90
+- The credfeto-github-cli-pitfalls skill is now preloaded into the eleven agents that hold the cfwf tool (Orchestrator, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, Rebase Agent, CI Debugger, PR Submitter, CI Monitor and Dependency Updater), so they follow its cfwf pitfall rules, and PR Submitter, CI Monitor and Code Tester, which have no Skill tool, can now follow those rules - #91
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source

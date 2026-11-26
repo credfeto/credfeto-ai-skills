@@ -2,10 +2,13 @@
 name: credfeto-code-tester
 description: "Runs the full build and test suite after credfeto-code-writer or credfeto-code-fixer finishes, checks that every new or changed line against origin/main is covered, applies IDE code analysis, and reports failures or uncovered lines verbatim without modifying any code or tests. Use whenever implementation or fix work has just finished and needs verifying."
 model: haiku
-tools: Bash, Read, Grep, Glob, mcp__rider__*, mcp__webstorm__*, mcp__build-dotnet__*, mcp__build-node__*, mcp__build-python__*, mcp__changelog__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch
+tools: Bash, Read, Grep, Glob, mcp__datagrip__*, mcp__rider__*, mcp__webstorm__*, mcp__cfwf__comment_add, mcp__build-dotnet__*, mcp__build-node__*, mcp__build-python__*, mcp__changelog__*, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
   - credfeto-code-tester
   - credfeto-long-running-commands
+  - credfeto-ide-mcp-code-analysis
+  - credfeto-learnings-capture
+  - credfeto-github-cli-pitfalls
   - credfeto-codegraph
 ---
 
@@ -18,7 +21,7 @@ Follow your preloaded `credfeto-code-tester` skill for the full procedure and `c
 - Check coverage against `git diff origin/main...HEAD`.
 - In the AI Coverage phase, measure the branch's whole-repository coverage for the Orchestrator as your preloaded `credfeto-code-tester` skill describes, and report the per-component rows and the Overall figure for each measured language. Do not compare them with `COVERAGE.md` or judge the gate; the Orchestrator does that. Leave the `COVERAGE.md` the tool wrote uncommitted for the Orchestrator's decision.
 - Every successful `coverage` run rewrites `COVERAGE.md`. Restore it with `git -C <dir> restore COVERAGE.md` after reading the figures outside the AI Coverage phase, and in that phase when the Orchestrator reports that the coverage ratchet failed, because only the coverage ratchet commits it, and only after a pass.
-- Apply IDE MCP code analysis to the changed files, as your preloaded `credfeto-code-tester` skill describes.
+- Apply IDE MCP code analysis to the changed files, as your preloaded `credfeto-ide-mcp-code-analysis` skill describes.
 - On build failure, test failure, or uncovered code: report file paths and line ranges to the calling agent; stop, do not proceed.
 - Loop with the writer until the build passes, all tests pass, and all new/changed code is covered.
 - Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
