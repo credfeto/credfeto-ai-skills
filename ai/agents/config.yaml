@@ -12,11 +12,12 @@
 # the changelog, use git or research, so a sub-agent can use them as well as
 # the top-level session. The Orchestrator and every agent with a build MCP
 # grant hold all three build MCPs and the changelog MCP; the Changelog agent
-# holds the changelog MCP. build-node and build-python are placeholders until
-# those servers ship, and changelog, git and kb are placeholders until those
-# servers are registered. Revisit these grants when the full workflow and
-# build MCP servers ship: narrow them per agent, and drop the matching Bash use
-# where the MCP replaces it.
+# holds the changelog MCP. Every agent holding mcp__kb__* preloads the
+# credfeto-learnings-capture skill, which says when to use it. build-node and
+# build-python are placeholders until those servers ship, and changelog, git
+# and kb are placeholders until those servers are registered. Revisit these
+# grants when the full workflow and build MCP servers ship: narrow them per
+# agent, and drop the matching Bash use where the MCP replaces it.
 
 # mcp__codegraph__codegraph_explore (the CodeGraph MCP's codegraph_explore
 # tool) and the credfeto-codegraph skill are granted to the agents that locate,
@@ -81,6 +82,7 @@ orchestrator:
     - credfeto-pr-review-loop
     - credfeto-pr-sync
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 coding-researcher:
@@ -88,6 +90,7 @@ coding-researcher:
   model: opus
   tools: [WebFetch, WebSearch, Read, Grep, Glob, Skill, "mcp__kb__*", "mcp__codegraph__codegraph_explore", ToolSearch]
   skills:
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 code-writer:
@@ -119,6 +122,7 @@ code-writer:
     - credfeto-code-writer
     - credfeto-code-style
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 code-tester:
@@ -144,6 +148,7 @@ code-tester:
     - credfeto-code-tester
     - credfeto-long-running-commands
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 code-reviewer:
@@ -174,6 +179,7 @@ code-reviewer:
   skills:
     - credfeto-code-reviewer-subagents
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 code-reviewer-reuse:
@@ -248,6 +254,7 @@ repo-auditor:
   skills:
     - credfeto-repo-auditor
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 code-fixer:
@@ -278,6 +285,7 @@ code-fixer:
   skills:
     - credfeto-code-fixer
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 rebase-agent:
@@ -330,6 +338,7 @@ ci-debugger:
   skills:
     - credfeto-ci-debugger
     - credfeto-ide-mcp-code-analysis
+    - credfeto-learnings-capture
     - credfeto-codegraph
 
 changelog:
@@ -382,4 +391,5 @@ dependency-updater:
     - ToolSearch
   skills:
     - credfeto-dependency-updater
+    - credfeto-learnings-capture
     - credfeto-codegraph

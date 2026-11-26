@@ -4,6 +4,7 @@ description: "Researches how to implement or fix a specific task when the callin
 model: opus
 tools: WebFetch, WebSearch, Read, Grep, Glob, Skill, mcp__kb__*, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
+  - credfeto-learnings-capture
   - credfeto-codegraph
 ---
 

@@ -7,6 +7,7 @@ skills:
   - credfeto-code-writer
   - credfeto-code-style
   - credfeto-ide-mcp-code-analysis
+  - credfeto-learnings-capture
   - credfeto-codegraph
 ---
 
