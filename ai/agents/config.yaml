@@ -13,11 +13,13 @@
 # the top-level session. The Orchestrator and every agent with a build MCP
 # grant hold all three build MCPs and the changelog MCP; the Changelog agent
 # holds the changelog MCP. Every agent holding mcp__kb__* preloads the
-# credfeto-learnings-capture skill, which says when to use it. build-node and
-# build-python are placeholders until those servers ship, and changelog, git
-# and kb are placeholders until those servers are registered. Revisit these
-# grants when the full workflow and build MCP servers ship: narrow them per
-# agent, and drop the matching Bash use where the MCP replaces it.
+# credfeto-learnings-capture skill, which says when to use it, and every agent
+# holding any mcp__cfwf__ tool preloads credfeto-github-cli-pitfalls.
+# build-node and build-python are placeholders until those servers ship, and
+# changelog, git and kb are placeholders until those servers are registered.
+# Revisit these grants when the full workflow and build MCP servers ship:
+# narrow them per agent, and drop the matching Bash use where the MCP replaces
+# it.
 
 # mcp__codegraph__codegraph_explore (the CodeGraph MCP's codegraph_explore
 # tool) and the credfeto-codegraph skill are granted to the agents that locate,
@@ -83,6 +85,7 @@ orchestrator:
     - credfeto-pr-sync
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 coding-researcher:
@@ -123,6 +126,7 @@ code-writer:
     - credfeto-code-style
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 code-tester:
@@ -149,6 +153,7 @@ code-tester:
     - credfeto-long-running-commands
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 code-reviewer:
@@ -180,6 +185,7 @@ code-reviewer:
     - credfeto-code-reviewer-subagents
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 code-reviewer-reuse:
@@ -255,6 +261,7 @@ repo-auditor:
     - credfeto-repo-auditor
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 code-fixer:
@@ -286,6 +293,7 @@ code-fixer:
     - credfeto-code-fixer
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 rebase-agent:
@@ -308,6 +316,7 @@ rebase-agent:
     - ToolSearch
   skills:
     - credfeto-git-rebase
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 ci-debugger:
@@ -339,6 +348,7 @@ ci-debugger:
     - credfeto-ci-debugger
     - credfeto-ide-mcp-code-analysis
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph
 
 changelog:
@@ -361,6 +371,7 @@ pr-submitter:
   tools: [Bash, "mcp__cfwf__*", "mcp__git__*", ToolSearch]
   skills:
     - credfeto-pr-sync
+    - credfeto-github-cli-pitfalls
 
 ci-monitor:
   name: "CI Monitor"
@@ -368,6 +379,7 @@ ci-monitor:
   tools: [Bash, Agent, Monitor, ScheduleWakeup, SendMessage, TaskStop, "mcp__cfwf__*", ToolSearch]
   skills:
     - credfeto-long-running-commands
+    - credfeto-github-cli-pitfalls
 
 dependency-updater:
   name: "Dependency Updater"
@@ -392,4 +404,5 @@ dependency-updater:
   skills:
     - credfeto-dependency-updater
     - credfeto-learnings-capture
+    - credfeto-github-cli-pitfalls
     - credfeto-codegraph

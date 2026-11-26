@@ -10,6 +10,7 @@ skills:
   - credfeto-pr-sync
   - credfeto-ide-mcp-code-analysis
   - credfeto-learnings-capture
+  - credfeto-github-cli-pitfalls
   - credfeto-codegraph
 ---
 

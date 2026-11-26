@@ -7,6 +7,7 @@ skills:
   - credfeto-code-fixer
   - credfeto-ide-mcp-code-analysis
   - credfeto-learnings-capture
+  - credfeto-github-cli-pitfalls
   - credfeto-codegraph
 ---
 

@@ -6,6 +6,7 @@ tools: Bash, Read, Edit, Grep, Glob, WebFetch, Skill, mcp__cfwf__*, mcp__build-d
 skills:
   - credfeto-dependency-updater
   - credfeto-learnings-capture
+  - credfeto-github-cli-pitfalls
   - credfeto-codegraph
 ---
 

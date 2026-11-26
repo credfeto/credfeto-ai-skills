@@ -5,6 +5,7 @@ model: sonnet
 tools: Bash, Read, Edit, Grep, Glob, Skill, mcp__cfwf__*, mcp__build-dotnet__*, mcp__build-node__*, mcp__build-python__*, mcp__changelog__*, mcp__git__*, mcp__codegraph__codegraph_explore, ToolSearch
 skills:
   - credfeto-git-rebase
+  - credfeto-github-cli-pitfalls
   - credfeto-codegraph
 ---
 
