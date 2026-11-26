@@ -16,7 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added the ill-fitting framework exception category to the compliance lens agent and trimmed its leftover placeholder wording
 - Added the human-communication skill covering the NEEDS YOU block, asking in chat first and full GitHub URLs
 - CI now runs shellcheck, checkbashisms and the bats tests on every pull request, as a required check
-- TBD - to be finalized after review
+- IDE MCP code analysis can run during the review loop: the DataGrip MCP is granted to the code-writer, code-tester, code-reviewer, code-fixer, ci-debugger and repo-auditor agents, and the DataGrip, Rider and WebStorm MCPs are granted to the Orchestrator so it can apply code analysis in the code review and security review phases. The IDE MCP code analysis skill now names DataGrip for SQL.
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
