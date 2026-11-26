@@ -30,11 +30,9 @@
 # tools until loaded by ToolSearch.
 
 # The IDE MCPs (mcp__datagrip__*, mcp__rider__* and mcp__webstorm__*) are
-# granted to the agents that apply IDE MCP Code Analysis: code-writer,
-# code-tester, code-reviewer, code-fixer, ci-debugger, repo-auditor and the
-# Orchestrator, which applies it itself in Phase B P2 (/code-review) and
-# Phase C P2 (/security-review) of the review loop
-# (ai/global/agent-roles.instructions.md). The grants are harmless where no
+# granted to the agents that apply IDE MCP Code Analysis
+# (ai/global/code-quality.instructions.md), including the Orchestrator, which
+# applies it itself during the review loop. The grants are harmless where no
 # IDE server is connected.
 
 # The mechanical roles (changelog, committer, pr-submitter, ci-monitor and
