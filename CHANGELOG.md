@@ -60,6 +60,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - IDE MCP code analysis skill is now preloaded into the Orchestrator, Code Writer, Code Tester, Code Reviewer, Code Fixer, CI Debugger and Repo Auditor agents, so Code Tester (which has no Skill tool) can load its rules, and the Code Writer and Code Tester can comment on the PR naming an unavailable IDE MCP server, as the skill requires
 - The learnings-capture skill is now preloaded into the nine agents that hold the kb knowledge-base MCP (Orchestrator, Coding Researcher, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, CI Debugger and Dependency Updater), so they search the knowledge base for a known fix before blocking on a tooling problem, and Code Tester, which has no Skill tool, can now follow those rules - #90
 - The credfeto-github-cli-pitfalls skill is now preloaded into the eleven agents that hold the cfwf tool (Orchestrator, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, Rebase Agent, CI Debugger, PR Submitter, CI Monitor and Dependency Updater), so they follow its cfwf pitfall rules, and PR Submitter, CI Monitor and Code Tester, which have no Skill tool, can now follow those rules - #91
+- Skills: pr-sync and pr-review-loop auto-merge hand-off wording matches the post-ready check rule
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -215,6 +216,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skill npm-packages: aligned the one-long-running-command rule with its sources.
 - Skill performance-benchmarking: removed unsourced baseline wording from the benchmark workflow.
 - Reconciled the CI Monitor agent with its sources: added the rule to judge required checks only from the state and exit code of the checks command and to list every required check with its exact state.
+- Skills: changelog skill prefers the changelog MCP tools with the dotnet changelog CLI as fallback
+- Skills: dotnet-owned-packages notes the changelog MCP server alongside Credfeto.Changelog.Cmd
+- Skills: dependency-updater uses changelog_add MCP tool first and passes hook-block reports on in hand-offs
+- Skills: claude-hooks one-cfwf-command-per-call rule applies only to the command line
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
@@ -222,6 +227,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Removed unused .NET global.json and empty template solution (src/global.json, src/Credfeto.Template.slnx and its DotSettings)
 - Committer agent drops an unsourced rule about committing only what was handed over
 - repo-auditor skill: removed build-dotnet MCP tool rule that has no source in its listed instruction file
+- Skills: ide-mcp-code-analysis no longer mentions DataGrip
 ### Deployment Changes
 
 <!--

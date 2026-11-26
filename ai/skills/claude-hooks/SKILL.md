@@ -90,7 +90,7 @@ block is correct and plain `grep` is the permitted form.
   This applies to every git subcommand.
 - Do not use `git worktree` or the native `EnterWorktree` tool to create additional working trees.
   Switch branches in the existing working directory (`git -C <dir> switch <branch>`) instead.
-- Run one `cfwf` command per Bash call, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it.
+- When using the `cfwf` command line, run one `cfwf` command per Bash call, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it.
   Read its exit code from the tool result. A compound command that contains `cfwf` is refused in
   unattended runs and stalls the session. When you need several facts about a PR at once, run
   `cfwf pr status` once instead of several commands. The hooks reject some shell shapes outright, such as
