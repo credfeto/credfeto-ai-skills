@@ -29,6 +29,14 @@
 # because the tools: list is a strict allowlist and Claude Code may defer MCP
 # tools until loaded by ToolSearch.
 
+# The IDE MCPs (mcp__datagrip__*, mcp__rider__* and mcp__webstorm__*) are
+# granted to the agents that apply IDE MCP Code Analysis: code-writer,
+# code-tester, code-reviewer, code-fixer, ci-debugger, repo-auditor and the
+# Orchestrator, which applies it itself in Phase B P2 (/code-review) and
+# Phase C P2 (/security-review) of the review loop
+# (ai/global/agent-roles.instructions.md). The grants are harmless where no
+# IDE server is connected.
+
 # The mechanical roles (changelog, committer, pr-submitter, ci-monitor and
 # code-tester) are not granted the Skill tool: their preloaded skills hold
 # everything they need, and without Skill they cannot load a skill that edits
@@ -53,6 +61,9 @@ orchestrator:
     - Glob
     - SendMessage
     - TaskStop
+    - "mcp__datagrip__*"
+    - "mcp__rider__*"
+    - "mcp__webstorm__*"
     - "mcp__cfwf__*"
     - "mcp__build-dotnet__*"
     - "mcp__build-node__*"
@@ -88,6 +99,7 @@ code-writer:
     - Bash
     - Agent
     - Skill
+    - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - SendMessage
@@ -112,6 +124,7 @@ code-tester:
     - Read
     - Grep
     - Glob
+    - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - "mcp__build-dotnet__*"
@@ -139,6 +152,7 @@ code-reviewer:
     - Glob
     - Skill
     - SendMessage
+    - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - "mcp__cfwf__*"
@@ -210,6 +224,7 @@ repo-auditor:
     - Grep
     - Glob
     - Skill
+    - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - SendMessage
@@ -238,6 +253,7 @@ code-fixer:
     - Grep
     - Glob
     - Skill
+    - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - SendMessage
@@ -288,6 +304,7 @@ ci-debugger:
     - Grep
     - Glob
     - Skill
+    - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - SendMessage
