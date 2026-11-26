@@ -220,6 +220,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: dotnet-owned-packages notes the changelog MCP server alongside Credfeto.Changelog.Cmd
 - Skills: dependency-updater uses changelog_add MCP tool first and passes hook-block reports on in hand-offs
 - Skills: claude-hooks one-cfwf-command-per-call rule applies only to the command line
+- Changelog agent now changes CHANGELOG.md with the changelog MCP tools when available, using the dotnet changelog CLI only as a fallback
+- CI Monitor agent requires a post-ready result only for required checks whose pre-ready result on the current head was a skip or missing
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
