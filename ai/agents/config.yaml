@@ -34,7 +34,10 @@
 # agents that apply IDE MCP Code Analysis
 # (ai/global/code-quality.instructions.md), including the Orchestrator, which
 # applies it itself during the review loop. The grants are harmless where no
-# IDE server is connected.
+# IDE server is connected. Code Writer and Code Tester, which hold no
+# mcp__cfwf__* grant, get only mcp__cfwf__comment_add, so they can comment on
+# the PR naming an unavailable IDE MCP, as credfeto-ide-mcp-code-analysis
+# requires, without the rest of the workflow MCP.
 
 # The mechanical roles (changelog, committer, pr-submitter, ci-monitor and
 # code-tester) are not granted the Skill tool: their preloaded skills hold
@@ -103,6 +106,7 @@ code-writer:
     - "mcp__rider__*"
     - "mcp__webstorm__*"
     - SendMessage
+    - "mcp__cfwf__comment_add"
     - "mcp__build-dotnet__*"
     - "mcp__build-node__*"
     - "mcp__build-python__*"
@@ -128,6 +132,7 @@ code-tester:
     - "mcp__datagrip__*"
     - "mcp__rider__*"
     - "mcp__webstorm__*"
+    - "mcp__cfwf__comment_add"
     - "mcp__build-dotnet__*"
     - "mcp__build-node__*"
     - "mcp__build-python__*"
