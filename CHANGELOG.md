@@ -207,6 +207,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Reconciled coverage-ratchet skill with current instructions: tool-written COVERAGE.md with line counts, build-node coverage, commit and restore rules
 - changelog skill: added foreground timeout guidance for dotnet changelog from task-workflow instructions
 - dotnet-nuget-vulnerability-suppression skill: dropped MANDATORY marker and Reason-comment requirement not stated in dotnet.instructions.md and aligned the opening rule with the source
+- Skill issue-plan-approval: live-chat approval attempts the Workflow board move to Approved before removing Blocked, matching its source.
+- Skill npm-packages: aligned the one-long-running-command rule with its sources.
+- Skill performance-benchmarking: removed unsourced baseline wording from the benchmark workflow.
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

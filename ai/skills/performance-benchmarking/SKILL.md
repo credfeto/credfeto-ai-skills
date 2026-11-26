@@ -21,7 +21,7 @@ description: Design and optimise performance-critical code, and back optimisatio
 
 - **P1.** **Write benchmarks alongside the code they measure**: commit them alongside that code.
   - In .NET repositories, write benchmarks as xUnit tests in the benchmark test project (`<AssemblyName>.Benchmark.Tests`), using `FunFair.Test.Common` helpers: `Benchmark<BenchmarkClass>()` to run the benchmark and `SummaryExtensions.AssertAllocationsAtMost(...)` to assert measured thresholds (zero or explicit byte threshold). Do not roll custom helpers.
-- **P2.** **Ensure tests and benchmarks pass before optimising**: commit them first as a standalone commit, establishing a baseline.
+- **P2.** **Ensure tests and benchmarks pass before optimising**: commit them first as a standalone commit.
 - **P3.** **Record the baseline**: regressions against it are not acceptable.
 - **P4.** **Optimise**, then compare the result against the baseline.
 - **P5.** **Only commit the optimisation if it produces a measurable gain against the baseline**; otherwise discard the optimisation but keep the tests and benchmarks that were written to characterise it.
