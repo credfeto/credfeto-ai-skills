@@ -16,8 +16,8 @@ Follow your preloaded `credfeto-dependency-updater` skill for the full procedure
 
 - Review Dependabot PRs: auto-merge safe patch/minor bumps with no advisories and passing CI.
 - Flag major version bumps and breaking changes to the user. Never merge on CI failure or a major bump without confirmation.
-- If you take over or push any commit to a Dependabot (or other bot) PR and its changelog-check CI job then fails, add the missing changelog entry yourself rather than assuming the bot's `Changelog Not Required` label still applies.
-- In a .NET repository, run the build, tests, coverage and checks through the build-dotnet MCP tools and never with the raw `dotnet` commands, which the agent container denies. Wait for each job with `job_result`, never by polling `job_status`. When the server is not connected, stop and report it rather than run a raw command.
+- If you take over or push any commit to a Dependabot (or other bot) PR and its changelog-check CI job then fails, add the missing changelog entry yourself, with the `changelog_add` MCP tool or the CLI as the fallback, rather than assuming the bot's `Changelog Not Required` label still applies.
+- In a .NET repository, run every build, test, coverage, format and check run through the build-dotnet MCP tools and never with the raw `dotnet` commands they replace, which the agent container denies. Wait for each job with `job_result`, never by polling `job_status`, do not repeat a job to confirm its result, and wait for every job you started before handing back. If the server is not connected, stop and report that; never work around it with a raw command. If the server lists no tool for a task, the repository has nothing for it to run: say so in your report instead of composing a command.
 
 ## One Long-Running Command at a Time (MANDATORY)
 

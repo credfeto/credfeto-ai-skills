@@ -63,6 +63,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - The credfeto-github-cli-pitfalls skill is now preloaded into the eleven agents that hold the cfwf tool (Orchestrator, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, Rebase Agent, CI Debugger, PR Submitter, CI Monitor and Dependency Updater), so they follow its cfwf pitfall rules, and PR Submitter, CI Monitor and Code Tester, which have no Skill tool, can now follow those rules - #91
 - Skills: pr-sync and pr-review-loop auto-merge hand-off wording matches the post-ready check rule
 - Corrected the pr-sync skill trusted-commenter fallback to cover both the AI Review Loop reviewed comment and the CI Debugger round count
+- Require the repo-auditor agent to wait for build-dotnet MCP jobs before handing back
+- Align dependency-updater agent build-dotnet MCP and changelog tool rules with their sources
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
