@@ -39,7 +39,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | Skill | Installed as | Source instruction files |
 | --- | --- | --- |
 | [pre-work-healthcheck](../skills/pre-work-healthcheck/SKILL.md) | `credfeto-pre-work-healthcheck` | `git.instructions.md`, `git-rebasing.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md`, `coverage-ratchet.instructions.md`, `code-quality.instructions.md` |
-| [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `ai/global/changelog.instructions.md`, `dotnet.instructions.md` |
+| [changelog](../skills/changelog/SKILL.md) | `credfeto-changelog` | `ai/global/changelog.instructions.md`, `dotnet.instructions.md`, `task-workflow.instructions.md` |
 | [dotnet-coverage](../skills/dotnet-coverage/SKILL.md) | `credfeto-dotnet-coverage` | `dotnet.instructions.md`, `task-workflow.instructions.md`, `code-quality.instructions.md` |
 | [dotnet-publish](../skills/dotnet-publish/SKILL.md) | `credfeto-dotnet-publish` | `dotnet.instructions.md` |
 | [dotnet-test-patterns](../skills/dotnet-test-patterns/SKILL.md) | `credfeto-dotnet-test-patterns` | `dotnet.instructions.md`, `dotnet.examples.md`, `code-quality.instructions.md` |
@@ -96,6 +96,7 @@ Skills are self-contained, procedural extracts of the instruction files: `.ai-in
 | [ide-mcp-code-analysis](../skills/ide-mcp-code-analysis/SKILL.md) | `credfeto-ide-mcp-code-analysis` | `code-quality.instructions.md` |
 | [sarif-summary-findings](../skills/sarif-summary-findings/SKILL.md) | `credfeto-sarif-summary-findings` | `code-quality.instructions.md`, `analyzer-conflicts.instructions.md` |
 | [codegraph](../skills/codegraph/SKILL.md) | `credfeto-codegraph` | `codegraph.instructions.md` |
+| [cloudformation](../skills/cloudformation/SKILL.md) | `credfeto-cloudformation` | `cloudformation.instructions.md` |
 
 ## Installation
 

@@ -17,6 +17,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added the human-communication skill covering the NEEDS YOU block, asking in chat first and full GitHub URLs
 - CI now runs shellcheck, checkbashisms and the bats tests on every pull request, as a required check
 - IDE MCP code analysis can run during the review loop: the DataGrip MCP is granted to the code-writer, code-tester, code-reviewer, code-fixer, ci-debugger and repo-auditor agents, and the DataGrip, Rider and WebStorm MCPs are granted to the Orchestrator so it can apply code analysis in the code review and security review phases. The IDE MCP code analysis skill now names DataGrip for SQL.
+- Added the cloudformation skill generated from the CloudFormation instructions
 ### Fixed
 - Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
@@ -61,6 +62,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - The learnings-capture skill is now preloaded into the nine agents that hold the kb knowledge-base MCP (Orchestrator, Coding Researcher, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, CI Debugger and Dependency Updater), so they search the knowledge base for a known fix before blocking on a tooling problem, and Code Tester, which has no Skill tool, can now follow those rules - #90
 - The credfeto-github-cli-pitfalls skill is now preloaded into the eleven agents that hold the cfwf tool (Orchestrator, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, Rebase Agent, CI Debugger, PR Submitter, CI Monitor and Dependency Updater), so they follow its cfwf pitfall rules, and PR Submitter, CI Monitor and Code Tester, which have no Skill tool, can now follow those rules - #91
 - Skills: pr-sync and pr-review-loop auto-merge hand-off wording matches the post-ready check rule
+- Corrected the pr-sync skill trusted-commenter fallback to cover both the AI Review Loop reviewed comment and the CI Debugger round count
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
@@ -222,6 +224,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Skills: claude-hooks one-cfwf-command-per-call rule applies only to the command line
 - Changelog agent now changes CHANGELOG.md with the changelog MCP tools when available, using the dotnet changelog CLI only as a fallback
 - CI Monitor agent requires a post-ready result only for required checks whose pre-ready result on the current head was a skip or missing
+- Updated the pre-work-healthcheck skill to cover handing build and test work to a role with the build tools
+- Updated the dotnet-test-patterns skill with the test assembly naming table
+- Updated the repo-auditor skill to require the build-dotnet MCP tools for .NET builds, tests and coverage
+- Updated the ide-mcp-code-analysis skill with DataGrip and the SQL inspection rules
+- Updated the dotnet-analyzer-conflicts skill with the ask-in-chat-first rule for unlisted diagnostic pairs
+- Updated the pr-review-loop skill with the single-project coverage run behaviour and the sections Code Writer writes
+- Updated the code-reviewer-subagents and code-writer skills with the rule to wait for background commands before handing back
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill

@@ -72,6 +72,14 @@ A project is a test project **only** if its assembly name ends with one of these
 - **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
 - **Always** verify `IsTestingPlatformApplication` in the csproj: this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
 
+### Test Assembly Naming
+
+| Test type | Assembly name pattern |
+| --------- | --------------------- |
+| Unit tests | `<AssemblyName>.Tests` |
+| Integration tests | `<AssemblyName>.Integration.Tests` |
+| Benchmarks | `<AssemblyName>.Benchmark.Tests` |
+
 ### Source Generator Test Projects
 
 When writing unit tests that directly reference a source generator project via `<ProjectReference>` on .NET 10+, add the following MSBuild target to the test project's `.csproj`:
