@@ -11,235 +11,235 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
-- dotnet-test-patterns skill now covers writing tests before commit, the warning-suppression ban in test code and not widening visibility to test null-argument paths
-- Code-exploring agents can now use the CodeGraph code index to locate and understand code in indexed repositories, with a new credfeto-codegraph skill preloaded into the agents that read code
-- Added the ill-fitting framework exception category to the compliance lens agent and trimmed its leftover placeholder wording
-- Added the human-communication skill covering the NEEDS YOU block, asking in chat first and full GitHub URLs
+- dotnet-test-patterns skill: tests before commit, no test warning suppression, no wider visibility
+- Code-exploring agents can use the CodeGraph index; new credfeto-codegraph skill preloaded into them
+- Compliance lens agent: added ill-fitting framework exception category; trimmed placeholder wording
+- Added human-communication skill: NEEDS YOU block, ask in chat first, full GitHub URLs
 - CI now runs shellcheck, checkbashisms and the bats tests on every pull request, as a required check
-- IDE MCP code analysis can run during the review loop: the DataGrip MCP is granted to the code-writer, code-tester, code-reviewer, code-fixer, ci-debugger and repo-auditor agents, and the DataGrip, Rider and WebStorm MCPs are granted to the Orchestrator so it can apply code analysis in the code review and security review phases. The IDE MCP code analysis skill now names DataGrip for SQL.
+- IDE MCP analysis in review loop: DataGrip, Rider, WebStorm MCPs granted to agents and Orchestrator
 - Added the cloudformation skill generated from the CloudFormation instructions
 ### Fixed
-- Corrected the pr-review-loop skill so Code Tester measures coverage in the AI Coverage phase and the Orchestrator never measures, edits or commits itself
+- pr-review-loop skill: Code Tester measures AI Coverage; Orchestrator never measures or commits
 - Restored the sourced best-effort wording for IDE MCP code analysis in the code-reviewer agent
-- Restored the rebase-from-main merge rule (sourced from .ai-instructions) in the git-rebase and git-branch skills
-- ci-debugger skill counts CI Debugger rounds per check since the PR opened, matching the agent roles instructions
-- Skills: pr-sync CI Debugger round count now counts comments since the PR opened and accepts the authenticated login fallback
-- Skills: github-issue ad-hoc prompt intake no longer applies to questions and drops the read-only close branch
-- Orchestrator agent counts CI Debugger rounds per check since the PR opened rather than since auto-merge was last enabled
-- Code reviewer agent and skill commit each review fix before starting the next, stop if the committer is unavailable, and make no fixes after the iteration cap - #38
-- Reconcile github-issue skill with sources: NEEDS YOU block for open questions and approvals, and ask-in-chat-first rule for Blocked questions
-- Issue plan approval skill: a failed workflow board status read no longer counts as not approved (no Blocked, no re-post, no board change) and never counts as approval
-- dotnet-publish skill: align trim and AOT warning suppression rule with the source's explicit written permission wording
+- Restored rebase-from-main merge rule (from .ai-instructions) in git-rebase and git-branch skills
+- ci-debugger skill counts CI Debugger rounds per check since the PR opened, matching role rules
+- pr-sync skill: CI Debugger rounds counted since PR opened; accepts authenticated login fallback
+- github-issue skill: ad-hoc prompt intake not for questions; drops the read-only close branch
+- Orchestrator counts CI Debugger rounds per check since the PR opened, not since auto-merge enabled
+- Code reviewer commits each fix before the next, stops without Committer, no fixes after cap - #38
+- github-issue skill: NEEDS YOU block for questions and approvals; ask in chat first for Blocked
+- Plan approval skill: a failed board status read counts as neither unapproved nor approved
+- dotnet-publish skill: trim/AOT warning suppression rule matches source's written-permission wording
 - git-commit skill: remove duplicated sections
 - Changelog agent reads the diff with git -C <dir> as the source requires
 - Orchestrator agent excludes no login from trusted commenters when no bot login is passed in
 - Removed unsourced hook-block wording from the code reviewer and the six lens agents
-- Committer, PR submitter and CI monitor agents are now granted ToolSearch so their MCP tools can be loaded when Claude Code defers them - #65
-- Update learnings-capture skill to refer to the kb knowledge-base MCP server (mcp__kb__*) instead of kb_orchestrator
-- dotnet-coding-conventions skill: look up package versions only with the build-dotnet package_versions tool, removing the unsourced dotnet package search fallback
-- Code reviewer, writer, tester, fixer, repo auditor, CI debugger and dependency updater skills now require .NET builds, tests, coverage and checks to run through the build-dotnet MCP tools, never raw dotnet commands, and to stop and report when the server is not connected
-- Code tester skill no longer lists dotnet build, dotnet test, dotnet restore, dotnet buildcheck or dotnet format as runnable commands and covers build-dotnet MCP jobs in the sandbox timeout check
-- Orchestrator agent now handles a failed Workflow board status read during plan approval without blocking, re-posting the plan or treating it as approval
-- Code Writer and Code Tester agents now require build-dotnet MCP tools for .NET builds and tests with no raw dotnet fallback
-- Orchestrator, Code Writer, Code Tester and CI Monitor agents no longer list raw dotnet build and dotnet test as long-running commands
-- Pre-work health check skill now waits for build-dotnet jobs with job_result instead of polling job_status, matching the current instructions
-- dotnet-coverage skill now waits for build-dotnet jobs with job_result instead of polling job_status, matching the current instructions
-- Skills for the code reviewer, code writer, code tester, code fixer, repo auditor, CI debugger and dependency updater roles now wait for build-dotnet MCP jobs with job_result instead of polling job_status
-- Reconcile coverage-ratchet skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
-- Fix long-running-commands skill to wait for build-dotnet MCP jobs with job_result rather than polling job_status
-- Reconcile git-commit skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
-- Agents now wait for build-dotnet MCP jobs with job_result instead of polling job_status, matching the instruction files
-- credfeto-pr-sync skill now limits self-assignment to PRs you created or committed to and never to dependency-update PRs
+- Committer, PR submitter and CI monitor agents granted ToolSearch to load deferred MCP tools - #65
+- learnings-capture skill refers to the kb knowledge-base MCP server (mcp__kb__*), not kb_orchestrator
+- dotnet-coding-conventions skill: package versions only via build-dotnet package_versions tool
+- Role skills require .NET builds, tests and checks via build-dotnet MCP; stop if server not connected
+- Code tester skill drops raw dotnet commands; sandbox timeout check covers build-dotnet MCP jobs
+- Orchestrator handles a failed board status read in plan approval without blocking or re-posting
+- Code Writer and Code Tester require build-dotnet MCP for .NET builds and tests; no raw fallback
+- Orchestrator, Code Writer, Code Tester and CI Monitor no longer list raw dotnet build/test commands
+- Pre-work health check skill waits for build-dotnet jobs with job_result, not polling job_status
+- dotnet-coverage skill waits for build-dotnet jobs with job_result, not polling job_status
+- Role skills wait for build-dotnet MCP jobs with job_result instead of polling job_status
+- coverage-ratchet skill: wait for build-dotnet MCP jobs with job_result, not polling job_status
+- long-running-commands skill: wait for build-dotnet MCP jobs with job_result, not polling job_status
+- git-commit skill: wait for build-dotnet MCP jobs with job_result rather than polling job_status
+- Agents wait for build-dotnet MCP jobs with job_result instead of polling job_status
+- credfeto-pr-sync skill: self-assign only PRs you created or committed to, never dependency updates
 - Restore PR Submitter assignment restrictions in the pr-submitter agent
-- credfeto-git-branch skill: never assign yourself to a dependency-update PR when taking ownership of a bot-created PR.
-- credfeto-pr-sync skill: bot-created PR ownership no longer adds an assignee on dependency-update PRs.
-- Removed unsourced 'loading a skill' wording from the hook-block rule in the six Code Reviewer lens agents
-- ./install --system no longer fails up front without a terminal when sudo would work for the install itself
-- Claude hooks skill covers the refused compound cfwf command and cfwf pr status for several PR facts at once
-- Code reviewer subagents skill reports hook blocks to the calling role rather than always the Orchestrator
+- credfeto-git-branch skill: never self-assign a dependency-update PR when taking over a bot PR.
+- credfeto-pr-sync skill: bot-created PR ownership adds no assignee on dependency-update PRs.
+- Removed unsourced 'loading a skill' wording from hook-block rule in the six Code Reviewer lenses
+- ./install --system no longer fails up front without a terminal when sudo would work for the install
+- Claude hooks skill covers the refused compound cfwf command and cfwf pr status for several PR facts
+- Code reviewer subagents skill reports hook blocks to the calling role, not always the Orchestrator
 - Code Tester agent now carries the COVERAGE.md handling rules from its sources
-- IDE MCP code analysis skill is now preloaded into the Orchestrator, Code Writer, Code Tester, Code Reviewer, Code Fixer, CI Debugger and Repo Auditor agents, so Code Tester (which has no Skill tool) can load its rules, and the Code Writer and Code Tester can comment on the PR naming an unavailable IDE MCP server, as the skill requires
-- The learnings-capture skill is now preloaded into the nine agents that hold the kb knowledge-base MCP (Orchestrator, Coding Researcher, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, CI Debugger and Dependency Updater), so they search the knowledge base for a known fix before blocking on a tooling problem, and Code Tester, which has no Skill tool, can now follow those rules - #90
-- The credfeto-github-cli-pitfalls skill is now preloaded into the eleven agents that hold the cfwf tool (Orchestrator, Code Writer, Code Tester, Code Reviewer, Repo Auditor, Code Fixer, Rebase Agent, CI Debugger, PR Submitter, CI Monitor and Dependency Updater), so they follow its cfwf pitfall rules, and PR Submitter, CI Monitor and Code Tester, which have no Skill tool, can now follow those rules - #91
+- IDE MCP code analysis skill preloaded into seven agents; writer and tester comment on missing server
+- learnings-capture skill preloaded into the nine kb MCP agents to search fixes before Blocked - #90
+- credfeto-github-cli-pitfalls skill preloaded into the eleven agents holding cfwf - #91
 - Skills: pr-sync and pr-review-loop auto-merge hand-off wording matches the post-ready check rule
-- Corrected the pr-sync skill trusted-commenter fallback to cover both the AI Review Loop reviewed comment and the CI Debugger round count
+- pr-sync skill: trusted-commenter fallback covers AI Review Loop comment and CI Debugger round count
 - Require the repo-auditor agent to wait for build-dotnet MCP jobs before handing back
 - Align dependency-updater agent build-dotnet MCP and changelog tool rules with their sources
 ### Changed
 - Skills: sarif-summary-findings reuses an existing open tracking issue instead of raising a duplicate
 - Skill registry: pre-work-healthcheck now lists code-quality.instructions.md as a source
 - Coverage ratchet skill: Code Tester measures coverage, Orchestrator only compares and decides
-- Code tester skill now reports whole-repo per-language coverage in the AI Coverage phase without judging the gate
+- Code tester skill reports whole-repo per-language coverage in AI Coverage without judging the gate
 - GitHub issue skill: add the live-chat answer rule that clears a PR question Blocked label
 - Skill registry lists task-workflow.instructions.md as a source of the coverage-ratchet skill
-- Code Tester agent now reports whole-repository per-language coverage in the AI Coverage phase, matching its role definition
-- Code Reviewer Compliance agent no longer cites a repo-relative path for the documentation instructions
+- Code Tester agent reports whole-repo per-language coverage in AI Coverage, matching its role
+- Code Reviewer Compliance agent no longer cites a repo-relative path for documentation instructions
 - Coding Researcher agent now carries the hook-block hand-off rule from the shared role rules
-- credfeto-github-cli-pitfalls skill: added checks-wait exit codes, CI Monitor restriction and authentication rules from github-cli instructions
-- credfeto-coverage-ratchet skill: limited the decision procedure to the AI Coverage board phase and aligned the description with its sources
+- credfeto-github-cli-pitfalls skill: added checks-wait exit codes, CI Monitor and auth rules
+- credfeto-coverage-ratchet skill: decision procedure limited to AI Coverage phase
 - Reconcile code-reviewer agent: remove unsourced best-effort qualifier from IDE analysis step
 - Orchestrator agent states the standard loop limits, Coding Researcher cap and routing preconditions
-- CI Monitor agent failure handling follows its fixed decision rules instead of an unsourced verbatim hand-off to CI Debugger
+- CI Monitor failure handling follows its fixed decision rules, not an unsourced CI Debugger hand-off
 - Added the hook-block hand-off rule to the six code reviewer lens agents
-- Removed unsourced best-effort wording from the IDE MCP code analysis rule in the repo-auditor, code-fixer and ci-debugger agents
-- Removed the build-dotnet MCP instruction, which has no source, from the committer and dependency-updater agents
+- Removed unsourced best-effort IDE MCP wording from repo-auditor, code-fixer and ci-debugger agents
+- Removed the unsourced build-dotnet MCP instruction from the committer and dependency-updater agents
 - Reconciled dotnet-owned-packages skill heading with its source instruction file
 - npm-packages skill description now covers package approval, installing and running npm commands
-- Pre-work health check skill now covers force-pushing a rebased branch and the rule to fix unexpected pre-commit failures rather than escalating
-- credfeto-pr-review-loop skill: accept the authenticated login as the bot login for the reviewed-record check when none is passed in
-- credfeto-long-running-commands skill: reworded the dontAsk denial stop-bar wording to match its source
+- Pre-work health check skill covers force-pushing a rebased branch and fixing pre-commit failures
+- credfeto-pr-review-loop skill: authenticated login used as bot login for reviewed-record check
+- credfeto-long-running-commands skill: reworded the dontAsk denial stop-bar to match its source
 - Skill registry lists task-workflow.instructions.md as a source of the pr-review-loop skill
-- Skills: git-rebase now includes the force-pushing rules for a rebased branch (shared branch refusal, local equals remote check, --force-with-lease only)
-- Skills: git-branch now includes the force-pushing rules for a rebased branch (shared branch refusal, local equals remote check, --force-with-lease only)
+- git-rebase skill: added force-push rules for rebased branches (shared refusal, --force-with-lease)
+- git-branch skill: added force-push rules for rebased branches (shared refusal, --force-with-lease)
 - Skill registry lists .ai-instructions as a source of the git-branch and git-rebase skills
 - Rebase agent definition now includes the pre-rebase branch checks and the force-push rejection rule
 - CI debugger and CI monitor definitions now count CI Debugger rounds from when the PR opened
 - Committer and Dependency Updater agents now state the build-dotnet MCP rule for .NET repositories
-- skills-install removes stale skills it installed earlier, tracked via a manifest like the agents installer - #53
-- skills-install: each skill is now staged in a temporary sibling folder and swapped into place, restoring the previous copy if the swap fails, in both user and --system mode - #54
-- dotnet-coverage skill: when a role is not granted the build-dotnet tools, delegate coverage to the role that has them instead of running the raw command
-- Code reviewer sub-agents skill no longer carries rules without a source instruction (commit-state check, forced stop when Committer is unavailable, split-tree warning, tests-only wording)
-- Code fixer, repo auditor and CI debugger skills no longer point at another skill for IDE MCP code analysis, keeping each skill to what its sources state
+- skills-install removes stale skills it installed, tracked via a manifest like agents installer - #53
+- skills-install stages each skill in a sibling folder and swaps it in, restoring on failure - #54
+- dotnet-coverage skill: roles without build-dotnet tools delegate coverage instead of raw commands
+- Code reviewer sub-agents skill: removed unsourced rules (commit-state check, forced stop, etc.)
+- Code fixer, repo auditor and CI debugger skills don't point at another skill for IDE MCP analysis
 - credfeto-pr-review-loop skill: hand-off description keeps Closes lines for completed sub-issues
 - credfeto-github-issue skill: sub-issues are closed by merging the PR, never by hand
 - credfeto-pr-sync skill: PR bodies carry a Closes line for every sub-issue the PR completes
-- credfeto-github-cli-pitfalls skill: add missing tool(cfwf) issue, failure reporting and exit code rules
-- credfeto-dotnet-exception-generation skill: reword the latest stable release rule to match its source
+- credfeto-github-cli-pitfalls skill: added missing cfwf issue, failure reporting and exit code rules
+- credfeto-dotnet-exception-generation skill: latest stable release rule reworded to match source
 - Agents: PR Submitter keeps a Closes line for every completed sub-issue in the PR body
-- Code Reviewer agent: removed uncommitted-tree and hard iteration cap rules that have no source in the instruction files
+- Code Reviewer agent: removed unsourced uncommitted-tree and hard iteration cap rules
 - coverage-ratchet skill: add failing-tests-void-the-measurement rule
 - Aligned the codegraph skill wording with its source instructions
 - Clarified in the code-tester skill how build-dotnet MCP jobs are run and waited for
 - credfeto-pr-sync skill: raise a pending human action in the NEEDS YOU block, matching its source
 - Reconciled issue-plan-approval, pr-review-loop and pre-work-healthcheck skills with their sources
-- Orchestrator agent now asks questions in chat first, raises approvals and questions in the NEEDS YOU block, and does not poll when ScheduleWakeup is unavailable
-- Mechanical agent roles (committer, code-tester, changelog, pr-submitter and ci-monitor) no longer have the Skill tool, enforced by check_agents.py tests, and on a hook or permission block they stop and report or rewrite within the rules instead of editing Claude configuration or invoking config-editing skills; the Committer now commits and pushes only what it is handed
+- Orchestrator asks in chat first, uses NEEDS YOU block, does not poll without ScheduleWakeup
+- Mechanical agent roles lose the Skill tool; on hook blocks they stop and report; Committer scoped
 - Aligned the codegraph skill's headings and MANDATORY markers with its source instruction file
 - Clarified the rebase cross-reference in the pre-work-healthcheck skill's existing work check
-- Skills: hook-block hand-off wording in the code-reviewer-subagents, code-writer, code-tester, code-fixer, repo-auditor, ci-debugger and dependency-updater skills now matches agent-roles.instructions.md exactly
-- credfeto-claude-hooks skill: removed unsourced loop-break example, update-config and permission-denial wording to match source instructions
-- git-commit skill: removed unsourced Committer bullet and trimmed hook-block wording to the source rules
+- Role skills: hook-block hand-off wording now matches agent-roles.instructions.md exactly
+- credfeto-claude-hooks skill: removed unsourced loop-break, update-config and permission wording
+- git-commit skill: removed unsourced Committer bullet; trimmed hook-block wording to source rules
 - git-branch and git-rebase skills: trimmed hook-block wording to the source rules
-- Skill credfeto-long-running-commands: removed hook-block workaround wording that has no source instruction
+- credfeto-long-running-commands skill: removed unsourced hook-block workaround wording
 - Skill credfeto-agent-routing: removed unsourced hook-block hand-off wording
-- Committer agent no longer carries a build and configuration restriction that has no source in the agent roles
-- npm-packages skill now covers installing dependencies when node_modules is missing and moving transitive dependencies with npm update --package-lock-only
-- credfeto-git-commit skill: added long-running command, file list, uncommitted-work, after-push and instruction routing rules from the sources
+- Committer agent: removed unsourced build and configuration restriction
+- npm-packages skill: install when node_modules missing; move transitive deps via --package-lock-only
+- credfeto-git-commit skill: added long-running, file list, uncommitted-work and after-push rules
 - credfeto-git-branch skill: added rule that memory file updates are committed on a branch
-- credfeto-github-issue skill: added the issue view, list, edit, comments, close and reopen commands from the sources
-- Agents: removed an unsourced loop-condition example from the Hook Blocks in Hand-offs rule in every agent that carried it.
-- Code Reviewer agent now includes the best-effort IDE MCP analysis fallback (skip when unavailable, comment on the PR naming the tool, never add Blocked).
-- Rebase agent: include the full version-conflict resolution rules (per-entry resolution, stable over pre-release, security exception, no downgrades or invented versions, lock file regeneration).
-- Skill registry: list git.instructions.md and github-cli.instructions.md as sources of the claude-hooks skill
-- credfeto-pr-sync skill: Blocked label guidance now asks in chat first in an interactive session, and posts and adds Blocked straight away in an unattended run
+- credfeto-github-issue skill: added issue view, list, edit, comments, close and reopen commands
+- Agents: removed an unsourced loop-condition example from the Hook Blocks in Hand-offs rule.
+- Code Reviewer agent: added best-effort IDE MCP analysis fallback (skip, comment, never Blocked).
+- Rebase agent: full version-conflict resolution rules (per-entry, stable first, no downgrades).
+- Skill registry: git and github-cli instructions listed as sources of the claude-hooks skill
+- credfeto-pr-sync skill: Blocked asks in chat first if interactive; posts and blocks if unattended
 - Code Fixer agent: align the pre-commit-check prohibition reason with its source role definition
-- Skills: dotnet-exception-generation now covers choosing project-defined exceptions over ill-fitting framework exceptions
-- Repo auditor skill now flags .NET code throwing ill-fitting framework exceptions in its Compliance lens
+- dotnet-exception-generation skill: prefer project-defined over ill-fitting framework exceptions
+- Repo auditor skill flags ill-fitting framework exceptions in .NET code in its Compliance lens
 - Code reviewer sub-agents skill: added ill-fitting framework exception compliance category
-- Skills: performance-benchmarking heading no longer marked MANDATORY; git-commit drops unsourced framing sentence
+- Skills: performance-benchmarking heading not MANDATORY; git-commit drops unsourced framing sentence
 - Skills: learnings-capture gains tooling-problem read-before-blocking rules and note template
 - Skills: ci-debugger, pr-sync gain NuGet restore error and knowledge-base search before Blocked rules
 - Skills: git-branch, git-rebase and pr-review-loop gain rebase carry-forward reporting rules
-- Skills: dependency-updater changelog entry wording rule; dotnet-analyzer-conflicts IDE0028 vs MA0002 resolution updated
-- Rebase Agent definition now reports whether the PR's own diff changed and whether conflicts were resolved, so the Orchestrator can decide between carrying a review forward and re-running the loop.
-- Orchestrator agent: added full-URL reporting, the knowledge-base search before Blocked for tooling problems, and the NuGet restore carve-out.
+- Skills: dependency-updater changelog wording rule; analyzer-conflicts IDE0028 vs MA0002 updated
+- Rebase Agent reports whether the PR diff changed and conflicts were resolved, for review carry-over.
+- Orchestrator agent: added full-URL reporting, kb search before Blocked, NuGet restore carve-out.
 - Codegraph skill: state that codegraph_explore answers most code questions in one call
-- pr-review-loop skill: added tooling-problem knowledge-base search before Blocked, NuGet restore errors fixed in the PR, and pattern sweep reintroduction clause
+- pr-review-loop skill: kb search before Blocked, NuGet restore fixes in PR, pattern sweep clause
 - issue-plan-approval skill: added tooling-problem knowledge-base search before adding Blocked
-- Added the tooling-problem knowledge base search rule to the github-issue skill's Blocked Label section
-- Reconciled orchestrator agent with its sources: added the 30-minute command time-box and the rebase carry-forward review rule
-- dotnet-test-patterns skill: added the rule that tests obtain an HttpClient through a mocked IHttpClientFactory wrapping a fake HttpMessageHandler
+- github-issue skill Blocked Label section: added tooling-problem knowledge base search rule
+- Orchestrator agent: added 30-minute command time-box and rebase carry-forward review rule
+- dotnet-test-patterns skill: HttpClient via mocked IHttpClientFactory wrapping a fake handler
 - Make pr-review-loop skill self-contained for CI check state and add the pre-closure decision check
 - Skill descriptions may now be written in the imperative as well as the third person
-- Agents: grant the Orchestrator the build-dotnet, build-node, build-python and changelog MCP tools, every build agent the build-node, build-python and changelog MCP tools, and the Changelog agent the changelog MCP tools (build-node, build-python and changelog are placeholders until those servers are available)
-- credfeto-dotnet-coding-conventions skill: added the package version lookup, no nuget.org URL and IHttpClientFactory rules from the .NET instructions
-- Reconciled credfeto-human-communication skill with its source: restored the emoji-marker rationale, the multi-repository reason for full URLs, the scrolled-out-of-view reason and the placeholder URL reason
-- Code Fixer agent now states its Phase A simplify and post-convergence pattern sweep duties from the AI review loop
-- credfeto-sql-schema-change skill: validate DACPAC changes with the build-dotnet MCP build tool instead of a raw dotnet build
-- credfeto-performance-benchmarking skill: align the never-run-benchmark-tests rule with the build-dotnet MCP test tool wording
-- credfeto-npm-packages skill: Fixed Package Versions heading no longer marked MANDATORY, matching its source
-- claude-hooks skill: align hook examples and installed hook table with the source (npm test, block-dotnet-tool-install covering build-dotnet MCP commands, enforce-background list)
+- Agents: MCP grants for build-dotnet, build-node, build-python and changelog (some placeholders)
+- credfeto-dotnet-coding-conventions skill: version lookup, no nuget.org URLs, IHttpClientFactory
+- credfeto-human-communication skill: restored rationale for emoji markers, full and placeholder URLs
+- Code Fixer agent states its Phase A simplify and post-convergence pattern sweep duties
+- credfeto-sql-schema-change skill: validate DACPAC changes with the build-dotnet MCP build tool
+- credfeto-performance-benchmarking skill: never-run-benchmark-tests rule matches build-dotnet wording
+- credfeto-npm-packages skill: Fixed Package Versions heading no longer MANDATORY, matching source
+- claude-hooks skill: hook examples and installed hook table aligned with the source
 - human-communication skill: state that a live-chat plan approval clears the Blocked label
-- Coverage ratchet skill: .NET measurement uses only the build-dotnet coverage tool, with no raw command fallback
-- Git commit skill: .NET builds and tests run through the build-dotnet MCP tools, raw dotnet build and test commands denied
-- Pre-work health check skill requires the build-dotnet MCP tools for coverage, buildcheck, build and test instead of raw dotnet command fallbacks
-- Changelog skill lints CHANGELOG.md with the changelog_lint MCP tool, with dotnet changelog --lint remaining available
-- dotnet-coverage skill collects coverage only through the build-dotnet coverage MCP tool, removing raw dotnet test and reportgenerator commands
-- dotnet-test-patterns and dotnet-dead-framework-guards skills refer to the build-dotnet test and restore MCP tools instead of raw dotnet commands
+- Coverage ratchet skill: .NET measured only with the build-dotnet coverage tool, no raw fallback
+- Git commit skill: .NET builds and tests via build-dotnet MCP tools; raw dotnet commands denied
+- Pre-work health check skill requires build-dotnet MCP tools; no raw dotnet command fallbacks
+- Changelog skill lints with the changelog_lint MCP tool; dotnet changelog --lint still available
+- dotnet-coverage skill collects coverage only via build-dotnet MCP; raw commands removed
+- dotnet-test-patterns and dead-framework-guards skills use build-dotnet test and restore MCP tools
 - Reconciled long-running-commands skill: raw dotnet build/test are denied, use build-dotnet MCP jobs
-- Reconciled pr-review-loop skill: .NET coverage uses the build-dotnet coverage tool only, no raw fallback
+- pr-review-loop skill: .NET coverage uses the build-dotnet coverage tool only, no raw fallback
 - Align code-reviewer agent build-dotnet MCP and long-running command wording with source instructions
 - Align repo-auditor agent build-dotnet MCP and long-running command wording with source instructions
-- Align the code-fixer, rebase-agent, ci-debugger, committer and dependency-updater agents with the build-dotnet MCP rules (no raw dotnet fallback, stop and report when the server is not connected)
-- Remove raw dotnet build and test commands from the long-running command list in the code-fixer, rebase-agent, ci-debugger, changelog, committer, pr-submitter and dependency-updater agents
+- Five agents aligned with build-dotnet MCP rules (no raw fallback, stop and report if not connected)
+- Removed raw dotnet build and test commands from long-running command lists in seven agents
 - Add CI Debugger round cap and API-error handling to pr-review-loop skill CI check state section
 - Skill registry: list dotnet.instructions.md as a source of the pr-review-loop skill
-- npm-packages skill: version conflict resolution also covers GitHub Actions version pins and Node.js versions, as the git-rebasing instructions state
-- Reconcile credfeto-pr-review-loop skill with CI check handling rules for pending, passed and failed required checks
-- Skill credfeto-dotnet-analyzer-conflicts: added the knowledge-base search before Blocked and the NEEDS YOU block rule
-- Skill credfeto-claude-hooks: added hook blocks in hand-offs, git -C and worktree rules, and one cfwf command per call
+- npm-packages skill: version conflict rules also cover GitHub Actions pins and Node.js versions
+- credfeto-pr-review-loop skill: CI handling rules for pending, passed and failed required checks
+- credfeto-dotnet-analyzer-conflicts skill: added kb search before Blocked and NEEDS YOU block rule
+- credfeto-claude-hooks skill: hand-off hook blocks, git -C and worktree rules, one cfwf per call
 - Committer agent no longer carries the build-dotnet MCP tools rule, which its sources do not give it
-- Reworded the dotnet-coverage skill introduction so it states only what the instruction files say about Microsoft.Testing.Platform
-- Dotnet analyzer conflicts skill now includes the interactive live-chat answer route for clearing a PR's Blocked label
+- dotnet-coverage skill intro states only what the instructions say about Microsoft.Testing.Platform
+- Dotnet analyzer conflicts skill: live-chat answer route for clearing a PR's Blocked label
 - Code Writer skill now passes on unchanged any hook-block report received in an incoming hand-off
-- Claude hooks skill now covers only what its source instructions state, dropping the hand-off reporting steps that are not part of them
-- Skills: github-cli-pitfalls now states the MCP-first rule, MCP tool naming, tool lookup and the report required when falling back to the command line
-- Skills: pr-sync now states the MCP-first rule, MCP tool naming, tool lookup and the report required when falling back to the command line
-- Skills: github-issue now states the MCP-first rule, MCP tool naming, tool lookup and the report required when falling back to the command line
-- Skills: coverage-ratchet now states that Code Tester takes the bootstrap measurement written to COVERAGE.md
+- Claude hooks skill covers only its sources, dropping unsourced hand-off reporting steps
+- github-cli-pitfalls skill: MCP-first rule, tool naming, tool lookup and CLI fallback report
+- pr-sync skill: MCP-first rule, MCP tool naming, tool lookup and CLI fallback report
+- github-issue skill: MCP-first rule, MCP tool naming, tool lookup and CLI fallback report
+- coverage-ratchet skill: Code Tester takes the bootstrap measurement written to COVERAGE.md
 - Skills: git-rebase trims the one-long-running-command rule to its source wording
-- npm-packages skill: approval disclosure items and version conflict rules written as bold P-labelled bullets, matching the source numbering convention
-- performance-benchmarking skill: benchmark workflow steps written as bold P-labelled bullets, matching the source numbering convention
-- Agents: ci-monitor now forbids the Monitor tool and polling for command completion; dependency-updater now comments and adds Blocked when the build-dotnet MCP server is not connected
+- npm-packages skill: approval and version conflict rules as bold P-labelled bullets, per source
+- performance-benchmarking skill: workflow steps as bold P-labelled bullets, per source convention
+- ci-monitor forbids Monitor tool and polling; dependency-updater blocks if build-dotnet MCP missing
 - dotnet-coverage skill per-file cadence now matches its source wording for the sub-issue update step
 - Claude hooks skill now notes that a too-strict hook block report is passed up the chain
 - Human communication skill question numbering wording now matches its source instructions
-- credfeto-pr-review-loop skill: handle CI Debugger escalation in an interactive session, count CI Monitor-reported failing checks towards the round cap, and act on sarif-summary analyzer findings
-- Removed unsourced hook-block wording (data files, configuration skills, rewrite-first step) from agent definitions so they match the agent roles instructions
+- pr-review-loop skill: interactive CI Debugger escalation, CI Monitor failures count, sarif findings
+- Removed unsourced hook-block wording from agent definitions to match agent roles instructions
 - credfeto-github-cli-pitfalls skill now states the --assign-self restriction for PRs
 - Remove unsourced best-effort wording from code-writer and code-tester agents
 - Remove unsourced build-dotnet rules from the dependency-updater agent
 - Clarified missing CLI tool versus failed command wording in the pr-sync skill
 - Reconciled repo-auditor agent: removed unsourced Blocked instruction for a disconnected build MCP
-- Reconciled rebase-agent agent: replaced unsourced version-conflict algorithm with direction to its preloaded skill
-- Repo auditor skill now passes on unchanged any hook-block report received from a sub-agent, matching the agent role rules.
-- credfeto-pr-review-loop skill now requires waiting on build-dotnet coverage jobs with job_result and measuring only unit test projects.
-- credfeto-npm-packages skill now requires one long-running command at a time and a duplicate search plus Blocked label for AI-raised issues.
-- credfeto-long-running-commands skill now prefers cfwf MCP tools over the command form, with one cfwf command per call.
+- rebase-agent: unsourced version-conflict algorithm replaced with pointer to its preloaded skill
+- Repo auditor skill passes on sub-agent hook-block reports unchanged, matching agent role rules.
+- credfeto-pr-review-loop skill: wait on coverage jobs with job_result; measure unit tests only.
+- credfeto-npm-packages skill: one long-running command at a time; duplicate search and Blocked.
+- credfeto-long-running-commands skill prefers cfwf MCP tools, with one cfwf command per call.
 - Agent routing skill now includes the Orchestrator's work selection and priority rules
 - Code fixer skill now requires the cfwf MCP tools before the cfwf command line, one command per call
-- Code reviewer sub-agents skill now requires the cfwf MCP tools before the cfwf command line, one command per call
-- credfeto-git-rebase skill description now names the pre-work baseline check as the source instructions do
-- Code tester skill now covers leaving COVERAGE.md uncommitted in the AI Coverage phase and restoring it after other coverage runs
-- Pre-work health check skill now bootstraps COVERAGE.md with the coverage tools and the four-column format, and the .NET coverage skill notes that a coverage run writes COVERAGE.md
-- credfeto-pr-review-loop skill: add default round caps, and align Phase D with the tool-written COVERAGE.md (build-dotnet and build-node coverage tools, four-column tables, restore on failure, Python-only hand-written section)
-- Reconciled coverage-ratchet skill with current instructions: tool-written COVERAGE.md with line counts, build-node coverage, commit and restore rules
-- changelog skill: added foreground timeout guidance for dotnet changelog from task-workflow instructions
-- dotnet-nuget-vulnerability-suppression skill: dropped MANDATORY marker and Reason-comment requirement not stated in dotnet.instructions.md and aligned the opening rule with the source
-- Skill issue-plan-approval: live-chat approval attempts the Workflow board move to Approved before removing Blocked, matching its source.
+- Code reviewer sub-agents skill requires cfwf MCP tools before the CLI, one command per call
+- credfeto-git-rebase skill description names the pre-work baseline check, as the sources do
+- Code tester skill: leave COVERAGE.md uncommitted in AI Coverage; restore it after other runs
+- Pre-work health check bootstraps COVERAGE.md with coverage tools in the four-column format
+- credfeto-pr-review-loop skill: default round caps; Phase D aligned with tool-written COVERAGE.md
+- coverage-ratchet skill: tool-written COVERAGE.md with line counts, build-node, commit/restore rules
+- changelog skill: added foreground timeout guidance for dotnet changelog from task-workflow rules
+- dotnet-nuget-vulnerability-suppression skill: dropped unsourced MANDATORY and Reason-comment rules
+- issue-plan-approval skill: live-chat approval moves board to Approved before removing Blocked.
 - Skill npm-packages: aligned the one-long-running-command rule with its sources.
 - Skill performance-benchmarking: removed unsourced baseline wording from the benchmark workflow.
-- Reconciled the CI Monitor agent with its sources: added the rule to judge required checks only from the state and exit code of the checks command and to list every required check with its exact state.
+- CI Monitor agent judges required checks only by checks command state and lists each one's state.
 - Skills: changelog skill prefers the changelog MCP tools with the dotnet changelog CLI as fallback
 - Skills: dotnet-owned-packages notes the changelog MCP server alongside Credfeto.Changelog.Cmd
-- Skills: dependency-updater uses changelog_add MCP tool first and passes hook-block reports on in hand-offs
+- dependency-updater skill: changelog_add MCP tool first; passes hook-block reports in hand-offs
 - Skills: claude-hooks one-cfwf-command-per-call rule applies only to the command line
-- Changelog agent now changes CHANGELOG.md with the changelog MCP tools when available, using the dotnet changelog CLI only as a fallback
-- CI Monitor agent requires a post-ready result only for required checks whose pre-ready result on the current head was a skip or missing
-- Updated the pre-work-healthcheck skill to cover handing build and test work to a role with the build tools
+- Changelog agent edits CHANGELOG.md with changelog MCP tools, dotnet changelog CLI as fallback
+- CI Monitor needs a post-ready result only for required checks skipped or missing before ready
+- pre-work-healthcheck skill: hand build and test work to a role with the build tools
 - Updated the dotnet-test-patterns skill with the test assembly naming table
-- Updated the repo-auditor skill to require the build-dotnet MCP tools for .NET builds, tests and coverage
+- repo-auditor skill requires build-dotnet MCP tools for .NET builds, tests and coverage
 - Updated the ide-mcp-code-analysis skill with DataGrip and the SQL inspection rules
-- Updated the dotnet-analyzer-conflicts skill with the ask-in-chat-first rule for unlisted diagnostic pairs
-- Updated the pr-review-loop skill with the single-project coverage run behaviour and the sections Code Writer writes
-- Updated the code-reviewer-subagents and code-writer skills with the rule to wait for background commands before handing back
+- dotnet-analyzer-conflicts skill: ask in chat first for unlisted diagnostic pairs
+- pr-review-loop skill: single-project coverage run behaviour and sections Code Writer writes
+- code-reviewer-subagents and code-writer skills: wait for background commands before handing back
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
 - Removed unsourced rebase-from-main file preference sentence from the git-branch skill
-- Removed unused .NET global.json and empty template solution (src/global.json, src/Credfeto.Template.slnx and its DotSettings)
+- Removed unused .NET global.json and empty template solution (src/global.json, slnx, DotSettings)
 - Committer agent drops an unsourced rule about committing only what was handed over
-- repo-auditor skill: removed build-dotnet MCP tool rule that has no source in its listed instruction file
+- repo-auditor skill: removed build-dotnet MCP tool rule with no source in its instruction file
 - Skills: ide-mcp-code-analysis no longer mentions DataGrip
 ### Deployment Changes
 
@@ -249,217 +249,217 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 
 ## [0.0.7] - 2026-11-04
 ### Added
-- Agents: grant mcp__cfwf__* to the GitHub-facing agents, mcp__build-dotnet__* to the build and test agents, a placeholder mcp__git__* to the agents that use git and a placeholder mcp__kb__* to the working agents (to be revisited when the full MCP servers ship)
-- Reconcile run fails if any skill or agent still says an operation is not available yet when the instruction files no longer do, so a partial reconciliation is visible
-- Added the `--system` option to `./install`, `ai/skills/install` and `ai/agents/install` so skills and agents can be installed into the managed Claude Code folder (`/etc/claude-code/.claude`) for every user on the machine, using `sudo` where needed
+- Agents: grant cfwf, build-dotnet, and placeholder git and kb MCP tools to the relevant agents
+- Reconcile run fails if a skill or agent still says "not available yet" when sources no longer do
+- Added `--system` to the install scripts to install into the managed Claude Code folder for all users
 ### Fixed
-- Reconcile agents keep going when a tool call is denied and the run retries once when an agent stops early, lists the wrong folders or Claude Code fails, so a denied lint call no longer leaves the run without reconciling
-- Reconcile workflow passes the changelog lint arguments one per line, so Validate changelog no longer fails with MissingGroupOptionError
-- Reconciled code-writer and dependency-updater skills to say a long-running command's completion notification, and removed an unsourced parenthetical from the ci-debugger skill
-- Align lens report examples with source and drop unsourced 1-indexed line wording from the six Code Reviewer lens agents
+- Reconcile agents continue past denied tool calls; the run retries once if an agent stops early
+- Reconcile passes changelog lint arguments one per line, fixing MissingGroupOptionError
+- code-writer and dependency-updater skills: completion notification wording; ci-debugger tidied
+- Six Code Reviewer lens agents: report examples aligned with source; 1-indexed wording dropped
 - Align ci-monitor all-pass hand-back with agent-roles sources
-- credfeto-pr-review-loop skill: state that the fix route also drops the Committer before Code Reviewer
-- git-commit skill separates dead-code removal commits and uses build-dotnet MCP tools for the build and test gate; git-branch skill no longer carries an unsourced cfwf checkout claim; registry lists code-quality.instructions.md for git-branch and git-rebase
-- Code Reviewer agent: run builds and tests through the build-dotnet MCP tools in .NET repositories and count their jobs as long-running commands
+- credfeto-pr-review-loop skill: fix route also drops the Committer before Code Reviewer
+- git-commit: separate dead-code commits, build-dotnet gate; git-branch: unsourced claim dropped
+- Code Reviewer agent: .NET builds and tests via build-dotnet MCP, jobs count as long-running
 ### Changed
-- Skills describe every GitHub operation with its cfwf command, replacing the stale "not available yet" fallbacks
+- Skills give the cfwf command for every GitHub operation, replacing "not available yet" fallbacks
 - Added the pre-commit branch check to the git-branch skill
-- CI Debugger skill states that the Orchestrator routing status comment does not count towards the round cap
+- CI Debugger skill: Orchestrator routing status comment does not count towards the round cap
 - Aligned the coverage-ratchet skill wording with its sources
 - Aligned the dotnet-test-patterns unconstructable-type rule with its sources
 - Added the git grep hook-block clarification to the long-running-commands skill
 - Added the COVERAGE.md rebase-conflict rule to the pr-review-loop skill
 - pr-sync skill now routes analyzer findings comments to sarif-summary-findings
 - github-issue skill sets the board status to Planning after each plan post
-- Reconciled skills with current instruction files: code-reviewer-subagents, dotnet-exception-generation, git-branch, git-commit, git-rebase, github-cli-pitfalls, github-issue, pr-review-loop, pr-sync
-- Agents: added the missing no-pre-commit-check rule to Code Writer, Code Fixer and Code Tester, and the background-run wait rule to Code Tester and Committer
-- Reconcile agents with updated sources: cfwf commands in place of gh, CI Monitor waits with cfwf pr checks-wait, completion notification wording for long-running commands
-- Orchestrator agent: added the live-chat answer to a PR question Blocked exception, the say-once-at-the-top rule for human actions, the run-mode decision rule and the .deleteme.now check before hand-off
-- Orchestrator agent uses cfwf commands for posting plans, blocking and removing Blocked, and matches the bot login by name
+- Reconciled nine skills with current instruction files
+- Agents: no-pre-commit-check rule for writer, fixer and tester; background wait for tester, Committer
+- Agents: cfwf instead of gh, CI Monitor uses cfwf pr checks-wait, completion notification wording
+- Orchestrator: live-chat Blocked exception, say-once rule, run-mode rule, .deleteme.now check
+- Orchestrator uses cfwf to post plans and add or remove Blocked; matches bot login by name
 - CI Debugger agent reads the auto-merge enable time with cfwf pr auto-merge-at when counting rounds
-- Pre-work healthcheck skill now states that the Code Tester, Code Fixer and Code Writer roles never run pre-commit-check and that unbounded commands run one at a time
+- Pre-work healthcheck: tester, fixer and writer never run pre-commit-check; unbounded commands serial
 - Skill git-commit: added the rule for acting on a recorded uncommitted-work comment in a later run
-- Skills git-rebase and git-branch: added the rule to take the branch's changes while merging in main's when rebasing
-- Skill github-issue: post implementation plans with cfwf issue post-plan instead of hand-assembled steps
+- git-rebase and git-branch skills: take the branch's changes while merging main's when rebasing
+- github-issue skill: post implementation plans with cfwf issue post-plan, not hand-assembled steps
 - Reconcile dependency-selection skill: list items use P-labelled bullets as in the sources
-- Reconcile issue-plan-approval skill: other Blocked cases that still wait for a human match the source (round-cap block)
-- Reconcile pr-review-loop skill: add per-construct Pattern Sweep rules and drop unsourced Phase E wording
+- issue-plan-approval skill: other human-wait Blocked cases match the source (round-cap block)
+- pr-review-loop skill: per-construct Pattern Sweep rules; unsourced Phase E wording dropped
 - Reconcile git-commit skill: state the rule for a hook-blocked command in a Committer hand-off
-- Reconcile git-branch and git-rebase skills: add hook-block hand-off and one-long-running-command rules for the Rebase Agent
+- git-branch and git-rebase skills: hook-block hand-off and one long-running command rules
 - Reconcile pr-sync skill: state how to block a PR whose CI keeps failing with cfwf pr block
 - Reconcile github-issue skill: state at the top of a message where the human must act
-- Orchestrator agent: re-run the Phase E hand-off on a later unattended invocation when auto-merge was deferred
+- Orchestrator re-runs the Phase E hand-off on a later unattended run when auto-merge was deferred
 - CI Monitor agent: a restart at Phase A does not reset the Phase B, C and D round caps
-- Reworded code-cleanup-commits skill so pre-existing bugs found during a sweep are not fixed silently but listed in the hand-off report
-- Code Fixer skill now covers running /simplify and the post-convergence Pattern Sweep in the AI review loop simplify phase
+- code-cleanup-commits skill: pre-existing bugs found in a sweep are listed in the hand-off, not fixed
+- Code Fixer skill covers /simplify and the post-convergence Pattern Sweep in the simplify phase
 - Skill registry lists task-workflow.instructions.md as a source of the npm-packages skill
 - Skill registry lists github-cli.instructions.md as a source of the dotnet-analyzer-conflicts skill
 - Reconcile credfeto-shell-scripts skill with its sources by removing an unsourced ad-hoc command rule
 - Reconciled the claude-hooks skill against its sources, removing wording that has no source
-- Orchestrator agent: added human comment requests, comment replies, analyzer findings and analyzer-wins conflict rules
+- Orchestrator: human comment requests, replies, analyzer findings and analyzer-wins conflict rules
 - coverage-ratchet skill: prefer the build-dotnet MCP coverage tool over raw commands when listed
 - code-reviewer-subagents skill: use build-dotnet MCP tools for .NET builds and tests when listed
 - dependency-updater skill: use build-dotnet MCP tools for .NET builds and tests when listed
-- Code Tester, Code Writer, Code Fixer and CI Debugger skills now require build-dotnet MCP tools in .NET repositories
-- credfeto-dotnet-coverage skill: prefer the build-dotnet coverage MCP tool, keeping the raw commands as the fallback
-- Skills: pre-work-healthcheck now prefers the build-dotnet MCP buildcheck, build, test and coverage tools over raw commands
-- credfeto-git-commit skill: drop issue title prefix wording that has no source in its instruction files
+- Code Tester, Writer, Fixer and CI Debugger skills require build-dotnet MCP tools in .NET repos
+- credfeto-dotnet-coverage skill prefers the build-dotnet coverage MCP tool; raw commands fallback
+- pre-work-healthcheck skill prefers build-dotnet MCP buildcheck, build, test and coverage tools
+- credfeto-git-commit skill: dropped unsourced issue title prefix wording
 - pr-review-loop skill: use the build-dotnet coverage tool for .NET coverage measurement when listed
-- Skills: pr-sync now requires an all-passed check result to be confirmed on a second read before it is reported as passed
-- Skills: long-running-commands and repo-auditor now cover build-dotnet MCP jobs as long-running commands, with repo-auditor preferring the MCP tools
+- pr-sync skill: an all-passed check result must be confirmed on a second read before reporting
+- long-running-commands and repo-auditor skills treat build-dotnet MCP jobs as long-running
 - Skill registry lists agent-roles.instructions.md as a source of the long-running-commands skill
-- credfeto-code-writer agent now requires the build-dotnet MCP tools for .NET builds and tests, and counts their jobs as long-running commands
-- credfeto-code-tester agent now requires the build-dotnet MCP tools for .NET builds, tests and coverage, and counts their jobs as long-running commands
-- credfeto-code-fixer agent now requires the build-dotnet MCP tools for .NET builds and tests, and counts their jobs as long-running commands
-- credfeto-orchestrator agent now carries the full pre-existing bug handling, plan-status and approval signalling, CI Debugger round counting, issue-request reply commands and build-dotnet MCP jobs in the long-running definition
-- credfeto-changelog agent counts build-dotnet MCP jobs as long-running commands and uses the source wording for the .deleteme.now removal
-- credfeto-committer agent counts build-dotnet MCP jobs as long-running commands and uses them for .NET builds when listed
+- credfeto-code-writer agent requires build-dotnet MCP for .NET builds and tests; jobs long-running
+- credfeto-code-tester agent requires build-dotnet MCP for builds, tests, coverage; jobs long-running
+- credfeto-code-fixer agent requires build-dotnet MCP for .NET builds and tests; jobs long-running
+- credfeto-orchestrator agent: full bug handling, plan status, round counting and build-dotnet jobs
+- credfeto-changelog agent: build-dotnet jobs long-running; source wording for .deleteme.now removal
+- credfeto-committer agent: build-dotnet MCP jobs long-running, used for .NET builds when listed
 - credfeto-pr-submitter agent counts build-dotnet MCP jobs as long-running commands
-- credfeto-dependency-updater agent counts build-dotnet MCP jobs as long-running commands and uses them for .NET builds when listed
-- credfeto-repo-auditor agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
-- credfeto-rebase-agent agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
-- credfeto-ci-debugger agent now includes the build-dotnet MCP tool rule and counts MCP jobs as long-running commands
-- changelog skill now covers linting CHANGELOG.md with the changelog_lint MCP tool, falling back to dotnet changelog --lint
+- credfeto-dependency-updater agent: build-dotnet MCP jobs long-running, used for builds when listed
+- credfeto-repo-auditor agent: added build-dotnet MCP tool rule; MCP jobs count as long-running
+- credfeto-rebase-agent agent: added build-dotnet MCP tool rule; MCP jobs count as long-running
+- credfeto-ci-debugger agent: added build-dotnet MCP tool rule; MCP jobs count as long-running
+- changelog skill lints with the changelog_lint MCP tool, falling back to dotnet changelog --lint
 - skill registry lists github-cli.instructions.md as a source of the long-running-commands skill
 - Reconcile credfeto-code-writer skill long-running command wording with agent-roles instructions
-- Agent routing skill now states that the Orchestrator re-runs the hand-off command to enable auto-merge once the waited-for checks pass
+- Agent routing skill: Orchestrator re-runs hand-off to enable auto-merge once awaited checks pass
 - Agents: CI Monitor now lists build-dotnet MCP jobs as long-running commands
 - SDK - Updated DotNet SDK to 11.0.100-rc.3.26522.148
 
 ## [0.0.6] - 2026-10-26
 ### Security
-- Reconcile workflow: the unattended agent runs in jobs with no push token and hands its changes over as a patch, which a trusted job validates (allowed paths only; no .github, symlinks, executables, binaries or non-ASCII names) and applies to a clean checkout before pushing, so it cannot tamper with the guards or reach the push token. Its Claude Code permissions now use dontAsk mode instead of acceptEdits, with edits limited to its stage's allowed paths (.github and human-owned files denied), reads limited to the checkout (/proc denied), repository settings, hooks and .mcp.json not loaded, and Bash limited to named lint and skill-folder rm rules, plus dotnet changelog adds of the Added, Changed, Deprecated, Removed, Fixed and Security entry types - #34
+- Reconcile agent runs without push token, hands over a validated patch, dontAsk permissions - #34
 ### Fixed
-- Skills reconciled with instruction files: git-commit drops an unsourced waiting rule, github-workflows gains the lock file conflict rule, long-running-commands gains the hook block rule, shell-scripts output helpers heading matches its source
-- Skills reconciled with instruction files: agent-routing and github-cli-pitfalls drop unsourced wording, claude-hooks is self-contained, git-branch gains the uncommitted-work base commit step, dotnet-analyzer-conflicts gains the issue URL note step
-- Reconcile scope guard: when it fails, file names with non-ASCII characters are listed readably instead of octal-escaped - #34
-- Reconcile workflow now fails when the skills or agents reconciliation run does not examine every skill or agent folder, so an incomplete run can no longer pass silently - #42
+- Skills reconciled: git-commit, github-workflows, long-running-commands and shell-scripts
+- Skills reconciled: agent-routing, github-cli-pitfalls, claude-hooks, git-branch, analyzer-conflicts
+- Reconcile scope guard lists non-ASCII file names readably, not octal-escaped, on failure - #34
+- Reconcile fails when the run does not examine every skill or agent folder - #42
 ### Changed
 - Reconciled performance-benchmarking skill wording with its source instructions
-- Made the numbering-conventions skill self-contained by removing a repo-relative link from its example
-- Restored rules missing from the coverage-ratchet skill (coverage collection and Blocked label) and the pr-review-loop skill (pattern sweep rules)
-- Reconciled the Orchestrator agent with its sources: live-state check, plan open-question lifting and numbering continuation
-- Reconciled skills with instruction files: added hook-block hand-off rules to agent skills, ad-hoc xargs/read-loop rule to claude-hooks, npm command and install rules to npm-packages; replaced unsourced content in git-branch, github-cli-pitfalls and shell-scripts
+- numbering-conventions skill made self-contained by removing a repo-relative link from its example
+- Restored missing rules in coverage-ratchet (collection, Blocked) and pr-review-loop (pattern sweep)
+- Orchestrator agent: live-state check, plan open-question lifting and numbering continuation
+- Skills reconciled: hook-block hand-offs, xargs/read-loop rule, npm rules; unsourced content replaced
 - Skills: credfeto-dotnet-publish no longer allows trim/AOT warning suppression with owner permission
 - Skills: credfeto-claude-hooks search-exclusion rules aligned with tool preferences
-- Skills: removed unsourced re-run wording from performance-benchmarking and added the ad-hoc xargs/while-read rule to long-running-commands
-- Reconcile workflow: each job's commit file list now comes from the scope guard's allowed paths, so the two can no longer drift apart - #35
+- Skills: performance-benchmarking re-run wording removed; long-running-commands xargs/while-read rule
+- Reconcile commit file lists come from the scope guard's allowed paths, so they can't drift - #35
 - SDK - Updated DotNet SDK to 10.0.403
 - Agents: add the One Long-Running Command at a Time rule to every agent that runs commands
 
 ## [0.0.5] - 2026-10-15
 ### Security
-- Reconcile workflow: the agent is denied editing .github, and each job fails if .github changed before any local guard action runs, so a reconcile run cannot alter the guards that check it - #30
+- Reconcile agent cannot edit .github; jobs fail if .github changed before local guards run - #30
 ### Added
-- New numbering-conventions skill (credfeto-numbering-conventions) covering P/Q/alpha list marker conventions, bullet-not-ordered-list encoding for nested content, and named-anchor cross-references to steps in other lists or files, extracted from task-workflow.instructions.md, which no existing skill covered
-- Add the Choosing Between cfwf and gh decision procedure to the pr-sync and github-issue skills, matching the sourced github-cli.instructions.md rule
-- New github-cli-pitfalls skill (credfeto-github-cli-pitfalls) covering gh/gh api/GraphQL failure modes with real-failure fixes (create-only assignee/label flags, --json field validation, stderr/jq corruption, stale-commit_id inline review comment 422s, ProjectV2Collaborator mutation quirks, -f/-F typing, sandbox-rejected shell shapes, HEREDOC body text), extracted from github-cli.instructions.md's Common Mistakes section, which no existing skill covered
-- Claude Code agent definitions for every pipeline role and each Code Reviewer lens, with per-agent model, tools and preloaded skills in ai/agents/config.yaml and an installer that puts them in ~/.claude/agents
-- COVERAGE.md baseline recording that this repository has no .NET or Node code, that its Python CI helper scripts have no tests, and that Shell is excluded, so the coverage ratchet is applied
+- New credfeto-numbering-conventions skill: P/Q/alpha markers, nested bullets, named anchors
+- pr-sync and github-issue skills: added the Choosing Between cfwf and gh decision procedure
+- New credfeto-github-cli-pitfalls skill covering gh, gh api and GraphQL failure modes and fixes
+- Claude Code agent definitions for every pipeline role and reviewer lens, with config and installer
+- COVERAGE.md baseline: no .NET or Node code, untested Python CI helpers, Shell excluded
 - Root install script that installs every skill and then every agent in one command
-- Reconcile workflow (replacing reconcile-skills) that reconciles the skills and then, once they succeed, every agent definition against the instruction files and ai/agents/config.yaml, in one workflow so the two never push to main at the same time; it runs daily and whenever the workflow, config.yaml or a local action it depends on changes on main
-- check-agents check, run on pull requests touching ai/ and by the reconcile workflow, that fails when a preloaded skill is missing, an agent listed in config.yaml has no AGENT.md, or an AGENT.md frontmatter has unexpected keys or differs from config.yaml
-- Add ide-mcp-code-analysis skill covering the best-effort MCP IDE analysis procedure, and point the agent-role skills that mention it at the new skill for the full best-effort and reporting rules.
-- New dotnet-analyzer-conflicts skill (credfeto-dotnet-analyzer-conflicts) covering the pre-approved resolution table for conflicting .NET analyzer diagnostics and the stop-and-escalate procedure for unlisted pairs, extracted from analyzer-conflicts.instructions.md, which no existing skill covered
-- New sarif-summary-findings skill (credfeto-sarif-summary-findings) covering how to act on the analyzer findings table in a CI sarif-summary PR comment, extracted from code-quality.instructions.md, which no existing skill covered
+- Reconcile workflow reconciles skills then agents in one workflow, daily and on relevant changes
+- check-agents check: fails on missing preloaded skills, missing AGENT.md or frontmatter mismatch
+- Added ide-mcp-code-analysis skill; agent-role skills point at it for best-effort and reporting.
+- New credfeto-dotnet-analyzer-conflicts skill: resolution table and escalation for unlisted pairs
+- New credfeto-sarif-summary-findings skill: acting on analyzer findings in sarif-summary PR comments
 ### Fixed
-- Reconcile AI Skills workflow: pass composite action inputs using their real names so the daily run installs its tools and can complete - #22
-- Reconcile AI Skills workflow: can now delete orphaned skill folders (and nothing else), and skills must contain only what their instruction files state, with requirements that were removed from the sources also removed from the skill - #24
-- dotnet-test-patterns skill: restored the dropped UnitTests.props workaround note and the missing Assert.NotNull/AssertReallyNotNull assertion pattern, and removed duplicated async/cancellation and time-abstraction content already owned by dotnet-coding-conventions, matching dotnet.instructions.md
-- coverage-ratchet skill: rewrote the Phase D decision procedure to include the full four-branch trend judgement (round-cap block, gap-closing, flat/worsening-and-unlikely-to-close block, flat/worsening-but-still-worth-trying), matching coverage-ratchet.instructions.md and agent-roles.instructions.md
-- pre-work-healthcheck skill: replaced the stale hooks-path baseline-check mechanism with the current pre-commit-check command, added the mandatory pre-commit-check re-run after every rebase, and added the missing COVERAGE.md bootstrap and buildcheck package-conflict carve-out, matching git.instructions.md, git-rebasing.instructions.md, and dotnet.instructions.md
-- git-commit skill: removed an invented requirement to include the original prompt verbatim as a Prompt: line, added the missing Pattern Sweep Commit format, and corrected the Committer role's staging description, matching git-commits.instructions.md and agent-roles.instructions.md
-- git-branch skill: fixed the PR-lifecycle wording to one active branch or PR per user per repository, added the EnterWorktree tool reference, and added the mandatory pre-commit-check re-run after every rebase, matching task-workflow.instructions.md, git.instructions.md, and git-rebasing.instructions.md
-- git-rebase skill: added the mandatory backgrounded pre-commit-check re-run required after every rebase, with its fix and Blocked escalation paths, matching git-rebasing.instructions.md
-- pr-sync skill: replaced a stale hand-rolled gh pr view/jq label-sync pipeline (a shell shape the agent sandbox rejects outright) with the current cfwf closing-issue-labels plus gh pr edit --add-label sequence, and fixed the per-user PR-lifecycle wording, matching task-workflow.instructions.md and github-cli.instructions.md
-- github-issue skill: replaced a stale gh api graphql project-lookup sequence for adding an issue to the workflow board with the current cfwf workflow-status command, and removed invented go ahead/looks good approval keywords not present in the source, matching github-cli.instructions.md and task-workflow.instructions.md
-- github-workflows skill: added the missing anchore/sbom-action allowlist entry and its rationale, and the corresponding reason anchore/scan-action is deliberately not allowlisted, matching github-workflows.instructions.md
-- npm-packages skill: removed invented go ahead/looks good approval keywords, and added the missing Pre-Commit/Component-Tool-Mandated Package Changes exception and configured-registry lookup guidance, matching packages.instructions.md and npm.instructions.md
-- agent-routing skill: corrected the stale claim that the changelog placeholder step is dropped when a repo hits the changelog skip condition; the agent sequence row runs unchanged and only the placeholder artefact differs, matching task-workflow.instructions.md and agent-roles.instructions.md
-- issue-plan-approval skill: corrected the plan-comment jq anchor and approval keywords, added the missing authorAssociation approval restriction, the never-edit-a-plan-in-place rule, and the full Waiting for Approval in an Interactive Session procedure, and replaced a stale gh api graphql workflow-board sequence with cfwf workflow-status, matching agent-roles.instructions.md
-- pr-review-loop skill: corrected the review-iteration limit variable names, added the Pattern Sweep and IDE MCP code analysis steps, added the missing non-blocking convergence exit for Phases B and C, corrected Phase D's failure handling to the full trend-based decision procedure, and replaced a stale gh api graphql workflow-board sequence with cfwf workflow-status, matching agent-roles.instructions.md and coverage-ratchet.instructions.md
-- code-reviewer-subagents skill: added the missing IDE MCP code analysis step, changed the fix procedure to group findings by construct with a Pattern Sweep rather than one commit per finding, and added the missing sweeps field to the report format, matching agent-roles.instructions.md
-- code-writer skill: added the missing Pattern Sweep hand-off step and the IDE MCP code analysis step, matching agent-roles.instructions.md
-- code-tester skill: added the missing IDE MCP code analysis step, the requirement to carry an incoming sweep record through to the outgoing report unchanged, and the never-wrap-in-a-shell-timeout rule, and removed an unsourced do-not-commit-or-update-the-changelog bullet, matching agent-roles.instructions.md and task-workflow.instructions.md
-- code-fixer skill: replaced the one-commit-per-review-comment model with the current construct-grouped Pattern Sweep model, and added the missing Swept in and Already swept in comment-reply types, matching agent-roles.instructions.md
-- repo-auditor skill: added the missing IDE MCP code analysis step before launching sub-agents, and the missing leftover-placeholder compliance category, matching agent-roles.instructions.md
-- long-running-commands skill: added pre-commit-check to the list of commands that must never run in the foreground, and the mandatory rule that these commands must never be wrapped in a shell timeout, matching task-workflow.instructions.md
-- claude-hooks skill: restored the missing explanation that different hooks produce different, unrelated denials, added the entirely missing Permission Denial Is Not a Hook Denial section, and updated the stale installed-hook-set reference table to the current 13 hooks, matching claude-hooks.instructions.md
-- tool-preferences skill: added the entirely missing Exclude Secret-Bearing Files From Repo Searches and Prefer gh or a Local Clone Over Fetching GitHub URLs sections, matching tool-preferences.instructions.md
-- changelog skill: added the missing never-add-it-to-PATH item to the Running .NET Tools rule, matching dotnet.instructions.md
-- dependency-selection skill: added the entirely missing Pre-Commit/Component-Tool-Mandated Package Changes exception and configured-package-source lookup guidance, and removed an unsourced escalation-boundary note, matching packages.instructions.md and git-rebasing.instructions.md
-- code-style skill: added the missing Asynchronous Code, Parameterised Tests, and Refactoring sections, matching code-quality.instructions.md
-- code-cleanup-commits skill: rescoped to incidental file cleanup, pattern sweep, and dead code removal, restored the missing repo-wide duplication and code-analysis-warning bullets, and added the full Pattern Sweep and Dead Code sections, matching code-quality.instructions.md
-- secure-coding skill: added the missing rule to never read or print secret-bearing files and to exclude them from repo searches, matching security.instructions.md
-- shell-scripts skill: added the missing Argument Size Limits section on avoiding unbounded single-argument CLI calls, matching shell-scripts.instructions.md
-- numbering-conventions, claude-hooks, pr-review-loop, issue-plan-approval, pre-work-healthcheck, and code-cleanup-commits skills: removed em dash characters introduced by this reconciliation, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
-- Add the missing Pattern Sweep commit and IDE MCP code analysis steps to the ci-debugger skill, matching the CI Debugger role's sourced instructions
-- Restore the Pattern Sweep reply variants (Swept in / Already swept in) to the pr-sync and github-issue skills' Comment Replies sections, matching the sourced Comment Replies rule
-- Add the missing configured-NuGet-sources lookup step to the dotnet-coding-conventions skill, matching the dotnet.instructions.md NuGet Configuration rule
-- dotnet-nuget-vulnerability-suppression skill: removed unsourced rationale sentences about global suppression risk not present in dotnet.instructions.md's NuGet Vulnerability Suppression section
-- git-commit skill: added the missing Fixing pre-commit failures (MANDATORY) subsection, matching code-quality.instructions.md
-- pr-sync skill: corrected the On-Hold label spelling to On Hold, matching task-workflow.instructions.md
-- github-issue skill: corrected the On-Hold label spelling to On Hold, restored the Implementation Plan template's a./Q1. numbering format and the open-questions-vs-embedded-decisions rule, and added the missing Pre-Closure Decision Check (MANDATORY) rule, matching task-workflow.instructions.md and agent-roles.instructions.md
-- github-workflows skill: removed an unsourced MANDATORY marker on the Version Pinning heading, matching github-workflows.instructions.md
-- issue-plan-approval skill: restored the exact a./Qn. numbering convention for the plan template, added the missing open-questions-vs-embedded-conditional-decisions rule, added the check-for-an-existing-branch-first step, and restored the timeout case to the live-chat approval Blocked check, matching agent-roles.instructions.md
-- pr-review-loop skill: replaced paraphrased board-status names with the literal cfwf display names, restored the Pattern Sweep 25-file gate exception to Phase A's never-blocks rule, and removed an invented default for the MAX_*_ITERATIONS constants, matching agent-roles.instructions.md
-- code-writer skill: removed a restatement of the Coding Researcher's pinned-dependency-versions rule that belongs solely to the agent-routing skill, matching agent-roles.instructions.md
-- code-fixer skill: restored the dropped Comment Replies detail on Swept in commit citation and the no-reply-means-no-acknowledgement principle, matching agent-roles.instructions.md
-- repo-auditor skill: expanded the six Code Reviewer sub-agent lenses to include their own minimise-false-positives, focus-on-impact, and exclusions rules, matching agent-roles.instructions.md
-- shell-scripts skill: removed an unsourced enumeration of specific GitHub Actions emoji indicators not stated in shell-scripts.instructions.md
-- dependency-selection skill: removed invented go ahead/looks good approval phrases not present in packages.instructions.md, which specifies only approved/lgtm
-- deprecation-handling skill: removed an invented MANDATORY marker and elaborated wording not present in code-quality.instructions.md's Deprecation Warnings During Tests section
-- code-cleanup-commits skill: removed an invented claim about a Construct: line and fix-commit SHA citations not stated in code-quality.instructions.md's Pattern Sweep section
-- dotnet-coverage skill: added the missing mandatory background-and-poll rule for the coverage test command and the reportgenerator foreground-timeout carve-out, matching task-workflow.instructions.md
-- dotnet-publish skill: replaced an over-broad copy of the general warning-suppression rules with a short explanation tying TreatWarningsAsErrors to the IL2xxx/IL3xxx trimming diagnostics this skill actually covers, matching dotnet.instructions.md
-- pr-sync skill: added the missing mandatory GitHub State Lags Behind Writes rule, matching github-cli.instructions.md
-- github-issue skill: restored a dropped mandatory clause in the ad-hoc prompt intake procedure and added the missing GitHub State Lags Behind Writes rule, matching task-workflow.instructions.md and github-cli.instructions.md
-- pr-review-loop skill: corrected Phase E's safety-net attribution of the .deleteme.now compliance check to the Code Reviewer role's Compliance sub-agent rather than Phase B, and added the missing code-quality.instructions.md source for the 25-file Pattern Sweep gate it already documented, matching agent-roles.instructions.md
-- claude-hooks skill: added the missing tool-preferences.instructions.md source, which the skill's secret-bearing-path exclusion list already drew from
-- code-cleanup-commits and code-style skills: moved the Refactoring section from code-style to code-cleanup-commits and removed code-style's out-of-scope Asynchronous Code and Parameterised Tests content (already owned by dotnet-coding-conventions and dotnet-test-patterns), keeping Immutability in code-style as the general code-quality rule it is, matching code-quality.instructions.md's commit-separation rules
-- MSBuild path separators in FunFair.props now use forward slashes so the pre-commit path separator check passes
+- Reconcile AI Skills: composite action inputs use their real names so the daily run completes - #22
+- Reconcile AI Skills can delete orphaned skill folders; skills hold only what sources state - #24
+- dotnet-test-patterns skill: restored UnitTests.props note and assertions; duplicates removed
+- coverage-ratchet skill: Phase D decision procedure has the full four-branch trend judgement
+- pre-work-healthcheck skill: pre-commit-check baseline, re-run after rebase, COVERAGE.md bootstrap
+- git-commit skill: dropped invented Prompt: line, added Pattern Sweep format, fixed Committer staging
+- git-branch skill: one active PR per user per repo, EnterWorktree, pre-commit-check after rebase
+- git-rebase skill: backgrounded pre-commit-check re-run after each rebase, with fix and Blocked paths
+- pr-sync skill: label sync uses cfwf closing-issue-labels; per-user PR-lifecycle wording fixed
+- github-issue skill: board add via cfwf workflow-status; invented approval keywords removed
+- github-workflows skill: added anchore/sbom-action allowlist entry and why scan-action is excluded
+- npm-packages skill: invented approval keywords removed; tool-mandated changes exception added
+- agent-routing skill: changelog skip condition changes only the placeholder artefact, not the row
+- issue-plan-approval skill: plan anchor, approval rules, never edit plans, interactive wait procedure
+- pr-review-loop skill: iteration names, Pattern Sweep, IDE MCP steps, Phase D and board fixes
+- code-reviewer-subagents skill: IDE MCP step, construct-grouped Pattern Sweep fixes, sweeps field
+- code-writer skill: added Pattern Sweep hand-off and IDE MCP code analysis steps
+- code-tester skill: IDE MCP step, carry sweep record, no shell timeout; unsourced bullet removed
+- code-fixer skill: construct-grouped Pattern Sweep model; Swept in and Already swept in replies
+- repo-auditor skill: IDE MCP analysis before sub-agents; leftover-placeholder compliance category
+- long-running-commands skill: pre-commit-check never in foreground; never wrap in a shell timeout
+- claude-hooks skill: unrelated hook denials, Permission Denial section, hook table updated to 13
+- tool-preferences skill: exclude secret files from searches; prefer gh or clone over GitHub URLs
+- changelog skill: added never-add-it-to-PATH item to the Running .NET Tools rule
+- dependency-selection skill: tool-mandated package changes exception, source lookup; note removed
+- code-style skill: added Asynchronous Code, Parameterised Tests and Refactoring sections
+- code-cleanup-commits skill: rescoped; duplication and warning bullets, Pattern Sweep, Dead Code
+- secure-coding skill: never read or print secret-bearing files; exclude them from repo searches
+- shell-scripts skill: added Argument Size Limits section on unbounded single-argument CLI calls
+- Six skills: removed em dashes introduced by reconciliation, per the punctuation rule
+- ci-debugger skill: added Pattern Sweep commit and IDE MCP code analysis steps
+- pr-sync and github-issue skills: restored Swept in / Already swept in reply variants
+- dotnet-coding-conventions skill: added configured NuGet sources lookup step
+- dotnet-nuget-vulnerability-suppression skill: removed unsourced global suppression rationale
+- git-commit skill: added the Fixing pre-commit failures (MANDATORY) subsection
+- pr-sync skill: corrected the On-Hold label spelling to On Hold
+- github-issue skill: On Hold spelling, plan a./Q1. numbering, open questions, Pre-Closure check
+- github-workflows skill: removed unsourced MANDATORY marker on the Version Pinning heading
+- issue-plan-approval skill: a./Qn. numbering, decisions rule, existing branch check, timeout case
+- pr-review-loop skill: literal board status names, Pattern Sweep gate exception, no invented defaults
+- code-writer skill: removed restated pinned-dependency rule that belongs to agent-routing
+- code-fixer skill: restored Swept in commit citation and no-reply-no-acknowledgement detail
+- repo-auditor skill: reviewer lenses include false-positive, impact and exclusion rules
+- shell-scripts skill: removed unsourced list of GitHub Actions emoji indicators
+- dependency-selection skill: removed invented approval phrases; only approved/lgtm count
+- deprecation-handling skill: removed invented MANDATORY marker and unsourced wording
+- code-cleanup-commits skill: removed invented Construct: line and fix-commit SHA citation claims
+- dotnet-coverage skill: coverage test runs backgrounded and polled; reportgenerator timeout carve-out
+- dotnet-publish skill: warning rules copy replaced with a note on TreatWarningsAsErrors for IL2/IL3
+- pr-sync skill: added the mandatory GitHub State Lags Behind Writes rule
+- github-issue skill: restored ad-hoc intake clause; added GitHub State Lags Behind Writes rule
+- pr-review-loop skill: .deleteme.now check attributed to Compliance sub-agent; source added
+- claude-hooks skill: added tool-preferences.instructions.md as a source
+- Refactoring moved from code-style to code-cleanup-commits; out-of-scope code-style content removed
+- FunFair.props MSBuild paths use forward slashes so the pre-commit path separator check passes
 - Code Fixer skill fenced code blocks are surrounded by blank lines so markdownlint passes
 - README installation instructions no longer name the non-existent ai/skills/install.sh
-- shell-scripts skill: corrected the grep-guard note to name only the plain → and ✓ characters, matching shell-scripts.examples.md
-- dotnet-nullable-and-warnings skill: added the missing conflicting-diagnostics exception pointing to the dotnet-analyzer-conflicts skill, matching dotnet.instructions.md
-- long-running-commands and pr-review-loop skills: removed wording with no source (git push as a long-running command; iteration budgets being defined by the repo)
-- agent-routing skill: added the CI Monitor hand-off rules (resume at the named phase and step, restart at Phase A after a CI Debugger fix, final phase marks the PR ready), matching task-workflow.instructions.md
-- issue-plan-approval skill: removed pre-closure wording that had no source in agent-roles.instructions.md
-- coverage-ratchet skill: added the round cap applying whether or not the trend is closing and the trending-language rule regardless of round, matching coverage-ratchet.instructions.md
-- git-rebase and git-branch skills: removed the COVERAGE.md rebase-conflict procedure that had no source in git-rebasing.instructions.md
-- pre-work-healthcheck skill: reworded the rules compliance wording to match task-workflow.instructions.md
-- sql-schema-change skill: removed the unsourced linter name from the Linting section, matching sql.instructions.md
-- Reconcile workflow: the scope guard, human-owned files guard and no-deletions guard now report which files changed (with their diff, capped at 200 lines) before failing, via a new check-changed-scope action and the existing check-allowed-deletions action, so a failed guard shows what tripped it - #30
-- Reconcile no-deletions guard: deleted files with non-ASCII names inside a skill folder are no longer wrongly flagged - #30
-- Reconciled skills against current instruction files: updated pre-work-healthcheck, git-commit, git-branch, pr-sync, github-issue, dependency-selection, long-running-commands, numbering-conventions, agent-routing, issue-plan-approval, code-reviewer-subagents, code-writer, code-tester, ci-debugger, claude-hooks and dotnet-nuget-vulnerability-suppression to match their sources
-- issue-plan-approval and github-workflows skills: reworded to match their instruction files (removed an unsourced em dash pair and normalised a number range)
-- readme-documentation skill: wrote the Overview length as 2 to 3 sentences, matching documentation.instructions.md
+- shell-scripts skill: grep-guard note names only the plain → and ✓ characters
+- dotnet-nullable-and-warnings skill: added conflicting-diagnostics exception to analyzer-conflicts
+- long-running-commands and pr-review-loop skills: removed unsourced wording
+- agent-routing skill: added CI Monitor hand-off rules (resume point, restart at Phase A, mark ready)
+- issue-plan-approval skill: removed unsourced pre-closure wording
+- coverage-ratchet skill: round cap applies whatever the trend; trending-language rule at any round
+- git-rebase and git-branch skills: removed unsourced COVERAGE.md rebase-conflict procedure
+- pre-work-healthcheck skill: rules compliance wording matches task-workflow.instructions.md
+- sql-schema-change skill: removed the unsourced linter name from the Linting section
+- Reconcile guards report changed files and diffs (capped at 200 lines) before failing - #30
+- Reconcile no-deletions guard no longer flags deleted non-ASCII names inside a skill folder - #30
+- Reconciled sixteen skills against current instruction files
+- issue-plan-approval and github-workflows skills: removed an em dash pair; normalised a range
+- readme-documentation skill: Overview length written as 2 to 3 sentences, matching source
 ### Changed
-- The agents installer only removes stale agents it installed itself, tracked in a manifest, so hand-written credfeto-* agents are never deleted
-- Reconcile runs fail if the unattended agent changes workflow, action or markdownlint config files or the other job's files, deletes anything outside its remit, or leaves markdown failing lint, so none of these can reach main
+- Agents installer removes only stale agents it installed (manifest), never hand-written ones
+- Reconcile fails if the agent edits guarded files, deletes outside its remit or breaks lint
 - The reconcile tool setup, cs-template sync and deletion guard are shared composite actions
-- Removing an agent is a human-only change to config.yaml and ai/agents in one pull request; the reconcile run never deletes agents
-- Reconciled the pre-work-healthcheck, changelog, dotnet-coverage, dotnet-test-patterns, dotnet-owned-packages, dotnet-nuget-vulnerability-suppression and dotnet-exception-generation skills with their sources, adding the missing rules (including the ban on constructor-bypassing instantiation in tests) and removing unsourced wording
-- Reconciled the coverage-ratchet, git-commit, git-branch, git-rebase, pr-sync, github-issue, github-cli-pitfalls and github-workflows skills with their sources, adding missing rules (COVERAGE.md rebase conflicts, trusted commenters, CI check judging, scratch review branches) and removing unsourced anecdotes
-- Reconciled the firewall-rules, npm-packages, performance-benchmarking, docker, docker-rootless-podman-systemd and code-cleanup-commits skills with their sources, removing unsourced wording
-- Reconciled the secure-coding, structured-logging, gitignore-management, learnings-capture and long-running-commands skills with their sources, adding agent-found security bug reporting, source-generated logging rules and hook-denial handling, and removing unsourced wording
-- Reconciled the numbering-conventions, agent-routing, issue-plan-approval, pr-review-loop, code-reviewer-subagents, code-writer, code-tester, code-fixer and repo-auditor skills with their sources, adding the review-fix route, trusted-commenter approval, CI hand-off and pre-existing bug reporting rules
-- Reconciled the ci-debugger, dependency-updater, dotnet-nullable-and-warnings, claude-hooks and ide-mcp-code-analysis skills with their sources, adding missing CI Debugger and bot-PR rules and removing unsourced wording
-- Reconciled skills against current instruction files: agent-routing, code-cleanup-commits, code-reviewer-subagents, dotnet-dead-framework-guards, git-branch, git-commit, git-rebase, github-issue, github-workflows, ide-mcp-code-analysis, issue-plan-approval, npm-packages, pr-review-loop, pre-work-healthcheck
-- Rebase Agent no longer runs the post-rebase pre-commit-check itself; the Orchestrator runs it after the agent returns
+- Removing an agent is a human-only PR to config.yaml and ai/agents; reconcile never deletes agents
+- Reconciled seven skills with sources, incl. ban on constructor-bypassing instantiation in tests
+- Reconciled eight git and GitHub skills with sources; added missing rules, removed anecdotes
+- Reconciled six skills (firewall-rules, npm, docker and others) with sources; unsourced wording out
+- Reconciled five skills (secure-coding, logging and others): security, logging and hook rules
+- Reconciled nine role skills: review-fix route, trusted commenters, CI hand-off, bug reporting
+- Reconciled five skills (ci-debugger, claude-hooks and others): CI Debugger and bot-PR rules
+- Reconciled fourteen skills against current instruction files
+- Rebase Agent no longer runs post-rebase pre-commit-check; the Orchestrator runs it afterwards
 - Code cleanup commits skill now records a no-hit pattern sweep as a pull request status comment
-- Reconciled skills (pre-work-healthcheck, git-commit, git-branch, git-rebase, pr-sync, github-issue, code-cleanup-commits, pr-review-loop) against current instruction files
-- Reconciled agent definitions against their sources and config.yaml: added missing SendMessage tool to several agents and brought the orchestrator body up to date
+- Reconciled eight skills against current instruction files
+- Reconciled agent definitions: added missing SendMessage tool; orchestrator body updated
 - Reconcile workflow: use the check-required-secret action for CLAUDE_CODE_OAUTH_TOKEN - #30
 - Orchestrator and CI Monitor agents can use TaskStop to stop finished background watches - #32
-- Reconciled skills against current instructions: code-cleanup-commits, code-tester, code-writer, dotnet-coding-conventions, github-issue, github-workflows and shell-scripts
-- Reconciled skills against instruction files: coverage-ratchet, git-commit, pr-sync, issue-plan-approval, pr-review-loop, code-reviewer-subagents and dotnet-analyzer-conflicts
-- Agents: orchestrator and CI monitor regenerated to include TaskStop and watch-stopping rules from their sources
-- Skills: dotnet-test-patterns restored the rule that CI handles benchmarks and they are never run manually
-- Skills: github-issue now covers missing CLI tools and continued watching for plan approval in interactive sessions
+- Reconciled seven skills against current instructions
+- Reconciled seven skills against instruction files
+- Agents: orchestrator and CI monitor regenerated with TaskStop and watch-stopping rules
+- dotnet-test-patterns skill: restored rule that CI runs benchmarks; never run them manually
+- github-issue skill: missing CLI tools; keep watching for plan approval when interactive
 - Skills: long-running-commands allowlist request comments must use a HEREDOC body
-- Reconciled skills with current instruction files (one-change-at-a-time rules, coverage-ratchet, github-workflows, npm-packages, performance-benchmarking, pre-work-healthcheck, repo-auditor)
-- Reconciled skills against current instruction files (issue title prefixes, coverage ratchet skip handling, claude-hooks block rule, removal of unsourced wording)
+- Reconciled seven skills with current instruction files (one-change-at-a-time rules and more)
+- Reconciled skills: issue title prefixes, coverage skip handling, claude-hooks rule, unsourced text
 - Agents: added the Hook Blocks in Hand-offs rule to every agent that runs commands
 - SDK - Updated DotNet SDK to 10.0.402
 ### Removed
@@ -471,190 +471,190 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 
 ## [0.0.3] - 2026-08-20
 ### Security
-- Pin GitHub Actions in reconcile-skills.yml to full commit SHAs to prevent supply-chain tampering via mutable tags (#8)
+- Pin GitHub Actions in reconcile-skills.yml to full commit SHAs against mutable tag tampering (#8)
 ### Added
-- New git-rebase skill (credfeto-git-rebase) covering when to rebase and the full version-conflict-resolution algorithm, extracted from git-rebasing.instructions.md, which no existing skill fully credited despite being duplicated and drifting independently across four other skills
-- New docker-rootless-podman-systemd skill (credfeto-docker-rootless-podman-systemd) covering configuring and debugging rootless Podman run by an unprivileged system-level systemd service with no login session, extracted from docker-rootless-podman-systemd.instructions.md, which no existing skill covered
-- New long-running-commands skill (credfeto-long-running-commands) covering unconditional backgrounding of build/test/commit commands, reliable poll strings, poll-loop deadlines, and diagnosing sandbox-caused false timeouts in benchmark tests, extracted from task-workflow.instructions.md, which no existing skill fully covered
-- New agent-routing skill (credfeto-agent-routing) covering model-tier selection, no-self-repair for mechanical roles, the work-type to agent-sequence routing table, and research-pass invocation and escalation rules, extracted from task-workflow.instructions.md and agent-roles.instructions.md, which no existing skill covered
-- New issue-plan-approval skill (credfeto-issue-plan-approval) covering the plan-then-approval gate required before starting work on an issue with no existing PR, including the Implementation Plan comment format and workflow-board update commands, extracted from agent-roles.instructions.md, which no existing skill covered
-- New pr-review-loop skill (credfeto-pr-review-loop) covering the simplify, code-review, and security-review PR gate phases, the static-analyzer-wins conflict rule, and the environment-block marker convention, extracted from agent-roles.instructions.md, which no existing skill covered
-- New coverage-ratchet skill (credfeto-coverage-ratchet) covering the whole-repo per-language coverage gate against a committed COVERAGE.md baseline on origin/main, its bootstrap and rebase-conflict rules, and the per-language extraction commands, extracted from coverage-ratchet.instructions.md, which no existing skill covered
-- New python skill (credfeto-python) covering mandatory virtual environments, the Python 2 prohibition, and idiomatic/modular/testable code style, extracted from python.instructions.md, which no existing skill covered
-- New learnings-capture skill (credfeto-learnings-capture) covering filing a human-readable credfeto/credfeto-notes issue alongside every memory-file update, extracted from learnings.instructions.md and learnings.examples.md, which no existing skill covered
-- New code-reviewer-subagents skill (credfeto-code-reviewer-subagents) covering the six parallel review lenses (Reuse, Quality, Efficiency, Correctness, Security, Compliance), their false-positive-minimising critical instructions, and the fix/escalate iteration cap, extracted from agent-roles.instructions.md, which no existing skill covered beyond invoking it as an opaque step
-- New repo-auditor skill (credfeto-repo-auditor) covering grouping a full repository's files and running the six Code Reviewer sub-agent lenses against each group to raise labelled audit issues rather than fixing directly, extracted from agent-roles.instructions.md, which no existing skill covered
-- New ci-debugger skill (credfeto-ci-debugger) covering reading full CI failure logs, fixing code-related causes directly, and escalating environment/infrastructure causes with the machine-readable auto-clearing block marker, extracted from agent-roles.instructions.md, which no existing skill covered
-- New dependency-updater skill (credfeto-dependency-updater) covering auto-merging safe Dependabot patch/minor bumps, flagging major bumps to a human, and fixing a bot PR's changelog entry when taking ownership breaks its changelog-check job, extracted from agent-roles.instructions.md and changelog.instructions.md, which no existing skill covered
-- New code-cleanup-commits skill (credfeto-code-cleanup-commits) covering separate-commit rules for dead code removal, incidental file cleanup, and refactoring, extracted from code-quality.instructions.md, which no existing skill covered
-- New dotnet-dead-framework-guards skill (credfeto-dotnet-dead-framework-guards) covering removal of now-dead #if OR_GREATER framework guards and pre-floor fallback source files once a project's targets are raised, extracted from dotnet.instructions.md, which no existing skill covered
-- New dotnet-nuget-vulnerability-suppression skill (credfeto-dotnet-nuget-vulnerability-suppression) covering per-project, advisory-URL, reason-documented, issue-tracked suppression of NuGet audit advisories, extracted from dotnet.instructions.md, which no existing skill covered
-- New dotnet-exception-generation skill (credfeto-dotnet-exception-generation) covering defining and converting .NET exception classes via the Credfeto.Exceptions.SourceGenerator analyzer instead of hand-written constructors, extracted from dotnet.instructions.md, which no existing skill covered
-- New language-conventions skill (credfeto-language-conventions) covering UK English for prose, platform-convention code identifiers, and the no-em-dash punctuation rule, extracted from language.instructions.md, which was only partially covered via the git-commit skill's commit-message scope
-- New code-style skill (credfeto-code-style) covering the no-XMLDoc/Javadoc comment rule, why-only inline comments, cyclomatic complexity and connascence limits, and the immutability preference, extracted from code-quality.instructions.md, which no existing skill covered
-- New dotnet-coding-conventions skill (credfeto-dotnet-coding-conventions) covering .NET identifier naming, StringComparer usage, one-type-per-file organisation, records-over-classes, value-type guidance, DebuggerDisplay, and the never-modify-nuget.config rule, extracted from dotnet.instructions.md, which no existing skill covered
-- New dotnet-nullable-and-warnings skill (credfeto-dotnet-nullable-and-warnings) covering the compiler-enforced nullable reference type contract with no defensive null guards, and the warnings-as-errors/no-suppression-without-permission rule, extracted from dotnet.instructions.md, which no existing skill covered
-- Add credfeto-code-tester skill, extracting the Code Tester agent role's build/test/coverage verification procedure from agent-roles.instructions.md, previously only named in routing tables
-- Add credfeto-code-fixer skill, extracting the Code Fixer agent role's PR change-request procedure from agent-roles.instructions.md, previously only named in routing tables
-- Register credfeto-code-tester and credfeto-code-fixer in the ai/local/skills.instructions.md skill registry
-- New code-writer skill (credfeto-code-writer) covering the Code Writer agent role's implement-research-escalate-handoff procedure, extracted from agent-roles.instructions.md, which no existing skill covered despite every other named agent role having one
-- code-fixer skill: added the exact gh api command for threading a reply onto an inline PR review comment (including the -F vs -f in_reply_to typing gotcha), and registered github-cli.instructions.md as a source
-- Added the claude-hooks skill, generated from ai/global/claude-hooks.instructions.md, covering how to interpret a PreToolUse hook denial correctly
-- New tool-preferences skill (credfeto-tool-preferences) covering when to reach for Glob over find for simple file listing, extracted from the new tool-preferences.instructions.md, which no existing skill covered
+- New credfeto-git-rebase skill: when to rebase and the full version-conflict resolution algorithm
+- New credfeto-docker-rootless-podman-systemd skill: rootless Podman under a system systemd service
+- New credfeto-long-running-commands skill: backgrounding, polling, deadlines, sandbox timeouts
+- New credfeto-agent-routing skill: model tiers, mechanical roles, routing table, research passes
+- New credfeto-issue-plan-approval skill: plan-then-approval gate, plan format, board updates
+- New credfeto-pr-review-loop skill: simplify, code and security review phases, analyzer-wins rule
+- New credfeto-coverage-ratchet skill: per-language coverage gate against COVERAGE.md on main
+- New credfeto-python skill: virtual environments, no Python 2, idiomatic modular testable code
+- New credfeto-learnings-capture skill: file a credfeto-notes issue with every memory update
+- New credfeto-code-reviewer-subagents skill: six review lenses, critical rules, iteration cap
+- New credfeto-repo-auditor skill: group files, run six reviewer lenses, raise audit issues
+- New credfeto-ci-debugger skill: read CI logs, fix code causes, escalate infra with block marker
+- New credfeto-dependency-updater skill: auto-merge safe bumps, flag majors, fix bot changelogs
+- New credfeto-code-cleanup-commits skill: separate commits for dead code, cleanup, refactoring
+- New credfeto-dotnet-dead-framework-guards skill: remove dead #if OR_GREATER guards and fallbacks
+- New credfeto-dotnet-nuget-vulnerability-suppression skill: tracked per-project NuGet suppression
+- New credfeto-dotnet-exception-generation skill: exceptions via Credfeto.Exceptions.SourceGenerator
+- New credfeto-language-conventions skill: UK English, platform identifiers, no em dashes
+- New credfeto-code-style skill: no XMLDoc, why-only comments, complexity limits, immutability
+- New credfeto-dotnet-coding-conventions skill: .NET naming, organisation, records, nuget.config rule
+- New credfeto-dotnet-nullable-and-warnings skill: nullable contract, warnings as errors
+- Added credfeto-code-tester skill: Code Tester build, test and coverage verification procedure
+- Added credfeto-code-fixer skill: Code Fixer PR change-request procedure
+- Registered credfeto-code-tester and credfeto-code-fixer in the ai/local skill registry
+- New credfeto-code-writer skill: Code Writer implement, research, escalate and hand-off procedure
+- code-fixer skill: gh api command to reply to inline review comments (-F in_reply_to gotcha)
+- Added the claude-hooks skill on interpreting a PreToolUse hook denial correctly
+- New credfeto-tool-preferences skill: Glob over find for simple file listing
 ### Fixed
-- All ai/skills SKILL.md files: removed pervasive em dash characters from prose and YAML descriptions, replacing them with commas, colons, semicolons, or separate sentences to comply with language.instructions.md's punctuation rule
-- pre-work-healthcheck skill: added the missing stable-over-pre-release version-conflict exception and the bot-created-PR commit-author verification step, drawn from git-rebasing.instructions.md and task-workflow.instructions.md
-- dotnet-coverage skill: corrected the infrastructure-dependent-success-path coverage rule to prefer mocking the success path first and escalate via a GitHub issue only when genuinely unreachable and uncovered by integration tests, matching code-quality.instructions.md
-- docker skill: updated the base-image version-pinning rule to prefer digest pinning when the repo's Dependabot docker ecosystem is configured, falling back to tag pinning otherwise, matching docker.instructions.md
-- git-commit skill: added the missing Never Truncate Test/Commit Commands rule and the Template Rule Escalation procedure from task-workflow.instructions.md and git.examples.md
-- git-branch skill: added the missing stable-over-pre-release version-conflict exception, the no-confirmation-needed escalation boundary, and the Rebase Agent force-push and escalation rules from git-rebasing.instructions.md and agent-roles.instructions.md
-- github-issue skill: restored the Implementation Plan comment template to the exact format required by agent-roles.instructions.md, and added the missing issue-tracking cadence, Comment Replies, and Prompt Traceability rules
-- github-workflows skill: rewrote the Version Pinning section to reflect the current SHA-preferred, tag-fallback policy conditioned on the repo's Dependabot github-actions ecosystem, and added the matching SHA-vs-tag update distinction
-- npm-packages skill: added the missing new-package human-approval gate and the version-conflict stable-over-pre-release exception and no-confirmation-needed escalation boundary
-- dependency-selection skill: added the missing Third-Party Packages Require Human Approval section in full, plus the version-conflict stable-over-pre-release exception and no-confirmation-needed escalation boundary
-- Skill installer script: removed an em dash from a log message to comply with language.instructions.md's punctuation rule
-- dotnet-coverage skill: restored the missing 100% code coverage requirement, the SuppressMessage prohibition alongside ExcludeFromCodeCoverage, and the never-run-benchmarks-manually clause, matching code-quality.instructions.md and dotnet.instructions.md
-- github-workflows skill: completed the truncated Node.js deprecation warning quote to include the Node 24 enforcement deadline, matching github-workflows.instructions.md
-- npm-packages skill: restored the four required disclosure items for new-package approval and the Blocked-label workflow branch for issue/PR-sourced approvals, matching packages.instructions.md
-- pre-work-healthcheck skill: restored the two missing version-conflict rules (never downgrade below every candidate; regenerate lock files rather than hand-merging) and the post-rebase build-fix sentence, matching git-rebasing.instructions.md
-- git-commit skill: added the missing em dash prohibition for commit messages from language.instructions.md
-- git-branch skill: corrected the no-confirmation-needed algorithm scope from Rules 1-6 to Rules 1-5, and restored the missing update-the-issue-before-resuming step, matching git-rebasing.instructions.md and task-workflow.instructions.md
-- github-issue skill: restored the mandatory Use Plan Mode directive in the Ad-Hoc Prompt Intake procedure, matching task-workflow.instructions.md
-- README and skills.instructions.md: corrected the documented install command from ./ai/skills/install.sh to ./ai/skills/install, matching the actual installer filename
-- docker-rootless-podman-systemd skill: removed the addition of NoNewPrivileges=yes from the ProtectHome fix and restored the missing NoNewPrivileges=yes Breaks newuidmap/newgidmap on Every Reboot section, correcting a direct contradiction of docker-rootless-podman-systemd.instructions.md that would have reintroduced a reboot-only rootless-Podman failure
-- changelog skill: removed the documentation-only and AI-instruction-file skip rules that no longer exist in changelog.instructions.md, and added the missing Dependabot and Other Bot PRs procedure for when a pushed commit invalidates a bot PR's Changelog Not Required label
-- structured-logging skill: added the missing .NET Source-Generated Logging rules (LoggerMessage source generators, LoggingExtensions naming convention) from dotnet.instructions.md, now added as a second source
-- pre-work-healthcheck skill: added the missing COVERAGE.md bootstrap-for-new-issues procedure and the coverage-baseline rebase-conflict handling from coverage-ratchet.instructions.md, now added as a source
-- dotnet-coverage skill: updated the combined coverage report command to request the JsonSummary report type and extract the overall whole-repo line-coverage percentage with jq, matching the current dotnet.instructions.md guidance
-- dotnet-owned-packages skill: corrected the Credfeto.Changelog.Cmd package registry row to the actual credfeto-changelog-manager GitHub repository slug, removing a stale misspelling note that dotnet-owned-packages.instructions.md itself had already corrected
-- git-branch skill: added the missing Destructive Commands git-status-before-discarding-work rule and the Avoid git worktree rule from git.instructions.md
-- git-rebase skill: restored the dropped instruction not to hand-merge a coverage-baseline file conflict during a rebase, matching git-rebasing.instructions.md
-- pr-sync skill: added the missing PR creation flow, the Environment/Infrastructure Block Marker convention, and the Correcting a Prior Claim rule from agent-roles.instructions.md and task-workflow.instructions.md
-- github-issue skill: added the missing mandatory Workflow Project Board addition step and the Correcting a Prior Claim rule from task-workflow.instructions.md
-- agent-routing skill: restored the placeholder-changelog and correction-changelog steps, each with its own Committer and PR Submitter hand-off, that the work-type routing table had dropped from task-workflow.instructions.md
-- issue-plan-approval skill: added the mandatory workflow-board read-back verification step and the never-substitute-the-Blocked-label rule from agent-roles.instructions.md
-- pr-review-loop skill: reversed a direct contradiction of agent-roles.instructions.md that told Phase A to block the PR on simplify non-convergence, restored the missing Phase D AI Coverage ratchet phase, folded the changelog-correction step into every fix loop, and added the mandatory workflow-board read-back verification step, adding coverage-ratchet.instructions.md as a source
-- git-commit skill: added the missing Committer-role rules (GPG-signed commits, git-CLI-only commit/push, no --no-verify, escalate to Orchestrator after 3 failed pre-commit-hook cycles) from agent-roles.instructions.md, now added as a source
-- git-commit skill: removed the invented rule that git push must always run via run_in_background; task-workflow.instructions.md only mandates backgrounding for git commit/pre-commit, dotnet build, dotnet test, npm test, and bun test
-- pr-sync skill: added the missing Human Comment Requests: Run First gate from agent-roles.instructions.md, which must run before CI Checks so ad-hoc issue-creation requests in PR/issue comments are never skipped
-- pre-work-healthcheck skill: added the missing rule against creating a duplicate branch/PR for an issue already in progress, and the duplicate-pair resolution procedure, from task-workflow.instructions.md's Bot-Created PRs section
-- pre-work-healthcheck skill: restored the dropped no-PR/issue-comment clause when a version conflict is resolved unambiguously by the deterministic algorithm, drawn from git-rebasing.instructions.md
-- github-workflows skill: restored the dropped never-downgrade/never-invent-a-version rule in the Version Pinning section's merge-conflict guidance, drawn from git-rebasing.instructions.md
-- dotnet-test-patterns skill: added the missing general async rule (prefer async over sync, never block on async operations, no synchronous wrappers) from code-quality.instructions.md's Asynchronous Code section
-- agent-routing and issue-plan-approval skills: replaced a fabricated description of the Pre-Work Baseline Check's contents (prerequisites, pre-commit baseline, dotnet buildcheck) with a plain reference to the check, since neither skill's declared sources (task-workflow.instructions.md, agent-roles.instructions.md) define what that check contains
-- npm-packages skill: removed an em dash character from the New Package Approval presentation checklist, which language.instructions.md's Punctuation rule prohibits in generated text
-- Restored dropped rules and fixed content drift in several skills (dotnet-publish, dotnet-test-patterns, coverage-ratchet, changelog, long-running-commands, dependency-updater) that had lost concrete rule details from their source instruction files during regeneration.
-- Fixed inconsistent frontmatter description wording in the pre-work-healthcheck and dotnet-coverage skills so the trigger description reads as a single, coherent statement.
-- Removed MANDATORY markers from the secure-coding and error-handling skills that were not present in their source instruction files, and correctly backtick-quoted the em dash character reference in the git-commit skill.
-- agent-routing skill: narrowed the infeasible-task escalation trigger back to a Coding Researcher Not possible result only, removing an invented broader any-role trigger not present in agent-roles.instructions.md
-- dependency-updater skill: added the missing skip condition for repos that do not keep a changelog (e.g. template repos) when fixing a bot PR's broken changelog-check job, matching changelog.instructions.md's When to Skip rule
-- code-cleanup-commits skill: removed an invented used-by-more-than-one-caller definition of shared code not present in code-quality.instructions.md
-- secure-coding skill: restored the dropped pointers to a repository's own AI instructions for its project-specific secrets management approach and vulnerability-scanning tool, matching security.instructions.md
-- dotnet-test-patterns skill: restored the missing (MANDATORY) marker on the Identifying Test Projects heading and fixed the matching anchor link, matching dotnet.instructions.md
-- pr-sync skill: added the missing prohibition on running gh auth setup-git, which silently breaks git commit and push by rewriting the credential helper, matching github-cli.instructions.md
-- dotnet-coding-conventions skill: added the missing Asynchronous Code and Cancellation section (ValueTask preference, CancellationToken propagation) that applies to all production code, not just tests, matching dotnet.instructions.md and code-quality.instructions.md
-- agent-routing skill: removed an unsourced sentence from the No Self-Repair rule that was not present in task-workflow.instructions.md or agent-roles.instructions.md, so the skill no longer asserts guidance beyond what its sources actually say
-- pr-review-loop skill: corrected two internal references to a non-existent step 2.5 in the coverage-ratchet decision procedure to the actual step 5, matching coverage-ratchet.instructions.md
-- git-commit skill: added the missing Instruction File Source Routing rule (route ai/global changes to credfeto/cs-template, FunFair-specific changes to funfair-tech/funfair-server-template, otherwise commit locally), which task-workflow.instructions.md already required but no skill captured
-- Fix coverage-ratchet skill to generate per-assembly coverage reports separately from the combined report, preventing cross-assembly contamination from producing false component-level coverage figures
-- Fix docker-rootless-podman-systemd skill's ProtectHome=yes workaround to stop recommending PrivateTmp=yes, which orphans the rootless-Podman pause process against a deleted private /var/tmp and breaks later image pulls, and document the failure mode and recovery steps
-- git-commit skill: restored the dropped 'stop and report the failure' clauses on the never-change-linting-rules and never-modify-ignore-files bullets, matching git-commits.instructions.md
-- pr-sync skill: added the missing Authentication section (never gh auth login or manipulate credentials, unconditional gh auth setup-git refusal) and PR-side Prompt Traceability section, matching github-cli.instructions.md and task-workflow.instructions.md
-- github-issue skill: added the missing Authentication section and removed an invented gh project item-add idempotency claim not present in any instruction file, matching github-cli.instructions.md
-- pre-work-healthcheck skill: added the missing Pre-Commit Hook Known Incompatibilities section covering the dotenv-linter check subcommand requirement, matching git.instructions.md
-- dotnet-coding-conventions skill: added the missing Time Abstraction section requiring System.TimeProvider over the obsolete ICurrentTimeSource/IDateTimeSource abstractions, matching dotnet.instructions.md
-- git-commit skill: added the missing write-unit-tests-before-every-commit rule from code-quality.instructions.md, previously uncovered by any skill
-- coverage-ratchet skill: restored the move-board-to-Human-Review instruction for non-code-only branches, the COVERAGE.md ownership and no-post-merge-job clause, the bootstrap recurrence explanation, the non-code-only safety-net paragraph, and the decision-procedure explanatory sentences, matching coverage-ratchet.instructions.md
-- dotnet-publish skill: corrected the NuGet audit suppression exception to state its per-project, never-global, advisory-URL, and issue-tracking conditions instead of describing it as always permitted, matching dotnet.instructions.md
-- dotnet-publish skill: restored the missing project-specific local instruction file exception to the warning-suppression rule, allowing a PR-comment-approved and locally documented suppression to satisfy the explicit-permission requirement, matching dotnet.instructions.md
-- github-issue skill: restored the dropped 'no exception for credfeto/cs-template itself' clause on the Ad-Hoc Prompt Intake applicability rule, matching task-workflow.instructions.md
-- coverage-ratchet skill: added the missing Whole-Repo Test-Infrastructure Exclusion section and fixed its dead self-anchor link, matching coverage-ratchet.instructions.md
-- Update sql-schema-change skill's ad-hoc query guidance to route through the testdb/querydb wrapper instead of a direct sqlcmd invocation, matching the current sql.instructions.md source
-- Add the missing bot-created-PR ownership check (app/github-actions commit-author verification and duplicate-PR handling) to the git-branch skill's pre-branch-creation check, matching task-workflow.instructions.md
-- Corrected the new-package human-approval scope in the npm-packages skill so it matches packages.instructions.md (third-party only, not credfeto/funfair-tech-owned packages)
-- Added the On-Hold label re-evaluation clause to the github-issue skill, matching agent-roles.instructions.md
-- Added the PR-state verification step to the git-branch skill before treating an existing PR as a blocker, matching task-workflow.instructions.md's PR Lifecycle section
-- Added the hook-denial-vs-killed-run distinction to the long-running-commands skill, reflecting the new claude-hooks.instructions.md cross-references in task-workflow.instructions.md
-- Fixed a banned em dash character in the issue-plan-approval skill (credfeto-issue-plan-approval) to comply with the mandatory UK-English formatting rule that all generated skills must follow
-- Correct the code-tester skill, which asserted an Orchestrator-escalation outcome for the 5-round Code Writer/Tester loop that the source instruction files never state
-- pre-work-healthcheck skill: added a check for branches pushed but abandoned before a PR was opened, catching prior work the PR-only check misses
-- git-branch skill: added a check for branches pushed but abandoned before a PR was opened, catching prior work the PR-only check misses
-- git-commit skill: updated the Committer agent's placeholder-commit rule to cover the .deleteme.now convention used by template-skip repos, not CHANGELOG.md alone
-- pr-review-loop skill: added the missing .deleteme.now placeholder safety-net check to the Mark Ready phase
-- code-reviewer-subagents skill: added the missing leftover-placeholder (.deleteme.now) category to the Compliance sub-agent's checks
-- coverage-ratchet skill: inlined the missing .NET dotnet test coverage-collection command so the skill is runnable without consulting another instruction file
+- All SKILL.md files: removed em dashes from prose and descriptions, per the punctuation rule
+- pre-work-healthcheck skill: stable-over-pre-release exception; bot PR commit-author check
+- dotnet-coverage skill: mock the success path first; issue only if truly unreachable
+- docker skill: digest pinning when Dependabot docker is configured, otherwise tag pinning
+- git-commit skill: added Never Truncate Test/Commit Commands and Template Rule Escalation
+- git-branch skill: stable-over-pre-release exception, escalation boundary, Rebase Agent rules
+- github-issue skill: exact plan template; issue-tracking cadence, replies and traceability rules
+- github-workflows skill: SHA-preferred, tag-fallback pinning tied to Dependabot github-actions
+- npm-packages skill: new-package approval gate, stable-over-pre-release, escalation boundary
+- dependency-selection skill: third-party package approval section; version-conflict rules
+- Skill installer script: removed an em dash from a log message, per the punctuation rule
+- dotnet-coverage skill: restored 100% coverage, no SuppressMessage, never run benchmarks manually
+- github-workflows skill: completed Node.js deprecation quote with the Node 24 deadline
+- npm-packages skill: restored four approval disclosure items and the Blocked-label branch
+- pre-work-healthcheck skill: restored no-downgrade and lock-regeneration rules; build-fix sentence
+- git-commit skill: added the em dash prohibition for commit messages
+- git-branch skill: algorithm scope corrected to Rules 1-5; update the issue before resuming
+- github-issue skill: restored the mandatory Use Plan Mode directive in Ad-Hoc Prompt Intake
+- README and skill registry: install command corrected to ./ai/skills/install
+- docker-rootless-podman-systemd skill: NoNewPrivileges=yes reboot section restored, fix corrected
+- changelog skill: removed obsolete skip rules; added bot PR Changelog Not Required procedure
+- structured-logging skill: added .NET source-generated logging rules from dotnet.instructions.md
+- pre-work-healthcheck skill: COVERAGE.md bootstrap for new issues and baseline rebase conflicts
+- dotnet-coverage skill: report uses JsonSummary and extracts whole-repo line coverage with jq
+- dotnet-owned-packages skill: Credfeto.Changelog.Cmd row uses credfeto-changelog-manager repo
+- git-branch skill: added git status before discarding work and Avoid git worktree rules
+- git-rebase skill: restored rule not to hand-merge a coverage-baseline conflict during rebase
+- pr-sync skill: PR creation flow, block marker convention and Correcting a Prior Claim rule
+- github-issue skill: Workflow Project Board addition step and Correcting a Prior Claim rule
+- agent-routing skill: restored placeholder and correction changelog steps with their hand-offs
+- issue-plan-approval skill: board read-back verification; never substitute the Blocked label
+- pr-review-loop skill: Phase A no longer blocks; Phase D restored; changelog fix; board read-back
+- git-commit skill: Committer rules (signed, git CLI only, no --no-verify, escalate after 3)
+- git-commit skill: removed invented rule that git push must always run in the background
+- pr-sync skill: added Human Comment Requests: Run First gate, before CI Checks
+- pre-work-healthcheck skill: no duplicate branch/PR for in-progress issues; duplicate resolution
+- pre-work-healthcheck skill: restored no-comment clause for unambiguous version conflicts
+- github-workflows skill: restored never-downgrade/never-invent-a-version merge-conflict rule
+- dotnet-test-patterns skill: added general async rule (prefer async, never block, no sync wrappers)
+- agent-routing and issue-plan-approval skills: plain reference to the Pre-Work Baseline Check
+- npm-packages skill: removed an em dash from the New Package Approval checklist, per punctuation rule
+- Restored dropped rules and fixed drift in six skills that had lost source details on regeneration.
+- pre-work-healthcheck and dotnet-coverage skills: frontmatter descriptions read as one statement.
+- Removed unsourced MANDATORY markers from two skills; backtick-quoted em dash mention in git-commit.
+- agent-routing skill: infeasible-task escalation only on a Coding Researcher Not possible result
+- dependency-updater skill: skip changelog fix for repos without a changelog (e.g. templates)
+- code-cleanup-commits skill: removed invented definition of shared code
+- secure-coding skill: restored pointers to repo AI instructions for secrets and vulnerability scans
+- dotnet-test-patterns skill: restored MANDATORY on Identifying Test Projects; fixed its anchor link
+- pr-sync skill: never run gh auth setup-git, which breaks git commit and push credentials
+- dotnet-coding-conventions skill: added Asynchronous Code and Cancellation section for all code
+- agent-routing skill: removed an unsourced sentence from the No Self-Repair rule
+- pr-review-loop skill: references to non-existent step 2.5 corrected to step 5
+- git-commit skill: added Instruction File Source Routing rule (ai/global, FunFair or local)
+- coverage-ratchet skill: per-assembly reports generated separately to avoid false figures
+- docker-rootless-podman-systemd skill: ProtectHome fix no longer recommends PrivateTmp=yes
+- git-commit skill: restored 'stop and report the failure' on linting and ignore-file bullets
+- pr-sync skill: added Authentication and PR-side Prompt Traceability sections
+- github-issue skill: added Authentication section; removed invented item-add idempotency claim
+- pre-work-healthcheck skill: Pre-Commit Hook Known Incompatibilities (dotenv-linter check)
+- dotnet-coding-conventions skill: Time Abstraction section requiring System.TimeProvider
+- git-commit skill: added write-unit-tests-before-every-commit rule from code-quality instructions
+- coverage-ratchet skill: restored Human Review move, COVERAGE.md ownership and explanatory text
+- dotnet-publish skill: NuGet audit suppression exception states its per-project conditions
+- dotnet-publish skill: restored local instruction file exception to warning-suppression rule
+- github-issue skill: restored 'no exception for credfeto/cs-template itself' intake clause
+- coverage-ratchet skill: added Whole-Repo Test-Infrastructure Exclusion; fixed dead self-anchor
+- sql-schema-change skill: ad-hoc queries go through the testdb/querydb wrapper, not sqlcmd
+- git-branch skill: added bot-created PR ownership check (commit author, duplicate PRs)
+- npm-packages skill: new-package approval applies to third-party packages only
+- github-issue skill: added the On-Hold label re-evaluation clause
+- git-branch skill: verify PR state before treating an existing PR as a blocker
+- long-running-commands skill: distinguish a hook denial from a killed run
+- credfeto-issue-plan-approval skill: removed a banned em dash character
+- code-tester skill: removed unsourced Orchestrator escalation for the 5-round writer/tester loop
+- pre-work-healthcheck skill: check for branches pushed but abandoned before a PR was opened
+- git-branch skill: check for branches pushed but abandoned before a PR was opened
+- git-commit skill: Committer placeholder-commit rule covers .deleteme.now, not only CHANGELOG.md
+- pr-review-loop skill: added .deleteme.now placeholder safety-net check to Mark Ready phase
+- code-reviewer-subagents skill: Compliance checks leftover placeholders (.deleteme.now)
+- coverage-ratchet skill: inlined the .NET dotnet test coverage-collection command
 ### Changed
-- Skill registry: added git-rebase and docker-rootless-podman-systemd entries, and credited git-rebasing.instructions.md, code-quality.instructions.md, packages.instructions.md, and docker-rootless-podman-systemd.instructions.md as sources for the skills that draw content from them
-- Skill registry: added long-running-commands, agent-routing, issue-plan-approval, and pr-review-loop entries crediting task-workflow.instructions.md and agent-roles.instructions.md as their sources
-- Reconcile-skills workflow now syncs .ai-instructions and ai/global from cs-template before reconciling, and runs daily instead of weekly
-- Skill registry: added git-rebasing.instructions.md as a source instruction file for the github-workflows skill, reflecting the version-conflict-resolution rule it inlines from that file
-- Skill registry: disambiguated the changelog and dependency-updater skills' source citation from the bare changelog.instructions.md filename (which two different files share) to ai/global/changelog.instructions.md, the file whose repo-agnostic skip rule they actually implement; added dotnet.instructions.md as a source for the coverage-ratchet skill, which inlines its test-project-identification definition
-- Added agent-roles.instructions.md to the coverage-ratchet skill's registry entry, reflecting the round-cap escalation rule it already draws from that file.
-- pre-work-healthcheck skill: added the missing Rules Compliance for In-Flight Work check, requiring open branches and PRs to be re-evaluated whenever an instruction file changes, extracted from task-workflow.instructions.md
-- git-rebase skill: added the missing CHANGELOG.md conflict-resolution rule (keep entries from both sides) from agent-roles.instructions.md's Rebase Agent section, and added that file as a registry source
-- dotnet-coverage skill: added the missing Setting Up a Test Support Library MSBuild property requirements, extracted from dotnet.instructions.md, needed alongside the existing test-project identification rules
-- Updated the ai/local/skills.instructions.md Skill Registry to add the four new skills and the git-rebase skill's additional agent-roles.instructions.md source
-- Regenerate credfeto-git-rebase skill to include the Rebase Agent role's build-break-escalation and non-algorithmic-conflict rules from agent-roles.instructions.md, which were missing
-- Add the missing Setting Up a Test Support Library, Identifying Test Projects, Source Generator Test Projects, and Compile-Time Configuration testing rules to the credfeto-dotnet-test-patterns skill
-- Add the all-projects-in-solution rule and the SolutionDir Directory.Build.props fallback fix to the credfeto-pre-work-healthcheck skill's .NET health check section
-- Add the Orchestrator's CHANGES_REQUESTED-PR-over-new-issue selection priority to the credfeto-github-issue skill
-- Regenerate the issue-plan-approval skill to add the missing rule that the approval gate applies only pre-PR and must never be re-derived from a PR's own workflow board card
-- Add the inline PR review comment posting procedure to the code-reviewer-subagents skill, closing a gap where escalated findings had no documented gh api mechanism
-- Correct the git-commit skill registry entry to list code-quality.instructions.md as a source, since its pre-commit test-writing rule is drawn from there
-- coverage-ratchet skill: documented that the COVERAGE.md excluded marker now also applies to a whole-repo test-infrastructure language (with a one-line rationale), not just Shell, matching coverage-ratchet.instructions.md's new Whole-Repo Test-Infrastructure Exclusion rule
-- pre-work-healthcheck skill: COVERAGE.md bootstrap step now documents that a whole-repo test-infrastructure language can also be recorded as excluded with a one-line rationale, not just Shell, matching coverage-ratchet.instructions.md's new rule
-- code-fixer skill: added the HEREDOC-body rule for multi-paragraph gh pr comment replies, so a reply is never built with escaped \n sequences that GitHub renders as literal backslash-n text, matching github-cli.instructions.md's Comment and Body Text rule
-- git-branch and git-rebase skills: corrected stale wording about coverage baseline rebase conflicts to match the current git-rebasing.instructions.md text, naming COVERAGE.md explicitly and describing it as generated content read live from origin/main
-- Updated pre-work-healthcheck skill (credfeto-pre-work-healthcheck) to mandate backgrounding and waiting out the pre-commit baseline check rather than assuming automatic turn resumption, extracted from a new mandatory paragraph in git.instructions.md's Pre-Work Baseline Check section added after a confirmed live incident of the check being repeatedly abandoned across sessions
-- Updated code-tester skill (credfeto-code-tester) to add the mandatory background/poll/30-minute-deadline procedure for running dotnet build and dotnet test, plus sandbox-caused false-timeout diagnosis for benchmark tests, which was missing despite task-workflow.instructions.md already being a listed source
-- Correct the skill registry source-file lists for long-running-commands (add claude-hooks.instructions.md) and dependency-selection (drop the unused git.instructions.md) so each entry accurately reflects its skill's actual content
-- pr-sync skill: cross-referenced the git-branch skill's abandoned-branch check, since the PR-based existing-work check alone does not catch it
+- Skill registry: added git-rebase and docker-rootless-podman-systemd entries; credited sources
+- Skill registry: added long-running-commands, agent-routing, plan-approval, pr-review-loop entries
+- Reconcile-skills syncs .ai-instructions and ai/global from cs-template first; runs daily
+- Skill registry: git-rebasing.instructions.md added as a source for the github-workflows skill
+- Skill registry: changelog sources disambiguated to ai/global; dotnet source for coverage-ratchet
+- Skill registry: agent-roles.instructions.md added to coverage-ratchet for the round-cap rule.
+- pre-work-healthcheck skill: Rules Compliance for In-Flight Work when instruction files change
+- git-rebase skill: CHANGELOG.md conflicts keep entries from both sides; source registered
+- dotnet-coverage skill: added Setting Up a Test Support Library MSBuild property requirements
+- Skill registry: added the four new skills and git-rebase's agent-roles source
+- credfeto-git-rebase skill: added Rebase Agent build-break and non-algorithmic conflict rules
+- credfeto-dotnet-test-patterns skill: test support library, test project and config testing rules
+- credfeto-pre-work-healthcheck skill: all-projects-in-solution rule; SolutionDir fallback fix
+- credfeto-github-issue skill: prefer CHANGES_REQUESTED PRs over new issues
+- issue-plan-approval skill: approval gate applies pre-PR only, never from a PR's board card
+- code-reviewer-subagents skill: added inline PR review comment posting procedure via gh api
+- Skill registry: git-commit lists code-quality.instructions.md as a source
+- coverage-ratchet skill: COVERAGE.md excluded marker also covers test-infrastructure languages
+- pre-work-healthcheck skill: COVERAGE.md bootstrap may exclude test-infrastructure languages
+- code-fixer skill: HEREDOC bodies for multi-paragraph replies, never escaped \n sequences
+- git-branch and git-rebase skills: COVERAGE.md rebase-conflict wording matches current source
+- credfeto-pre-work-healthcheck skill: background and wait out the pre-commit baseline check
+- credfeto-code-tester skill: background, poll and deadline for dotnet build/test; sandbox timeouts
+- Skill registry: corrected source lists for long-running-commands and dependency-selection
+- pr-sync skill: cross-references git-branch's abandoned-branch check
 - SDK - Updated DotNet SDK to 10.0.400
 
 ## [0.0.2] - 2026-07-16
 ### Added
-- New AI skills generated from previously uncaptured instruction content: secure-coding, error-handling, structured-logging, api-http-tests, gitignore-management, dependency-selection — registered in the skill registry
-- New docker skill (credfeto-docker) covering Docker/Podman runner detection, Dockerfile and Compose authoring conventions, and image security basics — extracted from docker.instructions.md, which no existing skill covered
+- New skills: secure-coding, error-handling, logging, api-http-tests, gitignore, dependency-selection
+- New credfeto-docker skill: runner detection, Dockerfile and Compose conventions, image security
 ### Fixed
-- dotnet-owned-packages skill: corrected GitHub repository URLs for Credfeto.Changelog.Cmd and FunFair.Test.* (had drifted from the source registry), and added the missing FunFair.CodeAnalysis and FunFair.Test.Infrastructure entries
-- pre-work-healthcheck skill: added the missing resume-branch fetch/check/rebase sequence, restored the auto-fix new-branch-and-issue separation, corrected the pre-commit invocation to the resolved hook binary, and fixed hooks-path resolution to check system/global/local scopes in order
-- secure-coding and api-http-tests skills: removed rules invented beyond their source instruction files (a package-version-conflict sentence not in security.instructions.md, and a .http-file-freshness sentence not in api.instructions.md)
-- dotnet-test-patterns skill: corrected FunFair.Test.Infrastructure guidance (it is a transitive dependency, not an explicit package reference), documented the MockBase<T> namespace migration, and added the missing parameterised-tests and test-quality rules from code-quality.instructions.md
-- git-commit skill: removed a GPG/git-identity verification section with no basis in any current instruction file, and restored the documented amend-before-push exception to the never-amend rule
-- git-branch skill: replaced unsourced rebase guidance with the actual Pre-Work Baseline Check fetch/check/rebase sequence from git.instructions.md
-- pr-sync skill: added the missing mandatory rule to check branch names in all open PRs for the issue number before creating a new branch
-- performance-benchmarking skill: added the missing FUNFAIR_TEST_BENCHMARK_BUILD_TIMEOUT_SECONDS environment variable guidance and the zero-or-explicit-byte-threshold qualifier for allocation assertions
-- firewall-rules and shell-scripts skills: removed a shebang-requirement sentence and a parenthetical example not present in shell.firewall.instructions.md or shell-scripts.instructions.md
-- pre-work-healthcheck skill: removed the unsourced claim that the pre-commit baseline check is skippable when .pre-commit-config.yaml is absent, which could wrongly let an agent skip a mandatory check
-- dotnet-test-patterns skill: added the missing ValueTask-preference and CancellationToken-propagation rules from dotnet.instructions.md so test helpers and mocks follow the same async conventions as production code
-- git-commit skill: restored the missing step to visit the repo's Dependabot page when handling vulnerability warnings, matching git.instructions.md
-- git-branch skill: added the missing resuming-interrupted-work branch-decision procedure from task-workflow.instructions.md and the CHANGELOG-conflict-resolution rule from agent-roles.instructions.md's Rebase Agent role
-- pr-sync skill: added the mandatory --repo/--head flags for gh pr create under GH_HOST proxy routing, and the Comment Replies, CI Checks, and Blocked Label procedures from agent-roles.instructions.md so every PR-interacting agent run follows them
-- github-issue skill: added the missing Blocked Label procedure, the ad-hoc issue-from-comment creation rule, the priority-based issue-selection preference, the Dependency Security Issues label definitions, and the mandatory Implementation Plan comment template — all present in task-workflow.instructions.md, git.instructions.md, and agent-roles.instructions.md but missing from the skill
-- performance-benchmarking skill: added the mandatory rule against running *.Benchmark.Tests projects manually via dotnet test or dotnet run, from dotnet.instructions.md
-- deprecation-handling skill: narrowed its trigger and scope to test output only, matching code-quality.instructions.md's Deprecation Warnings During Tests rule, which does not cover build-time warnings
+- dotnet-owned-packages skill: corrected repo URLs; added FunFair.CodeAnalysis and Test.Infrastructure
+- pre-work-healthcheck skill: resume-branch sequence, auto-fix separation, pre-commit and hooks-path
+- secure-coding and api-http-tests skills: removed rules invented beyond their sources
+- dotnet-test-patterns skill: Test.Infrastructure is transitive, MockBase<T> namespace, test rules
+- git-commit skill: removed unsourced GPG/identity section; restored amend-before-push exception
+- git-branch skill: unsourced rebase guidance replaced with the Pre-Work Baseline Check sequence
+- pr-sync skill: check open PR branch names for the issue number before creating a branch
+- performance-benchmarking skill: build timeout variable and allocation assertion threshold rules
+- firewall-rules and shell-scripts skills: removed unsourced shebang sentence and example
+- pre-work-healthcheck skill: removed unsourced claim that the baseline check can be skipped
+- dotnet-test-patterns skill: ValueTask and CancellationToken rules for test helpers and mocks
+- git-commit skill: restored step to visit the Dependabot page for vulnerability warnings
+- git-branch skill: resuming interrupted work procedure; CHANGELOG conflict resolution rule
+- pr-sync skill: --repo/--head for gh pr create via GH_HOST; replies, CI and Blocked procedures
+- github-issue skill: Blocked, ad-hoc issue, priority, security labels and plan template rules
+- performance-benchmarking skill: never run *.Benchmark.Tests manually via dotnet test or run
+- deprecation-handling skill: scope narrowed to test output only, per its source rule
 ### Changed
-- Skill registry: corrected source instruction file attributions for git-commit, pr-sync, github-issue, npm-packages, and performance-benchmarking to list every instruction file each skill actually draws content from, and added the new docker skill entry
-- Skill registry: added agent-roles.instructions.md as a source instruction file for the git-branch, pr-sync, and github-issue skills, reflecting the Blocked Label, comment-reply, CI-check, and rebase-conflict procedures now drawn from it
+- Skill registry: corrected source attributions for five skills; added the docker skill entry
+- Skill registry: agent-roles.instructions.md added as a source for git-branch, pr-sync, github-issue
 - SDK - Updated DotNet SDK to 10.0.302
 
 ## [0.0.1] - 2026-07-02
 ### Added
-- git.instructions: mandatory rule requiring verbatim command output in PR/issue comments before any diagnosis when a git command fails
-- AI skills for Claude Code (pre-work-healthcheck, changelog, dotnet-coverage, dotnet-publish, git-commit, git-branch, pr-sync, github-issue) generated from the global instruction files, with an installer that installs them into ~/.claude/skills as credfeto-<skill>
-- Local instruction defining how skills are generated from instruction files and kept up to date, including a skill registry
-- Weekly reconcile-skills workflow: runs Claude Code every Sunday to reconcile all skills against the current instruction files and pushes the result to main
-- New AI skills generated from previously uncaptured instruction content: github-workflows, shell-scripts, sql-schema-change, npm-packages, performance-benchmarking, firewall-rules, readme-documentation, dotnet-owned-packages, dotnet-test-patterns, deprecation-handling — registered in the skill registry
+- git.instructions: quote verbatim command output in PR/issue comments before diagnosing git failures
+- AI skills for Claude Code generated from global instruction files, with an installer
+- Local instruction defining how skills are generated and kept up to date, with a skill registry
+- Weekly reconcile-skills workflow: Claude Code reconciles skills every Sunday and pushes to main
+- New skills generated from uncaptured instruction content (ten skills), added to the registry
 ### Fixed
-- on_new_pr.yml: inline composite action logic to fix local action path resolution failure under pull_request_target
-- Corrected plan-approval description: board Approved status or comment-based fallback (no board) are the explicit approval signals; orchestrator never auto-removes Blocked
-- reconcile-skills workflow now uses the local dotnet-install and dotnet-tool composite actions (local tool manifest instead of a global install that was not reliably on PATH) and validates CHANGELOG.md with the changelog tool via dotnet-tool-run on every run
-- reconcile-skills workflow passes the nuget feed inputs to dotnet-install (matching pr-lint.yml) so the changelog tool can restore; previously the generated NuGet.Config had no sources and the tool install failed
-- git-commit skill: embedded git identity check script now rejects the same hard-coded wrong identity as git.examples.md — the skill had drifted out of sync with its source
+- on_new_pr.yml: inline composite action logic to fix local action paths under pull_request_target
+- Plan-approval description: board Approved or comment fallback; orchestrator never removes Blocked
+- reconcile-skills uses local dotnet-install and dotnet-tool actions and validates CHANGELOG.md
+- reconcile-skills passes NuGet feed inputs to dotnet-install so the changelog tool can restore
+- git-commit skill: identity check script rejects the same wrong identity as git.examples.md
 ### Changed
 - SDK - Updated DotNet SDK to 10.0.301
-- Changelog policy for this repository: every change, including AI instruction and skill changes, now requires a changelog entry
-- README rewritten to describe this repository (installable AI skills, installer, weekly reconciliation) instead of the cs-template boilerplate
-- reconcile-skills workflow commits via git-auto-commit-action using SOURCE_PUSH_TOKEN for checkout and push instead of hand-rolled git steps with GITHUB_TOKEN
+- Changelog policy: every change, including AI instruction and skill changes, needs an entry
+- README describes this repository (skills, installer, weekly reconciliation), not boilerplate
+- reconcile-skills commits via git-auto-commit-action with SOURCE_PUSH_TOKEN, not hand-rolled steps
 
 ## [0.0.0] - Project created
