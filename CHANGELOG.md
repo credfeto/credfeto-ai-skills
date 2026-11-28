@@ -233,6 +233,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - dotnet-analyzer-conflicts skill: ask in chat first for unlisted diagnostic pairs
 - pr-review-loop skill: single-project coverage run behaviour and sections Code Writer writes
 - code-reviewer-subagents and code-writer skills: wait for background commands before handing back
+- Qualify dotnet changelog as MCP fallback in long-running-commands skill
 ### Deprecated
 ### Removed
 - Removed unsourced rebase-from-main file preference sentence from the git-rebase skill
